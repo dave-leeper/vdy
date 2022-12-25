@@ -32,24 +32,26 @@
                 <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
                     <include-props class="display-none">
                         { 
-                            "imageURL": "{imageURL}",
-                            "firstName": "{firstName}",
-                            "lastName": "{lastName}",
-                            "city": "{city}",
-                            "state": "{state}",
-                            "date": "{date}"
+                            imageURL: "{imageURL}",
+                            firstName: "{firstName}",
+                            lastName: "{lastName}",
+                            city: "{city}",
+                            state: "{state}",
+                            date: "{date}"
                         }          
                     </include-props>
                 </include-html>
             </div>
             <section id="{componentObjectId}-review-body" class="flex-col w100">
                 <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
-                    <include-props class="display-none">{ "editable": false }</include-props>
-                    <include-vars class="display-none">{ "rating": {rating} }</include-vars>
+                    <include-props class="display-none">{ editable: false }</include-props>
+                    <include-vars class="display-none">{ rating: {rating} }</include-vars>
                 </include-html>
-                <div id="{componentObjectId}-review" class="whitespace-pre-wrap overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2">{review}</div>
+                <include-html include-in="review.html" src="./html/components/reviews/show-more-text.html" component-class="ShowMoreText" component-id="{componentObjectId}-review">
+                    <include-vars class="display-none">{ text: `{review}` }</include-vars>
+                </include-html>
                 <include-html include-in="review.html" src="./html/components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}-ufc">
-                    <include-vars class="display-none">{ "usefulCount": {usefulCount}, "funnyCount": {funnyCount}, "coolCount": {coolCount} }</include-vars>
+                    <include-vars class="display-none">{ usefulCount: {usefulCount}, funnyCount: {funnyCount}, coolCount: {coolCount} }</include-vars>
                 </include-html>
             </section>
         </article>

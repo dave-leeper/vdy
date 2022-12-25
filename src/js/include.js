@@ -155,7 +155,8 @@ class VanillaComponentLifecycle {
             const matches = -1 !== node.nodeValue.indexOf(formattedMember)
             if (originalMatches || matches) {
                 let value = (matches)? node.nodeValue : node.originalNodeValue
-                node.nodeValue = value.replaceAll(formattedMember, data[member])
+                let memberData = data[member].toString()
+                node.nodeValue = value.replaceAll(formattedMember, memberData)
             }
         }
         for (let child of node.childNodes) {
@@ -170,7 +171,8 @@ class VanillaComponentLifecycle {
                 const matches = -1 !== attr.value.indexOf(`{${member}}`)
                 if (originalMatches || matches) {
                     let value = (matches)? attr.value : attr.originalAttributeValue
-                    attr.value = value.replaceAll(`{${member}}`, data[member])
+                    let memberData = data[member].toString()
+                    attr.value = value.replaceAll(`{${member}}`, memberData)
                 }
             }
         }
@@ -355,7 +357,8 @@ class VanillaComponentLifecycle {
                 return false 
             }
             
-            let propsObject = JSON.parse(propsElements[0].innerText)
+            let jsonText = `(` + propsElements[0].innerText + `)`
+            let propsObject = eval(jsonText)
 
             componentObject.props = {...componentObject.props, ...propsObject}
         }
@@ -365,7 +368,8 @@ class VanillaComponentLifecycle {
                 return false 
             }
 
-            let varsObject = JSON.parse(varsElements[0].innerText)
+            let jsonText = `(` + varsElements[0].innerText + `)`
+            let varsObject = eval(jsonText)
 
             componentObject.vars = {...componentObject.vars, ...varsObject}
         }
@@ -776,7 +780,7 @@ class Loader {
     }
     static registerCustomTags = function () {
         customElements.define('vanilla-component', class VanillaComponentElement extends HTMLElement { }, { })
-        customElements.define('test-script', class TestScriptElement extends HTMLElement { }, {  })
+        customElements.define('test-script', class TestScriptElement extends HTMLElement { }, { })
         customElements.define('component-markup', class ComponentMarkupElement extends HTMLElement { }, { })
         customElements.define('include-html', class IncludeHTMLElement extends HTMLElement { }, { })
         customElements.define('include-props', class IncludePropsElement extends HTMLElement { }, { })

@@ -199,6 +199,8 @@
   .whitespace-pre-wrap {white-space: pre-wrap;}
   .hyphens {hyphens : auto;}                    .hyphens-none {hyphens : none;}               .hyphens-manual {hyphens : manual;}
 
+  .underline {text-decoration: underline;}
+
   .center-img {
     display: block;
     margin-left: auto;
@@ -210,6 +212,8 @@
     height: 100%;
     object-fit:cover; 
   }
+
+  .top100 { top: 100%;}
 
   .opacity-0 {opacity: 0.0;}      .opacity-5 {opacity: 0.05;}     .opacity-10 {opacity: 0.1;}     .opacity-15 {opacity: 0.15;}
   .opacity-20 {opacity: 0.2;}     .opacity-25 {opacity: 0.25;}    .opacity-30 {opacity: 0.3;}     .opacity-35 {opacity: 0.35;}
@@ -270,16 +274,16 @@
   .h150px {height: 150px;}  .h160px {height: 160px;}  .h180px {height: 180px;}  .h200px {height: 200px;}
   .h250px {height: 250px;}  .h300px {height: 300px;}  .h350px {height: 350px;}  .h400px {height: 400px;}
   .h450px {height: 450px;}  .h500px {height: 500px;}
-  .h0-5em {width: 0.5em}    .h1-0em {width: 1.0em}    .h1-5em {width: 1.5em}    .h2-0em {width: 2.0em}
-  .h2-5em {width: 2.5em}    .h3-0em {width: 3.0em}    .h3-5em {width: 3.5em}    .h4-0em {width: 4.0em}
-  .h4-5em {width: 4.5em}    .h5-0em {width: 5.0em}    .h5-5em {width: 5.5em}    .h6-0em {width: 6.0em}
-  .h6-5em {width: 6.5em}    .h7-0em {width: 7.0em}    .h7-5em {width: 7.5em}    .h8-0em {width: 8.0em}
-  .h8-5em {width: 8.5em}    .h9-0em {width: 9.0em}    .h9-5em {width: 9.5em}    .h10-0em {width: 10.0em}
-  .h0-5rem {width: 0.5rem}  .h1-0rem {width: 1.0rem}  .h1-5rem {width: 1.5rem}  .h2-0rem {width: 2.0rem}
-  .h2-5rem {width: 2.5rem}  .h3-0rem {width: 3.0rem}  .h3-5rem {width: 3.5rem}  .h4-0rem {width: 4.0rem}
-  .h4-5rem {width: 4.5rem}  .h5-0rem {width: 5.0rem}  .h5-5rem {width: 5.5rem}  .h6-0rem {width: 6.0rem}
-  .h6-5rem {width: 6.5rem}  .h7-0rem {width: 7.0rem}  .h7-5rem {width: 7.5rem}  .h8-0rem {width: 8.0rem}
-  .h8-5rem {width: 8.5rem}  .h9-0rem {width: 9.0rem}  .h9-5rem {width: 9.5rem}  .h10-0rem {width: 10.0rem}
+  .h0-5em {height: 0.5em}   .h1-0em {height: 1.0em}   .h1-5em {height: 1.5em}   .h2-0em {height: 2.0em}
+  .h2-5em {height: 2.5em}   .h3-0em {height: 3.0em}   .h3-5em {height: 3.5em}   .h4-0em {height: 4.0em}
+  .h4-5em {height: 4.5em}   .h5-0em {height: 5.0em}   .h5-5em {height: 5.5em}   .h6-0em {height: 6.0em}
+  .h6-5em {height: 6.5em}   .h7-0em {height: 7.0em}   .h7-5em {height: 7.5em}   .h8-0em {height: 8.0em}
+  .h8-5em {height: 8.5em}   .h9-0em {height: 9.0em}   .h9-5em {height: 9.5em}   .h10-0em {height: 10.0em}
+  .h0-5rem {height: 0.5rem} .h1-0rem {height: 1.0rem} .h1-5rem {height: 1.5rem} .h2-0rem {height: 2.0rem}
+  .h2-5rem {height: 2.5rem} .h3-0rem {height: 3.0rem} .h3-5rem {height: 3.5rem} .h4-0rem {height: 4.0rem}
+  .h4-5rem {height: 4.5rem} .h5-0rem {height: 5.0rem} .h5-5rem {height: 5.5rem} .h6-0rem {height: 6.0rem}
+  .h6-5rem {height: 6.5rem} .h7-0rem {height: 7.0rem} .h7-5rem {height: 7.5rem} .h8-0rem {height: 8.0rem}
+  .h8-5rem {height: 8.5rem} .h9-0rem {height: 9.0rem} .h9-5rem {height: 9.5rem} .h10-0rem {height: 10.0rem}
 
   .pad-1 {padding: 1px;}    .pad-2 {padding: 2px;}    .pad-3 {padding: 3px;}    .pad-4 {padding: 4px;}
   .pad-5 {padding: 5px;}    .pad-6 {padding: 6px;}    .pad-7 {padding: 7px;}    .pad-8 {padding: 8px;}

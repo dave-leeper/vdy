@@ -18,8 +18,11 @@
       function setCSSDefaults() {
         const r = document.querySelector(':root')
         var rs = getComputedStyle(r);
-        const purple6 = rs.getPropertyValue('--purple-6')
-        r.style.setProperty('--primary-text-color', purple6);
+        const blue50 = rs.getPropertyValue('--blue-50')
+        const black = rs.getPropertyValue('--black')
+        r.style.setProperty('--button-color', black);
+        r.style.setProperty('--button-background-color', blue50);
+        r.style.setProperty('--button-border-color', blue50);
       }
       setCSSDefaults()
     </script>
@@ -30,7 +33,7 @@
     </div>
     <div class="w33">
       <include-html include-in="vdy.html" src="./html/components/reviews/review.html" component-class="Review" component-id="Review">
-        <include-props>
+        <include-props class="display-none">
           {       
             "imageURL": "https://s3-media0.fl.yelpcdn.com/photo/47aMH3JCwb6mhV8Yaxti0g/60s.jpg",
             "firstName": "Paul",
@@ -47,7 +50,7 @@
         </include-props>
       </include-html>
       <include-html include-in="vdy.html" src="./html/components/reviews/reply.html" component-class="Reply" component-id="Reply">
-        <include-props>
+        <include-props class="display-none">
           {       
             "imageURL": "https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg",
             "firstName": "Vincent",

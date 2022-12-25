@@ -24,12 +24,12 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="flex-row">
-            <div id="{componentObjectId}-avatar" class="margin-2">
+            <div id="{componentObjectId}-avatar" class="margin-l-2">
                 <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}-avatar">
-                    <include-props>{ "imageURL": "{imageURL}" }</include-props>
+                    <include-props class="display-none">{ "imageURL": "{imageURL}" }</include-props>
                 </include-html>
             </div>
-            <div class="flex-col margin-2">
+            <div class="flex-col margin-l-2">
                 <div class="subtitle-2">{firstName} {lastName}</div>
                 <div>{city}, {state}</div>
                 <div>{date}</div>

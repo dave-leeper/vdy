@@ -26,17 +26,17 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="flex-row">
-            <div id="{componentObjectId}-useful" class="flex-row round-5px border-1 border-black border-solid pad-3 margin-2 cursor-pointer caption-2" onclick="$obj.incrimentUseful()">
+            <div id="{componentObjectId}-useful" class="button" onclick="$obj.incrimentUseful()">
                 <div id="{componentObjectId}-useful-icon" class="margin-1">💡</div> 
                 <div id="{componentObjectId}-useful-text" class="margin-1">Useful</div> 
                 <div id="{componentObjectId}-useful-count" class="margin-1">{usefulCount}</div> 
             </div>
-            <div id="{componentObjectId}-funny" class="flex-row round-5px border-1 border-black border-solid pad-3 margin-2 cursor-pointer caption-2" onclick="$obj.incrimentFunny()">
+            <div id="{componentObjectId}-funny" class="button" onclick="$obj.incrimentFunny()">
                 <div id="{componentObjectId}-funny-icon" class="margin-1">😀</div> 
                 <div id="{componentObjectId}-funny-text" class="margin-1">Funny</div> 
                 <div id="{componentObjectId}-funny-count" class="margin-1">{funnyCount}</div> 
             </div>
-            <div id="{componentObjectId}-cool" class="flex-row round-5px border-1 border-black border-solid pad-3 margin-2 cursor-pointer caption-2" onclick="$obj.incrimentCool()">
+            <div id="{componentObjectId}-cool" class="button" onclick="$obj.incrimentCool()">
                 <div id="{componentObjectId}-funny-icon" class="margin-1">😎</div> 
                 <div id="{componentObjectId}-funny-text" class="margin-1">Cool</div> 
                 <div id="{componentObjectId}-funny-count" class="margin-1">{coolCount}</div> 

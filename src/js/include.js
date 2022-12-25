@@ -630,13 +630,6 @@ class Vanilla {
     }
 }
 
-class VanillaComponentElement extends HTMLElement {}
-class TestScriptElement extends HTMLElement {}
-class ComponentMarkupElement extends HTMLElement {}
-class IncludeHTMLElement extends HTMLElement {}
-class IncludePropsElement extends HTMLElement {}
-class IncludeVarsElement extends HTMLElement {}
-
 class Loader {
     static includeTree = new IncludeTree()
     static get tree() { return Loader.includeTree }
@@ -782,12 +775,12 @@ class Loader {
         await Loader.loadIncludes()
     }
     static registerCustomTags = function () {
-        customElements.define('vanilla-component', VanillaComponentElement, {  });
-        customElements.define('test-script', TestScriptElement, {  });
-        customElements.define('component-markup', ComponentMarkupElement, {  });
-        customElements.define('include-html', IncludeHTMLElement, {  });
-        customElements.define('include-props', IncludePropsElement, {  });
-        customElements.define('include-vars', IncludeVarsElement, {  });
+        customElements.define('vanilla-component', class VanillaComponentElement extends HTMLElement { }, { })
+        customElements.define('test-script', class TestScriptElement extends HTMLElement { }, {  })
+        customElements.define('component-markup', class ComponentMarkupElement extends HTMLElement { }, { })
+        customElements.define('include-html', class IncludeHTMLElement extends HTMLElement { }, { })
+        customElements.define('include-props', class IncludePropsElement extends HTMLElement { }, { })
+        customElements.define('include-vars', class IncludeVarsElement extends HTMLElement { }, { })
     }
 }
 

@@ -22,5 +22,8 @@ module.exports = {
 	surrealDBQuery: async function (connection, query, options) {
 		let data = await connection.query(query, options)
 		return data
+	},
+	surrealDBDelete: async function (connection, thing) {
+		await connection.delete(thing)
 	}
 }

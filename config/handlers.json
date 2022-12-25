@@ -1,0 +1,28 @@
+
+
+{
+    "testResponse": [
+        {
+            "name": "Ping server.",
+            "verb": "GET",
+            "path": "/ping",
+            "handler": "text.js",
+            "log": "NONE",
+            "args": {
+                "text": "The server is running."
+            }
+        }
+    ],
+    "fileLoaders": [
+        {
+            "name": "Load Index file.",
+            "verb": "GET",
+            "path": "/index",
+            "handler": "file.js",
+            "log": "NONE",
+            "args": {
+                "file": "index.html"
+            }
+        }
+    ]
+}

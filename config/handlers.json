@@ -24,5 +24,17 @@
                 "file": "./html/index.html"
             }
         }
+    ],
+    "database": [
+        {
+            "name": "Get reviews.",
+            "verb": "GET",
+            "path": "/reviews",
+            "handler": "db-select.js",
+            "log": "NONE",
+            "args": {
+                "table": "review"
+            }
+        }
     ]
 }

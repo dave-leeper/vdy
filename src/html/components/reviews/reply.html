@@ -1,0 +1,44 @@
+<vanilla-component>
+    <script>
+        class Reply{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            props = {
+                componentObjectId: "",
+                imageURL: "",
+                firstName: "",
+                lastName: "",
+                title: "",
+                reply: "Thanks",
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <article id="{componentObjectId}" class="flex-col shadow-white round-15px pad-5 margin-t-10 margin-l-20 bg-blue-50">
+            <div>
+                <include-html include-in="reply.html" src="./html/components/reviews/reply-header.html" component-class="ReplyHeader" component-id="{componentObjectId}-reply-header">
+                    <include-props>
+                        { 
+                            "imageURL": "{imageURL}",
+                            "firstName": "{firstName}",
+                            "lastName": "{lastName}",
+                            "title": "{title}",
+                            "date": "{date}"
+                        }          
+                    </include-props>
+                </include-html>
+            </div>
+            <section id="{componentObjectId}-reply-body" class="flex-col w100">
+                <div id="{componentObjectId}-reply" class="whitespace overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2">{reply}</div>
+            </section>
+        </article>
+    </component-markup>
+</vanilla-component>

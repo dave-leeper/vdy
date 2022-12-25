@@ -1,5 +1,3 @@
-
-
 module.exports = {
 	surrealDBSignIn: async function (connection, user, pass) {
 		await connection.signin({ user, pass, })

@@ -1,19 +1,10 @@
+// ONLY USED ONCE TO SET UP A FREASH DATABASE. KEEP AROUND JUST IN CASE IT'S EVER NEEDED AGAIN.
 module.exports = {
   database: async function() {
     const Surreal = require(`surrealdb.js`)
-    // 
-    const db = new Surreal.default(`wss://vdydb.fly.dev/rpc`);
-    // const db = new Surreal.default(`http://127.0.0.1:8000/rpc`);
-    const {surrealDBSignIn, surrealDBUse, surrealDBCreate, surrealDBChange, surrealDBSelect, surrealDBQuery, surrealDBDelete} = require(`./handlers/surrealdb`)
-    const person = {
-      title: `Founder & CEO`,
-      name: {
-        first: `Tobie`,
-        last: `Morgan Hitchcock`,
-      },
-      marketing: true,
-      identifier: Math.random().toString(36).substr(2, 10),
-    }
+    const db = new Surreal.default(`wss://vdydb.fly.dev/rpc`)
+    // const db = new Surreal.default(`http://127.0.0.1:8000/rpc`)
+    const {surrealDBSignIn, surrealDBUse, surrealDBCreate, surrealDBChange, surrealDBSelect, surrealDBQuery, surrealDBDelete} = require(`./database/surrealdb`)
   
     try {
       // Signin as a namespace, database, or root user
@@ -426,6 +417,15 @@ module.exports = {
 
 
       /*
+      const person = {
+        title: `Founder & CEO`,
+        name: {
+          first: `Tobie`,
+          last: `Morgan Hitchcock`,
+        },
+        marketing: true,
+        identifier: Math.random().toString(36).substr(2, 10),
+      }
       const created = await surrealDBCreate(db, `person`, person)
       const updated = await surrealDBChange(db, `person:jaime`, { marketing: true, })
       const people = await surrealDBSelect(db, `person`);

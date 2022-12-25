@@ -1,0 +1,37 @@
+<vanilla-component>
+    <script>
+        class ReplyHeader{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            props = {
+                componentObjectId: "",
+                imageURL: "",
+                firstName: "",
+                lastName: "",
+                title: "",
+                date: ""
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="flex-row">
+            <div id="{componentObjectId}-avatar" class="margin-2">
+                <include-html include-in="reply-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}-avatar">
+                    <include-props>{ "imageURL": "{imageURL}" }</include-props>
+                </include-html>
+            </div>
+            <div class="flex-col margin-2">
+                <div class="subtitle-2">{firstName} {lastName}</div>
+                <div>{date}</div>
+            </div>
+        </div>
+    </component-markup>
+</vanilla-component>

@@ -1,0 +1,56 @@
+<vanilla-component>
+    <script>
+        class Stars{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { 
+                this.star1 = document.getElementById(`${this.props.componentObjectId}-star-1`)
+                this.star2 = document.getElementById(`${this.props.componentObjectId}-star-2`)
+                this.star3 = document.getElementById(`${this.props.componentObjectId}-star-3`)
+                this.star4 = document.getElementById(`${this.props.componentObjectId}-star-4`)
+                this.star5 = document.getElementById(`${this.props.componentObjectId}-star-5`)
+                this.setStars(this.vars.rating)
+            }
+            beforeUnmount() { }
+            afterUnmount() { }
+            setStars(rating) {
+                if (1 === this.vars.rating && 1 === rating) {
+                    this.vars.rating = 0
+                } else {
+                    this.vars.rating = rating
+                }
+
+                this.star1.innerText = (0 < this.vars.rating)? `★` : `☆`
+                this.star2.innerText = (1 < this.vars.rating)? `★` : `☆`
+                this.star3.innerText = (2 < this.vars.rating)? `★` : `☆`
+                this.star4.innerText = (3 < this.vars.rating)? `★` : `☆`
+                this.star5.innerText = (4 < this.vars.rating)? `★` : `☆`
+            }
+            editStars(rating) {
+                if (!this.editable) { return }
+                this.setStars(rating)
+            }
+            props = {
+                componentObjectId: "",
+                editable: true,
+            }
+            vars = {
+                rating: 0,
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="flex-row">
+            <div id="{componentObjectId}-star-1" class="cursor-pointer red-f margin-1 header-6" onclick="$obj.editStars(1)">☆</div>
+            <div id="{componentObjectId}-star-2" class="cursor-pointer red-f margin-1 header-6" onclick="$obj.editStars(2)">☆</div>
+            <div id="{componentObjectId}-star-3" class="cursor-pointer red-f margin-1 header-6" onclick="$obj.editStars(3)">☆</div>
+            <div id="{componentObjectId}-star-4" class="cursor-pointer red-f margin-1 header-6" onclick="$obj.editStars(4)">☆</div>
+            <div id="{componentObjectId}-star-5" class="cursor-pointer red-f margin-1 header-6" onclick="$obj.editStars(5)">☆</div>
+        </div>
+    </component-markup>
+</vanilla-component>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vanilla HTML framework reference">
+    <meta name="keywords" content="HTML, CSS, JavaScript, Vanilla">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <title>Vince Drives You</title>
+    <script src="./js/include.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+      function setCSSDefaults() {
+        const r = document.querySelector(':root')
+        var rs = getComputedStyle(r);
+        const purple6 = rs.getPropertyValue('--purple-6')
+        r.style.setProperty('--primary-text-color', purple6);
+      }
+      setCSSDefaults()
+    </script>
+  </head>
+  <body class="margin-5 bg-grey-e">
+    <div class="h300px margin-b-50">
+      <include-html include-in="vdy.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
+    </div>
+    <div class="w33">
+      <include-html include-in="vdy.html" src="./html/components/reviews/review.html" component-class="Review" component-id="Review">
+        <include-props>
+          {       
+            "imageURL": "https://s3-media0.fl.yelpcdn.com/photo/47aMH3JCwb6mhV8Yaxti0g/60s.jpg",
+            "firstName": "Paul",
+            "lastName": "F",
+            "city": "San Jose",
+            "state": "CA",
+            "date": "11/24/2022",
+            "rating": 5,
+            "review": "I needed a car service for for a busy weekend trip to and from Phoenix airport.  Living in North Phoenix that's a 30-40min drive with basic traffic.  I opted with Vince based on his quick communication, rating and price; glad I did! \n\nLikes:\nSafe driving \nCommunication (I had to change schedule a few days out) Keep in mind he drives and text or calls maybe delayed as driving and with customers) \nClean SUV \nTalkative and super friendly \nCompetitive rate \nTakes cash, Zelle and PayPal. \nSmall business owned (it's him and one other driver at this time) \n\nDislikes:\nNone. \n\nPro tip:\nAsk Vince about his 3 week cross country motorcycle trip from 2 years ago!  ;)",
+            "usefulCount": 1,
+            "funnyCount": 0,
+            "coolCount": 1
+          }
+        </include-props>
+      </include-html>
+      <include-html include-in="vdy.html" src="./html/components/reviews/reply.html" component-class="Reply" component-id="Reply">
+        <include-props>
+          {       
+            "imageURL": "https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg",
+            "firstName": "Vincent",
+            "lastName": "S",
+            "title": "Business Owner",
+            "date": "11/24/2022",
+            "reply": "Thanks so much for the compliments, there is one slight correction, I accept all major credit cards, Zelle and cash. PayPal proved to be to much of a problem. \n\nHave a great trip and we’ll see you when you get back."
+          }
+        </include-props>
+      </include-html>
+    </div>
+  </body>
+</html>

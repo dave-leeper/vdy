@@ -1,0 +1,57 @@
+<vanilla-component>
+    <script>
+        class Review{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            props = {
+                componentObjectId: "",
+                imageURL: "",
+                firstName: "",
+                lastName: "",
+                city: "",
+                state: "",
+                starCount: 0,
+                review: "Review Text",
+                usefulCount: 0,
+                funnyCount: 0,
+                coolCount: 0,
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <article id="{componentObjectId}" class="flex-col bg-white shadow-white round-15px pad-5">
+            <div>
+                <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
+                    <include-props>
+                        { 
+                            "imageURL": "{imageURL}",
+                            "firstName": "{firstName}",
+                            "lastName": "{lastName}",
+                            "city": "{city}",
+                            "state": "{state}",
+                            "date": "{date}"
+                        }          
+                    </include-props>
+                </include-html>
+            </div>
+            <section id="{componentObjectId}-review-body" class="flex-col w100">
+                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+                    <include-props>{ "editable": false }</include-props>
+                    <include-vars>{ "rating": {rating} }</include-vars>
+                </include-html>
+                <div id="{componentObjectId}-review" class="whitespace overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2">{review}</div>
+                <include-html include-in="review.html" src="./html/components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}-ufc">
+                    <include-vars>{ "usefulCount": {usefulCount}, "funnyCount": {funnyCount}, "coolCount": {coolCount} }</include-vars>
+                </include-html>
+            </section>
+        </article>
+    </component-markup>
+</vanilla-component>

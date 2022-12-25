@@ -21,7 +21,7 @@
             "handler": "file.js",
             "log": "NONE",
             "args": {
-                "file": "index.html"
+                "file": "./html/index.html"
             }
         }
     ]

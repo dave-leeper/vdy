@@ -1,0 +1,28 @@
+<vanilla-component>
+    <script>
+        class Avatar{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            click() {
+                alert(this.props.url)
+            }
+            props = {
+                componentObjectId: "",
+                imageURL: `./images/vince.jpg`,
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="round-50 overflow-hidden center-text border-solid border-1 border-black w45px h45px">
+            <img id="{componentObjectId}-img" src="{imageURL}" width="45" onclick="$obj.click()">
+        </div>
+    </component-markup>
+</vanilla-component>

@@ -5,6 +5,9 @@ module.exports = {
 	surrealDBUse: async function (connection, namespace, database) {
 		await connection.use(namespace, database)
 	},
+	surrealDBClose: async function (connection) {
+		await connection.close()
+	},
 	surrealDBCreate: async function (connection, thing, data) {
 		let created = await connection.create(thing, data)
 		return created

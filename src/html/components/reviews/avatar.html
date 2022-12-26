@@ -7,12 +7,9 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
-            click() {
-                alert(this.props.url)
-            }
             props = {
                 componentObjectId: ``,
-                imageURL: `./images/vince.jpg`,
+                imageURL: ``,
             }
         }
     </script>
@@ -22,7 +19,7 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="round-50 overflow-hidden center-text border-solid border-1 border-black w45px h45px">
-            <img id="{componentObjectId}-img" src="{imageURL}" width="45" onclick="$obj.click()">
+            <img id="{componentObjectId}-img" src="{imageURL}" width="45">
         </div>
     </component-markup>
 </vanilla-component>

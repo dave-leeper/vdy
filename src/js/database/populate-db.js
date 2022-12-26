@@ -1,16 +1,18 @@
 // ONLY USED ONCE TO SET UP A FREASH DATABASE. KEEP AROUND JUST IN CASE IT'S EVER NEEDED AGAIN.
 module.exports = {
-  database: async function() {
+  populateDatabase: async function() {
     const Surreal = require(`surrealdb.js`)
-    const db = new Surreal.default(`wss://vdydb.fly.dev/rpc`)
-    // const db = new Surreal.default(`http://127.0.0.1:8000/rpc`)
-    const {surrealDBSignIn, surrealDBUse, surrealDBCreate, surrealDBChange, surrealDBSelect, surrealDBQuery, surrealDBDelete} = require(`./database/surrealdb`)
-  
-    try {
-      // Signin as a namespace, database, or root user
-      await surrealDBSignIn(db, `root`, `root`)
-      await surrealDBUse(db, `test`, `test`)
+    const {surrealDBSignIn, surrealDBUse, surrealDBCreate, surrealDBChange, surrealDBSelect, surrealDBQuery, surrealDBDelete} = require(`./surrealdb`)
+    const Registry = require(`../registry`)
 
+    let db = Registry.get(`SurrealDBConnection`)
+    
+    if (!db) {
+      console.log(`No SurrealDB connection found in register.`)
+      return
+    }
+
+    try {
       await surrealDBDelete(db, `review`)
       await surrealDBCreate(db, `review:19`, {
         name: {
@@ -39,7 +41,7 @@ module.exports = {
         usefulCount: 1,
         funnyCount: 0,
         coolCount: 1,
-        review: `I needed a car service for for a busy weekend trip to and from Phoenix airport.  Living in North Phoenix that's a 30-40min drive with basic traffic.  I opted with Vince based on his quick communication, rating and price; glad I did! \n\nLikes:\nSafe driving \nCommunication (I had to change schedule a few days out) Keep in mind he drives and text or calls maybe delayed as driving and with customers) \nClean SUV \nTalkative and super friendly \nCompetitive rate \nTakes cash, Zelle and PayPal. \nSmall business owned (it's him and one other driver at this time) \n\nDislikes:\nNone. \n\nPro tip:\nAsk Vince about his 3 week cross country motorcycle trip from 2 years ago!  ;)`
+        review: `I needed a car service for for a busy weekend trip to and from Phoenix airport.  Living in North Phoenix that's a 30-40min drive with basic traffic.  I opted with Vince based on his quick communication, rating and price; glad I did! \\n\\nLikes:\\nSafe driving \\nCommunication (I had to change schedule a few days out) Keep in mind he drives and text or calls maybe delayed as driving and with customers) \\nClean SUV \\nTalkative and super friendly \\nCompetitive rate \\nTakes cash, Zelle and PayPal. \\nSmall business owned (it's him and one other driver at this time) \\n\\nDislikes:\\nNone. \\n\\nPro tip:\\nAsk Vince about his 3 week cross country motorcycle trip from 2 years ago!  ;)`
       })
       await surrealDBCreate(db, `review:17`, {
         name: {
@@ -69,7 +71,7 @@ module.exports = {
         usefulCount: 0,
         funnyCount: 0,
         coolCount: 0,
-        review: `We hired Vince to pick us up at home to airport.. and then a month later to collect us at the airport and take us home. \n\nNot only did he arrive right on time for our VERY early pick up to the airport, but a month later, when we had schedule changes to get home, he was super accommodating and made sure we were picked up on time. \n\nWe will definitely use this service again.`
+        review: `We hired Vince to pick us up at home to airport.. and then a month later to collect us at the airport and take us home. \\n\\nNot only did he arrive right on time for our VERY early pick up to the airport, but a month later, when we had schedule changes to get home, he was super accommodating and made sure we were picked up on time. \\n\\nWe will definitely use this service again.`
       })
       await surrealDBCreate(db, `review:15`, {
         name: {
@@ -230,7 +232,7 @@ module.exports = {
         usefulCount: 0,
         funnyCount: 0,
         coolCount: 0,
-        review: `I contacted Vince in the afternoon for a ride the next day at 9AM for my elderly father who got stranded in Casa Grande. My dad was picked up early and was treated with so much care after a stressful situation. I highly recommend Vince for any and all trips you may need a car service for. \nThank you Vince - The Edelstein's`
+        review: `I contacted Vince in the afternoon for a ride the next day at 9AM for my elderly father who got stranded in Casa Grande. My dad was picked up early and was treated with so much care after a stressful situation. I highly recommend Vince for any and all trips you may need a car service for. \\nThank you Vince - The Edelstein's`
       })
       await surrealDBCreate(db, `review:4`, {
         name: {
@@ -244,7 +246,7 @@ module.exports = {
         usefulCount: 0,
         funnyCount: 0,
         coolCount: 0,
-        review: `Setting up our scheduled shuttle ahead of time was very straightforward. When we arrived at Sky Harbor, I received a text from Vince, "I see that your flight arrived early. I will be at our designated pickup location early at......."  We walked our with our luggage and right into our ride to our AZ home in the west valley.  Friendly, efficient and reliable at a very reasonable rate.  We will hope to use Vince\`s service again and will recommend him to our friends and neighbors as well.`
+        review: `Setting up our scheduled shuttle ahead of time was very straightforward. When we arrived at Sky Harbor, I received a text from Vince, "I see that your flight arrived early. I will be at our designated pickup location early at......."  We walked our with our luggage and right into our ride to our AZ home in the west valley.  Friendly, efficient and reliable at a very reasonable rate.  We will hope to use Vince's service again and will recommend him to our friends and neighbors as well.`
       })
       await surrealDBCreate(db, `review:3`, {
         name: {
@@ -297,7 +299,7 @@ module.exports = {
         },
         date: `11/24/2022`,
         title: `Business Owner`,
-        reply: `Thanks so much for the compliments, there is one slight correction, I accept all major credit cards, Zelle and cash. PayPal proved to be to much of a problem. \n\nHave a great trip and we’ll see you when you get back.`
+        reply: `Thanks so much for the compliments, there is one slight correction, I accept all major credit cards, Zelle and cash. PayPal proved to be to much of a problem. \\n\\nHave a great trip and we’ll see you when you get back.`
       })
 
       await surrealDBCreate(db, `review:21`, {
@@ -309,7 +311,7 @@ module.exports = {
         },
         date: `12/21/2022`,
         title: `Business Owner`,
-        reply: `Thanks Doug, we strive to provide the best service at a reasonable price. I appreciate your business and look forward to working with you again. \n\nVince`
+        reply: `Thanks Doug, we strive to provide the best service at a reasonable price. I appreciate your business and look forward to working with you again. \\n\\nVince`
       })
       await surrealDBCreate(db, `review:22`, {
         replyingTo: 17,
@@ -364,7 +366,7 @@ module.exports = {
         },
         date: `11/26/2022`,
         title: `Business Owner`,
-        reply: `Thank you Susan, I strive to give this level of service to everyone that I help. Brenda and I really appreciate your review and look forward to working with you again. \n\nVince`
+        reply: `Thank you Susan, I strive to give this level of service to everyone that I help. Brenda and I really appreciate your review and look forward to working with you again. \\n\\nVince`
       })
       await surrealDBCreate(db, `review:27`, {
         replyingTo: 8,

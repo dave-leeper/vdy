@@ -8,14 +8,14 @@
             beforeUnmount() { }
             afterUnmount() { }
             props = {
-                componentObjectId: "",
-                imageURL: "",
-                firstName: "",
-                lastName: "",
-                city: "",
-                state: "",
+                componentObjectId: ``,
+                imageURL: ``,
+                firstName: ``,
+                lastName: ``,
+                city: ``,
+                state: ``,
                 starCount: 0,
-                review: "Review Text",
+                review: `Review Text`,
                 usefulCount: 0,
                 funnyCount: 0,
                 coolCount: 0,
@@ -32,12 +32,12 @@
                 <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
                     <include-props class="display-none">
                         { 
-                            imageURL: "{imageURL}",
-                            firstName: "{firstName}",
-                            lastName: "{lastName}",
-                            city: "{city}",
-                            state: "{state}",
-                            date: "{date}"
+                            imageURL: `{imageURL}`,
+                            firstName: `{firstName}`,
+                            lastName: `{lastName}`,
+                            city: `{city}`,
+                            state: `{state}`,
+                            date: `{date}`
                         }          
                     </include-props>
                 </include-html>

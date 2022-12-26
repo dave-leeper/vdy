@@ -1,0 +1,143 @@
+<vanilla-component>
+    <script>
+        class ReviewList{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { 
+                this.props.componentObjectId = componentObjectId
+                fetch(this.props.fetchURL)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        let reviews = this.sortReviews(data)
+                        let reviewsAndReplies = this.pairReviewsAndReplies(reviews)
+                        let newDOMElements = this.createListElements(reviewsAndReplies)
+
+                        this.vars.reviews = reviewsAndReplies
+                        this.buildListElements(newDOMElements)
+                        this.vars.loadingClass = `display-none`
+                    })
+            }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            sortReviews(data) {
+                const sortFunction = (a, b) => {
+                    const dateA = a.date.split("/")
+                    const dateB = b.date.split("/")
+
+                    if (dateA[2] !== dateB[2]) { return dateB[2] - dateA[2] }
+                    if (dateA[0] !== dateB[0]) { return dateB[0] - dateA[0] }
+                    return dateB[1] - dateA[1]
+                }
+                data.sort(sortFunction)
+                return data
+            }
+            isReply(data) { return !!data.replyingTo }
+            pairReviewsAndReplies(data) {
+                let result = []
+
+                for (const reviewOrReply of data) {
+                    let review = null
+                    let reply = null
+
+                    if (this.isReply(reviewOrReply)) { continue }
+                    review = reviewOrReply
+                    for (const reviewOrReply2 of data) {
+                        if (reviewOrReply === reviewOrReply2) { continue }
+                        if (!this.isReply(reviewOrReply2)) { continue }
+
+                        const reviewId = review.id.split(`:`)[1]
+
+                        if (reviewId !== reviewOrReply2.replyingTo.toString()) { continue }
+                        reply = reviewOrReply2
+                        break
+                    }
+                    result.push({ review, reply })
+                }
+                return result
+            }
+            createListElements(data) {
+                let results = []
+
+                for (let loop = 0; loop < data.length; loop++) {
+                    let review = data[loop].review
+                    let reply = data[loop].reply
+                    let newInclude = document.createElement("include-html", { })
+                    let newIncludeProps = document.createElement("include-props", { })
+
+                    newInclude.setAttribute(`include-in`, `index.html`)
+                    newInclude.setAttribute(`src`, `./html/components/reviews/review.html`)
+                    newInclude.setAttribute(`component-class`, `Review`)
+                    newInclude.setAttribute(`component-id`, `Review${loop + 1}`)
+                    if (!review.image) { review.image = `./images/generic-avatar.png` }
+
+                    let innerText = "{ "
+
+                    innerText += "imageURL: `" + review.image + "`, "
+                    innerText += "firstName: `" + review.name.first + "`, "
+                    innerText += "lastName: `" + review.name.last + "`, "
+                    innerText += "date: `" + review.date + "`, "
+                    innerText += "city: `" + review.city + "`, "
+                    innerText += "state: `" + review.state + "`, "
+                    innerText += "rating: " + review.stars + ", "
+                    innerText += "review: `" + review.review + "`, "
+                    innerText += "usefulCount: " + review.usefulCount + ", "
+                    innerText += "funnyCount: " + review.funnyCount + ", "
+                    innerText += "coolCount: " + review.coolCount + " }"
+                    newIncludeProps.innerText = innerText
+                    newInclude.appendChild(newIncludeProps)
+                    results.push(newInclude)
+
+                    if (!reply) { continue }
+
+                    newInclude = document.createElement("include-html", { })
+                    newIncludeProps = document.createElement("include-props", { })
+                    newInclude.setAttribute(`include-in`, `index.html`)
+                    newInclude.setAttribute(`src`, `./html/components/reviews/reply.html`)
+                    newInclude.setAttribute(`component-class`, `Reply`)
+                    newInclude.setAttribute(`component-id`, `Reply${loop + 1}`)
+                    if (!reply.image) { reply.image = `./images/generic-avatar.png` }
+                    innerText = "{ "
+                    innerText += "imageURL: `" + reply.image + "`, "
+                    innerText += "firstName: `" + reply.name.first + "`, "
+                    innerText += "lastName: `" + reply.name.last + "`, "
+                    innerText += "title: `" + reply.title + "`, "
+                    innerText += "date: `" + reply.date + "`, "
+                    innerText += "reply: `" + reply.reply + "` }"
+                    newIncludeProps.innerText = innerText
+                    newInclude.appendChild(newIncludeProps)
+                    results.push(newInclude)
+                }
+                return results
+            }
+            async buildListElements(newDOMElements) {
+                const listRootElement = document.getElementById(this.props.componentObjectId)
+
+                for (const element of newDOMElements) {
+                    listRootElement.appendChild(element)
+                    await Loader.loadIncludes()
+                }
+            }
+            props = {
+                componentObjectId: ``,
+                fetchURL: `http://127.0.0.1:8080/reviews`
+            }
+            vars = {
+                reviews: null,
+                loadingClass: `flex-row flex-space-between`
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <article id="{componentObjectId}" class="flex-col bg-white round-15px pad-5">
+            <div id="{componentObjectId}-loading" class="{loadingClass}">
+                <div id="{componentObjectId}-loading-text">Loading reviews...</div>
+                <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{componentObjectId}-loading"></include-html>
+            </div>
+        </article>
+    </component-markup>
+</vanilla-component>

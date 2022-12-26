@@ -1,7 +1,6 @@
 const Surreal = require(`surrealdb.js`)
 const {surrealDBSignIn, surrealDBUse, surrealDBSelect} = require(`../database/surrealdb`)
 
-
 module.exports = (name, args) => {
     return async (req, res, next) => {
         const db = new Surreal.default(`wss://vdydb.fly.dev/rpc`)

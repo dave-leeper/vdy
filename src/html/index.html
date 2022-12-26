@@ -12,7 +12,8 @@
     <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
     <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
     <title>Vince Drives You</title>
-    <script src="./js/include.js"></script>
+    <script type="text/javascript" src="./js/include.js"></script>
+    <script type="text/javascript" src="./js/purify.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
     <script>
       function setCSSDefaults() {
@@ -52,12 +53,12 @@
       <include-html include-in="vdy.html" src="./html/components/reviews/reply.html" component-class="Reply" component-id="Reply">
         <include-props class="display-none">
           {       
-            imageURL: "https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg",
-            firstName: "Vincent",
-            lastName: "S",
-            title: "Business Owner",
-            date: "11/24/2022",
-            reply: "Thanks so much for the compliments, there is one slight correction, I accept all major credit cards, Zelle and cash. PayPal proved to be to much of a problem. \n\nHave a great trip and we’ll see you when you get back."
+            imageURL: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+            firstName: `Vincent`,
+            lastName: `S`,
+            title: `Business Owner`,
+            date: `11/24/2022`,
+            reply: `Thanks so much for the compliments, there is one slight correction, I accept all major credit cards, Zelle and cash. PayPal proved to be to much of a problem. \n\nHave a great trip and we’ll see you when you get back.`
           }
         </include-props>
       </include-html>

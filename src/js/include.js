@@ -357,7 +357,7 @@ class VanillaComponentLifecycle {
                 return false 
             }
             
-            let jsonText = `(` + propsElements[0].innerText + `)`
+            let jsonText = `(` + DOMPurify.sanitize(propsElements[0].innerText) + `)`
             let propsObject = eval(jsonText)
 
             componentObject.props = {...componentObject.props, ...propsObject}
@@ -368,7 +368,7 @@ class VanillaComponentLifecycle {
                 return false 
             }
 
-            let jsonText = `(` + varsElements[0].innerText + `)`
+            let jsonText = `(` + DOMPurify.sanitize(varsElements[0].innerText) + `)`
             let varsObject = eval(jsonText)
 
             componentObject.vars = {...componentObject.vars, ...varsObject}

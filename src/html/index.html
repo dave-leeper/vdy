@@ -26,12 +26,21 @@
         r.style.setProperty('--button-border-color', blue50);
       }
       setCSSDefaults()
+      async function login() {
+        const response = await fetch(`http://127.0.0.1:8080/login`, {
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name: "Admin", "password": "Admin"})
+        });
+        console.log(response)
+      }
     </script>
   </head>
   <body class="margin-5 bg-grey-e">
     <div class="h300px margin-b-50">
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
     </div>
+    <div onclick="login()">LOGIN</div>
     <div class="w33">
       <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList1"></include-html>
     </div>

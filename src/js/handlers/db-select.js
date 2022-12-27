@@ -1,5 +1,4 @@
-const Surreal = require(`surrealdb.js`)
-const {surrealDBSignIn, surrealDBUse, surrealDBSelect} = require(`../database/surrealdb`)
+const {surrealDBSelect} = require(`../database/surrealdb`)
 const Registry = require(`../registry`)
 
 module.exports = (name, args) => {
@@ -7,11 +6,11 @@ module.exports = (name, args) => {
         let db = Registry.get(`SurrealDBConnection`)
         
         if (!db) {
-            db = new Surreal.default(`wss://localhost:8000/rpc`)
-            // db = new Surreal.default(`wss://vdydb.fly.dev/rpc`)
-            await surrealDBSignIn(db, `root`, `root`)
-            await surrealDBUse(db, `test`, `test`)
-            Registry.register(db, `SurrealDBConnection`)
+            const err = `503 Service Unavailable: Surreal DB`
+            console.error(err)
+            res.status(503).send(err)
+            next && next(err)
+            return
         }
         
         const result = await surrealDBSelect(db, args.table);

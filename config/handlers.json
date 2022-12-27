@@ -1,7 +1,7 @@
 
 
 {
-    "testResponse": [
+    "textResponse": [
         {
             "name": "Ping server.",
             "verb": "GET",
@@ -35,6 +35,15 @@
             "args": {
                 "table": "review"
             }
+        }
+    ],
+    "function": [
+        {
+            "name": "Login.",
+            "verb": "POST",
+            "path": "/login",
+            "handler": "login.js",
+            "log": "NONE"
         }
     ]
 }

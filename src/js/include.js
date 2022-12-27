@@ -357,9 +357,7 @@ class VanillaComponentLifecycle {
                 return false 
             }
             
-            if (-1 !== propsElements[0].innerText.indexOf("Paul")) { alert(propsElements[0].innerText.indexOf(`\\n`)); console.log(propsElements[0].innerText)}
             let jsonText = `(` + DOMPurify.sanitize(propsElements[0].innerText) + `)`
-            if (-1 !== propsElements[0].innerText.indexOf("Paul")) { console.log(jsonText)}
             let propsObject = eval(jsonText)
 
             componentObject.props = {...componentObject.props, ...propsObject}

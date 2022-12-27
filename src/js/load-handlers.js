@@ -25,8 +25,9 @@ module.exports = function () {
       }
     }
 
-    build(handlerData.testResponse, app)
+    build(handlerData.textResponse, app)
     build(handlerData.fileLoaders, app)
     build(handlerData.database, app)
+    build(handlerData.function, app)
   }
 }

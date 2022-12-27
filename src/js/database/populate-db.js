@@ -8,11 +8,17 @@ module.exports = {
     let db = Registry.get(`SurrealDBConnection`)
     
     if (!db) {
-      console.log(`No SurrealDB connection found in register.`)
+      console.error(`No SurrealDB connection found in register.`)
       return
     }
 
     try {
+      await surrealDBDelete(db, `user`)
+      await surrealDBCreate(db, `user:Admin`, {
+        name: `Admin`,
+        password: `Admin`,
+        roles: [`Admin`],
+      })
       await surrealDBDelete(db, `review`)
       await surrealDBCreate(db, `review:19`, {
         name: {
@@ -413,6 +419,9 @@ module.exports = {
         reply: `Thanks for your compliment, I’m glad I was able to help. It was a pleasure meeting you.`
       })
 
+      const users = await surrealDBSelect(db, `user`)
+      console.log(users.length)
+      console.log(JSON.stringify(users))
       const reviews = await surrealDBSelect(db, `review`)
       console.log(reviews.length)
       console.log(JSON.stringify(reviews))

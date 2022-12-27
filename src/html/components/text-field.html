@@ -1,0 +1,60 @@
+<vanilla-component>
+    <script>
+        class TextField{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { 
+                const element = document.getElementById(this.componentObjectId)
+
+                element.required = this.props.required
+                element.readonly = this.props.readonly
+                element.disabled = this.props.disabled
+                element.autofocus = this.props.autofocus
+                element.autocomplete = this.props.autocomplete
+            }
+            beforeUnmount() { }
+            afterUnmount() { }
+            props = {
+                componentObjectId: ``,
+                required: false,
+                size: 20,
+                minlength: 0,
+                maxlength: Number.MAX_VALUE,
+                min: Number.MIN_VALUE,
+                max: Number.MAX_VALUE,
+                type: `text`, // date, datetime-local, email, month, number, password, tel, text, time, url, week
+                pattern: ``,
+                label: ``,
+                name: ``,
+                value: ``,
+                placeholder: ``,
+                readonly: false,
+                disabled: false,
+                autofocus: false,
+                autocomplete: ``,
+                list: ``,
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <label id="{componentObjectId}-label" for="{name}">{label}</label>
+        <input 
+            id="{componentObjectId}" 
+            type="{type}" 
+            name="{name}"
+            size="{size}"
+            minlength="{minlength}"
+            maxlength="{maxlength}"
+            min="{min}"
+            max="{max}"
+            value="value"
+            placeholder="{placeholder}"
+            list="{list}"
+        >
+    </component-markup>
+</vanilla-component>

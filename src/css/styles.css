@@ -230,7 +230,16 @@
   .cursor-col-resize {cursor: col-resize;}      .cursor-row-resize {cursor: row-resize;}      .cursor-n-resize {cursor: n-resize;}      .cursor-e-resize {cursor: e-resize;}
   .cursor-s-resize {cursor: s-resize;}          .cursor-w-resize {cursor: w-resize;}          .cursor-ne-resize {cursor: ne-resize;}    .cursor-nw-resize {cursor: nw-resize;}
   .cursor-se-resize {cursor: se-resize;}        .cursor-sw-resize {cursor: sw-resize;}        .cursor-ew-resize {cursor: ew-resize;}    .cursor-ns-resize {cursor: ns-resize;}
-  .cursor-nesw-resize {cursor: nesw-resize;}    .cursor-nwse-resize {cursor: nwse-resize;}   .cursor-zoom-in {cursor: zoom-in;}        .cursor-zoom-out {cursor: zoom-out;}
+  .cursor-nesw-resize {cursor: nesw-resize;}    .cursor-nwse-resize {cursor: nwse-resize;}    .cursor-zoom-in {cursor: zoom-in;}        .cursor-zoom-out {cursor: zoom-out;}
+
+  .z1 {z-index: 1;}       .z2 {z-index: 2;}       .z3 {z-index: 3;}       .z4 {z-index: 4;}       .z5 {z-index: 5;}       .z6 {z-index: 6;}       .z7 {z-index: 7;}
+  .z8 {z-index: 8;}       .z9 {z-index: 9;}       .z10 {z-index: 10;}     .z15 {z-index: 15;}     .z20 {z-index: 20;}     .z25 {z-index: 25;}     .z30 {z-index: 30;}
+  .z35 {z-index: 35;}     .z40 {z-index: 40;}     .z45 {z-index: 45;}     .z50 {z-index: 50;}     .z55 {z-index: 55;}     .z60 {z-index: 60;}     .z65 {z-index: 65;}
+  .z70 {z-index: 70;}     .z75 {z-index: 75;}     .z80 {z-index: 80;}     .z85 {z-index: 85;}     .z90 {z-index: 90;}     .z95 {z-index: 95;}     .z100 {z-index: 100;}
+  .z-1 {z-index: -1;}     .z-2 {z-index: -2;}     .z-3 {z-index: -3;}     .z-4 {z-index: -4;}     .z-5 {z-index: -5;}     .z-6 {z-index: -6;}     .z-7 {z-index: -7;}
+  .z-8 {z-index: -8;}     .z-9 {z-index: -9;}     .z-10 {z-index: -10;}   .z-15 {z-index: -15;}   .z-20 {z-index: -20;}   .z-25 {z-index: -25;}   .z-30 {z-index: -30;}
+  .z-35 {z-index: -35;}   .z-40 {z-index: -40;}   .z-45 {z-index: -45;}   .z-50 {z-index: -50;}   .z-55 {z-index: -55;}   .z-60 {z-index: -60;}   .z-65 {z-index: -65;}
+  .z-70 {z-index: -70;}   .z-75 {z-index: -75;}   .z-80 {z-index: -80;}   .z-85 {z-index: -85;}   .z-90 {z-index: -90;}   .z-95 {z-index: -95;}   .z-100 {z-index: -100;}
 
   .rotate-45 {rotate: 45deg;}       .rotate-90 {rotate: 90deg;}      .rotate-135 {rotate: 135deg;}     .rotate-180 {rotate: 180deg;}    .rotate-225 {rotate: 225deg;}
   .rotate-270 {rotate: 270deg;}     .rotate-315 {rotate: 315deg;}    .rotate-360 {rotate: 360deg;}
@@ -1126,7 +1135,7 @@
   }
   .button:active {
     filter: brightness(105%);
-    background-size: 100%;
+    background: none;
     transition: filter 0.4s;
     transition: background 0s;
   }

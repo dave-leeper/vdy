@@ -40,7 +40,9 @@
     <div class="h300px margin-b-50">
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
     </div>
-    <div onclick="login()">LOGIN</div>
+    <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="TextField1">
+      <include-props class="display-none">{ placeholder: `Text goes here.`, label: `Label`, autofocus: true, autocomplete: true, disabled: true }</include-props>
+    </include-html>
     <div class="w33">
       <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList1"></include-html>
     </div>

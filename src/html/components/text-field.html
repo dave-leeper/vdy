@@ -25,22 +25,21 @@
             afterUnmount() { }
             async onFocus() { }
             async onBlur() { 
-                suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
-                    await test (`Create`, `Ensure IncludeNode objects are properly created.`, [async () => {
-                        console.log(`test`)
+                suite(`Test field contents`, `Ensure field meets all requirements.`, [
+                    await test (`Test required`, `Ensure required fields have a value.`, [async () => {
+                        if (!this.props.required) { return [] }
+
+                        const element = document.getElementById(this.props.componentObjectId)
                         let results = []
 
-                        assert(true,                                                        `True test`, results)
-                        assert(false,                                                       `False test`, results)
-
-                        console.log(results)
+                        assert(0 < element.value?.length,                                   `Field ${this.props.name} has content.`, results, true)
                         return results
                     }]),
-                ])
+                ],
+                (resultsTree) => { console.dir(resultsTree)})
             }
             async onInput() { }
             onShowHideClicked() {
-                console.log(`clicked ${this.vars.type.toLowerCase()}`)
                 if (`password` === this.vars.type.toLowerCase()) {
                     this.vars.type = `text`
                     this.vars.imageURL = `../images/eye-open.png`

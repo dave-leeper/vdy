@@ -1,6 +1,6 @@
 const assert = (passed, description, results, optionalContinueOnError) => {
-  if (description && results) { results.push({ description, passed }) }
-  if (passed || optionalContinueOnError) { return }
+  if (description && results) { results.push({ description, passed: !!passed }) }
+  if (!!passed || optionalContinueOnError) { return }
   if (results) { throw results } 
   else if (description) { throw new Error(description) }
   else { throw new Error(`Assert failed.`) }
@@ -33,30 +33,51 @@ const test = async (name, description, tests) => {
   }
   return results
 }
-const suite = async (name, description, allTestResults, optionalViewBuilder) => {
+const suite = async (name, description, suiteResults, optionalViewBuilder) => {
+  //   
   let suiteTree = new Tree(name)
 
+  /*
+  suiteResults param: [ // Suites have multiple tests.
+    [ // Tests have multiple test functions.
+      { // Test functions have multiple asserts.
+        "name":"Test required",
+        "description":"Ensure required fields have a value.",
+        "passed":true,
+        "assertResults":[
+          {"description":"Field  is not null.","passed":false},
+          {"description":"Field  has content.","passed":false}],
+        "duration":1
+      }
+    ]
+  ]
+  */
+  suiteTree.name = name
   suiteTree.description = description
   suiteTree.passed = true
-  for (let loop1 = 0; loop1 < allTestResults.length; loop1++) {
-    let testResults = allTestResults[loop1]
-    let testNode = new TreeNode(`Test-${loop1}`)
+  for (let loop1 = 0; loop1 < suiteResults.length; loop1++) {
+    let testArray = suiteResults[loop1]
+    console.log(`testArray: ${JSON.stringify(testArray)}`)
 
-    testNode.name = name
-    testNode.description = description
-    testNode.passed = testResults.passed
-    testNode.duration = testResults.duration
-    suiteTree.addNode(testNode)
-    suiteTree.passed &= testNode.passed
-    for (let loop2 = 0; loop2 < testResults.length; loop2++) {
-      let assertResults = testResults[loop2].assertResults
+    for (let loop2 = 0; loop2 < testArray.length; loop2++) {
+      let testResults = testArray[loop2]
+      console.log(`testResults: ${JSON.stringify(testResults)}`)
+      let testNode = new TreeNode(`Test-${loop2}`)
 
-      for (let loop3 = 0; loop3 < assertResults.length; loop3++) {
-        let assertionResult = assertResults[loop3]
+      testNode.name = testResults.name
+      testNode.description = testResults.description
+      testNode.passed = true
+      testNode.duration = testResults.duration
+      suiteTree.addNode(testNode)
+      suiteTree.passed &&= testNode.passed
+      for (let loop3 = 0; loop3 < testResults.assertResults.length; loop3++) {
+        let assertResult = testResults.assertResults[loop3]
         let assertionNode = testNode.addChild(`Assertion-${loop3}`)
 
-        assertionNode.description = assertionResult.description
-        assertionNode.passed = assertionResult.passed
+        assertionNode.description = assertResult.description
+        assertionNode.passed = assertResult.passed
+        testNode.passed &&= assertionNode.passed
+        suiteTree.passed &&= assertionNode.passed
       }
     }
   }

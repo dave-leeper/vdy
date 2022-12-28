@@ -1,16 +1,10 @@
-const assert = (passed, description, results) => {
+const assert = (passed, description, results, optionalContinueOnError) => {
   if (description && results) { results.push({ description, passed }) }
-  if (!passed) {
-    if (results) {
-      throw results
-    } else if (description) {
-      throw new Error(description)
-    } else {
-      new Error(`Assert failed`)
-    }
-  }
+  if (passed || optionalContinueOnError) { return }
+  if (results) { throw results } 
+  else if (description) { throw new Error(description) }
+  else { throw new Error(`Assert failed.`) }
 }
-
 const test = async (name, description, tests) => {
   let results = []
   let result = {
@@ -54,16 +48,13 @@ const suite = async (name, description, allTestResults, optionalViewBuilder) => 
     testNode.duration = testResults.duration
     suiteTree.addNode(testNode)
     suiteTree.passed &= testNode.passed
-    console.log(`testResults: ${JSON.stringify(testResults)}`)
     for (let loop2 = 0; loop2 < testResults.length; loop2++) {
       let assertResults = testResults[loop2].assertResults
 
-      console.log(`assertResults: ${JSON.stringify(assertResults)}`)
       for (let loop3 = 0; loop3 < assertResults.length; loop3++) {
         let assertionResult = assertResults[loop3]
         let assertionNode = testNode.addChild(`Assertion-${loop3}`)
 
-        console.log(`assertionResult: ${JSON.stringify(assertionResult)}`)
         assertionNode.description = assertionResult.description
         assertionNode.passed = assertionResult.passed
       }

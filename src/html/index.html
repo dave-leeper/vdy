@@ -13,6 +13,7 @@
     <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
     <title>Vince Drives You</title>
     <script type="text/javascript" src="./js/include.js"></script>
+    <script type="text/javascript" src="./js/test.js"></script>
     <script type="text/javascript" src="./js/purify.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
     <script>
@@ -41,7 +42,20 @@
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
     </div>
     <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="TextField1">
-      <include-props class="display-none">{ placeholder: `Text goes here.`, label: `Label`, autofocus: true, autocomplete: true, disabled: true }</include-props>
+      <include-props class="display-none">{ 
+        placeholder: `Text goes here.`, 
+        label: `Label`, 
+        required: true, 
+        readonly: false, 
+        disabled: false, 
+        autofocus: true, 
+        autocomplete: true 
+      }
+      </include-props>
+      <include-vars class="display-none">{ 
+        type: `password`, 
+      }
+      </include-vars>
     </include-html>
     <div class="w33">
       <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList1"></include-html>

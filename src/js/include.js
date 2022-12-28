@@ -1,11 +1,11 @@
-class IncludeNode {
+class TreeNode {
     constructor(name) {
         this.name = name
         this.children = []
         this.parent = null
     }
     addChild(child) {
-        let childNode = new IncludeNode(child)
+        let childNode = new TreeNode(child)
         childNode.parent = this
         this.children.push(childNode)
         return childNode
@@ -51,7 +51,7 @@ class IncludeNode {
         return result
     }
 }
-class IncludeTree {
+class Tree {
     constructor() {
         this.nodes = []
     }
@@ -242,8 +242,8 @@ class VanillaComponentLifecycle {
         let styles = componentFragment.querySelectorAll('style')
         let markup = componentFragment.querySelectorAll('component-markup')
 
-        if (1 !== scripts.length) {
-            console.error(`registerDOMFragment: Fragment must contain one and only one component script tag.`)
+        if (0 === scripts.length) {
+            console.error(`registerDOMFragment: Fragment must contain at least one component script tag.`)
             return false
         }
         if (1 !== markup.length) {
@@ -635,7 +635,7 @@ class Vanilla {
 }
 
 class Loader {
-    static includeTree = new IncludeTree()
+    static includeTree = new Tree()
     static get tree() { return Loader.includeTree }
     
     static loadFile = async (filename) => {
@@ -658,7 +658,7 @@ class Loader {
         if (Loader.tree.hasNode(parentName)) {
             node = Loader.tree.getNodeByName(parentName)
         } else {
-            node = new IncludeNode(parentName)
+            node = new TreeNode(parentName)
             Loader.tree.addNode(node)
         }
         if (node.hasAncestor(childName)) {

@@ -1,25 +1,54 @@
+<script src="../../js/test.js"></script>
+
 <vanilla-component>
     <script>
         class TextField{
             className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            initialize(componentObjectId) { 
+                this.props.componentObjectId = componentObjectId
+                this.props.isPassword = `password` === this.vars.type.toLowerCase()
+            }
             beforeMount() { }
             afterMount() { 
-                const element = document.getElementById(this.componentObjectId)
+                const element = document.getElementById(this.props.componentObjectId)
 
-                element.required = !!this.props.required
-                element.readonly = !!this.props.readonly
-                element.disabled = !!this.props.disabled
-                element.autofocus = !!this.props.autofocus
-                element.autocomplete = !!this.props.autocomplete
+                if (this.props.required) { element.setAttribute('required', true) } else {  element.removeAttribute('required') }
+                if (this.props.readonly) { element.setAttribute('readonly', true) } else {  element.removeAttribute('readonly') }
+                if (this.props.disabled) { element.setAttribute('disabled', true) } else {  element.removeAttribute('disabled') }
+                if (this.props.autofocus) { element.setAttribute('autofocus', true) } else {  element.removeAttribute('autofocus') }
+                if (this.props.autocomplete) { element.setAttribute('autocomplete', true) } else {  element.removeAttribute('autocomplete') }
+                if (!!this.props.list) { element.setAttribute('list', this.props.list) } else {  element.removeAttribute('list') }
                 if (this.props.min != Number.MAX_VALUE) { element.setAttribute(`min`, this.props.min) }
                 if (this.props.max != Number.MIN_VALUE) { element.setAttribute(`max`, this.props.max) }
             }
             beforeUnmount() { }
             afterUnmount() { }
-            onFocus() { }
-            onBlur() { }
-            onInput() { }
+            async onFocus() { }
+            async onBlur() { 
+                suite(`Test IncludeNode`, `Ensure IncludeNode is working.`, [
+                    await test (`Create`, `Ensure IncludeNode objects are properly created.`, [async () => {
+                        console.log(`test`)
+                        let results = []
+
+                        assert(true,                                                        `True test`, results)
+                        assert(false,                                                       `False test`, results)
+
+                        console.log(results)
+                        return results
+                    }]),
+                ])
+            }
+            async onInput() { }
+            onShowHideClicked() {
+                console.log(`clicked ${this.vars.type.toLowerCase()}`)
+                if (`password` === this.vars.type.toLowerCase()) {
+                    this.vars.type = `text`
+                    this.vars.imageURL = `../images/eye-open.png`
+                } else if (this.props.isPassword) {
+                    this.vars.type = `password`
+                    this.vars.imageURL = `../images/eye-closed.png`
+                }
+            }
             props = {
                 componentObjectId: ``,
                 required: false,
@@ -44,9 +73,11 @@
                 minErrorMessage: ``,
                 maxErrorMessage: ``,
                 patternErrorMessage: ``,
+                isPassword: false
             }
             vars = {
                 type: `text`, // date, datetime-local, email, month, number, password, tel, text, time, url, week
+                imageURL: `../images/eye-closed.png`,
                 value: ``,
             }
         }
@@ -59,20 +90,23 @@
         <div>
             <label id="{componentObjectId}-label" for="{name}">{label}</label>
             <div>
-                <input 
-                    id="{componentObjectId}" 
-                    type="{type}" 
-                    name="{name}"
-                    size="{size}"
-                    minlength="{minlength}"
-                    maxlength="{maxlength}"
-                    value="{value}"
-                    placeholder="{placeholder}"
-                    list="{list}"
-                    onfocus="$obj.onFocus()"
-                    onblur="$obj.onBlur()"
-                    oninput="$obj.onInput()"
-                >
+                <div class="flex-row">
+                    <input 
+                        id="{componentObjectId}" 
+                        type="{type}" 
+                        name="{name}"
+                        size="{size}"
+                        minlength="{minlength}"
+                        maxlength="{maxlength}"
+                        value="{value}"
+                        placeholder="{placeholder}"
+                        list="{list}"
+                        onfocus="$obj.onFocus()"
+                        onblur="$obj.onBlur()"
+                        oninput="$obj.onInput()"
+                    >
+                    <img id="{componentObjectId}-eye" class="button display-none" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()">
+                </div>
                 <div id="{componentObjectId}-error"></div>
             </div>
         </div>

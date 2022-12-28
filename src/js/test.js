@@ -34,40 +34,24 @@ const test = async (name, description, tests) => {
   return results
 }
 const suite = async (name, description, suiteResults, optionalViewBuilder) => {
-  //   
   let suiteTree = new Tree(name)
 
-  /*
-  suiteResults param: [ // Suites have multiple tests.
-    [ // Tests have multiple test functions.
-      { // Test functions have multiple asserts.
-        "name":"Test required",
-        "description":"Ensure required fields have a value.",
-        "passed":true,
-        "assertResults":[
-          {"description":"Field  is not null.","passed":false},
-          {"description":"Field  has content.","passed":false}],
-        "duration":1
-      }
-    ]
-  ]
-  */
   suiteTree.name = name
   suiteTree.description = description
   suiteTree.passed = true
+  suiteTree.type = `SUITE`
   for (let loop1 = 0; loop1 < suiteResults.length; loop1++) {
     let testArray = suiteResults[loop1]
-    console.log(`testArray: ${JSON.stringify(testArray)}`)
 
     for (let loop2 = 0; loop2 < testArray.length; loop2++) {
       let testResults = testArray[loop2]
-      console.log(`testResults: ${JSON.stringify(testResults)}`)
       let testNode = new TreeNode(`Test-${loop2}`)
 
       testNode.name = testResults.name
       testNode.description = testResults.description
       testNode.passed = true
       testNode.duration = testResults.duration
+      testNode.type = `TEST`
       suiteTree.addNode(testNode)
       suiteTree.passed &&= testNode.passed
       for (let loop3 = 0; loop3 < testResults.assertResults.length; loop3++) {
@@ -76,6 +60,7 @@ const suite = async (name, description, suiteResults, optionalViewBuilder) => {
 
         assertionNode.description = assertResult.description
         assertionNode.passed = assertResult.passed
+        assertionNode.type = `ASSERTION`
         testNode.passed &&= assertionNode.passed
         suiteTree.passed &&= assertionNode.passed
       }

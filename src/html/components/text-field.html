@@ -34,7 +34,7 @@
                 }
             }
             async onBlur(event) { 
-                let result = await suite(`Test field contents onblur`, `Ensure field meets all requirements.`, [
+                let results = await suite(`Test field contents onblur`, `Ensure field meets all requirements.`, [
                     await test (`Test required`, `Ensure required field has a value.`, [async () => {
                         let results = []
 
@@ -42,15 +42,14 @@
                         assert(0 < this.vars.element.value?.length,                             `Field '${this.props.name}' has content.`, results, true)
                         return results
                     }]),                    
-                ],
-                this.showErrors)
-                if (0 < result.failCount) { this.vars.element.focus() } 
+                ])
+                this.showErrors(results)
             }
             async onInput(event) {
                 while (this.vars.errorElement.firstChild) {
-                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild);
+                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild)
                 }
-                await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, [
+                let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, [
                     await test (`Test minlength`, `Ensure field is no shorter than ${this.props.minlength}.`, [async () => {
                         let results = []
 
@@ -86,14 +85,16 @@
                         assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.name}' does not match the pattern ${this.props.pattern}.`, results, true)
                         return results
                     }]),
-                ],
-                this.showErrors)
+                ])
+                this.showErrors(results)
             }
             showErrors(suiteResultsTree) {
-                console.dir(suiteResultsTree)
-                console.log(`${suiteResultsTree.nodes.length}`)
                 for (const test of suiteResultsTree.nodes) {
                     for (const assertion of test.children) {
+                        let errorDiv = document.createElement(`div`)
+
+                        errorDiv.innerText = `assertion.description ${assertion.description} assertion.passed ${assertion.passed}`
+                        this.vars.errorElement.appendChild(errorDiv);
                         console.log(`assertion.description ${assertion.description} assertion.passed ${assertion.passed}`)
                     }
                 }
@@ -154,9 +155,9 @@
                         value="{value}"
                         placeholder="{placeholder}"
                         list="{list}"
-                        onfocus="$obj.onFocus()"
-                        onblur="$obj.onBlur()"
-                        oninput="$obj.onInput()"
+                        onfocus="$obj.onFocus(event)"
+                        onblur="$obj.onBlur(event)"
+                        oninput="$obj.onInput(event)"
                     >
                     <img id="{componentObjectId}-eye" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()">
                 </div>

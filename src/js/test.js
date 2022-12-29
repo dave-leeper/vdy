@@ -35,6 +35,7 @@ const test = async (name, description, tests) => {
 }
 const suite = async (name, description, suiteResults, optionalViewBuilder) => {
   let suiteTree = new Tree(name)
+  let suiteFailCount = 0
 
   suiteTree.name = name
   suiteTree.description = description
@@ -46,6 +47,7 @@ const suite = async (name, description, suiteResults, optionalViewBuilder) => {
     for (let loop2 = 0; loop2 < testArray.length; loop2++) {
       let testResults = testArray[loop2]
       let testNode = new TreeNode(`Test-${loop2}`)
+      let testFailCount = 0
 
       testNode.name = testResults.name
       testNode.description = testResults.description
@@ -63,8 +65,14 @@ const suite = async (name, description, suiteResults, optionalViewBuilder) => {
         assertionNode.type = `ASSERTION`
         testNode.passed &&= assertionNode.passed
         suiteTree.passed &&= assertionNode.passed
+        if (!assertionNode.passed) { 
+          suiteFailCount++
+          testFailCount++
+        }
       }
+      testNode.failCount = testFailCount
     }
+    suiteTree.failCount = suiteFailCount
   }
   optionalViewBuilder && optionalViewBuilder(suiteTree)
   return suiteTree

@@ -1,4 +1,5 @@
 // ONLY USED ONCE TO SET UP A FREASH DATABASE. KEEP AROUND JUST IN CASE IT'S EVER NEEDED AGAIN.
+// surreal start --log debug --user root --pass root memory
 module.exports = {
   populateDatabase: async function() {
     const Surreal = require(`surrealdb.js`)

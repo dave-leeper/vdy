@@ -44,16 +44,19 @@
     <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="TextField1">
       <include-props class="display-none">{ 
         placeholder: `Text goes here.`, 
-        label: `Label`, 
+        name: `MyField`, 
+        label: `MyLabel`, 
         required: true, 
         readonly: false, 
         disabled: false, 
         autofocus: true, 
-        autocomplete: true 
+        autocomplete: true,
+        minlength: 3,
+        min: 666,
       }
       </include-props>
       <include-vars class="display-none">{ 
-        type: `password`, 
+        type: `text`, 
       }
       </include-vars>
     </include-html>

@@ -10,35 +10,89 @@
             }
             beforeMount() { }
             afterMount() { 
-                const element = document.getElementById(this.props.componentObjectId)
+                this.vars.element = document.getElementById(this.props.componentObjectId)
+                this.vars.errorElement = document.getElementById(`${this.props.componentObjectId}-error`)
 
-                if (this.props.required) { element.setAttribute('required', true) } else {  element.removeAttribute('required') }
-                if (this.props.readonly) { element.setAttribute('readonly', true) } else {  element.removeAttribute('readonly') }
-                if (this.props.disabled) { element.setAttribute('disabled', true) } else {  element.removeAttribute('disabled') }
-                if (this.props.autofocus) { element.setAttribute('autofocus', true) } else {  element.removeAttribute('autofocus') }
-                if (this.props.autocomplete) { element.setAttribute('autocomplete', true) } else {  element.removeAttribute('autocomplete') }
-                if (!!this.props.list) { element.setAttribute('list', this.props.list) } else {  element.removeAttribute('list') }
-                if (this.props.min != Number.MAX_VALUE) { element.setAttribute(`min`, this.props.min) }
-                if (this.props.max != Number.MIN_VALUE) { element.setAttribute(`max`, this.props.max) }
+                if (this.props.required) { this.vars.element.setAttribute('required', true) } else {  this.vars.element.removeAttribute('required') }
+                if (this.props.readonly) { this.vars.element.setAttribute('readonly', true) } else {  this.vars.element.removeAttribute('readonly') }
+                if (this.props.disabled) { this.vars.element.setAttribute('disabled', true) } else {  this.vars.element.removeAttribute('disabled') }
+                if (this.props.autofocus) { this.vars.element.setAttribute('autofocus', true) } else {  this.vars.element.removeAttribute('autofocus') }
+                if (this.props.autocomplete) { this.vars.element.setAttribute('autocomplete', true) } else {  this.vars.element.removeAttribute('autocomplete') }
+                if (!!this.props.list) { this.vars.element.setAttribute('list', this.props.list) } else {  this.vars.element.removeAttribute('list') }
+                if (this.props.min != Number.MAX_VALUE) { this.vars.element.setAttribute(`min`, this.props.min) }
+                if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
             }
             beforeUnmount() { }
             afterUnmount() { }
-            async onFocus() { }
-            async onBlur() { 
-                suite(`Test field contents`, `Ensure field meets all requirements.`, [
-                    await test (`Test required`, `Ensure required fields have a value.`, [async () => {
-                        if (!this.props.required) { return [] }
-
-                        const element = document.getElementById(this.props.componentObjectId)
+            async onFocus(event) { 
+                while (this.vars.errorElement.firstChild) {
+                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild);
+                }
+            }
+            async onBlur(event) { 
+                await suite(`Test field contents onblur`, `Ensure field meets all requirements.`, [
+                    await test (`Test required`, `Ensure required field has a value.`, [async () => {
                         let results = []
 
-                        assert(0 < element.value?.length,                                   `Field ${this.props.name} has content.`, results, true)
+                        if (!this.props.required) { return results }
+                        assert(0 < this.vars.element.value?.length,                             `Field '${this.props.name}' has content.`, results, true)
+                        return results
+                    }]),                    
+                ],
+                this.showErrors)
+            }
+            async onInput(event) {
+                while (this.vars.errorElement.firstChild) {
+                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild);
+                }
+                await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, [
+                    await test (`Test minlength`, `Ensure field is no shorter than ${this.props.minlength}.`, [async () => {
+                        let results = []
+
+                        if (!this.props.minlength) { return results }
+                        assert(this.props.minlength <= this.vars.element.value?.length,         `Field '${this.props.name}' has at least ${this.props.minlength} characters.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test maxlength`, `Ensure field is no longer than ${this.props.maxlength}.`, [async () => {
+                        let results = []
+
+                        if (!this.props.maxlength) { return results }
+                        assert(this.props.maxlength >= this.vars.element.value?.length,         `Field '${this.props.name}' has no more than ${this.props.maxlength} characters.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test min`, `Ensure field's value is not less than ${this.props.min}.`, [async () => {
+                        let results = []
+
+                        if (Number.MAX_VALUE === this.props.min) { return results }
+                        assert(this.props.min <= +this.vars.element.value,                      `Field '${this.props.name}' is not less than ${this.props.min}.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test max`, `Ensure field's value is not more than ${this.props.max}.`, [async () => {
+                        let results = []
+
+                        if (Number.MIN_VALUE === this.props.max) { return results }
+                        assert(this.props.max >= +this.vars.element.value,                      `Field '${this.props.name}' is not greater than ${this.props.max}.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test pattern`, `Ensure field matches the pattern ${this.props.pattern}.`, [async () => {
+                        let results = []
+
+                        if (0 === this.props.pattern.length) { return results }
+                        assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.name}' does not match the pattern ${this.props.pattern}.`, results, true)
                         return results
                     }]),
                 ],
-                (suiteResultsTree) => { console.dir(suiteResultsTree)})
+                this.showErrors)
             }
-            async onInput() { }
+            showErrors(suiteResultsTree) {
+                console.dir(suiteResultsTree)
+                console.log(`${suiteResultsTree.nodes.length}`)
+                for (const test of suiteResultsTree.nodes) {
+                    for (const assertion of test.children) {
+                        console.log(`assertion.description ${assertion.description} assertion.passed ${assertion.passed}`)
+                    }
+                }
+            }
             onShowHideClicked() {
                 if (`password` === this.vars.type.toLowerCase()) {
                     this.vars.type = `text`
@@ -66,18 +120,13 @@
                 autocomplete: ``,
                 list: ``,
                 labelAboveField: false,
-                requiredErrorMessage: ``,
-                minLengthErrorMessage: ``,
-                maxLengthErrorMessage: ``,
-                minErrorMessage: ``,
-                maxErrorMessage: ``,
-                patternErrorMessage: ``,
                 isPassword: false
             }
             vars = {
                 type: `text`, // date, datetime-local, email, month, number, password, tel, text, time, url, week
                 imageURL: `../images/eye-closed.png`,
                 value: ``,
+                element: null,
             }
         }
     </script>

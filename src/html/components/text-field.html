@@ -10,6 +10,8 @@
             }
             beforeMount() { }
             afterMount() { 
+                let eyeField = document.getElementById(`${this.props.componentObjectId}-eye`)
+
                 this.vars.element = document.getElementById(this.props.componentObjectId)
                 this.vars.errorElement = document.getElementById(`${this.props.componentObjectId}-error`)
 
@@ -21,6 +23,8 @@
                 if (!!this.props.list) { this.vars.element.setAttribute('list', this.props.list) } else {  this.vars.element.removeAttribute('list') }
                 if (this.props.min != Number.MAX_VALUE) { this.vars.element.setAttribute(`min`, this.props.min) }
                 if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
+                if (this.props.isPassword) { eyeField.setAttribute('class', `button`) }
+                else { eyeField.setAttribute('class', `display-none`) }
             }
             beforeUnmount() { }
             afterUnmount() { }
@@ -30,7 +34,7 @@
                 }
             }
             async onBlur(event) { 
-                await suite(`Test field contents onblur`, `Ensure field meets all requirements.`, [
+                let result = await suite(`Test field contents onblur`, `Ensure field meets all requirements.`, [
                     await test (`Test required`, `Ensure required field has a value.`, [async () => {
                         let results = []
 
@@ -40,6 +44,7 @@
                     }]),                    
                 ],
                 this.showErrors)
+                if (0 < result.failCount) { this.vars.element.focus() } 
             }
             async onInput(event) {
                 while (this.vars.errorElement.firstChild) {
@@ -153,7 +158,7 @@
                         onblur="$obj.onBlur()"
                         oninput="$obj.onInput()"
                     >
-                    <img id="{componentObjectId}-eye" class="button display-none" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()">
+                    <img id="{componentObjectId}-eye" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()">
                 </div>
                 <div id="{componentObjectId}-error"></div>
             </div>

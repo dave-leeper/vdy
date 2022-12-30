@@ -90,7 +90,7 @@
 
     --primary-color: var(--blue-f);           --secondary-color: var(--green-b);          --background-color: var(--white);
     --primary-variant-color: var(--blue-a);   --secondary-variant-color: var(--green-7);  --disabled-color: var(--gray-d);
-    --success-color: var(--green-e);          --error-color: var(--red-e);                --warn-color: var(--yellow-e);
+    --success-color: var(--green-a);          --error-color: var(--red-e);                --warn-color: var(--yellow-e);
     --info-color: var(--cyan-d);              --primary-text-color: var(--black);         --secondary-text-color: var(--gray-8);
     --light-text-color: var(--white);
     --primary-font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;

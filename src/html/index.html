@@ -53,13 +53,21 @@
         autocomplete: true,
         minlength: 3,
         min: 666,
+        listName: `browsers`
       }
       </include-props>
       <include-vars class="display-none">{ 
-        type: `text`, 
+        type: `list`, 
       }
       </include-vars>
     </include-html>
+    <datalist id="browsers">
+      <option value="Internet Explorer">
+      <option value="Firefox">
+      <option value="Google Chrome">
+      <option value="Opera">
+      <option value="Safari">
+    </datalist>
     <div class="w33">
       <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList1"></include-html>
     </div>

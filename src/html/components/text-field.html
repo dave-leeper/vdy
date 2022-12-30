@@ -20,7 +20,7 @@
                 if (this.props.disabled) { this.vars.element.setAttribute('disabled', true) } else {  this.vars.element.removeAttribute('disabled') }
                 if (this.props.autofocus) { this.vars.element.setAttribute('autofocus', true) } else {  this.vars.element.removeAttribute('autofocus') }
                 if (this.props.autocomplete) { this.vars.element.setAttribute('autocomplete', true) } else {  this.vars.element.removeAttribute('autocomplete') }
-                if (!!this.props.list) { this.vars.element.setAttribute('list', this.props.list) } else {  this.vars.element.removeAttribute('list') }
+                if (this.props.listName) { this.vars.element.setAttribute('list', this.props.listName) } else {  this.vars.element.removeAttribute('list') }
                 if (this.props.min != Number.MAX_VALUE) { this.vars.element.setAttribute(`min`, this.props.min) }
                 if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
                 if (this.props.isPassword) { eyeField.setAttribute('class', `button`) }
@@ -28,13 +28,22 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
-            async onFocus(event) { 
+            async onFocus(event) {
+                this.validate()
+            }
+            async onBlur(event) { 
                 while (this.vars.errorElement.firstChild) {
                     this.vars.errorElement.removeChild(this.vars.errorElement.firstChild);
                 }
             }
-            async onBlur(event) { 
-                let results = await suite(`Test field contents onblur`, `Ensure field meets all requirements.`, [
+            async onInput(event) {
+                this.validate()
+            }
+            async validate() {
+                while (this.vars.errorElement.firstChild) {
+                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild)
+                }
+                let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, [
                     await test (`Test required`, `Ensure required field has a value.`, [async () => {
                         let results = []
 
@@ -42,14 +51,6 @@
                         assert(0 < this.vars.element.value?.length,                             `Field '${this.props.name}' has content.`, results, true)
                         return results
                     }]),                    
-                ])
-                this.showErrors(results)
-            }
-            async onInput(event) {
-                while (this.vars.errorElement.firstChild) {
-                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild)
-                }
-                let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, [
                     await test (`Test minlength`, `Ensure field is no shorter than ${this.props.minlength}.`, [async () => {
                         let results = []
 
@@ -92,10 +93,12 @@
                 for (const test of suiteResultsTree.nodes) {
                     for (const assertion of test.children) {
                         let errorDiv = document.createElement(`div`)
+                        let mark = (assertion.passed)? `✓` : `✗`
 
-                        errorDiv.innerText = `assertion.description ${assertion.description} assertion.passed ${assertion.passed}`
+                        errorDiv.innerText = `${mark} ${assertion.description}`
+                        if (assertion.passed) { errorDiv.setAttribute(`class`, `caption-2 success`) }
+                        else { errorDiv.setAttribute(`class`, `caption-2 error`) }
                         this.vars.errorElement.appendChild(errorDiv);
-                        console.log(`assertion.description ${assertion.description} assertion.passed ${assertion.passed}`)
                     }
                 }
             }

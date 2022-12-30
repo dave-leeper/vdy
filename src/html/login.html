@@ -37,38 +37,15 @@
       }
     </script>
   </head>
-  <body class="margin-5 bg-grey-e">
-    <div class="h300px margin-b-50">
-      <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
-    </div>
-    <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="TextField1">
-      <include-props class="display-none">{ 
-        placeholder: `Text goes here.`, 
-        name: `MyField`, 
-        label: `MyLabel`, 
-        required: true, 
-        readonly: false, 
-        disabled: false, 
-        autofocus: true, 
-        autocomplete: true,
-        minlength: 3,
-        min: 666
-      }
-      </include-props>
-      <include-vars class="display-none">{ 
-        type: `text`
-      }
-      </include-vars>
-    </include-html>
-    <datalist id="browsers">
-      <option value="Internet Explorer">
-      <option value="Firefox">
-      <option value="Google Chrome">
-      <option value="Opera">
-      <option value="Safari">
-    </datalist>
-    <div class="w33">
-      <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList1"></include-html>
-    </div>
-  </body>
+  <body class="flex-col margin-5 bg-grey-e">
+    <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="User">
+        <include-props class="display-none">{ placeholder: `User`, name: `UserField`, label: `User`, required: true, autofocus: true,autocomplete: true, minlength: 2 }</include-props>
+        <include-vars class="display-none">{ type: `text` } </include-vars>
+      </include-html>
+      <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="Password">
+        <include-props class="display-none">{ name: `PasswordField`, label: `Password`, required: true, autofocus: true, minlength: 2 }</include-props>
+        <include-vars class="display-none">{ type: `password` }
+        </include-vars>
+      </include-html>
+      </body>
 </html>

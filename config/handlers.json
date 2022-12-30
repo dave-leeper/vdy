@@ -23,6 +23,16 @@
             "args": {
                 "file": "./html/index.html"
             }
+        },
+        {
+            "name": "Load Login file.",
+            "verb": "GET",
+            "path": "/login",
+            "handler": "file.js",
+            "log": "NONE",
+            "args": {
+                "file": "./html/login.html"
+            }
         }
     ],
     "database": [
@@ -41,7 +51,7 @@
         {
             "name": "Login.",
             "verb": "POST",
-            "path": "/login",
+            "path": "/login-attempt",
             "handler": "login.js",
             "log": "NONE"
         }

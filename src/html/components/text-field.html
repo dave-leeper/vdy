@@ -48,7 +48,7 @@
                         let results = []
 
                         if (!this.props.required) { return results }
-                        assert(0 < this.vars.element.value?.length,                             `Field '${this.props.name}' has content.`, results, true)
+                        assert(0 < this.vars.element.value?.length,                             `Field '${this.props.name}' is required.`, results, true)
                         return results
                     }]),                    
                     await test (`Test minlength`, `Ensure field is no shorter than ${this.props.minlength}.`, [async () => {
@@ -145,11 +145,12 @@
     </style>
     <component-markup>
         <div>
-            <label id="{componentObjectId}-label" for="{name}">{label}</label>
+            <label id="{componentObjectId}-label" for="{name}" class="text-field-label">{label}</label>
             <div>
                 <div class="flex-row">
                     <input 
                         id="{componentObjectId}" 
+                        class="text-field"
                         type="{type}" 
                         name="{name}"
                         size="{size}"

@@ -7,10 +7,13 @@
             afterMount() {
                 const jwt = Registry.get(`JWT`)
                 const replyElement = document.getElementById(`${this.props.componentObjectId}-reply`)
+                const reviewElementId = this.props.componentObjectId.slice(0, -4)
+                const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
 
                 if (!jwt?.roles) { return }
                 if (!jwt.roles.includes("Admin")) { return }
                 if (!replyElement) { return }
+                if (reviewObject.hasReply()) { return }
                 replyElement.setAttribute(`class`, `text-button`)
             }
             beforeUnmount() { }
@@ -20,12 +23,13 @@
             incrimentCool() { this.vars.coolCount++ }
             reply() { alert(`reply`) }
             props = {
-                componentObjectId: "",
+                componentObjectId: ``,
             }
             vars = {
                 usefulCount: 0,
                 funnyCount: 0,
                 coolCount: 0,
+                replyId: ``,
             }
         }
     </script>

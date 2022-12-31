@@ -60,7 +60,6 @@
                 let results = []
 
                 for (let loop = 0; loop < data.length; loop++) {
-                    console.log(data[loop])
                     let review = data[loop].review
                     let reply = data[loop].reply
                     let newInclude = document.createElement("include-html", { })
@@ -70,12 +69,10 @@
                     newInclude.setAttribute(`src`, `./html/components/reviews/review.html`)
                     newInclude.setAttribute(`component-class`, `Review`)
                     newInclude.setAttribute(`component-id`, `Review-${review.id}`)
-                    newInclude.setAttribute(`data-id`, `${review.id}`)
                     if (!review.image) { review.image = `./images/generic-avatar.png` }
 
                     let innerText = "{ "
                     innerText += "reviewId: `" + review.id + "`, "
-                    if (reply) { innerText += "replyId: `" + reply.id + "`, " }
                     innerText += "imageURL: `" + review.image + "`, "
                     innerText += "firstName: `" + review.name.first + "`, "
                     innerText += "lastName: `" + review.name.last + "`, "
@@ -95,8 +92,7 @@
 
                     let newIncludeVars = document.createElement("include-vars", { })
 
-                    innerText = "{ "
-                    innerText += "replyId: `" + reply.id + "` }"
+                    innerText = "{ replyId: `" + reply.id + "` }"
                     newIncludeVars.innerText = innerText
                     newInclude.appendChild(newIncludeVars)
 
@@ -139,7 +135,7 @@
             }
             vars = {
                 reviews: null,
-                loadingClass: `flex-row flex-space-between`,
+                loadingClass: `flex-row flex-space-between`
             }
         }
     </script>

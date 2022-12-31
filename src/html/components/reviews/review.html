@@ -15,7 +15,7 @@
                 return document.getElementById(`Reply-${this.vars.replyId}`)
             }
             hasReply() {
-                return null !== this.vars.replyId
+                return !!this.vars.replyId
             }
             props = {
                 componentObjectId: ``,
@@ -65,7 +65,7 @@
                     <include-vars class="display-none">{ text: `{review}` }</include-vars>
                 </include-html>
                 <include-html include-in="review.html" src="./html/components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}-ufc">
-                    <include-vars class="display-none">{ usefulCount: {usefulCount}, funnyCount: {funnyCount}, coolCount: {coolCount} }</include-vars>
+                    <include-vars class="display-none">{ usefulCount: {usefulCount}, funnyCount: {funnyCount}, coolCount: {coolCount}, replyId: `{replyId}` }</include-vars>
                 </include-html>
             </section>
         </section>

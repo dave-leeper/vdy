@@ -151,6 +151,7 @@ class VanillaComponentLifecycle {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
 
             const formattedMember = `{${member}}`
+
             const originalMatches = -1 !== node.originalNodeValue.indexOf(formattedMember)
             const matches = -1 !== node.nodeValue.indexOf(formattedMember)
             if (originalMatches || matches) {
@@ -203,6 +204,8 @@ class VanillaComponentLifecycle {
 
         componentObject.vars.$varsStore = {...componentObject.vars}
         for (let member of members) {
+            if (`Review` === componentObject.className()) {
+            }
             Object.defineProperty(componentObject.vars, member, {
                 get: function() {
                     return componentObject.vars.$varsStore[member]

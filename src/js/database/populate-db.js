@@ -20,6 +20,13 @@ module.exports = {
         password: `Admin`,
         roles: [`Admin`],
       })
+      await surrealDBCreate(db, `user:Vincent`, {
+        name: `Vincent`,
+        password: `Vincent`,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        roles: [`Admin`],
+      })
+
       await surrealDBDelete(db, `review`)
       await surrealDBCreate(db, `review:19`, {
         name: {

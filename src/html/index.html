@@ -13,6 +13,7 @@
     <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
     <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
     <script type="text/javascript" src="./js/include.js"></script>
+    <script type="text/javascript" src="./js/registry-client-side.js"></script>
     <script type="text/javascript" src="./js/test.js"></script>
     <script type="text/javascript" src="./js/purify.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
@@ -27,46 +28,16 @@
         r.style.setProperty('--button-border-color', blue50);
       }
       setCSSDefaults()
-      async function login() {
-        const response = await fetch(`http://127.0.0.1:8080/login`, {
-          method: 'POST', 
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({name: "Admin", "password": "Admin"})
-        });
-        console.log(response)
-      }
+      let jwt = {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ2ZHkiLCJyb2xlcyI6WyJBZG1pbiJdLCJpYXQiOjE2NzI0NTY0NjV9.WWL8ACL8fCd8zM_DGEgI58Ku59kJnE3UBi1Sew4c9QQ","roles":["Admin"]}
+
+      Registry.register(jwt, `JWT`)
+      console.log(Registry.get(`JWT`))
     </script>
   </head>
   <body class="margin-5 bg-grey-e">
     <div class="h300px margin-b-50">
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
     </div>
-    <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="TextField1">
-      <include-props class="display-none">{ 
-        placeholder: `Text goes here.`, 
-        name: `MyField`, 
-        label: `MyLabel`, 
-        required: true, 
-        readonly: false, 
-        disabled: false, 
-        autofocus: true, 
-        autocomplete: true,
-        minlength: 3,
-        min: 666
-      }
-      </include-props>
-      <include-vars class="display-none">{ 
-        type: `text`
-      }
-      </include-vars>
-    </include-html>
-    <datalist id="browsers">
-      <option value="Internet Explorer">
-      <option value="Firefox">
-      <option value="Google Chrome">
-      <option value="Opera">
-      <option value="Safari">
-    </datalist>
     <div class="w33">
       <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList1"></include-html>
     </div>

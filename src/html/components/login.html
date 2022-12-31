@@ -1,0 +1,60 @@
+<vanilla-component>
+    <script>
+        class Login{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            async login() {
+                let user = Vanilla.getComponentObject(`LoginUser`)
+                let password = Vanilla.getComponentObject(`LoginPassword`)
+                let login = {name: "", password: ""}
+
+                if (!user.vars.valid || !password.vars.valid) {
+                    alert(`Invalid user name or password.`)
+                    return
+                }
+                login.name = user.vars.value
+                login.password = password.vars.value
+
+                const response = await fetch(`http://127.0.0.1:8080/login-attempt`, {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(login)
+                });
+                if (200 !== response.status) { return }
+                let jwt = await response.text()
+                
+                Registry.register(jwt, `JWT`)
+                console.log(Registry.get(`JWT`))
+            }
+            props = {
+                componentObjectId: "",
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <section class="flex-col flex-align-center margin-5 bg-grey-e w100">
+            <h1 class="header-6 margin-5">Login To Vince Drives You</h1>
+            <span class="flex-col flex-align-start round-5px border-solid border-2 border-blue-50 w300px h100 pad-10">
+                <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="LoginUser">
+                    <include-props class="display-none">{ name: `UserField`, placeholder: `User`, label: `User`, labelAboveField: true, required: true, autofocus: true, autocomplete: true, minlength: 2 }</include-props>
+                    <include-vars class="display-none">{ type: `text` } </include-vars>
+                </include-html>
+                <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="LoginPassword">
+                    <include-props class="display-none">{ name: `PasswordField`, label: `Password`, labelAboveField: true, required: true, minlength: 2 }</include-props>
+                    <include-vars class="display-none">{ type: `password` }</include-vars>
+                </include-html>
+                <div id="login-button" class="flex-col flex-align-end w100 margin-t-5" onclick="$obj.login()">
+                    <div class="button">Login</div>
+                </div>
+            </span>
+        </section>
+    </component-markup>
+</vanilla-component>

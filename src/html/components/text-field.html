@@ -7,24 +7,26 @@
             initialize(componentObjectId) { 
                 this.props.componentObjectId = componentObjectId
                 this.props.isPassword = `password` === this.vars.type.toLowerCase()
+                this.vars.valid = false
             }
             beforeMount() { }
             afterMount() { 
+                let wrapper = document.getElementById(`${this.props.componentObjectId}-wrapper`)
                 let eyeField = document.getElementById(`${this.props.componentObjectId}-eye`)
 
                 this.vars.element = document.getElementById(this.props.componentObjectId)
                 this.vars.errorElement = document.getElementById(`${this.props.componentObjectId}-error`)
 
-                if (this.props.required) { this.vars.element.setAttribute('required', true) } else {  this.vars.element.removeAttribute('required') }
-                if (this.props.readonly) { this.vars.element.setAttribute('readonly', true) } else {  this.vars.element.removeAttribute('readonly') }
-                if (this.props.disabled) { this.vars.element.setAttribute('disabled', true) } else {  this.vars.element.removeAttribute('disabled') }
-                if (this.props.autofocus) { this.vars.element.setAttribute('autofocus', true) } else {  this.vars.element.removeAttribute('autofocus') }
-                if (this.props.autocomplete) { this.vars.element.setAttribute('autocomplete', true) } else {  this.vars.element.removeAttribute('autocomplete') }
-                if (this.props.listName) { this.vars.element.setAttribute('list', this.props.listName) } else {  this.vars.element.removeAttribute('list') }
+                if (this.props.required) { this.vars.element.setAttribute('required', true) } else { this.vars.element.removeAttribute('required') }
+                if (this.props.readonly) { this.vars.element.setAttribute('readonly', true) } else { this.vars.element.removeAttribute('readonly') }
+                if (this.props.disabled) { this.vars.element.setAttribute('disabled', true) } else { this.vars.element.removeAttribute('disabled') }
+                if (this.props.autofocus) { this.vars.element.setAttribute('autofocus', true) } else { this.vars.element.removeAttribute('autofocus') }
+                if (this.props.autocomplete) { this.vars.element.setAttribute('autocomplete', true) } else { this.vars.element.removeAttribute('autocomplete') }
+                if (this.props.listName) { this.vars.element.setAttribute('list', this.props.listName) } else { this.vars.element.removeAttribute('list') }
                 if (this.props.min != Number.MAX_VALUE) { this.vars.element.setAttribute(`min`, this.props.min) }
                 if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
-                if (this.props.isPassword) { eyeField.setAttribute('class', `button`) }
-                else { eyeField.setAttribute('class', `display-none`) }
+                if (this.props.labelAboveField) { wrapper.setAttribute('class', `flex-col`) } else { wrapper.setAttribute('class', `flex-row`) }
+                if (this.props.isPassword) { eyeField.setAttribute('class', `button`) } else { eyeField.setAttribute('class', `display-none`) }
             }
             beforeUnmount() { }
             afterUnmount() { }
@@ -40,6 +42,7 @@
                 this.validate()
             }
             async validate() {
+                this.vars.valid = false
                 while (this.vars.errorElement.firstChild) {
                     this.vars.errorElement.removeChild(this.vars.errorElement.firstChild)
                 }
@@ -87,6 +90,8 @@
                         return results
                     }]),
                 ])
+                this.vars.valid = (0 === results.failCount)
+                if (this.vars.valid) { this.vars.value = this.vars.element.value }
                 this.showErrors(results)
             }
             showErrors(suiteResultsTree) {
@@ -144,7 +149,7 @@
     <style>
     </style>
     <component-markup>
-        <div>
+        <div id="{componentObjectId}-wrapper">
             <label id="{componentObjectId}-label" for="{name}" class="text-field-label">{label}</label>
             <div>
                 <div class="flex-row">

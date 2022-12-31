@@ -785,6 +785,7 @@ class Loader {
         customElements.define('include-html', class IncludeHTMLElement extends HTMLElement { }, { })
         customElements.define('include-props', class IncludePropsElement extends HTMLElement { }, { })
         customElements.define('include-vars', class IncludeVarsElement extends HTMLElement { }, { })
+        customElements.define('include-slot', class IncludeVarsElement extends HTMLElement { }, { })
     }
 }
 

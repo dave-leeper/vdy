@@ -2,11 +2,11 @@
     <script>
         class ReplyDialog{
             className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() {
+            initialize(componentObjectId) { 
                 const reviewObj = Vanilla.getComponentObject(`Review-${this.props.reviewId}`)
                 const replyObj = Vanilla.getComponentObject(`Reply-${this.props.replyId}`)
 
+                this.props.componentObjectId = componentObjectId 
                 this.vars.reviewImageURL = reviewObj.props.imageURL
                 this.vars.reviewFirstName = reviewObj.props.firstName
                 this.vars.reviewLastName = reviewObj.props.lastName
@@ -16,21 +16,31 @@
                 this.vars.reviewRating = reviewObj.props.rating
                 this.vars.review = reviewObj.props.review
                 this.vars.reply = replyObj.vars.reply
-             }
-            afterMount() { 
-                console.log(`review: ${console.dir(this.vars)}`)
             }
-            beforeUnmount() { }
-            afterUnmount() { window.onclick = undefined }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { 
+                
+            }
+            afterUnmount() { }
             show() {
                 const modal = document.getElementById(this.props.componentObjectId)
 
                 modal.setAttribute(`class`, `display-block modal`)
             }
-            hide() {
+            async hide() {
                 const modal = document.getElementById(this.props.componentObjectId)
 
                 modal.setAttribute(`class`, `display-none modal`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-avatar`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-avatar`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-stars`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-stars`)
+                await VanillaComponentLifecycle.unmount(this.props.componentObjectId)
+                await VanillaComponentLifecycle.unregisterComponentObject(this.props.componentObjectId)
+                await VanillaComponentLifecycle.unregisterDOMFragment(this.className())
             }
             save() {
                 this.hide()

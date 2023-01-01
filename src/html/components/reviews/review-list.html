@@ -96,7 +96,6 @@
                     propsInnerText += "date: `" + reply.date + "` }"
 
                     varsInnerText = reply.reply? "{ reply: `" + reply.reply + "` }" : "{ reply: `` }"
-                    console.log(varsInnerText)
 
                     newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply-${reply.id}`, propsInnerText, varsInnerText)
                     results.push(newInclude)

@@ -509,7 +509,7 @@ class VanillaComponentLifecycle {
             console.error(`unregisterComponentObject: Component object ${componentObjectID} was not in registery.`)
             return false 
         }
-        if (!window.$vanilla.objectRegistry.get(componentObjectID).mounted) { 
+        if (window.$vanilla.objectRegistry.get(componentObjectID).mounted) { 
             console.error(`unregisterComponentObject: Cannot unregister a mounted component, ${componentObjectID}.`)
             return false 
         }
@@ -589,7 +589,7 @@ class VanillaComponentLifecycle {
             return false 
         }
         if (!marker) { 
-            console.error(`Unmount: Marker for ${componentObjectId} not in DOM.`)
+            console.error(`Unmount: Marker for ${componentObjectId}, ${markerId}, not in DOM.`)
             return false 
         }
         if (!markup) { 

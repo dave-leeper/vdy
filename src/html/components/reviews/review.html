@@ -10,6 +10,9 @@
             getReviewElement() {
                 return document.getElementById(`Review-${this.props.reviewId}`)
             }
+            getReviewObject() {
+                return Vanilla.getComponentObject(`Review-${this.props.reviewId}`)
+            }
             getReplyElement() {
                 if (!this.hasReply()) { return null }
                 return document.getElementById(`Reply-${this.vars.replyId}`)
@@ -17,8 +20,20 @@
             hasReply() {
                 return !!this.vars.replyId
             }
-            reply() {
-                alert(`reply`)
+            async reply() {
+                const reviewObject = this.getReviewObject()
+                let propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
+
+                if (!document.getElementById(`ReplyDialog`)) {
+                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
+
+                    this.getReviewElement().appendChild(newInclude)
+                    await Loader.loadIncludes()
+                }
+
+                const replyDialog = Vanilla.getComponentObject(`ReplyDialog`)
+
+                replyDialog.show()
             }
             props = {
                 componentObjectId: ``,

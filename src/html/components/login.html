@@ -10,7 +10,7 @@
             async login() {
                 let user = Vanilla.getComponentObject(`LoginUser`)
                 let password = Vanilla.getComponentObject(`LoginPassword`)
-                let login = {name: "", password: ""}
+                let login = {name: ``, password: ``}
 
                 if (!user.vars.valid || !password.vars.valid) {
                     alert(`Invalid user name or password.`)
@@ -24,14 +24,65 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(login)
                 });
-                if (200 !== response.status) { return }
-                let jwt = await response.text()
+                if (200 !== response.status) { 
+                    if (500 >= response.status) { alert(`Login not accepted.`) }
+                    else { alert(`Error processing login.`) }
+                    return
+                 }
+                let token = await response.text()
                 
-                Registry.register(jwt, `JWT`)
-                console.log(Registry.get(`JWT`))
+                alert(`token from server: ${JSON.stringify(token)}`)
+                this.storeCredentials(token)
+            }
+            storeCredentials(token) {
+                const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
+
+                if (!indexedDB) { alert(`Error storing credentials. IndexedDB not found.`) }
+                
+                const request = indexedDB.open(`tokens`, 1)
+
+                request.onerror = (event) => {
+                    alert(`Error storing credentials.`)
+                }
+                request.onupgradeneeded = function () {
+                    const db = request.result
+                    const store = db.createObjectStore(`tokens`, { keyPath: `id` })
+                }
+                request.onsuccess = function () {
+                    const db = request.result;
+                    const transaction = db.transaction(`tokens`, `readwrite`)
+                    const store = transaction.objectStore(`tokens`)
+
+                    store.put({ id: `user`, token: token });
+                    transaction.oncomplete = function () { 
+                        db.close() 
+                    }
+                }
+
+            }
+            static getCredentials(callback) {
+                const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
+
+                if (!indexedDB) { alert(`Error retrieving credentials. IndexedDB not found.`) }
+                
+                const request = indexedDB.open(`tokens`, 1)
+
+                request.onerror = (event) => {
+                    callback(`Error reading credentials.`, null)
+                }
+                request.onsuccess = function () {
+                    const db = request.result;
+                    const transaction = db.transaction(`tokens`, `readwrite`)
+                    const store = transaction.objectStore(`tokens`)
+                    const query = store.get(`user`)
+
+                    query.onsuccess = function () {
+                        callback(null, query.result)
+                    }
+                }
             }
             props = {
-                componentObjectId: "",
+                componentObjectId: ``,
             }
         }
     </script>
@@ -44,17 +95,19 @@
             <h1 class="header-6 margin-5">Login To Vince Drives You</h1>
             <span class="flex-col flex-align-start round-5px border-solid border-2 border-blue-50 w300px h100 pad-10">
                 <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="LoginUser">
-                    <include-props class="display-none">{ name: `UserField`, placeholder: `User`, label: `User`, labelAboveField: true, required: true, autofocus: true, autocomplete: true, minlength: 2 }</include-props>
+                    <include-props class="display-none">{ name: `UserField`, placeholder: `User`, label: `User`, labelAboveField: false, required: true, autofocus: true, autocomplete: true, minlength: 2 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="LoginPassword">
-                    <include-props class="display-none">{ name: `PasswordField`, label: `Password`, labelAboveField: true, required: true, minlength: 2 }</include-props>
+                    <include-props class="display-none">{ name: `PasswordField`, label: `Password`, labelAboveField: false, required: true, minlength: 2, size: 22 }</include-props>
                     <include-vars class="display-none">{ type: `password` }</include-vars>
                 </include-html>
-                <div id="login-button" class="flex-col flex-align-end w100 margin-t-5" onclick="$obj.login()">
+                <div id="login-button" class="flex-col flex-align-end w100 margin-t-25" onclick="$obj.login()">
                     <div class="button">Login</div>
                 </div>
             </span>
         </section>
     </component-markup>
 </vanilla-component>
+
+

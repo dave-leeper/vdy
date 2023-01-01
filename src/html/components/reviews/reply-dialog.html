@@ -4,7 +4,6 @@
             className() {return this.constructor.name }
             initialize(componentObjectId) { 
                 const reviewObj = Vanilla.getComponentObject(`Review-${this.props.reviewId}`)
-                const replyObj = Vanilla.getComponentObject(`Reply-${this.props.replyId}`)
 
                 this.props.componentObjectId = componentObjectId 
                 this.vars.reviewImageURL = reviewObj.props.imageURL
@@ -15,13 +14,18 @@
                 this.vars.reviewDate = reviewObj.props.date
                 this.vars.reviewRating = reviewObj.props.rating
                 this.vars.review = reviewObj.props.review
-                this.vars.reply = replyObj.vars.reply
+
+                this.vars.editingExistingReply = false
+                if (this.props.replyId && this.props.replyId !== `undefined`) {
+                    const replyObj = Vanilla.getComponentObject(`Reply-${this.props.replyId}`)
+
+                    this.vars.reply = replyObj.vars.reply
+                    this.vars.editingExistingReply = true
+                }
             }
             beforeMount() { }
             afterMount() { }
-            beforeUnmount() { 
-                
-            }
+            beforeUnmount() { }
             afterUnmount() { }
             show() {
                 const modal = document.getElementById(this.props.componentObjectId)
@@ -59,7 +63,8 @@
                 reviewDate: ``,
                 review: ` `,
                 reviewRating: 0,
-                reply: ` `
+                reply: ` `,
+                editingExistingReply: false
             }
         }
     </script>

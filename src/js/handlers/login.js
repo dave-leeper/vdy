@@ -64,8 +64,11 @@ module.exports = (name, args) => {
         const claims = { iss: `vdy`, roles: queryResult[0].result[0].roles }
         const token = jwt.sign(claims, jwtSecretKey)
         const roles = queryResult[0].result[0].roles
-        const registryEntry = { expires: new Date().addHours(1), name, roles }
-        const clientResponse = { token, roles }
+        const image = queryResult[0].result[0].image? queryResult[0].result[0].image : `generic-avatar`
+        const registryEntry = { expires: new Date().addHours(1), name, roles, image }
+        const clientResponse = { token, roles, image }
+
+        console.log(JSON.stringify(clientResponse))
 
         Registry.register(registryEntry, token)
         res.send(JSON.stringify(clientResponse))

@@ -25,13 +25,13 @@
             }
         },
         {
-            "name": "Load Login file.",
+            "name": "Load Login page.",
             "verb": "GET",
             "path": "/login",
             "handler": "file.js",
             "log": "NONE",
             "args": {
-                "file": "./html/login.html"
+                "file": "./html/login-page.html"
             }
         }
     ],

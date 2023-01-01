@@ -26,20 +26,10 @@
             }
             async edit() { 
                 const reviewObject = this.getReviewObject()
-                const varsInnerText = "{ reply: `" + ((this.vars.reply)? this.vars.reply : `Reply`)  + "` }"
-                let propsInnerText = "{ review: `" + reviewObject.props.review + "`, "
-
-                console.log(reviewObject)
-                propsInnerText += "imageURL: `" + reviewObject.props.imageURL + "`, "
-                propsInnerText += "firstName: `" + reviewObject.props.firstName + "`, "
-                propsInnerText += "lastName: `" + reviewObject.props.lastName + "`, "
-                propsInnerText += "date: `" + reviewObject.props.date + "`, "
-                propsInnerText += "city: `" + reviewObject.props.city + "`, "
-                propsInnerText += "state: `" + reviewObject.props.state + "`, "
-                propsInnerText += "rating: " + reviewObject.props.rating + " }"
+                let propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
 
                 if (!document.getElementById(`ReplyDialog`)) {
-                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, varsInnerText)
+                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
 
                     this.getReviewElement().appendChild(newInclude)
                     await Loader.loadIncludes()

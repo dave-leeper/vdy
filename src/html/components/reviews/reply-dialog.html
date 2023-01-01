@@ -3,14 +3,27 @@
         class ReplyDialog{
             className() {return this.constructor.name }
             initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
-            afterMount() { }
+            beforeMount() {
+                const reviewObj = Vanilla.getComponentObject(`Review-${this.props.reviewId}`)
+                const replyObj = Vanilla.getComponentObject(`Reply-${this.props.replyId}`)
+
+                this.vars.reviewImageURL = reviewObj.props.imageURL
+                this.vars.reviewFirstName = reviewObj.props.firstName
+                this.vars.reviewLastName = reviewObj.props.lastName
+                this.vars.reviewCity = reviewObj.props.city
+                this.vars.reviewState = reviewObj.props.state
+                this.vars.reviewDate = reviewObj.props.date
+                this.vars.reviewRating = reviewObj.props.rating
+                this.vars.review = reviewObj.props.review
+                this.vars.reply = replyObj.vars.reply
+             }
+            afterMount() { 
+                console.log(`review: ${console.dir(this.vars)}`)
+            }
             beforeUnmount() { }
             afterUnmount() { window.onclick = undefined }
             show() {
                 const modal = document.getElementById(this.props.componentObjectId)
-                console.log(this.props.componentObjectId)
-                console.dir(modal)
 
                 modal.setAttribute(`class`, `display-block modal`)
             }
@@ -24,17 +37,19 @@
             }
             props = {
                 componentObjectId: ``,
-                review: ``
+                reviewId: ``,
+                replyId: ``
             }
             vars = {
-                reply: ``,
-                imageURL: ``,
-                firstName: ``,
-                lastName: ``,
-                city: ``,
-                state: ``,
-                date: ``,
-                rating: 0
+                reviewImageURL: ``,
+                reviewFirstName: ``,
+                reviewLastName: ``,
+                reviewCity: ``,
+                reviewState: `AZ`,
+                reviewDate: ``,
+                review: ` `,
+                reviewRating: 0,
+                reply: ` `
             }
         }
     </script>
@@ -46,31 +61,31 @@
     <component-markup>
         <div id="{componentObjectId}" class="modal display-none" onclick="$obj.hide()">
               <div id="{componentObjectId}-frame" class="modal-content" onclick="event.stopPropagation()">
-                <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
+                <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
                     <include-props class="display-none">
                         { 
-                            imageURL: `{imageURL}`,
-                            firstName: `{firstName}`,
-                            lastName: `{lastName}`,
-                            city: `{city}`,
-                            state: `{state}`,
-                            date: `{date}`
+                            imageURL: `{reviewImageURL}`,
+                            firstName: `{reviewFirstName}`,
+                            lastName: `{reviewLastName}`,
+                            city: `{reviewCity}`,
+                            state: `{reviewState}`,
+                            date: `{reviewDate}`
                         }          
                     </include-props>
                 </include-html>
-                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+                <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
                     <include-props class="display-none">{ editable: false }</include-props>
-                    <include-vars class="display-none">{ rating: {rating} }</include-vars>
+                    <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
                 </include-html>
                 <div class="flex-col margin-b-10">
                     <h3 id="{componentObjectId}-review-title" class="subtitle-2">Review</h3>
-                    <p id="{componentObjectId}-review" class="caption-1">{review}</p>
+                    <p id="{componentObjectId}-review" class="caption-1 whitespace-pre-wrap">{review}</p>
                 </div>
                 <div class="flex-col margin-b-5">
                     <h3 id="{componentObjectId}-reply-title" class="subtitle-2">Reply</h3>
                     <textarea id="{componentObjectId}-reply-text" name="reply" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" autofocus>{reply}</textarea>
                 </div>
-                <div id="{componentObjectId}" class="flex-row flex-wrap margin-t-10">
+                <div id="{componentObjectId}" class="flex-row flex-wrap flex-end margin-t-10">
                     <div id="{componentObjectId}-useful" class="button" onclick="$obj.hide()">
                         <div id="{componentObjectId}-useful-text" class="margin-1">Cancel</div> 
                     </div>

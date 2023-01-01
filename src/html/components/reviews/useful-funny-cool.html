@@ -21,7 +21,12 @@
             incrimentUseful() { this.vars.usefulCount++; }
             incrimentFunny() { this.vars.funnyCount++ }
             incrimentCool() { this.vars.coolCount++ }
-            reply() { alert(`reply`) }
+            reply() { 
+                const reviewElementId = this.props.componentObjectId.slice(0, -4)
+                const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
+
+                reviewObject.reply()
+             }
             props = {
                 componentObjectId: ``,
             }

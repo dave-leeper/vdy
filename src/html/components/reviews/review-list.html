@@ -62,59 +62,43 @@
                 for (let loop = 0; loop < data.length; loop++) {
                     let review = data[loop].review
                     let reply = data[loop].reply
-                    let newInclude = document.createElement("include-html", { })
-                    let newIncludeProps = document.createElement("include-props", { })
+                    let propsInnerText = "{ "
+                    let varsInnerText = (reply)? "{ replyId: `" + reply.id + "` }" : null
 
-                    newInclude.setAttribute(`include-in`, `index.html`)
-                    newInclude.setAttribute(`src`, `./html/components/reviews/review.html`)
-                    newInclude.setAttribute(`component-class`, `Review`)
-                    newInclude.setAttribute(`component-id`, `Review-${review.id}`)
                     if (!review.image) { review.image = `./images/generic-avatar.png` }
+                    propsInnerText += "reviewId: `" + review.id + "`, "
+                    propsInnerText += "imageURL: `" + review.image + "`, "
+                    propsInnerText += "firstName: `" + review.name.first + "`, "
+                    propsInnerText += "lastName: `" + review.name.last + "`, "
+                    propsInnerText += "date: `" + review.date + "`, "
+                    propsInnerText += "city: `" + review.city + "`, "
+                    propsInnerText += "state: `" + review.state + "`, "
+                    propsInnerText += "rating: " + review.stars + ", "
+                    propsInnerText += "review: `" + review.review + "`, "
+                    propsInnerText += "usefulCount: " + review.usefulCount + ", "
+                    propsInnerText += "funnyCount: " + review.funnyCount + ", "
+                    propsInnerText += "coolCount: " + review.coolCount + " }"
 
-                    let innerText = "{ "
-                    innerText += "reviewId: `" + review.id + "`, "
-                    innerText += "imageURL: `" + review.image + "`, "
-                    innerText += "firstName: `" + review.name.first + "`, "
-                    innerText += "lastName: `" + review.name.last + "`, "
-                    innerText += "date: `" + review.date + "`, "
-                    innerText += "city: `" + review.city + "`, "
-                    innerText += "state: `" + review.state + "`, "
-                    innerText += "rating: " + review.stars + ", "
-                    innerText += "review: `" + review.review + "`, "
-                    innerText += "usefulCount: " + review.usefulCount + ", "
-                    innerText += "funnyCount: " + review.funnyCount + ", "
-                    innerText += "coolCount: " + review.coolCount + " }"
-                    newIncludeProps.innerText = innerText
-                    newInclude.appendChild(newIncludeProps)
+                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review-${review.id}`, propsInnerText, varsInnerText)
+
                     results.push(newInclude)
 
                     if (!reply) { continue }
-
-                    let newIncludeVars = document.createElement("include-vars", { })
-
-                    innerText = "{ replyId: `" + reply.id + "` }"
-                    newIncludeVars.innerText = innerText
-                    newInclude.appendChild(newIncludeVars)
-
-                    newInclude = document.createElement("include-html", { })
-                    newIncludeProps = document.createElement("include-props", { })
-                    newInclude.setAttribute(`include-in`, `index.html`)
-                    newInclude.setAttribute(`src`, `./html/components/reviews/reply.html`)
-                    newInclude.setAttribute(`component-class`, `Reply`)
-                    newInclude.setAttribute(`component-id`, `Reply-${reply.id}`)
-
                     if (!reply.image) { reply.image = `./images/generic-avatar.png` }
-                    innerText = "{ "
-                    innerText += "reviewId: `" + review.id + "`, "
-                    innerText += "replyId: `" + reply.id + "`, "
-                    innerText += "imageURL: `" + reply.image + "`, "
-                    innerText += "firstName: `" + reply.name.first + "`, "
-                    innerText += "lastName: `" + reply.name.last + "`, "
-                    innerText += "title: `" + reply.title + "`, "
-                    innerText += "date: `" + reply.date + "`, "
-                    innerText += "reply: `" + reply.reply + "` }"
-                    newIncludeProps.innerText = innerText
-                    newInclude.appendChild(newIncludeProps)
+
+                    propsInnerText = `{`
+                    propsInnerText += "reviewId: `" + review.id + "`, "
+                    propsInnerText += "replyId: `" + reply.id + "`, "
+                    propsInnerText += "imageURL: `" + reply.image + "`, "
+                    propsInnerText += "firstName: `" + reply.name.first + "`, "
+                    propsInnerText += "lastName: `" + reply.name.last + "`, "
+                    propsInnerText += "title: `" + reply.title + "`, "
+                    propsInnerText += "date: `" + reply.date + "` }"
+
+                    varsInnerText = reply.reply? "{ reply: `" + reply.reply + "` }" : "{ reply: `` }"
+                    console.log(varsInnerText)
+
+                    newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply-${reply.id}`, propsInnerText, varsInnerText)
                     results.push(newInclude)
                 }
                 return results

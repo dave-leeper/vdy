@@ -1,0 +1,84 @@
+<vanilla-component>
+    <script>
+        class ReplyDialog{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { window.onclick = undefined }
+            show() {
+                const modal = document.getElementById(this.props.componentObjectId)
+                console.log(this.props.componentObjectId)
+                console.dir(modal)
+
+                modal.setAttribute(`class`, `display-block modal`)
+            }
+            hide() {
+                const modal = document.getElementById(this.props.componentObjectId)
+
+                modal.setAttribute(`class`, `display-none modal`)
+            }
+            save() {
+                this.hide()
+            }
+            props = {
+                componentObjectId: ``,
+                review: ``
+            }
+            vars = {
+                reply: ``,
+                imageURL: ``,
+                firstName: ``,
+                lastName: ``,
+                city: ``,
+                state: ``,
+                date: ``,
+                rating: 0
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="modal display-none" onclick="$obj.hide()">
+              <div id="{componentObjectId}-frame" class="modal-content" onclick="event.stopPropagation()">
+                <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
+                    <include-props class="display-none">
+                        { 
+                            imageURL: `{imageURL}`,
+                            firstName: `{firstName}`,
+                            lastName: `{lastName}`,
+                            city: `{city}`,
+                            state: `{state}`,
+                            date: `{date}`
+                        }          
+                    </include-props>
+                </include-html>
+                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+                    <include-props class="display-none">{ editable: false }</include-props>
+                    <include-vars class="display-none">{ rating: {rating} }</include-vars>
+                </include-html>
+                <div class="flex-col margin-b-10">
+                    <h3 id="{componentObjectId}-review-title" class="subtitle-2">Review</h3>
+                    <p id="{componentObjectId}-review" class="caption-1">{review}</p>
+                </div>
+                <div class="flex-col margin-b-5">
+                    <h3 id="{componentObjectId}-reply-title" class="subtitle-2">Reply</h3>
+                    <textarea id="{componentObjectId}-reply-text" name="reply" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" autofocus>{reply}</textarea>
+                </div>
+                <div id="{componentObjectId}" class="flex-row flex-wrap margin-t-10">
+                    <div id="{componentObjectId}-useful" class="button" onclick="$obj.hide()">
+                        <div id="{componentObjectId}-useful-text" class="margin-1">Cancel</div> 
+                    </div>
+                    <div id="{componentObjectId}-funny" class="button" onclick="$obj.save()">
+                        <div id="{componentObjectId}-funny-text" class="margin-1">Save</div> 
+                    </div>
+                </div>    
+            </div>
+          </div>
+    </component-markup>
+</vanilla-component>

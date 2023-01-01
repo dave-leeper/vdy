@@ -635,6 +635,28 @@ class Vanilla {
         let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
         return componentObjectInfo.componentObject
     }
+    static createComponentInclude = (includeIn, src, componentClass, componentId, props, vars) => {
+        let newInclude = document.createElement(`include-html`, { })
+
+        newInclude.setAttribute(`include-in`, includeIn)
+        newInclude.setAttribute(`src`, src)
+        newInclude.setAttribute(`component-class`, componentClass)
+        newInclude.setAttribute(`component-id`, componentId)
+
+        if (props) {
+            let newIncludeProps = document.createElement(`include-props`, { })
+
+            newIncludeProps.innerText = props
+            newInclude.appendChild(newIncludeProps)
+        }
+        if (vars) {
+            let newIncludeVars = document.createElement(`include-vars`, { })
+
+            newIncludeVars.innerText = vars
+            newInclude.appendChild(newIncludeVars)
+        }
+        return newInclude
+    }
 }
 
 class Loader {

@@ -8,8 +8,8 @@
                 const jwt = Registry.get(`JWT`)
                 const replyElement = document.getElementById(`${this.props.componentObjectId}-edit`)
 
-                if (!jwt?.roles) { return }
-                if (!jwt.roles.includes("Admin")) { return }
+                if (!jwt?.token?.roles) { return }
+                if (!jwt.token.roles.includes("Admin")) { return }
                 if (!replyElement) { return }
                 replyElement.setAttribute(`class`, `text-button`)
             }

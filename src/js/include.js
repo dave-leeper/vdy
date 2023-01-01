@@ -657,6 +657,27 @@ class Vanilla {
         }
         return newInclude
     }
+    static getCredentials(callback) {
+        const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
+
+        if (!indexedDB) { alert(`Error retrieving credentials. IndexedDB not found.`) }
+        
+        const request = indexedDB.open(`tokens`, 1)
+
+        request.onerror = (event) => {
+            callback(`Error reading credentials.`, null)
+        }
+        request.onsuccess = function () {
+            const db = request.result;
+            const transaction = db.transaction(`tokens`, `readwrite`)
+            const store = transaction.objectStore(`tokens`)
+            const query = store.get(`user`)
+
+            query.onsuccess = function () {
+                callback(null, query.result)
+            }
+        }
+    }
 }
 
 class Loader {

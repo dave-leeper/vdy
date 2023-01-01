@@ -19,7 +19,7 @@
                 login.name = user.vars.value
                 login.password = password.vars.value
 
-                const response = await fetch(`http://127.0.0.1:8080/login-attempt`, {
+                const response = await fetch(`http://localhost:8080/login-attempt`, {
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(login)
@@ -31,8 +31,7 @@
                  }
                 let token = await response.text()
                 
-                alert(`token from server: ${JSON.stringify(token)}`)
-                this.storeCredentials(token)
+                this.storeCredentials(JSON.parse(token))
             }
             storeCredentials(token) {
                 const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
@@ -56,31 +55,10 @@
                     store.put({ id: `user`, token: token });
                     transaction.oncomplete = async function () { 
                         await db.close()
-                        window.location.href = `/index.html`
+                        window.location.href = `/index`
                     }
                 }
 
-            }
-            static getCredentials(callback) {
-                const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
-
-                if (!indexedDB) { alert(`Error retrieving credentials. IndexedDB not found.`) }
-                
-                const request = indexedDB.open(`tokens`, 1)
-
-                request.onerror = (event) => {
-                    callback(`Error reading credentials.`, null)
-                }
-                request.onsuccess = function () {
-                    const db = request.result;
-                    const transaction = db.transaction(`tokens`, `readwrite`)
-                    const store = transaction.objectStore(`tokens`)
-                    const query = store.get(`user`)
-
-                    query.onsuccess = function () {
-                        callback(null, query.result)
-                    }
-                }
             }
             props = {
                 componentObjectId: ``,

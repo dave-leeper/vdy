@@ -28,10 +28,12 @@
         r.style.setProperty('--button-border-color', blue50);
       }
       setCSSDefaults()
-      let jwt = {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ2ZHkiLCJyb2xlcyI6WyJBZG1pbiJdLCJpYXQiOjE2NzI0NTY0NjV9.WWL8ACL8fCd8zM_DGEgI58Ku59kJnE3UBi1Sew4c9QQ","roles":["Admin"]}
+      Vanilla.getCredentials((error, token) => { 
+        alert(`${error} ${JSON.stringify(token)}`) 
+        Registry.register(token, `JWT`)
+        console.log(Registry.get(`JWT`))
+      })
 
-      Registry.register(jwt, `JWT`)
-      console.log(Registry.get(`JWT`))
     </script>
   </head>
   <body class="margin-5 bg-grey-e">

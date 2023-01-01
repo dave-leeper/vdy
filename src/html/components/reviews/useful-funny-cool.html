@@ -10,8 +10,8 @@
                 const reviewElementId = this.props.componentObjectId.slice(0, -4)
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
 
-                if (!jwt?.roles) { return }
-                if (!jwt.roles.includes("Admin")) { return }
+                if (!jwt?.token?.roles) { return }
+                if (!jwt.token?.roles.includes("Admin")) { return }
                 if (!replyElement) { return }
                 if (reviewObject.hasReply()) { return }
                 replyElement.setAttribute(`class`, `text-button`)

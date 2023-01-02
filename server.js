@@ -20,6 +20,10 @@ const initializeServer = async () => {
         this.setHours(this.getHours() + numberOfHours);
         return this;
     }
+    Date.prototype.subtractHours = function(numberOfHours){
+        this.setHours(this.getHours() - numberOfHours);
+        return this;
+    }
 
     Registry.register(jwt, `JWT`)
 

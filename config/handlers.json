@@ -45,6 +45,13 @@
             "args": {
                 "table": "review"
             }
+        },
+        {
+            "name": "Add reply.",
+            "verb": "POST",
+            "path": "/add-replay",
+            "handler": "add-reply.js",
+            "log": "NONE"
         }
     ],
     "function": [

@@ -5,6 +5,7 @@ var atob = require('atob');
 module.exports.jwtValidation = async (authorizationHeader) => {
     //vvvvvvvvvvvvvvvvvv
     // Temp code for testing
+    // TODO: Remove this testing code
     const registryEntry = { expires: new Date().subtractHours(1), name: `Admin`, roles: [`Admin`], image: `generic-avatar` }
     Registry.register(registryEntry, `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ2ZHkiLCJyb2xlcyI6WyJBZG1pbiJdLCJpYXQiOjE2NzI2MzA0MTF9.-kS8LqAnwswCCinDeJubfNpHcjQltPOC68rGBR6IizE`)
     // ^^^^^^^^^^^^^^^^^

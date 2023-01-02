@@ -1,9 +1,9 @@
 const Registry = require(`../registry`)
+const {jwtCreate} = require(`./jwt-create`)
 
 module.exports = (name, args) => {
     return async (req, res, next) => {
         const db = Registry.get(`SurrealDBConnection`)
-        const jwt = Registry.get(`JWT`)
         const name = req.body.name
         const password = req.body.password
 
@@ -11,22 +11,6 @@ module.exports = (name, args) => {
             const err = `503 Service Unavailable`
 
             console.error(err + `: Database not available.`)
-            res.status(503).send(err)
-            next && next(err)
-            return
-        }
-        if (!jwt) {
-            const err = `503 Service Unavailable`
-
-            console.error(err + `: Javascript Web Token service not available.`)
-            res.status(503).send(err)
-            next && next(err)
-            return
-        }
-        if (!process.env.JWT_SECRET_KEY) {
-            const err = `503 Service Unavailable`
-
-            console.error(err + `: Javascript Web Token key not available.`)
             res.status(503).send(err)
             next && next(err)
             return
@@ -60,18 +44,15 @@ module.exports = (name, args) => {
             return
         }
 
-        const jwtSecretKey = process.env.JWT_SECRET_KEY
-        const claims = { iss: `vdy`, roles: queryResult[0].result[0].roles }
-        const token = jwt.sign(claims, jwtSecretKey)
-        const roles = queryResult[0].result[0].roles
-        const image = queryResult[0].result[0].image? queryResult[0].result[0].image : `generic-avatar`
-        const registryEntry = { expires: new Date().addHours(1), name, roles, image }
-        const clientResponse = { token, roles, image }
+        const jwtCreateResult = await jwtCreate(name)
 
-        console.log(JSON.stringify(clientResponse))
+        if (200 !== jwtCreateResult.status) {
+            res.status(jwtCreateResult.status).send(jwtCreateResult.err)
+            next && next(jwtCreateResult.err)
+            return
+        }
 
-        Registry.register(registryEntry, token)
-        res.send(JSON.stringify(clientResponse))
+        res.status(200).send(JSON.stringify(jwtCreateResult.clientResponse))
         next && next()
     }
 }

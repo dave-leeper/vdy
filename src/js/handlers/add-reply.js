@@ -37,7 +37,6 @@ module.exports = (name, args) => {
         }
 
         const jwtValidationResult = await jwtValidation(authorizationHeader)
-        console.log(jwtValidationResult)
 
         if (200 !== jwtValidationResult.status) {
             res.status(jwtValidationResult.status).send(jwtValidationResult.err)
@@ -55,7 +54,7 @@ module.exports = (name, args) => {
         await surrealDBCreate(db, newReplyId, reply)
     
         reply.id = newReplyId
-        res.send(JSON.stringify(reply))
+        res.status(200).send(JSON.stringify(reply))
         next && next()
     }
 }

@@ -23,42 +23,16 @@
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(login)
-                });
+                })
                 if (200 !== response.status) { 
                     if (500 >= response.status) { alert(`Login not accepted.`) }
                     else { alert(`Error processing login.`) }
                     return
-                 }
+                }
                 let token = await response.text()
-                
-                this.storeCredentials(JSON.parse(token))
-            }
-            storeCredentials(token) {
-                const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
 
-                if (!indexedDB) { alert(`Error storing credentials. IndexedDB not found.`) }
-                
-                const request = indexedDB.open(`tokens`, 1)
-
-                request.onerror = (event) => {
-                    alert(`Error storing credentials.`)
-                }
-                request.onupgradeneeded = function () {
-                    const db = request.result
-                    const store = db.createObjectStore(`tokens`, { keyPath: `id` })
-                }
-                request.onsuccess = function () {
-                    const db = request.result;
-                    const transaction = db.transaction(`tokens`, `readwrite`)
-                    const store = transaction.objectStore(`tokens`)
-
-                    store.put({ id: `user`, token: token });
-                    transaction.oncomplete = async function () { 
-                        await db.close()
-                        window.location.href = `/index`
-                    }
-                }
-
+                VanillaJWT.storeCredentials(JSON.parse(token))
+                window.location.href = `/index`
             }
             props = {
                 componentObjectId: ``,

@@ -39,8 +39,10 @@ module.exports.jwtCreate = async (name) => {
     const roles = queryResult[0].result[0].roles
     const image = queryResult[0].result[0].image? queryResult[0].result[0].image : `generic-avatar`
     const registryEntry = { expires: new Date().addHours(1), name, roles, image }
-    const clientResponse = { token, roles, image }
+    const clientResponse = { token, roles, image, name: queryResult[0].result[0].name, title: queryResult[0].result[0].title }
 
+    console.log(`registryEntry: ${JSON.stringify(registryEntry)}`)
+    console.log(`token: ${JSON.stringify(token)}`)
     Registry.register(registryEntry, token)
     return { status: 200, clientResponse }
 }

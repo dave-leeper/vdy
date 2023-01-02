@@ -608,6 +608,65 @@ class VanillaComponentLifecycle {
     }
 }
 
+class VanillaJWT {
+    static getCredentials(callback) {
+        const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
+
+        if (!indexedDB) { alert(`Error retrieving credentials. IndexedDB not found.`) }
+        
+        const request = indexedDB.open(`tokens`, 1)
+
+        request.onerror = (event) => {
+            callback(`Error reading credentials.`, null)
+        }
+        request.onsuccess = function () {
+            const db = request.result;
+            const transaction = db.transaction(`tokens`, `readwrite`)
+            const store = transaction.objectStore(`tokens`)
+            const query = store.get(`user`)
+
+            query.onsuccess = function () {
+                callback(null, query.result)
+            }
+        }
+    }
+    static storeCredentials(token) {
+        const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
+
+        if (!indexedDB) { alert(`Error storing credentials. IndexedDB not found.`) }
+        
+        const request = indexedDB.open(`tokens`, 1)
+
+        request.onerror = (event) => {
+            alert(`Error storing credentials.`)
+        }
+        request.onupgradeneeded = function () {
+            const db = request.result
+            const store = db.createObjectStore(`tokens`, { keyPath: `id` })
+        }
+        request.onsuccess = function () {
+            const db = request.result;
+            const transaction = db.transaction(`tokens`, `readwrite`)
+            const store = transaction.objectStore(`tokens`)
+
+            if (`generic-avatar` === token.image) { token.image = `./images/generic-avatar.png` }
+            store.put({ id: `user`, data: token });
+            transaction.oncomplete = function () { 
+                db.close()
+            }
+        }
+    }
+    static parseJWT (token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    }
+}
+
 class Vanilla {
     static getComponentFragment = (componentClass) => {
         if (!componentClass) { 
@@ -656,27 +715,6 @@ class Vanilla {
             newInclude.appendChild(newIncludeVars)
         }
         return newInclude
-    }
-    static getCredentials(callback) {
-        const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
-
-        if (!indexedDB) { alert(`Error retrieving credentials. IndexedDB not found.`) }
-        
-        const request = indexedDB.open(`tokens`, 1)
-
-        request.onerror = (event) => {
-            callback(`Error reading credentials.`, null)
-        }
-        request.onsuccess = function () {
-            const db = request.result;
-            const transaction = db.transaction(`tokens`, `readwrite`)
-            const store = transaction.objectStore(`tokens`)
-            const query = store.get(`user`)
-
-            query.onsuccess = function () {
-                callback(null, query.result)
-            }
-        }
     }
 }
 

@@ -5,13 +5,18 @@
             initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
             beforeMount() { }
             afterMount() { 
-                const jwt = Registry.get(`JWT`)
-                const replyElement = document.getElementById(`${this.props.componentObjectId}-edit`)
+                VanillaJWT.getCredentials(async (error, credentials) => {
+                    if (error) {
+                        // TODO: Display error message.
+                        return
+                    }
+                    const replyElement = document.getElementById(`${this.props.componentObjectId}-edit`)
 
-                if (!jwt?.token?.roles) { return }
-                if (!jwt.token.roles.includes("Admin")) { return }
-                if (!replyElement) { return }
-                replyElement.setAttribute(`class`, `text-button`)
+                    if (!credentials?.data?.roles) { return }
+                    if (!credentials.data.roles.includes("Admin")) { return }
+                    if (!replyElement) { return }
+                    replyElement.setAttribute(`class`, `text-button`)
+                })
             }
             beforeUnmount() { }
             afterUnmount() { }

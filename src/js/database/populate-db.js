@@ -16,12 +16,22 @@ module.exports = {
     try {
       await surrealDBDelete(db, `user`)
       await surrealDBCreate(db, `user:Admin`, {
-        name: `Admin`,
+        userName: `Admin`,
+        name: {
+          first: `Admin`,
+          last: `Admin`
+        },
+        title: `Admin`,
         password: `Admin`,
         roles: [`Admin`],
       })
       await surrealDBCreate(db, `user:Vincent`, {
-        name: `Vincent`,
+        userName: `Vincent`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        title: `Business Owner`,
         password: `Vincent`,
         image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
         roles: [`Admin`],

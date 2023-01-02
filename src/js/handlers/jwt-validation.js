@@ -11,7 +11,7 @@ module.exports.jwtValidation = async (authorizationHeader) => {
     // ^^^^^^^^^^^^^^^^^
 
     const jwt = Registry.get(`JWT`)
-    const jwtToken = authorizationHeader.substring(7, authorizationHeader.length)
+    const jwtToken = authorizationHeader.substring(7, authorizationHeader.length - 1).trim()
     const jwtRegistryInfo = Registry.get(jwtToken)
     const now = new Date()
     const expires = Date.parse(jwtRegistryInfo.expires)
@@ -22,7 +22,7 @@ module.exports.jwtValidation = async (authorizationHeader) => {
         console.error(err + `: Javascript Web Token service not available.`)
         return { status: 503, err }
     }
-    if (!authorizationHeader.startsWith("Bearer ")) {
+    if (!authorizationHeader.startsWith("'Bearer ")) {
         const err = `401 Unauthorized`
 
         console.error(err + `: Authorization header has an invalid format.`)

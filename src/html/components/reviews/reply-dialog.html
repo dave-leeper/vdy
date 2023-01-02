@@ -27,6 +27,19 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            onBlur(event) {
+                this.updateReply()
+            }
+            onInput(event) {
+                this.updateReply()
+            }
+            updateReply() {
+                const textAreaId = `${this.props.componentObjectId}-reply-text`
+                let textarea = document.getElementById(textAreaId)
+
+                this.vars.reply = textarea.value
+                console.log(this.vars.reply)
+            }
             show() {
                 const modal = document.getElementById(this.props.componentObjectId)
 
@@ -47,6 +60,55 @@
                 await VanillaComponentLifecycle.unregisterDOMFragment(this.className())
             }
             save() {
+                console.log(`Saving`)
+                VanillaJWT.getCredentials(async (error, credentials) => {
+                    if (error) {
+                        console.log(`Error getting credentials`)
+                        // TODO: Display error message.
+                        return
+                    }
+                    console.log(`credentials ${JSON.stringify(credentials)}`)
+                    console.log(`this.vars.editingExistingReply ${this.vars.editingExistingReply}`)
+
+                    if (this.vars.editingExistingReply) {
+
+                    } else {
+                        console.log(`Adding reply`)
+                        const reviewNumber = this.props.reviewId.split(`:`)[1]
+                        const reply = {
+                            replyingTo: reviewNumber,
+                            image: credentials.data.image,
+                            name: {
+                                first: credentials.data.name.first,
+                                last: credentials.data.name.last
+                            },
+                            title: `Business Owner`,
+                            reply: this.vars.reply
+                        }
+                        console.log(`Reply: ${JSON.stringify(reply)}`)
+                        const response = await fetch('http://localhost:8080/add-replay', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'Authorization': `'Bearer ${credentials.data.token}'`
+                            },
+                            body: JSON.stringify(reply)
+                        });
+                        const content = await response.json()
+                        console.log(`Response: ${JSON.stringify(content)}`)
+                        if (200 === response.status) {
+                            console.log(`Success`)
+                            // TODO: Show success message
+                            // TODO: Update credentials
+                        } else {
+                            console.log(`Error ${response.status}`)
+                           // TODO: Show error message
+                            // TODO: Remove credentials if status is unauthorized
+                        }
+                    }
+
+                })
                 this.hide()
             }
             props = {
@@ -98,14 +160,14 @@
                 </div>
                 <div class="flex-col margin-b-5">
                     <h3 id="{componentObjectId}-reply-title" class="subtitle-2">Reply</h3>
-                    <textarea id="{componentObjectId}-reply-text" name="reply" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" autofocus>{reply}</textarea>
+                    <textarea id="{componentObjectId}-reply-text" name="reply" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" autofocus onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)">{reply}</textarea>
                 </div>
                 <div id="{componentObjectId}" class="flex-row flex-wrap flex-end margin-t-10">
-                    <div id="{componentObjectId}-useful" class="button" onclick="$obj.hide()">
-                        <div id="{componentObjectId}-useful-text" class="margin-1">Cancel</div> 
+                    <div id="{componentObjectId}-cancel-button" class="button" onclick="$obj.hide()">
+                        <div id="{componentObjectId}-cancel-button-text" class="margin-1">Cancel</div> 
                     </div>
-                    <div id="{componentObjectId}-funny" class="button" onclick="$obj.save()">
-                        <div id="{componentObjectId}-funny-text" class="margin-1">Save</div> 
+                    <div id="{componentObjectId}-save-button" class="button" onclick="$obj.save()">
+                        <div id="{componentObjectId}-save-button-text" class="margin-1">Save</div> 
                     </div>
                 </div>    
             </div>

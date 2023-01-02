@@ -4,6 +4,13 @@
             className() {return this.constructor.name }
             initialize(componentObjectId) { 
                 this.props.componentObjectId = componentObjectId
+                this.fetchReviews()
+            }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            fetchReviews() {
                 fetch(this.props.fetchURL)
                     .then((response) => response.json())
                     .then((data) => {
@@ -16,10 +23,51 @@
                         this.vars.loadingClass = `display-none`
                     })
             }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
+            removeReviewElements() {
+                location.reload()
+                /*
+                const listRootElement = document.getElementById(this.props.componentObjectId)
+
+                if (!listRootElement) { return }
+                for (const element of listRootElement.children) {
+                    if (!element) { return }
+                    if (`${this.props.componentObjectId}-loading` === element.id) { continue }
+                    if (element.id.startsWith(`-Vanilla`)) { continue }
+
+                    let starsElement = document.getElementById(`${element.id}-stars`)
+                    let headerElement = document.getElementById(`${element.id}-review-header`)
+                    let ufcElement = document.getElementById(`${element.id}-ufc`)
+                    let reviewElement = document.getElementById(`${element.id}-review`)
+                    let avatarElement = document.getElementById(`${element.id}-review-header-avatar`)
+
+                    if (starsElement) {
+                        VanillaComponentLifecycle.unmount(starsElement.id)
+                        VanillaComponentLifecycle.unregisterComponentObject(starsElement.id)
+                    }
+                    if (headerElement) {
+                        VanillaComponentLifecycle.unmount(headerElement.id)
+                        VanillaComponentLifecycle.unregisterComponentObject(headerElement.id)
+                    }
+                    if (ufcElement) {
+                        VanillaComponentLifecycle.unmount(ufcElement.id)
+                        VanillaComponentLifecycle.unregisterComponentObject(ufcElement.id)
+                    }
+                    if (reviewElement) {
+                        VanillaComponentLifecycle.unmount(reviewElement.id)
+                        VanillaComponentLifecycle.unregisterComponentObject(reviewElement.id)
+                    }
+                    try {
+                        if (avatarElement) {
+                            VanillaComponentLifecycle.unmount(avatarElement.id)
+                            VanillaComponentLifecycle.unregisterComponentObject(avatarElement.id)
+                        } 
+                    } catch(e) { }
+                    VanillaComponentLifecycle.unmount(element.id)
+                    VanillaComponentLifecycle.unregisterComponentObject(element.id)
+                    if (listRootElement.contains(element)) { listRootElement.removeChild(element) }
+                }
+                */     
+            }
             sortReviews(data) {
                 const sortFunction = (a, b) => {
                     const dateA = a.date.split("/")

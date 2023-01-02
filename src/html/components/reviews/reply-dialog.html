@@ -27,18 +27,13 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
-            onBlur(event) {
-                this.updateReply()
-            }
-            onInput(event) {
-                this.updateReply()
-            }
+            onBlur(event) { this.updateReply() }
+            onInput(event) { this.updateReply() }
             updateReply() {
                 const textAreaId = `${this.props.componentObjectId}-reply-text`
                 let textarea = document.getElementById(textAreaId)
 
                 this.vars.reply = textarea.value
-                console.log(this.vars.reply)
             }
             show() {
                 const modal = document.getElementById(this.props.componentObjectId)
@@ -99,6 +94,7 @@
                         console.log(`Response: ${JSON.stringify(content)}`)
                         if (200 === response.status) {
                             console.log(`Success`)
+                            Vanilla.getComponentObject(`ReviewList1`).removeReviewElements()
                             // TODO: Show success message
                             // TODO: Update credentials
                         } else {

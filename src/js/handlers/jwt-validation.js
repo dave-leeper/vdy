@@ -12,8 +12,6 @@ module.exports.jwtValidation = async (authorizationHeader) => {
 
     const jwt = Registry.get(`JWT`)
     const jwtToken = authorizationHeader.substring(7, authorizationHeader.length - 1).trim()
-    console.log(`Registry.registry: ${JSON.stringify(Registry.registry)}`)
-    console.log(`jwtToken: ${jwtToken}`)
     const jwtRegistryInfo = Registry.get(jwtToken)
     const now = new Date()
     let expires
@@ -23,7 +21,7 @@ module.exports.jwtValidation = async (authorizationHeader) => {
     } catch(e) {
         const err = `401 Unauthorized`
 
-        console.error(err + `: Cou7ld not parse JWT expiration.`)
+        console.error(err + `: Could not parse JWT expiration.`)
         return { status: 401, err }
     }
     if (!jwt) {

@@ -52,6 +52,13 @@
             "path": "/add-replay",
             "handler": "add-reply.js",
             "log": "NONE"
+        },
+        {
+            "name": "Update reply.",
+            "verb": "POST",
+            "path": "/update-replay",
+            "handler": "update-reply.js",
+            "log": "NONE"
         }
     ],
     "function": [

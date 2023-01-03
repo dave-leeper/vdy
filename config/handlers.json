@@ -59,6 +59,27 @@
             "path": "/update-replay",
             "handler": "update-reply.js",
             "log": "NONE"
+        },
+        {
+            "name": "Increment useful count.",
+            "verb": "POST",
+            "path": "/increment-useful",
+            "handler": "increment-useful.js",
+            "log": "NONE"
+        },
+        {
+            "name": "Increment funny count.",
+            "verb": "POST",
+            "path": "/increment-funny",
+            "handler": "increment-funny.js",
+            "log": "NONE"
+        },
+        {
+            "name": "Increment cool count.",
+            "verb": "POST",
+            "path": "/increment-cool",
+            "handler": "increment-cool.js",
+            "log": "NONE"
         }
     ],
     "function": [

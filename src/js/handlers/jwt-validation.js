@@ -1,4 +1,3 @@
-const {surrealDBSelect} = require(`../database/surrealdb`)
 const Registry = require(`../registry`)
 var atob = require('atob');
 

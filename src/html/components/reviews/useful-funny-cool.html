@@ -10,8 +10,8 @@
                         // TODO: Display error message.
                         return
                     }
-                    if (!credentials?.data?.roles) { return }
-                    if (!credentials.data.roles.includes("Admin")) { return }
+                    if (!credentials?.roles) { return }
+                    if (!credentials.roles.includes("Admin")) { return }
 
                     const replyElement = document.getElementById(`${this.props.componentObjectId}-reply`)
                     const reviewElementId = this.props.componentObjectId.slice(0, -4)
@@ -25,9 +25,33 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
-            incrimentUseful() { this.vars.usefulCount++; }
-            incrimentFunny() { this.vars.funnyCount++ }
-            incrimentCool() { this.vars.coolCount++ }
+            incrimentUseful() { 
+                this.vars.usefulCount++
+                this.incriment(`useful`)
+            }
+            incrimentFunny() { 
+                this.vars.funnyCount++ 
+                this.incriment(`funny`)
+            }
+            incrimentCool() { 
+                this.vars.coolCount++ 
+                this.incriment(`cool`)
+            }
+            incriment(which) {
+                const reviewElementId = this.props.componentObjectId.slice(0, -4)
+                const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
+                const payload = {
+                    id: `${reviewObject.props.reviewId}`,
+                }
+                const response = fetch(`http://localhost:8080/increment-${which}`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            }
             reply() { 
                 const reviewElementId = this.props.componentObjectId.slice(0, -4)
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)

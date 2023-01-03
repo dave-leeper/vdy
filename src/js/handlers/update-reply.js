@@ -46,11 +46,11 @@ module.exports = (name, args) => {
 
         const date = new Date();
         const today = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
-        const replyData = {}
+        let updateData = {}
         
-        replyData.reply = reply.reply
-        replyData.date = today
-        await surrealDBChange(db, reply.id, replyData)
+        updateData.reply = reply.reply
+        updateData.date = today
+        await surrealDBChange(db, reply.id, updateData)
         let x = await surrealDBSelect(db, reply.id)
     
         res.status(200).send(JSON.stringify(reply))

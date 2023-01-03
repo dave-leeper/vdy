@@ -19,6 +19,12 @@
     <link rel="stylesheet" href="./css/styles.css">
     <script>
       // TODO: Remove credentials from database on shutdown
+      function initializeApp() {
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        VanillaJWT.storeCredentials(token)
+      }
       function setCSSDefaults() {
         const r = document.querySelector(':root')
         var rs = getComputedStyle(r);
@@ -28,10 +34,11 @@
         r.style.setProperty('--button-background-color', blue50);
         r.style.setProperty('--button-border-color', blue50);
       }
+      initializeApp()
       setCSSDefaults()
     </script>
   </head>
-  <body class="margin-5 bg-grey-e">
+  <body class="margin-5 bg-grey-e" onload="initializeApp()">
     <div class="h300px margin-b-50">
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow1"></include-html>
     </div>

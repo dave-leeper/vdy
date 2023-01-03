@@ -609,7 +609,10 @@ class VanillaComponentLifecycle {
 }
 
 class VanillaJWT {
+    static credentials = ``
     static getCredentials(callback) {
+        callback(null, JSON.parse(VanillaJWT.credentials))
+        /*
         const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
 
         if (!indexedDB) { alert(`Error retrieving credentials. IndexedDB not found.`) }
@@ -620,17 +623,27 @@ class VanillaJWT {
             callback(`Error reading credentials.`, null)
         }
         request.onsuccess = function () {
-            const db = request.result;
-            const transaction = db.transaction(`tokens`, `readwrite`)
-            const store = transaction.objectStore(`tokens`)
-            const query = store.get(`user`)
-
-            query.onsuccess = function () {
-                callback(null, query.result)
+            try {
+                const db = request.result;
+                const transaction = db.transaction(`tokens`, `readwrite`)
+                const store = transaction.objectStore(`tokens`)
+                const query = store.get(`user`)
+    
+                query.onsuccess = function () {
+                    callback(null, query.result)
+                }
+                query.onerror = function (event) {
+                    callback(`Error accessing database`, null)
+                }
+            } catch (e) {
+                callback(`Error accessing database`, null)
             }
         }
+        */
     }
     static storeCredentials(token) {
+        VanillaJWT.credentials = token
+        /*
         const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
 
         if (!indexedDB) { alert(`Error storing credentials. IndexedDB not found.`) }
@@ -655,6 +668,7 @@ class VanillaJWT {
                 db.close()
             }
         }
+        */
     }
     static parseJWT (token) {
         var base64Url = token.split('.')[1];
@@ -664,6 +678,10 @@ class VanillaJWT {
         }).join(''));
 
         return JSON.parse(jsonPayload);
+    }
+    static deleteTokenDatabase() {
+        VanillaJWT.credentials = null
+        // indexedDB.deleteDatabase(`tokens`)
     }
 }
 
@@ -873,4 +891,6 @@ class Loader {
     }
 }
 
-document.addEventListener(`DOMContentLoaded`, () => { Loader.registerCustomTags(); Loader.loadIncludes() })
+document.addEventListener(`DOMContentLoaded`, () => { window.$vanilla = undefined; Loader.registerCustomTags(); Loader.loadIncludes() })
+
+ 

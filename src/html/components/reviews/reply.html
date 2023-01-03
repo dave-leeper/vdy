@@ -12,9 +12,10 @@
                     }
                     const replyElement = document.getElementById(`${this.props.componentObjectId}-edit`)
 
-                    if (!credentials?.data?.roles) { return }
-                    if (!credentials.data.roles.includes("Admin")) { return }
+                    if (!credentials?.roles) { return }
+                    if (!credentials.roles.includes("Admin")) { return }
                     if (!replyElement) { return }
+                    console.log(`credentials.roles: ${JSON.stringify(credentials.roles)}`)
                     replyElement.setAttribute(`class`, `text-button`)
                 })
             }

@@ -30,9 +30,11 @@
                     return
                 }
                 let token = await response.text()
+                let params = new URLSearchParams()
 
                 VanillaJWT.storeCredentials(JSON.parse(token))
-                window.location.href = `/index`
+                params.append(`token`, token)
+                window.location.href = `/index?${params.toString()}`
             }
             props = {
                 componentObjectId: ``,

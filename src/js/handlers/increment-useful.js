@@ -4,7 +4,6 @@ const Registry = require(`../registry`)
 module.exports = (name, args) => {
     return async (req, res, next) => {
         let db = Registry.get(`SurrealDBConnection`)
-        const authorizationHeader = req.get(`Authorization`)
         const requestBody = req.body
         
         if (!db) {
@@ -26,26 +25,17 @@ module.exports = (name, args) => {
             return
         }
 
-        try {
-            let review = await surrealDBSelect(db, requestBody.id)
-            let updateData = {}
-            
-            updateData.usefulCount = review.usefulCount + 1
-            await surrealDBChange(db, requestBody.id, updateData)
-    
-            res.status(200).send(JSON.stringify(requestBody))
+        let updateData = {}
+        let review = await surrealDBSelect(db, requestBody.id)
+        
+        review = review[0]
+        if (!review.usefulCount) { updateData.usefulCount = 1 }
+        else { updateData.usefulCount = review.usefulCount + 1 }
+        await surrealDBChange(db, requestBody.id, updateData)
+        review = await surrealDBSelect(db, requestBody.id)
 
-            review = await surrealDBSelect(db, requestBody.id)
-            next && next()
-        } catch (e) {
-            const err = `503 Service Unavailable`
-            const result = { status: 503, err }
+        res.status(200).send(`OK`)
 
-            console.error(err + `: Database update failed.`)
-            res.status(result.status).send(JSON.stringify(result))
-            next && next(err)
-            return
-        }
-
+        next && next()
     }
 }

@@ -51,8 +51,6 @@ module.exports = (name, args) => {
         updateData.reply = reply.reply
         updateData.date = today
         await surrealDBChange(db, reply.id, updateData)
-        let x = await surrealDBSelect(db, reply.id)
-    
         res.status(200).send(JSON.stringify(reply))
         next && next()
     }

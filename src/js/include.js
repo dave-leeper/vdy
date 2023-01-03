@@ -156,6 +156,7 @@ class VanillaComponentLifecycle {
             const matches = -1 !== node.nodeValue.indexOf(formattedMember)
             if (originalMatches || matches) {
                 let value = (matches)? node.nodeValue : node.originalNodeValue
+                console.log(`member: ${member}, data[member]: ${data[member]}`)
                 let memberData = data[member].toString()
                 node.nodeValue = value.replaceAll(formattedMember, memberData)
             }
@@ -612,63 +613,9 @@ class VanillaJWT {
     static credentials = ``
     static getCredentials(callback) {
         callback(null, JSON.parse(VanillaJWT.credentials))
-        /*
-        const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
-
-        if (!indexedDB) { alert(`Error retrieving credentials. IndexedDB not found.`) }
-        
-        const request = indexedDB.open(`tokens`, 1)
-
-        request.onerror = (event) => {
-            callback(`Error reading credentials.`, null)
-        }
-        request.onsuccess = function () {
-            try {
-                const db = request.result;
-                const transaction = db.transaction(`tokens`, `readwrite`)
-                const store = transaction.objectStore(`tokens`)
-                const query = store.get(`user`)
-    
-                query.onsuccess = function () {
-                    callback(null, query.result)
-                }
-                query.onerror = function (event) {
-                    callback(`Error accessing database`, null)
-                }
-            } catch (e) {
-                callback(`Error accessing database`, null)
-            }
-        }
-        */
     }
     static storeCredentials(token) {
         VanillaJWT.credentials = token
-        /*
-        const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB
-
-        if (!indexedDB) { alert(`Error storing credentials. IndexedDB not found.`) }
-        
-        const request = indexedDB.open(`tokens`, 1)
-
-        request.onerror = (event) => {
-            alert(`Error storing credentials.`)
-        }
-        request.onupgradeneeded = function () {
-            const db = request.result
-            const store = db.createObjectStore(`tokens`, { keyPath: `id` })
-        }
-        request.onsuccess = function () {
-            const db = request.result;
-            const transaction = db.transaction(`tokens`, `readwrite`)
-            const store = transaction.objectStore(`tokens`)
-
-            if (`generic-avatar` === token.image) { token.image = `./images/generic-avatar.png` }
-            store.put({ id: `user`, data: token });
-            transaction.oncomplete = function () { 
-                db.close()
-            }
-        }
-        */
     }
     static parseJWT (token) {
         var base64Url = token.split('.')[1];
@@ -681,7 +628,6 @@ class VanillaJWT {
     }
     static deleteTokenDatabase() {
         VanillaJWT.credentials = null
-        // indexedDB.deleteDatabase(`tokens`)
     }
 }
 
@@ -771,8 +717,6 @@ class Loader {
         return childNode
     }
     static validateIncludeAttributes = (attributes) => {
-        // <include-html include-in="index.html" src="./header.html"></include-html>
-        // <include-html include-in="index.html" src="./button.html" component-class="Button" component-id="Button1"></include-html>
         const badReturn = [null, null, null, null, null]
 
         if (!attributes) {

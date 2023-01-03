@@ -156,7 +156,6 @@ class VanillaComponentLifecycle {
             const matches = -1 !== node.nodeValue.indexOf(formattedMember)
             if (originalMatches || matches) {
                 let value = (matches)? node.nodeValue : node.originalNodeValue
-                console.log(`member: ${member}, data[member]: ${data[member]}`)
                 let memberData = data[member].toString()
                 node.nodeValue = value.replaceAll(formattedMember, memberData)
             }
@@ -612,7 +611,8 @@ class VanillaComponentLifecycle {
 class VanillaJWT {
     static credentials = ``
     static getCredentials(callback) {
-        callback(null, JSON.parse(VanillaJWT.credentials))
+        if (!VanillaJWT.credentials || 0 === VanillaJWT.credentials.length) {callback(`Credentials not set.`, null)}
+        else { callback(null, JSON.parse(VanillaJWT.credentials)) }
     }
     static storeCredentials(token) {
         VanillaJWT.credentials = token

@@ -56,6 +56,7 @@
             }
             save() {
                 VanillaJWT.getCredentials(async (error, credentials) => {
+                    console.log(`error: ${error}, credentials: ${JSON.stringify(credentials)}`)
                     if (error) {
                         console.log(`Error getting credentials`)
                         // TODO: Display error message.
@@ -74,7 +75,7 @@
                             headers: {
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json',
-                                'Authorization': `'Bearer ${credentials.data.token}'`
+                                'Authorization': `'Bearer ${credentials.token}'`
                             },
                             body: JSON.stringify(reply)
                         });
@@ -106,7 +107,7 @@
                             headers: {
                                 'Accept': 'application/json',
                                 'Content-Type': 'application/json',
-                                'Authorization': `'Bearer ${credentials.data.token}'`
+                                'Authorization': `'Bearer ${credentials.token}'`
                             },
                             body: JSON.stringify(reply)
                         });

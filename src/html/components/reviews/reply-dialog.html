@@ -80,24 +80,24 @@
                             body: JSON.stringify(reply)
                         });
                         const content = await response.json()
+
                         if (200 === response.status) {
-                            console.log(`Success`)
                             Vanilla.getComponentObject(`ReviewList1`).removeReviewElements()
+                            VanillaJWT.storeCredentials(content.jwt)
                             // TODO: Show success message
-                            // TODO: Update credentials
                         } else {
                             console.log(`Error ${response.status}`)
+                            if (401 === response.status) { window.location.href = `/login` }
                            // TODO: Show error message
-                            // TODO: Remove credentials if status is unauthorized
                         }
                     } else {
                         const reviewNumber = this.props.reviewId.split(`:`)[1]
                         const reply = {
                             replyingTo: reviewNumber,
-                            image: credentials.data.image,
+                            image: credentials.image,
                             name: {
-                                first: credentials.data.name.first,
-                                last: credentials.data.name.last
+                                first: credentials.name.first,
+                                last: credentials.name.last
                             },
                             title: `Business Owner`,
                             reply: this.vars.reply
@@ -112,15 +112,16 @@
                             body: JSON.stringify(reply)
                         });
                         const content = await response.json()
+
                         if (200 === response.status) {
                             console.log(`Success`)
                             Vanilla.getComponentObject(`ReviewList1`).removeReviewElements()
+                            VanillaJWT.storeCredentials(content.jwt)
                             // TODO: Show success message
-                            // TODO: Update credentials
                         } else {
                             console.log(`Error ${response.status}`)
                             // TODO: Show error message
-                            // TODO: Remove credentials if status is unauthorized
+                            if (401 === response.status) { window.location.href = `/login` }
                         }
                     }
                 })

@@ -1,7 +1,7 @@
 const Registry = require(`../registry`)
 const {jwtCreate} = require(`./jwt-create`)
 
-module.exports = (name, args) => {
+module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {
         const db = Registry.get(`SurrealDBConnection`)
         const name = req.body.name

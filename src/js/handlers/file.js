@@ -1,8 +1,8 @@
 var path = require('path');
 
-module.exports = (name, args) => {
+module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {
         var options = { root: path.join(`.`, '/src') }
-        res.sendFile(`${args.file}`, options, (err) => { if (err) { next && next(err) } else { next && next() } })
+        res.sendFile(`${handlerArgs.file}`, options, (err) => { if (err) { next && next(err) } else { next && next() } })
     }
 }

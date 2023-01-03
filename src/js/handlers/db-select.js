@@ -1,7 +1,7 @@
 const {surrealDBSelect} = require(`../database/surrealdb`)
 const Registry = require(`../registry`)
 
-module.exports = (name, args) => {
+module.exports = (handlerHame, handlerArgs) => {
     return async (req, res, next) => {
         let db = Registry.get(`SurrealDBConnection`)
         
@@ -13,7 +13,7 @@ module.exports = (name, args) => {
             return
         }
         
-        const result = await surrealDBSelect(db, args.table);
+        const result = await surrealDBSelect(db, handlerArgs.table);
         res.send(JSON.stringify(result))
         next && next()
     }

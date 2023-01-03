@@ -1,6 +1,6 @@
-module.exports = (name, args) => {
+module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {
-        res.send(args.text)
+        res.send(handlerArgs.text)
         next && next()
     }
 }

@@ -2,13 +2,6 @@ const Registry = require(`../registry`)
 var atob = require('atob');
 
 module.exports.jwtValidation = async (authorizationHeader) => {
-    //vvvvvvvvvvvvvvvvvv
-    // Temp code for testing
-    // TODO: Remove this testing code
-    const registryEntry = { expires: new Date().subtractHours(1), name: `Admin`, roles: [`Admin`], image: `generic-avatar` }
-    Registry.register(registryEntry, `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ2ZHkiLCJyb2xlcyI6WyJBZG1pbiJdLCJpYXQiOjE2NzI2MzA0MTF9.-kS8LqAnwswCCinDeJubfNpHcjQltPOC68rGBR6IizE`)
-    // ^^^^^^^^^^^^^^^^^
-
     const jwt = Registry.get(`JWT`)
     const jwtToken = authorizationHeader.substring(7, authorizationHeader.length - 1).trim()
     const jwtRegistryInfo = Registry.get(jwtToken)
@@ -48,5 +41,5 @@ module.exports.jwtValidation = async (authorizationHeader) => {
         console.error(err + `: JWT token has expired.`)
         return { status: 401, err }
     }
-    return { status: 200, err: null }
+    return { status: 200, err: null, jwtRegistryInfo }
 }

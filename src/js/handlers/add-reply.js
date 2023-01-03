@@ -1,8 +1,9 @@
 const {surrealDBQuery, surrealDBCreate} = require(`../database/surrealdb`)
 const Registry = require(`../registry`)
 const {jwtValidation} = require(`./jwt-validation`)
+const {jwtReplaceToken} = require(`./jwt-replace-token`)
 
-module.exports = (name, args) => {
+module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {
         let db = Registry.get(`SurrealDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
@@ -52,9 +53,17 @@ module.exports = (name, args) => {
         
         reply.date = today
         await surrealDBCreate(db, newReplyId, reply)
-    
-        reply.id = newReplyId
-        res.status(200).send(JSON.stringify(reply))
+
+        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+
+        if (200 !== jwtReplaceTokenResult.status) {
+            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+            next && next(jwtReplaceTokenResult.err)
+            return
+        }
+
+        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { newId: newReplyId }}
+        res.status(200).send(JSON.stringify(response))
         next && next()
     }
 }

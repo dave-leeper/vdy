@@ -1,7 +1,7 @@
 const {surrealDBChange, surrealDBSelect} = require(`../database/surrealdb`)
 const Registry = require(`../registry`)
 
-module.exports = (name, args) => {
+module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {
         let db = Registry.get(`SurrealDBConnection`)
         const requestBody = req.body

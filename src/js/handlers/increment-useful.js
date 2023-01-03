@@ -32,7 +32,6 @@ module.exports = (name, args) => {
         if (!review.usefulCount) { updateData.usefulCount = 1 }
         else { updateData.usefulCount = review.usefulCount + 1 }
         await surrealDBChange(db, requestBody.id, updateData)
-        review = await surrealDBSelect(db, requestBody.id)
 
         res.status(200).send(`OK`)
 

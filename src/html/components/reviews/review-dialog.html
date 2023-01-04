@@ -1,0 +1,142 @@
+<vanilla-component>
+    <script>
+        class ReviewDialog{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            onBlur(event) { this.updateReview() }
+            onInput(event) { this.updateReview() }
+            updateReview() {
+                const textAreaId = `${this.props.componentObjectId}-review-text`
+                let textarea = document.getElementById(textAreaId)
+
+                this.vars.review = textarea.value
+            }
+            show() {
+                const modal = document.getElementById(this.props.componentObjectId)
+
+                modal.setAttribute(`class`, `display-block modal`)
+            }
+            async hide() {
+                const modal = document.getElementById(this.props.componentObjectId)
+
+                modal.setAttribute(`class`, `display-none modal`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-avatar`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-avatar`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-stars`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-stars`)
+                await VanillaComponentLifecycle.unmount(this.props.componentObjectId)
+                await VanillaComponentLifecycle.unregisterComponentObject(this.props.componentObjectId)
+                await VanillaComponentLifecycle.unregisterDOMFragment(this.className())
+            }
+            save() {
+                /*
+                VanillaJWT.getCredentials(async (error, credentials) => {
+                    console.log(`error: ${error}, credentials: ${JSON.stringify(credentials)}`)
+                    if (error) {
+                        console.log(`Error getting credentials`)
+                        // TODO: Display error message.
+                        return
+                    }
+
+                    const reviewNumber = this.props.reviewId.split(`:`)[1]
+                    const reply = {
+                        replyingTo: reviewNumber,
+                        image: credentials.image,
+                        name: {
+                            first: credentials.name.first,
+                            last: credentials.name.last
+                        },
+                        title: `Business Owner`,
+                        reply: this.vars.reply
+                    }
+                    const response = await fetch('http://localhost:8080/add-replay', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': `'Bearer ${credentials.token}'`
+                        },
+                        body: JSON.stringify(reply)
+                    });
+                    const content = await response.json()
+
+                    if (200 === response.status) {
+                        console.log(`Success`)
+                        Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
+                        VanillaJWT.storeCredentials(content.jwt)
+                        // TODO: Show success message
+                    } else {
+                        console.log(`Error ${response.status}`)
+                        // TODO: Show error message
+                        if (401 === response.status) { window.location.href = `/login` }
+                    }
+                })
+                this.hide()
+                */
+            }
+            testState() {
+            const states = [ `AL`, `AK`, `AZ`, `AR`, `CA`, `CO`, `CT`, `DE`, `DC`, `FL`, `GA`, `HI`, `ID`, `IL`, `IN`, `IA`, `KS`,
+                    `KY`, `LA`, `ME`, `MD`, `MA`, `MI`, `MN`, `MS`,	`MO`, `MT`,	`NE`, `NV`, `NH`, `NJ`, `NM`, `NY`, `NC`,
+                    `ND`, `OH`, `OK`, `OR`, `PA`, `RI`, `SC`, `SD`, `TN`, `TX`, `UT`, `VT`, `VA`, `WA`, `WV`, `WI`, `WY` ]
+            }
+            props = {
+                componentObjectId: ``
+            }
+            vars = {
+                reviewImageURL: `./images/generic-avatar.png`,
+                reviewFirstName: ``,
+                reviewLastName: ``,
+                reviewCity: ``,
+                reviewState: ``,
+                reviewDate: ``,
+                review: ` `,
+                reviewRating: 5,
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="modal display-none" onclick="$obj.hide()">
+              <div id="{componentObjectId}-frame" class="modal-content" onclick="event.stopPropagation()">
+                <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header-editable.html" component-class="ReviewHeaderEditable" component-id="{componentObjectId}-review-header">
+                    <include-vars class="display-none">
+                        { 
+                            imageURL: `{reviewImageURL}`,
+                            firstName: `{reviewFirstName}`,
+                            lastName: `{reviewLastName}`,
+                            city: `{reviewCity}`,
+                            state: `{reviewState}`,
+                            date: `{reviewDate}`
+                        }          
+                    </include-vars>
+                </include-html>
+                <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+                    <include-props class="display-none">{ editable: true }</include-props>
+                    <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
+                </include-html>
+                <div class="flex-col margin-b-5">
+                    <h3 id="{componentObjectId}-review-title" class="subtitle-2">Review</h3>
+                    <textarea id="{componentObjectId}-review-text" name="review" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="5">{review}</textarea>
+                </div>
+                <div id="{componentObjectId}" class="flex-row flex-wrap flex-end margin-t-10">
+                    <div id="{componentObjectId}-cancel-button" class="button" onclick="$obj.hide()">
+                        <div id="{componentObjectId}-cancel-button-text" class="margin-1">Cancel</div> 
+                    </div>
+                    <div id="{componentObjectId}-save-button" class="button" onclick="$obj.save()">
+                        <div id="{componentObjectId}-save-button-text" class="margin-1">Save</div> 
+                    </div>
+                </div>    
+            </div>
+          </div>
+    </component-markup>
+</vanilla-component>

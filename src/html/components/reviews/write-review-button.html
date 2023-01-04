@@ -1,0 +1,37 @@
+<vanilla-component>
+    <script>
+        class WriteReviewButton{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            getReviewList() {
+                return document.getElementById(`ReviewList`)
+            }
+            async review() { 
+                if (!document.getElementById(`ReviewDialog`)) {
+                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/review-dialog.html`, `ReviewDialog`,  `ReviewDialog`, null, null)
+
+                    this.getReviewList().appendChild(newInclude)
+                    await Loader.loadIncludes()
+                }
+
+                const reviewDialog = Vanilla.getComponentObject(`ReviewDialog`)
+
+                reviewDialog.show()
+             }
+            props = {
+                componentObjectId: ``
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="button w120px" onclick="$obj.review()">Write a Review</div>
+    </component-markup>
+</vanilla-component>

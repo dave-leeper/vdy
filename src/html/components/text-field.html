@@ -32,21 +32,24 @@
             afterUnmount() { }
             async onFocus(event) {
                 this.validate()
+                if (this.props.onFocusCallback) { this.props.onFocusCallback(this) }
             }
             async onBlur(event) { 
                 while (this.vars.errorElement.firstChild) {
                     this.vars.errorElement.removeChild(this.vars.errorElement.firstChild);
                 }
+                if (this.props.onBlurCallback) { this.props.onBlurCallback(this) }
             }
             async onInput(event) {
                 this.validate()
+                if (this.props.onInputCallback) { this.props.onInputCallback(this) }
             }
             async validate() {
                 this.vars.valid = false
                 while (this.vars.errorElement.firstChild) {
                     this.vars.errorElement.removeChild(this.vars.errorElement.firstChild)
                 }
-                let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, [
+                let testArray = [
                     await test (`Test required`, `Ensure required field has a value.`, [async () => {
                         let results = []
 
@@ -89,7 +92,13 @@
                         assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.name}' does not match the pattern ${this.props.pattern}.`, results, true)
                         return results
                     }]),
-                ])
+                ]
+
+                if (this.vars.customValidationTests && Array.isArray(this.vars.customValidationTests) && 0 < this.vars.customValidationTests.length) {
+                    testArray = testArray.concat(this.vars.customValidationTests)
+                }
+
+                let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, testArray)
                 this.vars.valid = (0 === results.failCount)
                 if (this.vars.valid) { this.vars.value = this.vars.element.value }
                 this.showErrors(results)
@@ -134,13 +143,15 @@
                 autocomplete: ``,
                 list: ``,
                 labelAboveField: false,
-                isPassword: false
+                isPassword: false,
+                tabindex: 0,
             }
             vars = {
                 type: `text`, // date, datetime-local, email, month, number, password, tel, text, time, url, week
                 imageURL: `../images/eye-closed.png`,
                 value: ``,
                 element: null,
+                customValidationTests: [],
             }
         }
     </script>
@@ -167,6 +178,7 @@
                         onfocus="$obj.onFocus(event)"
                         onblur="$obj.onBlur(event)"
                         oninput="$obj.onInput(event)"
+                        tabindex="{tabindex}"
                     >
                     <img id="{componentObjectId}-eye" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()" loading="lazy">
                 </div>

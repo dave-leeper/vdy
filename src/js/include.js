@@ -155,9 +155,13 @@ class VanillaComponentLifecycle {
             const originalMatches = -1 !== node.originalNodeValue.indexOf(formattedMember)
             const matches = -1 !== node.nodeValue.indexOf(formattedMember)
             if (originalMatches || matches) {
-                let value = (matches)? node.nodeValue : node.originalNodeValue
-                let memberData = data[member].toString()
-                node.nodeValue = value.replaceAll(formattedMember, memberData)
+                if (null !== data[member]) {
+                    // TODO: Thoroughly test this with multiple replacements in a single node value.
+                    let value = (matches)? node.nodeValue : node.originalNodeValue
+                    let memberData = data[member].toString()
+                    
+                    node.nodeValue = value.replaceAll(formattedMember, memberData)
+                }
             }
         }
         for (let child of node.childNodes) {
@@ -171,9 +175,13 @@ class VanillaComponentLifecycle {
                 const originalMatches = -1 !== attr.originalAttributeValue.indexOf(`{${member}}`)
                 const matches = -1 !== attr.value.indexOf(`{${member}}`)
                 if (originalMatches || matches) {
+                    if (null !== data[member]) {
+                    // TODO: Thoroughly test this with multiple replacements in a single attribute value.
                     let value = (matches)? attr.value : attr.originalAttributeValue
-                    let memberData = data[member].toString()
-                    attr.value = value.replaceAll(`{${member}}`, memberData)
+                        let memberData = data[member].toString()
+
+                        attr.value = value.replaceAll(`{${member}}`, memberData)
+                    }
                 }
             }
         }
@@ -831,6 +839,8 @@ class Loader {
         customElements.define('include-html', class IncludeHTMLElement extends HTMLElement { }, { })
         customElements.define('include-props', class IncludePropsElement extends HTMLElement { }, { })
         customElements.define('include-vars', class IncludeVarsElement extends HTMLElement { }, { })
+        // TO DO: Add support for the following tags
+        customElements.define('include-attributes', class IncludeVarsElement extends HTMLElement { }, { })
         customElements.define('include-slot', class IncludeVarsElement extends HTMLElement { }, { })
     }
 }

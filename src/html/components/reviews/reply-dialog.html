@@ -82,7 +82,7 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            Vanilla.getComponentObject(`ReviewList1`).removeReviewElements()
+                            Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
                             VanillaJWT.storeCredentials(content.jwt)
                             // TODO: Show success message
                         } else {
@@ -115,7 +115,7 @@
 
                         if (200 === response.status) {
                             console.log(`Success`)
-                            Vanilla.getComponentObject(`ReviewList1`).removeReviewElements()
+                            Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
                             VanillaJWT.storeCredentials(content.jwt)
                             // TODO: Show success message
                         } else {

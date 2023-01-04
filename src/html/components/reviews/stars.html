@@ -28,7 +28,7 @@
                 this.star5.innerText = (4 < this.vars.rating)? `★` : `☆`
             }
             editStars(rating) {
-                if (!this.editable) { return }
+                if (!this.props.editable) { return }
                 this.setStars(rating)
             }
             props = {

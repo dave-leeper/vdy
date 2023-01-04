@@ -1,0 +1,65 @@
+<vanilla-component>
+    <script>
+        let reviewHeaderEditableSelf = null
+        let reviewHeaderEditableObjectId = null
+        class ReviewHeaderEditable{
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { 
+                this.props.componentObjectId = componentObjectId
+                reviewHeaderEditableSelf = this
+                reviewHeaderEditableObjectId = componentObjectId
+            }
+            beforeMount() { }
+            afterMount() { }
+            beforeUnmount() { }
+            afterUnmount() { }
+            props = {
+                componentObjectId: ``,
+                date: ``
+            }
+            vars = {
+                imageURL: ``,
+                firstName: ``,
+                lastName: ``,
+                city: ``,
+                state: ``,
+                imageURLEditBox: ``,
+                firstNameEditBox: ``,
+                lastNameEditBox: ``,
+                cityEditBox: ``,
+                stateEditBox: ``,
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="flex-row">
+            <div class="flex-col margin-l-2 w300px">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-first-name">
+                    <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1 }</include-props>
+                    <include-vars class="display-none">{ type: `text` } </include-vars>
+                </include-html>
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-last-name">
+                    <include-props class="display-none">{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, tabindex: 2 }</include-props>
+                    <include-vars class="display-none">{ type: `text` } </include-vars>
+                </include-html>
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-city">
+                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, tabindex: 3 }</include-props>
+                    <include-vars class="display-none">{ type: `text` } </include-vars>
+                </include-html>
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-state">
+                    <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
+                    <include-vars class="display-none">{ type: `text` } </include-vars>
+                </include-html>
+            </div>
+            <div id="{componentObjectId}-avatar" class="margin-l-2">
+                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}-avatar">
+                    <include-props class="display-none">{ imageURL: `{imageURL}` }</include-props>
+                </include-html>
+            </div>
+        </div>
+    </component-markup>
+</vanilla-component>

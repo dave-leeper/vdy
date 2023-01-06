@@ -363,7 +363,7 @@ class VanillaComponentLifecycle {
         let varsElements = includeElement.getElementsByTagName('include-vars')
 
         if (propsElements.length) {
-           if (1 < propsElements.length) { 
+            if (1 < propsElements.length) { 
                 console.error(`createComponentObject: Only one include-props tag is allowed.`)
                 return false 
             }
@@ -386,6 +386,7 @@ class VanillaComponentLifecycle {
         }
         if (componentObject.initialize) { componentObject.initialize(componentObjectId) }
 
+        // TODO: Why are we not doing vars here as well?
         let members = Object.getOwnPropertyNames(componentObject.props)
 
         for (let member of members) {

@@ -1,24 +1,31 @@
 <vanilla-component>
     <script>
-        let reviewHeaderEditableSelf = null
-        let reviewHeaderEditableObjectId = null
         class ReviewHeaderEditable{
             className() {return this.constructor.name }
             initialize(componentObjectId) { 
                 this.props.componentObjectId = componentObjectId
-                reviewHeaderEditableSelf = this
-                reviewHeaderEditableObjectId = componentObjectId
             }
             beforeMount() { }
-            afterMount() { }
+            afterMount() { 
+                const element = document.getElementById(this.props.componentObjectId)
+
+                element.addEventListener(`newTextData`, (e) => { 
+                    console.log(`newTextData for ${e.detail.component.props.name}`)
+                    if (`AvatarURL` === e.detail.component.props.name) {
+                        this.vars.imageURL = e.detail.text(); console.log(e.detail.component.vars.value)
+                    }
+                    console.log(JSON.stringify(this.vars))
+                })
+                element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
+            }
             beforeUnmount() { }
             afterUnmount() { }
             props = {
                 componentObjectId: ``,
-                date: ``
+                date: ``,
             }
             vars = {
-                imageURL: ``,
+                imageURL: `./images/generic-avatar.png`,
                 firstName: ``,
                 lastName: ``,
                 city: ``,
@@ -37,7 +44,7 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="flex-row">
-            <div class="flex-col margin-l-2 w300px">
+            <div class="flex-col margin-l-2">
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-first-name">
                     <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
@@ -55,9 +62,13 @@
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
             </div>
-            <div id="{componentObjectId}-avatar" class="margin-l-2">
+            <div id="{componentObjectId}-avatar" class="flex_col margin-l-2">
                 <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}-avatar">
                     <include-props class="display-none">{ imageURL: `{imageURL}` }</include-props>
+                </include-html>
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-avatar-url">
+                    <include-props class="display-none">{ name: `AvatarURL`, placeholder: `Avatar URL`, label: `Avatar URL`, labelAboveField: false, minlength: 4, maxlength: 2048, tabindex: 5 }</include-props>
+                    <include-vars class="display-none">{ type: `url` } </include-vars>
                 </include-html>
             </div>
         </div>

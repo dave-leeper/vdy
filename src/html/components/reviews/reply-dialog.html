@@ -56,7 +56,6 @@
             }
             save() {
                 VanillaJWT.getCredentials(async (error, credentials) => {
-                    console.log(`error: ${error}, credentials: ${JSON.stringify(credentials)}`)
                     if (error) {
                         console.log(`Error getting credentials`)
                         // TODO: Display error message.

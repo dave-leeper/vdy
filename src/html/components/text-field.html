@@ -89,7 +89,24 @@
                         let results = []
 
                         if (0 === this.props.pattern.length) { return results }
-                        assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.name}' does not match the pattern ${this.props.pattern}.`, results, true)
+                        assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.name}' matches the pattern ${this.props.pattern}.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test url`, `Ensure field is a valid url.`, [async () => {
+                        let results = []
+                        const isValidUrl = urlString => {
+                            const urlPattern = new RegExp('^(https?:\\/\\/)?'+                  // validate protocol
+                            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+                 // validate domain name
+                            '((\\d{1,3}\\.){3}\\d{1,3}))'+                                      // validate OR ip (v4) address
+                            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+                                  // validate port and path
+                            '(\\?[;&a-z\\d%_.~+=-]*)?'+                                         // validate query string
+                            '(\\#[-a-z\\d_]*)?$','i');                                          // validate fragment locator
+
+                            return !!urlPattern.test(urlString);
+                        }
+
+                        if (`url` !== this.vars.type) { return results }
+                        assert(isValidUrl(this.vars.element.value),                             `Field '${this.props.name}' is a valid url.`, results, true)
                         return results
                     }]),
                 ]
@@ -100,7 +117,12 @@
 
                 let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, testArray)
                 this.vars.valid = (0 === results.failCount)
-                if (this.vars.valid) { this.vars.value = this.vars.element.value }
+                if (this.vars.valid) { 
+                    const newTextDataEvent = new CustomEvent(`newTextData`, { bubbles: true, detail: { text: () => this.vars.value, component: this }})
+
+                    this.vars.value = this.vars.element.value 
+                    this.vars.element.dispatchEvent(newTextDataEvent)
+                }
                 this.showErrors(results)
             }
             showErrors(suiteResultsTree) {

@@ -125,24 +125,26 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="modal display-none" onclick="$obj.hide()">
-              <div id="{componentObjectId}-frame" class="modal-content h450px" onclick="event.stopPropagation()">
-                <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header-editable.html" component-class="ReviewHeaderEditable" component-id="{componentObjectId}-review-header">
-                    <include-vars class="display-none">
-                        { 
-                            imageURL: `{reviewImageURL}`,
-                            firstName: `{reviewFirstName}`,
-                            lastName: `{reviewLastName}`,
-                            city: `{reviewCity}`,
-                            state: `{reviewState}`,
-                            date: `{reviewDate}`
-                        }          
-                    </include-vars>
-                </include-html>
-                <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
-                    <include-props class="display-none">{ editable: true }</include-props>
-                    <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
-                </include-html>
-                <div class="flex-col margin-b-5">
+              <div id="{componentObjectId}-frame" class="modal-content h525px" onclick="event.stopPropagation()">
+                <div class="h160px">
+                    <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+                        <include-props class="display-none">{ editable: true }</include-props>
+                        <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
+                    </include-html>
+                    <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header-editable.html" component-class="ReviewHeaderEditable" component-id="{componentObjectId}-review-header">
+                        <include-vars class="display-none">
+                            { 
+                                imageURL: `{reviewImageURL}`,
+                                firstName: `{reviewFirstName}`,
+                                lastName: `{reviewLastName}`,
+                                city: `{reviewCity}`,
+                                state: `{reviewState}`,
+                                date: `{reviewDate}`
+                            }          
+                        </include-vars>
+                    </include-html>
+                </div>
+                <div class="flex-col margin-b-5 margin-t-20">
                     <h3 id="{componentObjectId}-review-title" class="subtitle-2">Review</h3>
                     <textarea id="{componentObjectId}-review-text" name="review" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{review}</textarea>
                 </div>

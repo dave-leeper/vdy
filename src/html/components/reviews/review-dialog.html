@@ -63,7 +63,7 @@
                 await VanillaComponentLifecycle.unregisterComponentObject(this.props.componentObjectId)
                 await VanillaComponentLifecycle.unregisterDOMFragment(this.className())
             }
-            save() {
+            async save() {
                 const review = {
                     image: this.vars.reviewImageURL,
                     name: {
@@ -77,31 +77,26 @@
                     reviewRating: this.vars.reviewRating
                 }
                 console.log(JSON.stringify(review))
-                /*
-                    const response = await fetch('http://localhost:8080/add-replay', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': `'Bearer ${credentials.token}'`
-                        },
-                        body: JSON.stringify(reply)
-                    });
-                    const content = await response.json()
-
-                    if (200 === response.status) {
-                        console.log(`Success`)
-                        Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
-                        VanillaJWT.storeCredentials(content.jwt)
-                        // TODO: Show success message
-                    } else {
-                        console.log(`Error ${response.status}`)
-                        // TODO: Show error message
-                        if (401 === response.status) { window.location.href = `/login` }
-                    }
+                const response = await fetch('http://localhost:8080/add-review', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(review)
                 })
+                const content = await response.json()
+
+                if (200 === response.status) {
+                    console.log(`Success`)
+                    Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
+                    VanillaJWT.storeCredentials(content.jwt)
+                    // TODO: Show success message
+                } else {
+                    console.log(`Error ${response.status}`)
+                    // TODO: Show error message
+                }
                 this.hide()
-                */
             }
             props = {
                 componentObjectId: ``

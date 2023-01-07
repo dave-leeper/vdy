@@ -47,6 +47,13 @@
             }
         },
         {
+            "name": "Add review.",
+            "verb": "POST",
+            "path": "/add-review",
+            "handler": "add-review.js",
+            "log": "NONE"
+        },
+        {
             "name": "Add reply.",
             "verb": "POST",
             "path": "/add-replay",

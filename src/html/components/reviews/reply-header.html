@@ -23,14 +23,14 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="flex-row">
-            <div id="{componentObjectId}-avatar" class="margin-2">
-                <include-html include-in="reply-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}-avatar">
+            <div id="{componentObjectId}AvatarWrapper" class="margin-2">
+                <include-html include-in="reply-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}Avatar">
                     <include-props class="display-none">{ imageURL: `{imageURL}` }</include-props>
                 </include-html>
             </div>
             <div class="flex-col margin-2">
-                <div class="subtitle-2">{firstName} {lastName}</div>
-                <div>{date}</div>
+                <div id="{componentObjectId}Name" class="subtitle-2">{firstName} {lastName}</div>
+                <div id="{componentObjectId}Date">{date}</div>
             </div>
         </div>
     </component-markup>

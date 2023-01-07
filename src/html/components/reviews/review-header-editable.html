@@ -45,28 +45,28 @@
     <component-markup>
         <div id="{componentObjectId}" class="flex-row">
             <div class="flex-col margin-l-2 w350px">
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-first-name">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableFirstName">
                     <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-last-name">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableLastName">
                     <include-props class="display-none">{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, tabindex: 2 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-city">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableCity">
                     <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, tabindex: 3 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-editable-state">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableState">
                     <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
             </div>
-            <div id="{componentObjectId}-avatar" class="flex_col margin-l-2">
-                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}-avatar">
+            <div id="{componentObjectId}AvatarWrapper" class="flex_col margin-l-2">
+                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}Avatar">
                     <include-props class="display-none">{ imageURL: `{imageURL}` }</include-props>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}-avatar-url">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}AvatarURL">
                     <include-props class="display-none">{ name: `AvatarURL`, placeholder: `Avatar URL`, label: `Avatar URL`, labelAboveField: false, minlength: 4, maxlength: 2048, tabindex: 5 }</include-props>
                     <include-vars class="display-none">{ type: `url` } </include-vars>
                 </include-html>

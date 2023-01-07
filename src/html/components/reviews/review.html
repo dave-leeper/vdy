@@ -8,14 +8,14 @@
             beforeUnmount() { }
             afterUnmount() { }
             getReviewElement() {
-                return document.getElementById(`Review-${this.props.reviewId}`)
+                return document.getElementById(`Review${this.props.reviewId}`)
             }
             getReviewObject() {
-                return Vanilla.getComponentObject(`Review-${this.props.reviewId}`)
+                return Vanilla.getComponentObject(`Review${this.props.reviewId}`)
             }
             getReplyElement() {
                 if (!this.hasReply()) { return null }
-                return document.getElementById(`Reply-${this.vars.replyId}`)
+                return document.getElementById(`Reply${this.vars.replyId}`)
             }
             hasReply() {
                 return !!this.vars.replyId
@@ -61,7 +61,7 @@
     <component-markup>
         <section id="{componentObjectId}" class="flex-col bg-white shadow-white margin-tb-10 round-15px pad-5">
             <div>
-                <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}-review-header">
+                <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}ReviewHeader">
                     <include-props class="display-none">
                         { 
                             imageURL: `{imageURL}`,
@@ -74,15 +74,15 @@
                     </include-props>
                 </include-html>
             </div>
-            <section id="{componentObjectId}-review-body" class="flex-col w100">
-                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+            <section id="{componentObjectId}ReviewBody" class="flex-col w100">
+                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}Stars">
                     <include-props class="display-none">{ editable: false }</include-props>
                     <include-vars class="display-none">{ rating: {rating} }</include-vars>
                 </include-html>
-                <include-html include-in="review.html" src="./html/components/reviews/show-more-text.html" component-class="ShowMoreText" component-id="{componentObjectId}-review">
+                <include-html include-in="review.html" src="./html/components/reviews/show-more-text.html" component-class="ShowMoreText" component-id="{componentObjectId}Review">
                     <include-vars class="display-none">{ text: `{review}` }</include-vars>
                 </include-html>
-                <include-html include-in="review.html" src="./html/components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}-ufc">
+                <include-html include-in="review.html" src="./html/components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}UFC">
                     <include-vars class="display-none">{ usefulCount: {usefulCount}, funnyCount: {funnyCount}, coolCount: {coolCount}, replyId: `{replyId}` }</include-vars>
                 </include-html>
             </section>

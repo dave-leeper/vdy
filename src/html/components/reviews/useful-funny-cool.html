@@ -13,7 +13,7 @@
                     if (!credentials?.roles) { return }
                     if (!credentials.roles.includes("Admin")) { return }
 
-                    const replyElement = document.getElementById(`${this.props.componentObjectId}-reply`)
+                    const replyElement = document.getElementById(`${this.props.componentObjectId}Reply`)
                     const reviewElementId = this.props.componentObjectId.slice(0, -4)
                     const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
 
@@ -75,23 +75,23 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="flex-row flex-wrap margin-t-10">
-            <div id="{componentObjectId}-useful" class="button" onclick="$obj.incrimentUseful()">
-                <div id="{componentObjectId}-useful-icon" class="margin-1">💡</div> 
-                <div id="{componentObjectId}-useful-text" class="margin-1">Useful</div> 
-                <div id="{componentObjectId}-useful-count" class="margin-1">{usefulCount}</div> 
+            <div id="{componentObjectId}Useful" class="button" onclick="$obj.incrimentUseful()">
+                <div id="{componentObjectId}UsefulIcon" class="margin-1">💡</div> 
+                <div id="{componentObjectId}UsefulText" class="margin-1">Useful</div> 
+                <div id="{componentObjectId}UsefulCount" class="margin-1">{usefulCount}</div> 
             </div>
-            <div id="{componentObjectId}-funny" class="button" onclick="$obj.incrimentFunny()">
-                <div id="{componentObjectId}-funny-icon" class="margin-1">😀</div> 
-                <div id="{componentObjectId}-funny-text" class="margin-1">Funny</div> 
-                <div id="{componentObjectId}-funny-count" class="margin-1">{funnyCount}</div> 
+            <div id="{componentObjectId}Funny" class="button" onclick="$obj.incrimentFunny()">
+                <div id="{componentObjectId}FunnyIcon" class="margin-1">😀</div> 
+                <div id="{componentObjectId}FunnyText" class="margin-1">Funny</div> 
+                <div id="{componentObjectId}FunnyCount" class="margin-1">{funnyCount}</div> 
             </div>
-            <div id="{componentObjectId}-cool" class="button" onclick="$obj.incrimentCool()">
-                <div id="{componentObjectId}-funny-icon" class="margin-1">😎</div> 
-                <div id="{componentObjectId}-funny-text" class="margin-1">Cool</div> 
-                <div id="{componentObjectId}-funny-count" class="margin-1">{coolCount}</div> 
+            <div id="{componentObjectId}Cool" class="button" onclick="$obj.incrimentCool()">
+                <div id="{componentObjectId}CoolIcon" class="margin-1">😎</div> 
+                <div id="{componentObjectId}CoolText" class="margin-1">Cool</div> 
+                <div id="{componentObjectId}CoolCount" class="margin-1">{coolCount}</div> 
             </div>
-            <div id="{componentObjectId}-reply" class="display-none" onclick="$obj.reply()">
-                <div id="{componentObjectId}-reply-button" class="margin-1">Reply</div> 
+            <div id="{componentObjectId}ReplyButton" class="display-none" onclick="$obj.reply()">
+                <div id="{componentObjectId}ReplyButtonText" class="margin-1">Reply</div> 
             </div>
         </div>
     </component-markup>

@@ -47,11 +47,11 @@
     </style>
     <component-markup>
         <span>
-        <section id="login-page" class="flex-row flex-center margin-5 bg-grey-e w100">
-            <span id="login-page-border" class="flex-col round-5px border-solid border-2 border-blue-50 w400px h100 pad-10">
-                <h1 id="login-page-title" class="header-6 margin-5 w100 center-text">Login To Vince Drives You</h1>
-                <span id="login-page-form" class="flex-row flex-space-between">
-                    <span id="login-page-fields" class="flex-col">
+        <section id="LoginPage" class="flex-row flex-center margin-5 bg-grey-e w100">
+            <span id="LoginPageBorder" class="flex-col round-5px border-solid border-2 border-blue-50 w400px h100 pad-10">
+                <h1 id="LoginPageTitle" class="header-6 margin-5 w100 center-text">Login To Vince Drives You</h1>
+                <span id="LoginPageForm" class="flex-row flex-space-between">
+                    <span id="LoginPageFields" class="flex-col">
                         <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="LoginUser">
                             <include-props class="display-none">{ name: `UserField`, placeholder: `User`, label: `User`, labelAboveField: false, required: true, autofocus: true, autocomplete: true, minlength: 2 }</include-props>
                             <include-vars class="display-none">{ type: `text` } </include-vars>
@@ -61,9 +61,9 @@
                             <include-vars class="display-none">{ type: `password` }</include-vars>
                         </include-html>
                     </span>
-                    <span id="login-page-button">
-                        <div id="login-button" class="flex-row flex-align-start w100 margin-t-25" onclick="$obj.login()">
-                            <div class="button">Login</div>
+                    <span id="LoginPageButtonWrapper">
+                        <div id="LoginPageButton" class="flex-row flex-align-start w100 margin-t-25" onclick="$obj.login()">
+                            <div id="LoginPageButtonText" class="button">Login</div>
                         </div>
                     </span>
                 </span>

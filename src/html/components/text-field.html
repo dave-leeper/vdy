@@ -11,11 +11,11 @@
             }
             beforeMount() { }
             afterMount() { 
-                let wrapper = document.getElementById(`${this.props.componentObjectId}-wrapper`)
-                let eyeField = document.getElementById(`${this.props.componentObjectId}-eye`)
+                let wrapper = document.getElementById(`${this.props.componentObjectId}Wrapper`)
+                let eyeField = document.getElementById(`${this.props.componentObjectId}Eye`)
 
                 this.vars.element = document.getElementById(this.props.componentObjectId)
-                this.vars.errorElement = document.getElementById(`${this.props.componentObjectId}-error`)
+                this.vars.errorElement = document.getElementById(`${this.props.componentObjectId}Error`)
 
                 if (this.props.required) { this.vars.element.setAttribute('required', true) } else { this.vars.element.removeAttribute('required') }
                 if (this.props.readonly) { this.vars.element.setAttribute('readonly', true) } else { this.vars.element.removeAttribute('readonly') }
@@ -118,8 +118,17 @@
                 let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, testArray)
                 this.vars.valid = (0 === results.failCount)
                 if (this.vars.valid) { 
-                    const newTextDataEvent = new CustomEvent(`newTextData`, { bubbles: true, detail: { text: () => this.vars.value, component: this }})
-
+                    const newTextDataEvent = new CustomEvent(
+                        `newTextData`, 
+                        { 
+                            bubbles: true, 
+                            detail: { 
+                                text: () => this.vars.value, 
+                                component: this, 
+                                element: document.getElementById(this.props.componentObjectId) 
+                            }
+                        }
+                    )
                     this.vars.value = this.vars.element.value 
                     this.vars.element.dispatchEvent(newTextDataEvent)
                 }
@@ -182,8 +191,8 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}-wrapper">
-            <label id="{componentObjectId}-label" for="{name}" class="text-field-label">{label}</label>
+        <div id="{componentObjectId}Wrapper">
+            <label id="{componentObjectId}Label" for="{name}" class="text-field-label">{label}</label>
             <div>
                 <div class="flex-row">
                     <input 
@@ -202,9 +211,9 @@
                         oninput="$obj.onInput(event)"
                         tabindex="{tabindex}"
                     >
-                    <img id="{componentObjectId}-eye" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()" loading="lazy">
+                    <img id="{componentObjectId}Eye" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()" loading="lazy">
                 </div>
-                <div id="{componentObjectId}-error"></div>
+                <div id="{componentObjectId}Error"></div>
             </div>
         </div>
     </component-markup>

@@ -85,7 +85,7 @@
                     propsInnerText += "funnyCount: " + review.funnyCount + ", "
                     propsInnerText += "coolCount: " + review.coolCount + " }"
 
-                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review-${review.id}`, propsInnerText, varsInnerText)
+                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${review.id}`, propsInnerText, varsInnerText)
 
                     results.push(newInclude)
 
@@ -103,7 +103,7 @@
 
                     varsInnerText = reply.reply? "{ reply: `" + reply.reply + "` }" : "{ reply: `` }"
 
-                    newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply-${reply.id}`, propsInnerText, varsInnerText)
+                    newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${reply.id}`, propsInnerText, varsInnerText)
                     results.push(newInclude)
                 }
                 return results
@@ -134,9 +134,9 @@
     </style>
     <component-markup>
         <article id="{componentObjectId}" class="flex-col bg-white round-15px pad-5">
-            <div id="{componentObjectId}-loading" class="{loadingClass}">
-                <div id="{componentObjectId}-loading-text">Loading reviews...</div>
-                <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{componentObjectId}-loading"></include-html>
+            <div id="{componentObjectId}LoadingWrapper" class="{loadingClass}">
+                <div id="{componentObjectId}LoadingText">Loading reviews...</div>
+                <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{componentObjectId}Loading"></include-html>
             </div>
         </article>
     </component-markup>

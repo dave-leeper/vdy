@@ -8,19 +8,17 @@
                 const element = document.getElementById(this.props.componentObjectId)
 
                 element.addEventListener(`newTextData`, (e) => { 
-                    console.log(`newTextData for ${e.detail.component.props.name}`)
                     if (`FirstName` === e.detail.component.props.name) {
-                        this.vars.reviewFirstName = e.detail.text(); console.log(e.detail.component.vars.value)
+                        this.vars.reviewFirstName = e.detail.text()
                     } else if (`LastName` === e.detail.component.props.name) {
-                        this.vars.reviewLastName = e.detail.text(); console.log(e.detail.component.vars.value)
+                        this.vars.reviewLastName = e.detail.text()
                     } else if (`City` === e.detail.component.props.name) {
-                        this.vars.reviewCity = e.detail.text(); console.log(e.detail.component.vars.value)
+                        this.vars.reviewCity = e.detail.text()
                     } else if (`State` === e.detail.component.props.name) {
-                        this.vars.reviewState = e.detail.text(); console.log(e.detail.component.vars.value)
+                        this.vars.reviewState = e.detail.text()
                     } else if (`AvatarURL` === e.detail.component.props.name) {
-                        this.vars.reviewImageURL = e.detail.text(); console.log(e.detail.component.vars.value)
+                        this.vars.reviewImageURL = e.detail.text()
                     }
-                    console.log(JSON.stringify(this.vars))
                 })
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
             }
@@ -29,7 +27,7 @@
             onBlur(event) { this.updateReview() }
             onInput(event) { this.updateReview() }
             updateReview() {
-                const textAreaId = `${this.props.componentObjectId}-review-text`
+                const textAreaId = `${this.props.componentObjectId}ReviewText`
                 let textarea = document.getElementById(textAreaId)
 
                 this.vars.review = textarea.value
@@ -43,22 +41,22 @@
                 const modal = document.getElementById(this.props.componentObjectId)
 
                 modal.setAttribute(`class`, `display-none modal`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-avatar`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-avatar`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-avatar-url`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-avatar-url`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-editable-first-name`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-editable-first-name`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-editable-last-name`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-editable-last-name`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-editable-city`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-editable-city`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header-editable-state`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header-editable-state`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-review-header`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-review-header`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}-stars`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}-stars`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderAvatar`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderAvatar`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderAvatarURL`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderAvatarURL`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableFirstName`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableFirstName`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableLastName`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableLastName`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableCity`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableCity`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableState`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableState`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeader`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeader`)
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}Stars`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}Stars`)
                 await VanillaComponentLifecycle.unmount(this.props.componentObjectId)
                 await VanillaComponentLifecycle.unregisterComponentObject(this.props.componentObjectId)
                 await VanillaComponentLifecycle.unregisterDOMFragment(this.className())
@@ -70,13 +68,15 @@
                         first: this.vars.reviewFirstName,
                         last: this.vars.reviewLastName
                     },
-                    reviewCity: this.vars.reviewCity,
-                    reviewState: this.vars.reviewState,
-                    reviewDate: this.vars.reviewDate,
-                    review: this.vars.review,
-                    reviewRating: this.vars.reviewRating
+                    city: this.vars.reviewCity,
+                    state: this.vars.reviewState,
+                    date: this.vars.reviewDate,
+                    review: this.vars.review.trim(),
+                    stars: this.vars.reviewRating,
+                    usefulCount: 0,
+                    funnyCount: 0,
+                    coolCount: 0
                 }
-                console.log(JSON.stringify(review))
                 const response = await fetch('http://localhost:8080/add-review', {
                     method: 'POST',
                     headers: {
@@ -96,7 +96,7 @@
                     console.log(`Error ${response.status}`)
                     // TODO: Show error message
                 }
-                this.hide()
+                // this.hide()
             }
             props = {
                 componentObjectId: ``
@@ -120,13 +120,13 @@
     </style>
     <component-markup>
         <div id="{componentObjectId}" class="modal display-none" onclick="$obj.hide()">
-              <div id="{componentObjectId}-frame" class="modal-content h525px" onclick="event.stopPropagation()">
+              <div id="{componentObjectId}Frame" class="modal-content h525px" onclick="event.stopPropagation()">
                 <div class="h160px">
-                    <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}-stars">
+                    <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}Stars">
                         <include-props class="display-none">{ editable: true }</include-props>
                         <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
                     </include-html>
-                    <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header-editable.html" component-class="ReviewHeaderEditable" component-id="{componentObjectId}-review-header">
+                    <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header-editable.html" component-class="ReviewHeaderEditable" component-id="{componentObjectId}ReviewHeader">
                         <include-vars class="display-none">
                             { 
                                 imageURL: `{reviewImageURL}`,
@@ -140,15 +140,15 @@
                     </include-html>
                 </div>
                 <div class="flex-col margin-b-5 margin-t-20">
-                    <h3 id="{componentObjectId}-review-title" class="subtitle-2">Review</h3>
-                    <textarea id="{componentObjectId}-review-text" name="review" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{review}</textarea>
+                    <h3 id="{componentObjectId}ReviewTitle" class="subtitle-2">Review</h3>
+                    <textarea id="{componentObjectId}ReviewText" name="review" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{review}</textarea>
                 </div>
-                <div id="{componentObjectId}" class="flex-row flex-wrap flex-end margin-t-10">
-                    <div id="{componentObjectId}-cancel-button" class="button" onclick="$obj.hide()">
-                        <div id="{componentObjectId}-cancel-button-text" class="margin-1">Cancel</div> 
+                <div id="{componentObjectId}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
+                    <div id="{componentObjectId}CancelButton" class="button" onclick="$obj.hide()">
+                        <div id="{componentObjectId}CancelButtonText" class="margin-1">Cancel</div> 
                     </div>
-                    <div id="{componentObjectId}-save-button" class="button" onclick="$obj.save()">
-                        <div id="{componentObjectId}-save-button-text" class="margin-1">Save</div> 
+                    <div id="{componentObjectId}SaveButton" class="button" onclick="$obj.save()">
+                        <div id="{componentObjectId}SaveButtonText" class="margin-1">Save</div> 
                     </div>
                 </div>    
             </div>

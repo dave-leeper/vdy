@@ -409,7 +409,7 @@ class VanillaComponentLifecycle {
             return false 
         }
         if (window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
-            console.error(`Component object ${componentObjectId} is already registered.`)
+            console.error(`registerComponentObject: Component object ${componentObjectId} is already registered.`)
             return false 
         }
 
@@ -420,7 +420,7 @@ class VanillaComponentLifecycle {
         let clonedMarkup = clonedFragment.querySelector(`component-markup`)
 
         if (!clonedMarkup) { 
-            console.error(`Mount: Markup for ${componentObjectId} not found.`)
+            console.error(`registerComponentObject: Markup for ${componentObjectId} not found.`)
             return false 
         }
 
@@ -527,11 +527,11 @@ class VanillaComponentLifecycle {
     }
     static mount = (componentObjectId) => {
         if (!componentObjectId) { 
-            console.error(`Mount: No component object id provided for mount.`)
+            console.error(`unregisterComponentObject: No component object id provided for mount.`)
             return false 
         }
         if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
-            console.error(`Mount: Component object ${componentObjectId} was not in registery.`)
+            console.error(`unregisterComponentObject: Component object ${componentObjectId} was not in registery.`)
             return false 
         }
 
@@ -541,19 +541,19 @@ class VanillaComponentLifecycle {
         let marker = document.getElementById(markerId)
 
         if (!fragment) { 
-            console.error(`Mount: DOM fragment ${componentObjectInfo.componentClass} is not in registery.`)
+            console.error(`unregisterComponentObject: DOM fragment ${componentObjectInfo.componentClass} is not in registery.`)
             return false 
         }
         if (!componentObjectInfo.componentObject) { 
-            console.error(`Mount: Component object ${componentObjectId} is not in registery.`)
+            console.error(`unregisterComponentObject: Component object ${componentObjectId} is not in registery.`)
             return false 
         }
         if (componentObjectInfo.mounted) { 
-            console.error(`Mount: Component object ${componentObjectId} is already mounted.`)
+            console.error(`unregisterComponentObject: Component object ${componentObjectId} is already mounted.`)
             return false 
         }
         if (!marker) { 
-            console.error(`Mount: Marker for ${componentObjectId} is not in DOM.`)
+            console.error(`UnregisterComponentObject: Marker for ${componentObjectId} is not in DOM.`)
             return false 
         }
         if (componentObjectInfo.componentObject.beforeMount) { componentObjectInfo.componentObject.beforeMount() }
@@ -641,6 +641,9 @@ class VanillaJWT {
 }
 
 class Vanilla {
+    static initialize() {
+        window.$vanilla = undefined
+    }
     static getComponentFragment = (componentClass) => {
         if (!componentClass) { 
             console.error(`getComponentFragment: No component fragment id provided.`)
@@ -828,7 +831,10 @@ class Loader {
         if (0 === includes.length) { return }
         for (let include of includes) {
             let result = await Loader.loadInclude(include)
-            if (!result) { return }
+            if (!result) { 
+                console.error(`loadIncludes: Include processing halted.`)
+                return 
+            }
         }
         // Includes can contain includes.
         await Loader.loadIncludes()
@@ -846,6 +852,12 @@ class Loader {
     }
 }
 
-document.addEventListener(`DOMContentLoaded`, () => { window.$vanilla = undefined; Loader.registerCustomTags(); Loader.loadIncludes() })
+document.addEventListener(`DOMContentLoaded`, () => { 
+    Loader.registerCustomTags(); Loader.loadIncludes() 
+})
+window.onload = () => { console.log(`onload`) }
+window.onbeforeunload = () => { console.log(`onbeforeunload`) }
+window.onunload = () => { console.log(`onunload`) }
+
 
  

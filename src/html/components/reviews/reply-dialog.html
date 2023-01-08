@@ -97,7 +97,8 @@
                             await reviewList.unmountAndUnregisterReviewsAndReplies()
                             await reviewList.fetchReviews()
                             VanillaJWT.storeCredentials(content.jwt)
-                            // location.reload()
+                            location.reload()
+                            this.showInfo(`Reply updated.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
                             else { this.showError(`Error updating reply. Status code ${response.status}.`) }
@@ -131,6 +132,7 @@
                             VanillaJWT.storeCredentials(content.jwt)
                             await reviewList.unmountAndUnregisterReviewsAndReplies()
                             await reviewList.fetchReviews()
+                            location.reload()
                             this.showInfo(`Reply added.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }

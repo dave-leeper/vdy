@@ -59,7 +59,7 @@
                         if (reviewOrReply === reviewOrReply2) { continue }
                         if (!this.isReply(reviewOrReply2)) { continue }
 
-                        const reviewId = review.id.split(`:`)[1]
+                        const reviewId = review.id.split(`_`)[1]
 
                         if (reviewId !== reviewOrReply2.replyingTo.toString()) { continue }
                         reply = reviewOrReply2
@@ -82,7 +82,7 @@
                     let varsInnerText = (reply)? "{ replyId: `" + reply.id + "` }" : null
 
                     if (!review.image) { review.image = `./images/generic-avatar.png` }
-                    propsInnerText += "reviewId: `" + review.id + "`, "
+                    propsInnerText += "reviewId: `" + this.getCleanId(review.id) + "`, "
                     propsInnerText += "imageURL: `" + review.image + "`, "
                     propsInnerText += "firstName: `" + review.name.first + "`, "
                     propsInnerText += "lastName: `" + review.name.last + "`, "
@@ -103,8 +103,8 @@
                     if (!reply.image) { reply.image = `./images/generic-avatar.png` }
 
                     propsInnerText = `{`
-                    propsInnerText += "reviewId: `" + review.id + "`, "
-                    propsInnerText += "replyId: `" + reply.id + "`, "
+                    propsInnerText += "reviewId: `" + this.getCleanId(review.id) + "`, "
+                    propsInnerText += "replyId: `" + this.getCleanId(reply.id) + "`, "
                     propsInnerText += "imageURL: `" + reply.image + "`, "
                     propsInnerText += "firstName: `" + reply.name.first + "`, "
                     propsInnerText += "lastName: `" + reply.name.last + "`, "

@@ -69,8 +69,6 @@
             save() {
                 VanillaJWT.getCredentials(async (error, credentials) => {
                     if (error) {
-                        console.log(`Error getting credentials.`)
-                        // TODO: Display error message.
                         this.showError(`Error getting credentials.`)
                         return
                     }
@@ -97,12 +95,9 @@
                             Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
                             VanillaJWT.storeCredentials(content.jwt)
                             this.showInfo(`Reply updated.`)
-                            // TODO: Show success message
                         } else {
-                            console.log(`Error ${response.status}`)
                             if (401 === response.status) { window.location.href = `/login` }
                             else { this.showError(`Error updating reply. Status code ${response.status}.`) }
-                           // TODO: Show error message
                         }
                     } else {
                         const reviewNumber = this.props.reviewId.split(`:`)[1]
@@ -128,14 +123,10 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            console.log(`Success`)
                             Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
                             VanillaJWT.storeCredentials(content.jwt)
                             this.showInfo(`Reply added.`)
-                            // TODO: Show success message
                         } else {
-                            console.log(`Error ${response.status}`)
-                            // TODO: Show error message
                             if (401 === response.status) { window.location.href = `/login` }
                             else { this.showError(`Error adding reply. Status code ${response.status}.`) }
                         }

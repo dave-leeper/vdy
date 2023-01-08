@@ -626,7 +626,7 @@ class VanillaJWT {
     static credentials = ``
     static getCredentials(callback) {
         if (!VanillaJWT.credentials || 0 === VanillaJWT.credentials.length) {callback(`Credentials not set.`, null)}
-        else { callback(null, JSON.parse(VanillaJWT.credentials)) }
+        else { callback(null, VanillaJWT.credentials) }
     }
     static storeCredentials(token) {
         VanillaJWT.credentials = token

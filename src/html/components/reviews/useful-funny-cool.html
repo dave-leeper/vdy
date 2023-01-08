@@ -42,8 +42,10 @@
             incriment(which) {
                 const reviewElementId = this.getReviewComponentObjectId()
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
+                const reviewId = reviewObject.props.reviewId.replace(`_`, `:`)
+                console.log(`reviewObject.props.reviewId ${reviewObject.props.reviewId} reviewId ${reviewId}`)
                 const payload = {
-                    id: `${reviewObject.props.reviewId}`,
+                    id: reviewId,
                 }
                 const response = fetch(`http://localhost:8080/increment-${which}`, {
                     method: 'POST',
@@ -58,7 +60,6 @@
                 const reviewElementId = this.getReviewComponentObjectId()
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
 
-                console.log(`reviewObject: ${JSON.stringify(reviewObject)}`); 
                 reviewObject.reply()
             }
             async unmountAndUnregister() {

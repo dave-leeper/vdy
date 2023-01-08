@@ -32,6 +32,7 @@
             }
             async edit() { 
                 const reviewObject = this.getReviewObject()
+                const replyComponentObjectId = `Review${this.props.reviewId}`
                 let propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
 
                 if (!document.getElementById(`ReplyDialog`)) {

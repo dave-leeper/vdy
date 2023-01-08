@@ -56,14 +56,14 @@
         {
             "name": "Add reply.",
             "verb": "POST",
-            "path": "/add-replay",
+            "path": "/add-reply",
             "handler": "add-reply.js",
             "log": "NONE"
         },
         {
             "name": "Update reply.",
             "verb": "POST",
-            "path": "/update-replay",
+            "path": "/update-reply",
             "handler": "update-reply.js",
             "log": "NONE"
         },

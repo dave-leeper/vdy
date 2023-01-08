@@ -74,13 +74,13 @@
                     }
 
                     if (this.vars.editingExistingReply) {
-                        const replyNumber = this.props.replyId.split(`:`)[1]
+                        const replyNumber = this.props.replyId.split(`_`)[1]
                         const replyText = this.vars.reply.replace(/\n/g, "\\n")
                         const reply = {
                             id: `review:${replyNumber}`,
                             reply: replyText
                         }
-                        const response = await fetch('http://localhost:8080/update-replay', {
+                        const response = await fetch('http://localhost:8080/update-reply', {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
@@ -92,15 +92,18 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
+                            const reviewList = Vanilla.getComponentObject(`ReviewList`)
+
+                            await reviewList.unmountAndUnregisterReviewsAndReplies()
+                            await reviewList.fetchReviews()
                             VanillaJWT.storeCredentials(content.jwt)
-                            this.showInfo(`Reply updated.`)
+                            // location.reload()
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
                             else { this.showError(`Error updating reply. Status code ${response.status}.`) }
                         }
                     } else {
-                        const reviewNumber = this.props.reviewId.split(`:`)[1]
+                        const reviewNumber = this.props.reviewId.split(`_`)[1]
                         const reply = {
                             replyingTo: reviewNumber,
                             image: credentials.image,
@@ -111,7 +114,7 @@
                             title: `Business Owner`,
                             reply: this.vars.reply
                         }
-                        const response = await fetch('http://localhost:8080/add-replay', {
+                        const response = await fetch('http://localhost:8080/add-reply', {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
@@ -123,8 +126,11 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
+                            const reviewList = Vanilla.getComponentObject(`ReviewList`)
+
                             VanillaJWT.storeCredentials(content.jwt)
+                            await reviewList.unmountAndUnregisterReviewsAndReplies()
+                            await reviewList.fetchReviews()
                             this.showInfo(`Reply added.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }

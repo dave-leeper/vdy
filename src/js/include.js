@@ -792,7 +792,7 @@ class Loader {
             if (!componentClass) {
                 include.insertAdjacentHTML('afterend', text)
             } else {
-                let loadIncludeComponentResult = await Loader.loadIncludeComponent(text, src, includeIn, componentClass, componentObjectId, include)
+                let loadIncludeComponentResult = Loader.loadIncludeComponent(text, src, includeIn, componentClass, componentObjectId, include)
                 if (!loadIncludeComponentResult) { return false }
             }
         }
@@ -800,7 +800,7 @@ class Loader {
 
         return true
     }
-    static loadIncludeComponent = async function (text, src, includeIn, componentClass, componentObjectId, include) {
+    static loadIncludeComponent = function (text, src, includeIn, componentClass, componentObjectId, include) {
         let fragment = VanillaComponentLifecycle.compile(text)
         let fragmentAlreadyRegistered = window?.$vanilla?.fragmentRegistry?.has(componentClass)
         let fragmentRegistered = fragmentAlreadyRegistered || VanillaComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
@@ -860,7 +860,8 @@ class Loader {
 }
 
 document.addEventListener(`DOMContentLoaded`, () => { 
-    Loader.registerCustomTags(); Loader.loadIncludes() 
+    Loader.registerCustomTags()
+    Loader.loadIncludes() 
 })
 window.onload = () => { console.log(`onload`) }
 window.onbeforeunload = () => { console.log(`onbeforeunload`) }

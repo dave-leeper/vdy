@@ -9,6 +9,7 @@
                 VanillaJWT.getCredentials(async (error, credentials) => {
                     if (error) {
                         // TODO: Display error message.
+                        this.showError(`Error updating reply. Status code ${response.status}.`)
                         return
                     }
                     const replyElement = document.getElementById(`${this.props.componentObjectId}EditButton`)
@@ -54,6 +55,12 @@
                 await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
                 await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
+            showError(message) {
+                let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)
+                        
+                errorSnackbar.vars.text = message
+                errorSnackbar.show()
+            }
             props = {
                 componentObjectId: ``,
                 reviewId: ``,
@@ -88,7 +95,7 @@
                 </include-html>
             </div>
             <section id="{componentObjectId}ReplyBody" class="flex-col w100">
-                <div id="{componentObjectId}Reply" class="whitespace-pre-wrap overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2">{reply}</div>
+                <div id="{componentObjectId}Reply" class="whitespace-pre-wrap overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2 cursor-default">{reply}</div>
             </section>
             <div id="{componentObjectId}EditButton" class="display-none" onclick="$obj.edit()">
                 <div id="{componentObjectId}EditButtonText" class="margin-1">Edit</div> 

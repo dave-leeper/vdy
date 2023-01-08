@@ -5,7 +5,10 @@
             className() {return this.constructor.name }
             initialize(componentObjectId) { 
                 this.props.componentObjectId = componentObjectId
-                this.fetchReviews()
+                Queue.register(this, Messages.INCLUDES_LOADED, () => { 
+                    Queue.unregister(this, Messages.INCLUDES_LOADED)
+                    this.fetchReviews()
+                })
             }
             beforeMount() { }
             afterMount() { }
@@ -22,6 +25,8 @@
 
                         this.vars.reviews = reviewsAndReplies
                         this.buildListElements(newDOMElements)
+                        this.setReviewCountAndAverage()
+                        this.updateAverageStars()
                         this.vars.loadingClass = `display-none`
                     })
             }
@@ -127,6 +132,25 @@
                     await Loader.loadIncludes()
                 }
             }
+            setReviewCountAndAverage() {
+                if (!this.vars.reviews || 0 === this.vars.reviews.length) {
+                    this.vars.reviewCount = 0
+                    this.vars.reviewAverage = 0
+                    return
+                }
+
+                const sum = this.vars.reviews.reduce((partialSum, reviewReplyPair) => partialSum + reviewReplyPair.review.stars, 0)
+
+                this.vars.reviewCount = this.vars.reviews.length
+                this.vars.reviewAverage = (sum / this.vars.reviewCount).toPrecision(1)
+            }            
+            async updateAverageStars() {
+                const starsObjectId =  `${this.props.componentObjectId}Stars`
+                let starsObject = Vanilla.getComponentObject(starsObjectId)
+
+                if (!starsObject) { return }
+                starsObject.setStars(this.vars.reviewAverage)
+            }
             async unmountAndUnregister() {
                 const loadingObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Loading`)
 
@@ -157,7 +181,9 @@
             }
             vars = {
                 reviews: null,
-                loadingClass: `flex-row flex-space-between`
+                loadingClass: `flex-row flex-space-between`,
+                reviewCount: 0,
+                reviewAverage: 0
             }
         }
     </script>
@@ -170,6 +196,14 @@
             <div id="{componentObjectId}LoadingWrapper" class="{loadingClass}">
                 <div id="{componentObjectId}LoadingText">Loading reviews...</div>
                 <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{componentObjectId}Loading"></include-html>
+            </div>
+            <div id="{componentObjectId}Summary" class="flex-row flex-space-between flex-center flex-align-center ">
+                <div id="{componentObjectId}SummaryReviewCount">{reviewCount} Reviews</div>
+                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}Stars">
+                    <include-props class="display-none">{ editable: false }</include-props>
+                    <include-vars class="display-none">{ rating: {reviewAverage} }</include-vars>
+                </include-html>
+                <div id="{componentObjectId}SummaryReviewAverage">{reviewAverage} Star Average</div>
             </div>
         </article>
     </component-markup>

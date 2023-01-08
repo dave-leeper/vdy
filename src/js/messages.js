@@ -1,0 +1,8 @@
+class Messages {
+    static USER_LOGGED_IN = 'USER_LOGGED_IN'
+    static USER_LOGGED_OUT = 'USER_LOGGED_OUT'
+    static INCLUDES_LOADED = 'INCLUDES_LOADED'
+    static NOTIFICATION = 'NOTIFICATION'
+    static ERROR = 'ERROR'
+    static ERROR_USER_MUST_LOG_IN = 'ERROR_USER_MUST_LOG_IN'
+}

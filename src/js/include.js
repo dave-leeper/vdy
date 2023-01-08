@@ -391,12 +391,20 @@ class VanillaComponentLifecycle {
         }
         if (componentObject.initialize) { componentObject.initialize(componentObjectId) }
 
-        // TODO: Why are we not doing vars here as well?
         let members = Object.getOwnPropertyNames(componentObject.props)
 
         for (let member of members) {
             VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.props, member)
             VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.props, member)
+        }    
+
+        if (componentObject.vars) {
+            members = Object.getOwnPropertyNames(componentObject.vars)
+
+            for (let member of members) {
+                VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
+                VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
+            }
         }
         return componentObject
     }
@@ -748,9 +756,6 @@ class Loader {
         let repeatAttributValue = attributes[`repeat`]?.value
         let repeat = (repeatAttributValue)? parseInt(repeatAttributValue) : 1
 
-        if (componentClass === "Snackbar") {
-            const x = 1
-        }
         if (!src) {
             console.error(`validateIncludeAttributes: Include-html tag missing required attribute 'src'. Include processing halted. File containing bad Include-html tag is ${includeIn}.`)
             return badReturn
@@ -780,11 +785,15 @@ class Loader {
     static loadInclude = async function (include) {
         let [src, includeIn, componentClass, componentObjectId, repeat] = Loader.validateIncludeAttributes(include.attributes)
 
-        if (!src || !includeIn) { return false }
+        if (!src || !includeIn) { 
+            return false 
+        }
 
         let nodeAddedToIncludeTree = Loader.updateIncludeTree(includeIn, src)
 
-        if (!nodeAddedToIncludeTree) { return false }
+        if (!nodeAddedToIncludeTree) {
+            return false
+        }
 
         let text = await Loader.loadFile(include.attributes.src.value)
 
@@ -796,7 +805,6 @@ class Loader {
                 if (!loadIncludeComponentResult) { return false }
             }
         }
-        include.remove()
 
         return true
     }
@@ -836,9 +844,14 @@ class Loader {
     static loadIncludes = async function () {
         let includes = document.getElementsByTagName('include-html')
 
-        if (0 === includes.length) { return }
-        for (let include of includes) {
+        if (0 === includes.length) { 
+            Queue.broadcast(Messages.INCLUDES_LOADED, {})
+            return 
+        }
+        for (let loop = 0; loop < includes.length; loop++) {
+            const include = includes[loop]
             let result = await Loader.loadInclude(include)
+            include.remove()
             if (!result) { 
                 return 
             }
@@ -866,6 +879,3 @@ document.addEventListener(`DOMContentLoaded`, () => {
 window.onload = () => { console.log(`onload`) }
 window.onbeforeunload = () => { console.log(`onbeforeunload`) }
 window.onunload = () => { console.log(`onunload`) }
-
-
- 

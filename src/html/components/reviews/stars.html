@@ -46,8 +46,12 @@
                 if (!this.props.editable) { return }
                 this.setStars(rating)
             }
+            async unmountAndUnregister() {
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+            }
             props = {
-                componentObjectId: "",
+                componentObjectId: ``,
                 editable: true,
             }
             vars = {

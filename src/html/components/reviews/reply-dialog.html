@@ -29,6 +29,18 @@
             afterUnmount() { }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
+            showError(message) {
+                let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)
+                        
+                errorSnackbar.vars.text = message
+                errorSnackbar.show()
+            }
+            showInfo(message) {
+                let infoSnackbar = Vanilla.getComponentObject(`SnackbarInfo`)
+                        
+                infoSnackbar.vars.text = message
+                infoSnackbar.show()
+            }
             updateReply() {
                 const textAreaId = `${this.props.componentObjectId}ReplyText`
                 let textarea = document.getElementById(textAreaId)
@@ -57,8 +69,9 @@
             save() {
                 VanillaJWT.getCredentials(async (error, credentials) => {
                     if (error) {
-                        console.log(`Error getting credentials`)
+                        console.log(`Error getting credentials.`)
                         // TODO: Display error message.
+                        this.showError(`Error getting credentials.`)
                         return
                     }
 
@@ -83,10 +96,12 @@
                         if (200 === response.status) {
                             Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
                             VanillaJWT.storeCredentials(content.jwt)
+                            this.showInfo(`Reply updated.`)
                             // TODO: Show success message
                         } else {
                             console.log(`Error ${response.status}`)
                             if (401 === response.status) { window.location.href = `/login` }
+                            else { this.showError(`Error updating reply. Status code ${response.status}.`) }
                            // TODO: Show error message
                         }
                     } else {
@@ -116,11 +131,13 @@
                             console.log(`Success`)
                             Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
                             VanillaJWT.storeCredentials(content.jwt)
+                            this.showInfo(`Reply added.`)
                             // TODO: Show success message
                         } else {
                             console.log(`Error ${response.status}`)
                             // TODO: Show error message
                             if (401 === response.status) { window.location.href = `/login` }
+                            else { this.showError(`Error adding reply. Status code ${response.status}.`) }
                         }
                     }
                 })

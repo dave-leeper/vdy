@@ -41,25 +41,19 @@
                 const modal = document.getElementById(this.props.componentObjectId)
 
                 modal.setAttribute(`class`, `display-none modal`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderAvatar`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderAvatar`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderAvatarURL`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderAvatarURL`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableFirstName`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableFirstName`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableLastName`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableLastName`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableCity`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableCity`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderEditableState`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderEditableState`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeader`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeader`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}Stars`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}Stars`)
-                await VanillaComponentLifecycle.unmount(this.props.componentObjectId)
-                await VanillaComponentLifecycle.unregisterComponentObject(this.props.componentObjectId)
-                await VanillaComponentLifecycle.unregisterDOMFragment(this.className())
+                await this.unmountAndUnregister()
+            }
+            showError(message) {
+                let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)
+                        
+                errorSnackbar.vars.text = message
+                errorSnackbar.show()
+            }
+            showInfo(message) {
+                let infoSnackbar = Vanilla.getComponentObject(`SnackbarInfo`)
+                        
+                infoSnackbar.vars.text = message
+                infoSnackbar.show()
             }
             async save() {
                 const review = {
@@ -88,15 +82,26 @@
                 const content = await response.json()
 
                 if (200 === response.status) {
-                    console.log(`Success`)
-                    Vanilla.getComponentObject(`ReviewList`).removeReviewElements()
+                    const reviewList = Vanilla.getComponentObject(`ReviewList`)
+
+                    await reviewList.unmountAndUnregisterReviewsAndReplies()
+                    await reviewList.fetchReviews()
                     VanillaJWT.storeCredentials(content.jwt)
-                    // TODO: Show success message
+                    location.reload()
+                    this.showInfo(`Review added.`)
                 } else {
-                    console.log(`Error ${response.status}`)
-                    // TODO: Show error message
+                    this.showError(`Error adding review. Status code ${response.status}.`)
                 }
-                // this.hide()
+                this.hide()
+            }
+            async unmountAndUnregister() {
+                const reviewHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReviewHeader`)
+                const starsObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Stars`)
+
+                await reviewHeaderObj.unmountAndUnregister()
+                await starsObj.unmountAndUnregister()
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``

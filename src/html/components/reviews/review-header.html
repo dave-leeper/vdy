@@ -7,6 +7,13 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            async unmountAndUnregister() {
+                const avatarObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Avatar`)
+
+                await avatarObj.unmountAndUnregister()
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+            }
             props = {
                 componentObjectId: ``,
                 imageURL: ``,

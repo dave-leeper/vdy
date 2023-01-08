@@ -155,12 +155,14 @@ class VanillaComponentLifecycle {
             const originalMatches = -1 !== node.originalNodeValue.indexOf(formattedMember)
             const matches = -1 !== node.nodeValue.indexOf(formattedMember)
             if (originalMatches || matches) {
-                if (null !== data[member]) {
-                    // TODO: Thoroughly test this with multiple replacements in a single node value.
-                    let value = (matches)? node.nodeValue : node.originalNodeValue
+                // TODO: Thoroughly test this with multiple replacements in a single node value.
+                let value = (matches)? node.nodeValue : node.originalNodeValue
+                try {
                     let memberData = data[member].toString()
-                    
+                
                     node.nodeValue = value.replaceAll(formattedMember, memberData)
+                } catch (e) {
+                    console.warn(`Unable to replace node value containing ${member}. It's replacement value is ${data[member]}.`)
                 }
             }
         }
@@ -174,13 +176,16 @@ class VanillaComponentLifecycle {
                 if (!attr.originalAttributeValue) { attr.originalAttributeValue = attr.value }
                 const originalMatches = -1 !== attr.originalAttributeValue.indexOf(`{${member}}`)
                 const matches = -1 !== attr.value.indexOf(`{${member}}`)
-                if (originalMatches || matches) {
-                    if (null !== data[member]) {
-                    // TODO: Thoroughly test this with multiple replacements in a single attribute value.
-                    let value = (matches)? attr.value : attr.originalAttributeValue
-                        let memberData = data[member].toString()
+                let value = (matches)? attr.value : attr.originalAttributeValue
 
+                if (originalMatches || matches) {
+                    // TODO: Thoroughly test this with multiple replacements in a single attribute value.
+                    try {
+                        let memberData = data[member].toString()
+                    
                         attr.value = value.replaceAll(`{${member}}`, memberData)
+                    } catch (e) {
+                        console.warn(`Unable to replace attribute containing ${member}. It's replacement value is ${data[member]}.`)
                     }
                 }
             }
@@ -743,6 +748,9 @@ class Loader {
         let repeatAttributValue = attributes[`repeat`]?.value
         let repeat = (repeatAttributValue)? parseInt(repeatAttributValue) : 1
 
+        if (componentClass === "Snackbar") {
+            const x = 1
+        }
         if (!src) {
             console.error(`validateIncludeAttributes: Include-html tag missing required attribute 'src'. Include processing halted. File containing bad Include-html tag is ${includeIn}.`)
             return badReturn
@@ -832,7 +840,6 @@ class Loader {
         for (let include of includes) {
             let result = await Loader.loadInclude(include)
             if (!result) { 
-                console.error(`loadIncludes: Include processing halted.`)
                 return 
             }
         }

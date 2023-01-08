@@ -163,7 +163,7 @@ const _createTextTestDurationDiv = (testWrapperDiv) => {
   let testDurationnDiv = document.createElement('div')
   testDurationnDiv.id = `TextTestDuration${results[loop2].name}`
   testDurationnDiv.className = `margin-l-10 ${testTextColor}`
-  testDurationnDiv.innerText = "" + results[loop2].duration + "ms"
+  testDurationnDiv.innerText = `` + results[loop2].duration + "ms"
   testWrapperDiv.appendChild(testDurationnDiv)
 }
 const _createTextTestPassedDiv = (testWrapperDiv) => {
@@ -214,7 +214,7 @@ const _createCardTestDurationDiv = (testWrapperDiv) => {
   let testDurationnDiv = document.createElement('div')
   testDurationnDiv.id = `CardTestDuration${results[loop2].name}`
   testDurationnDiv.className = `caption-2 ${testTextColor}`
-  testDurationnDiv.innerText = "" + results[loop2].duration + "ms"
+  testDurationnDiv.innerText = `` + results[loop2].duration + "ms"
   testWrapperDiv.appendChild(testDurationnDiv)
 }
 const _createCardTestPassedDiv = (testWrapperDiv) => {

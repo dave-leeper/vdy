@@ -7,6 +7,10 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            async unmountAndUnregister() {
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+            }
             props = {
                 componentObjectId: ``,
                 imageURL: ``,

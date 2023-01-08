@@ -18,6 +18,23 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
+            async unmountAndUnregister() {
+                const firstNameObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableFirstName`)
+                const lastNameObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableLastName`)
+                const cityObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableCity`)
+                const stateObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableState`)
+                const avatarObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Avatar`)
+                const avatarURLObj = Vanilla.getComponentObject(`${this.props.componentObjectId}AvatarURL`)
+
+                await firstNameObj.unmountAndUnregister()
+                await lastNameObj.unmountAndUnregister()
+                await cityObj.unmountAndUnregister()
+                await stateObj.unmountAndUnregister()
+                await avatarObj.unmountAndUnregister()
+                await avatarURLObj.unmountAndUnregister()
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+            }
             props = {
                 componentObjectId: ``,
                 date: ``,

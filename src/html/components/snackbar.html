@@ -1,0 +1,109 @@
+<vanilla-component>
+    <script>
+        class Snackbar {
+            className() {return this.constructor.name }
+            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
+            beforeMount() { }
+            afterMount() { 
+                const snackbar = document.getElementById(this.props.componentObjectId)
+
+                if (this.props.isError) { snackbar.classList.toggle(`snackbar-error`) }
+            }
+            beforeUnmount() { }
+            afterUnmount() { }
+            show() {
+                const snackbar = document.getElementById(this.props.componentObjectId)
+
+                snackbar.classList.toggle(`show`)
+                setTimeout(() => { snackbar.classList.toggle(`show`) }, 3000)
+            }
+            props = {
+                componentObjectId: ``,
+                isError: false
+            }
+            vars = {
+                text: ``
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+        .snackbar {
+            visibility: hidden;
+            position: fixed;
+            min-width: var(--snackbar-min-width);
+            color: var(--snackbar-color);
+            background-color: var(--snackbar-background-color);
+            text-align: var(--snackbar-text-align);
+            font-family: var(--snackbar-font-family);
+            font-size: var(--snackbar-font-size);
+            font-weight: var(--snackbar-font-weight);
+            border-color: var(--snackbar-border-color);
+            border-width: var(--snackbar-border-width);
+            border-style: var(--snackbar-border-style);
+            border-radius: var(--snackbar-border-radius);
+            padding: var(--snackbar-padding);
+            margin-left: var(--snackbar-margin-left);
+            left: var(--snackbar-left);
+            top: var(--snackbar-top);
+            z-index: var(--snackbar-z-index);
+        }
+        .snackbar-error {
+            visibility: hidden;
+            position: fixed;
+            min-width: var(--snackbar-error-min-width);
+            color: var(--snackbar-error-color);
+            background-color: var(--snackbar-error-background-color);
+            text-align: var(--snackbar-error-text-align);
+            font-family: var(--snackbar-error-font-family);
+            font-size: var(--snackbar-error-font-size);
+            font-weight: var(--snackbar-error-font-weight);
+            border-color: var(--snackbar-error-border-color);
+            border-width: var(--snackbar-error-border-width);
+            border-style: var(--snackbar-error-border-style);
+            border-radius: var(--snackbar-error-border-radius);
+            padding: var(--snackbar-error-padding);
+            margin-left: var(--snackbar-error-margin-left);
+            left: var(--snackbar-error-left);
+            top: var(--snackbar-error-top);
+            z-index: var(--snackbar-error-z-index);
+        }
+
+        .snackbar.show {
+            visibility: visible;
+            -webkit-animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 2.5s;
+            animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 2.5s;
+        }
+
+        .snackbar-error.show {
+            visibility: visible;
+            -webkit-animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 2.5s;
+            animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 2.5s;
+        }
+
+        @-webkit-keyframes snackbar-fadein {
+            from {top: 0; opacity: 0;} 
+            to {top: 30px; opacity: 1;}
+        }
+
+        @keyframes snackbar-fadein {
+            from {top: 0; opacity: 0;}
+            to {top: 30px; opacity: 1;}
+        }
+
+        @-webkit-keyframes snackbar-fadeout {
+            from {top: 30px; opacity: 1;} 
+            to {top: 0; opacity: 0;}
+        }
+
+        @keyframes snackbar-fadeout {
+            from {top: 30px; opacity: 1;}
+            to {top: 0; opacity: 0;}
+        }
+    </style>
+    <component-markup>
+        <div id="{componentObjectId}" class="snackbar">{text}</div>
+    </component-markup>
+</vanilla-component>
+

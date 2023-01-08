@@ -44,6 +44,13 @@
 
                 replyDialog.show()
             }
+            async unmountAndUnregister() {
+                const replyHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReplyHeader`)
+
+                await replyHeaderObj.unmountAndUnregister()
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+            }
             props = {
                 componentObjectId: ``,
                 reviewId: ``,

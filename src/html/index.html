@@ -39,6 +39,13 @@
     </script>
   </head>
   <body class="margin-5 bg-grey-e" onload="initializeApp()">
+    <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarError">
+      <include-props class="display-none">{ isError: true }</include-props>
+      <include-vars class="display-none">{ text: `Message.` }</include-vars>
+    </include-html>
+    <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarInfo">
+      <include-vars class="display-none">{ text: `Message.` }</include-vars>
+    </include-html>
     <div class="h300px margin-b-50">
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow"></include-html>
       <div class="w100 h20px"></div>

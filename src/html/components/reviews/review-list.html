@@ -15,17 +15,14 @@
                     .then((response) => response.json())
                     .then((data) => {
                         let reviews = this.sortReviews(data)
-                        let reviewsAndReplies = this.pairReviewsAndReplies(reviews)
+                        let cleanReviews = this.cleanReviews(reviews)
+                        let reviewsAndReplies = this.pairReviewsAndReplies(cleanReviews)
                         let newDOMElements = this.createListElements(reviewsAndReplies)
 
                         this.vars.reviews = reviewsAndReplies
                         this.buildListElements(newDOMElements)
                         this.vars.loadingClass = `display-none`
                     })
-            }
-            removeReviewElements() {
-                Vanilla.initialize()
-                location.reload()
             }
             sortReviews(data) {
                 const sortFunction = (a, b) => {
@@ -38,6 +35,15 @@
                 }
                 data.sort(sortFunction)
                 return data
+            }
+            cleanReviews(data) {
+                let results = []
+
+                for (const reviewOrReply of data) {
+                    reviewOrReply.id = this.getCleanId(reviewOrReply.id)
+                    results.push(reviewOrReply)
+                }
+                return results
             }
             isReply(data) { return !!data.replyingTo }
             pairReviewsAndReplies(data) {
@@ -63,6 +69,9 @@
                 }
                 return result
             }
+            getCleanId(id) {
+                return id.replace(`:`, `_`)
+            }
             createListElements(data) {
                 let results = []
 
@@ -86,7 +95,7 @@
                     propsInnerText += "funnyCount: " + review.funnyCount + ", "
                     propsInnerText += "coolCount: " + review.coolCount + " }"
 
-                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${review.id}`, propsInnerText, varsInnerText)
+                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsInnerText, varsInnerText)
 
                     results.push(newInclude)
 
@@ -104,7 +113,7 @@
 
                     varsInnerText = reply.reply? "{ reply: `" + reply.reply + "` }" : "{ reply: `` }"
 
-                    newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${reply.id}`, propsInnerText, varsInnerText)
+                    newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${this.getCleanId(reply.id)}`, propsInnerText, varsInnerText)
                     results.push(newInclude)
                 }
                 return results
@@ -115,6 +124,28 @@
                 for (const element of newDOMElements) {
                     listRootElement.appendChild(element)
                     await Loader.loadIncludes()
+                }
+            }
+            async unmountAndUnregister() {
+                const loadingObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Loading`)
+
+                await this.unmountAndUnregisterReviewsAndReplies()
+                await loadingObj.unmountAndUnregister()
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+            }
+            async unmountAndUnregisterReviewsAndReplies() {
+                for (const reviewAndReply of this.vars.reviews) {
+                    if (reviewAndReply.reply) {
+                        const replyObj = Vanilla.getComponentObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
+
+                        if (replyObj) { await replyObj.unmountAndUnregister() }
+                    }
+                    if (reviewAndReply.review) {
+                        const reviewObj = Vanilla.getComponentObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
+
+                        if (reviewObj) { await reviewObj.unmountAndUnregister() }
+                    }
                 }
             }
             // fetchURL: `http://127.0.0.1:8080/reviews`

@@ -156,6 +156,10 @@
                     this.vars.imageURL = `../images/eye-closed.png`
                 }
             }
+            async unmountAndUnregister() {
+                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
+                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+            }
             props = {
                 componentObjectId: ``,
                 required: false,

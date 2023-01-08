@@ -13,18 +13,20 @@
                     if (!credentials?.roles) { return }
                     if (!credentials.roles.includes("Admin")) { return }
 
-                    const replyElement = document.getElementById(`${this.props.componentObjectId}Reply`)
-                    const reviewElementId = this.props.componentObjectId.slice(0, -4)
+                    const replyElement = document.getElementById(this.getReviewComponentObjectId())
+                    const replyButton = document.getElementById(`${this.props.componentObjectId}ReplyButton`)
+                    const reviewElementId = this.getReviewComponentObjectId()
                     const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
 
                     if (!replyElement) { return }
                     if (reviewObject.hasReply()) { return }
 
-                    replyElement.setAttribute(`class`, `text-button`)
+                    replyButton.setAttribute(`class`, `text-button`)
                 })
             }
             beforeUnmount() { }
             afterUnmount() { }
+            getReviewComponentObjectId() { return this.props.componentObjectId.slice(0, -3) }
             incrimentUseful() { 
                 this.vars.usefulCount++
                 this.incriment(`useful`)
@@ -38,7 +40,7 @@
                 this.incriment(`cool`)
             }
             incriment(which) {
-                const reviewElementId = this.props.componentObjectId.slice(0, -4)
+                const reviewElementId = this.getReviewComponentObjectId()
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
                 const payload = {
                     id: `${reviewObject.props.reviewId}`,
@@ -53,9 +55,10 @@
                 });
             }
             reply() { 
-                const reviewElementId = this.props.componentObjectId.slice(0, -4)
+                const reviewElementId = this.getReviewComponentObjectId()
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
 
+                console.log(`reviewObject: ${JSON.stringify(reviewObject)}`); 
                 reviewObject.reply()
             }
             async unmountAndUnregister() {

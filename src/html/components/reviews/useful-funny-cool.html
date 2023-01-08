@@ -43,7 +43,6 @@
                 const reviewElementId = this.getReviewComponentObjectId()
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
                 const reviewId = reviewObject.props.reviewId.replace(`_`, `:`)
-                console.log(`reviewObject.props.reviewId ${reviewObject.props.reviewId} reviewId ${reviewId}`)
                 const payload = {
                     id: reviewId,
                 }

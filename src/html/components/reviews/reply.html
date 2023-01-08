@@ -10,24 +10,25 @@
                         // TODO: Display error message.
                         return
                     }
-                    const replyElement = document.getElementById(`${this.props.componentObjectId}Edit`)
+                    const replyElement = document.getElementById(`${this.props.componentObjectId}EditButton`)
 
                     if (!credentials?.roles) { return }
                     if (!credentials.roles.includes("Admin")) { return }
                     if (!replyElement) { return }
+
                     replyElement.setAttribute(`class`, `text-button`)
                 })
             }
             beforeUnmount() { }
             afterUnmount() { }
             getReviewElement() {
-                return document.getElementById(`Review-${this.props.reviewId}`)
+                return document.getElementById(`Review${this.props.reviewId}`)
             }
             getReviewObject() {
-                return Vanilla.getComponentObject(`Review-${this.props.reviewId}`)
+                return Vanilla.getComponentObject(`Review${this.props.reviewId}`)
             }
             getReplyElement() {
-                return document.getElementById(`Reply-${this.props.replyId}`)
+                return document.getElementById(`Reply${this.props.replyId}`)
             }
             async edit() { 
                 const reviewObject = this.getReviewObject()

@@ -9,6 +9,7 @@
 
                 this.props.isPassword = `password` === this.vars.type.toLowerCase()
                 this.vars.valid = false
+                console.log(`${this.id}  ${this.props.list}`)
             }
             afterMount() { 
                 let wrapper = document.getElementById(`${this.id}Wrapper`)
@@ -22,7 +23,7 @@
                 if (this.props.disabled) { this.vars.element.setAttribute('disabled', true) } else { this.vars.element.removeAttribute('disabled') }
                 if (this.props.autofocus) { this.vars.element.setAttribute('autofocus', true) } else { this.vars.element.removeAttribute('autofocus') }
                 if (this.props.autocomplete) { this.vars.element.setAttribute('autocomplete', true) } else { this.vars.element.removeAttribute('autocomplete') }
-                if (this.props.listName) { this.vars.element.setAttribute('list', this.props.listName) } else { this.vars.element.removeAttribute('list') }
+                if (this.props.list) { this.vars.element.setAttribute('list', this.props.list) } else { this.vars.element.removeAttribute('list') }
                 if (this.props.min != Number.MAX_VALUE) { this.vars.element.setAttribute(`min`, this.props.min) }
                 if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
                 if (this.props.labelAboveField) { wrapper.setAttribute('class', `flex-col`) } else { wrapper.setAttribute('class', `flex-row`) }

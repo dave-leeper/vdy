@@ -18,7 +18,7 @@
         }
         const ddd = function() { 
             alert(`clickity clackity`);
-            let button =  window.$vanilla.objectRegistry.get(`Button1`)
+            let button =  window.$components.objectRegistry.get(`Button1`)
             console.log(button.componentObject.props.prop1)
             button.componentObject.props.prop1 = `Should not assign a value to the prop`
             console.log(button.componentObject.props.prop1)

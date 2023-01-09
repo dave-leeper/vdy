@@ -102,7 +102,7 @@ class Tree {
 */
 class ComponentLifecycle {
     static initialize() {
-        window.$vanilla = undefined
+        window.$components = undefined
     }
     static saveOriginalNodeValues = (node) => {
         if (node.nodeValue) {
@@ -251,7 +251,7 @@ class ComponentLifecycle {
             console.error(`registerDOMFragment: No DOM fragment provided for DOM fragment registration.`)
             return false 
         }
-        if (window?.$vanilla?.fragmentRegistry?.has(componentClass)) { 
+        if (window?.$components?.fragmentRegistry?.has(componentClass)) { 
             console.info(`registerDOMFragment: DOM Fragment ${componentClass} is already registered.`)
             return true 
         }
@@ -312,11 +312,11 @@ class ComponentLifecycle {
             }
             tests[0].remove()
         }
-        if (!window.$vanilla) { window.$vanilla = {} }
-        if (!window.$vanilla.fragmentRegistry) { window.$vanilla.fragmentRegistry = new Map() }
+        if (!window.$components) { window.$components = {} }
+        if (!window.$components.fragmentRegistry) { window.$components.fragmentRegistry = new Map() }
         ComponentLifecycle.saveOriginalNodeValues(componentFragment)
         ComponentLifecycle.saveOriginalNodeAttributes(componentFragment)
-        window.$vanilla.fragmentRegistry.set(componentClass, componentFragment)
+        window.$components.fragmentRegistry.set(componentClass, componentFragment)
 
         return true
     }
@@ -325,7 +325,7 @@ class ComponentLifecycle {
             console.error(`unregisterDOMFragment: No component class provided for unregistration.`)
             return false 
         }
-        if (!window?.$vanilla?.fragmentRegistry?.has(componentClass)) { 
+        if (!window?.$components?.fragmentRegistry?.has(componentClass)) { 
             console.error(`unregisterDOMFragment: DOM Fragment ${componentClass} was not in registery.`)
             return false 
         }
@@ -336,7 +336,7 @@ class ComponentLifecycle {
         if (componentScriptTag) { componentScriptTag.remove() }
         if (componentStyleTag) { componentStyleTag.remove() }
         if (componentTestTag) { componentTestTag.remove() }
-        window.$vanilla.fragmentRegistry.delete(componentClass)
+        window.$components.fragmentRegistry.delete(componentClass)
         return true
     }
     static createComponentObject = (componentClass, componentObjectId, includeElement) => {
@@ -356,7 +356,7 @@ class ComponentLifecycle {
         let componentObject = eval(` new ${componentClass}()`)
         let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
-        let componentFragment =  window.$vanilla.fragmentRegistry.get(componentClass)
+        let componentFragment =  window.$components.fragmentRegistry.get(componentClass)
 
         if (!marker) {
             let marker = document.createElement('script')
@@ -429,13 +429,13 @@ class ComponentLifecycle {
             console.error(`registerComponentObject: No fragment id provided for component object registration.`)
             return false 
         }
-        if (window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+        if (window?.$components?.objectRegistry?.has(componentObjectId)) { 
             console.error(`registerComponentObject: Component object ${componentObjectId} is already registered.`)
             return false 
         }
 
         let componentDOM = []
-        let fragment = window.$vanilla.fragmentRegistry.get(componentClass)
+        let fragment = window.$components.fragmentRegistry.get(componentClass)
         let markup = fragment.querySelector(`component-markup`)
         let clonedFragment = fragment.cloneNode(true)
         let clonedMarkup = clonedFragment.querySelector(`component-markup`)
@@ -445,8 +445,8 @@ class ComponentLifecycle {
             return false 
         }
 
-        if (!window.$vanilla) { window.$vanilla = {} }
-        if (!window.$vanilla.objectRegistry) { window.$vanilla.objectRegistry = new Map() }
+        if (!window.$components) { window.$components = {} }
+        if (!window.$components.objectRegistry) { window.$components.objectRegistry = new Map() }
         for (let loop = clonedMarkup.children.length - 1; loop >= 0; loop--) {
             let originalChild = markup.children[loop]
             let clonedChild = clonedMarkup.children[loop]
@@ -527,7 +527,7 @@ class ComponentLifecycle {
             ComponentLifecycle.wrapProps(node, componentObject)
         }
 
-        window.$vanilla.objectRegistry.set(componentObjectId, {componentObject: componentObject, componentClass, componentDOM, mounted: false})
+        window.$components.objectRegistry.set(componentObjectId, {componentObject: componentObject, componentClass, componentDOM, mounted: false})
         return true
     }
     static unregisterComponentObject = (componentObjectID) => {
@@ -535,15 +535,15 @@ class ComponentLifecycle {
             console.error(`unregisterComponentObject: No component object id provided for registration.`)
             return false 
         }
-        if (!window?.$vanilla?.objectRegistry?.has(componentObjectID)) { 
+        if (!window?.$components?.objectRegistry?.has(componentObjectID)) { 
             console.error(`unregisterComponentObject: Component object ${componentObjectID} was not in registery.`)
             return false 
         }
-        if (window.$vanilla.objectRegistry.get(componentObjectID).mounted) { 
+        if (window.$components.objectRegistry.get(componentObjectID).mounted) { 
             console.error(`unregisterComponentObject: Cannot unregister a mounted component, ${componentObjectID}.`)
             return false 
         }
-        window.$vanilla.objectRegistry.delete(componentObjectID)
+        window.$components.objectRegistry.delete(componentObjectID)
         return true
     }
     static mount = (componentObjectId) => {
@@ -551,13 +551,13 @@ class ComponentLifecycle {
             console.error(`unregisterComponentObject: No component object id provided for mount.`)
             return false 
         }
-        if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+        if (!window?.$components?.objectRegistry?.has(componentObjectId)) { 
             console.error(`unregisterComponentObject: Component object ${componentObjectId} was not in registery.`)
             return false 
         }
 
-        let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
-        let fragment = window.$vanilla.fragmentRegistry.get(componentObjectInfo.componentClass)
+        let componentObjectInfo = window.$components.objectRegistry.get(componentObjectId)
+        let fragment = window.$components.fragmentRegistry.get(componentObjectInfo.componentClass)
         let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
 
@@ -584,7 +584,7 @@ class ComponentLifecycle {
         }
 
         componentObjectInfo.mounted = true
-        window.$vanilla.objectRegistry.set(componentObjectId, componentObjectInfo)
+        window.$components.objectRegistry.set(componentObjectId, componentObjectInfo)
         if (componentObjectInfo.componentObject.afterMount) { componentObjectInfo.componentObject.afterMount() }
         return true
     }
@@ -593,12 +593,12 @@ class ComponentLifecycle {
             console.error(`Unmount: No component object id provided for mount.`)
             return false 
         }
-        if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+        if (!window?.$components?.objectRegistry?.has(componentObjectId)) { 
             console.error(`Unmount: Component object ${componentObjectId} is not in registery.`)
             return false 
         }
 
-        let componentObjectInfo = window?.$vanilla?.objectRegistry?.get(componentObjectId)
+        let componentObjectInfo = window?.$components?.objectRegistry?.get(componentObjectId)
 
         if (!componentObjectInfo?.componentObject) { 
             console.error(`Unmount: Component object ${componentObjectId} is not in registery.`)
@@ -609,7 +609,7 @@ class ComponentLifecycle {
             return false 
         }
 
-        let fragment = window.$vanilla.fragmentRegistry.get(componentObjectInfo.componentClass)
+        let fragment = window.$components.fragmentRegistry.get(componentObjectInfo.componentClass)
         let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
         let markup = fragment.querySelector(`component-markup`)
@@ -632,7 +632,7 @@ class ComponentLifecycle {
             marker.nextSibling.remove()
         }
         componentObjectInfo.mounted = false
-        window.$vanilla.objectRegistry.set(componentObjectId, componentObjectInfo)
+        window.$components.objectRegistry.set(componentObjectId, componentObjectInfo)
         if (componentObjectInfo.componentObject.afterMount) { componentObjectInfo.componentObject.afterUnmount() }
         return true
     }
@@ -675,12 +675,12 @@ class Component {
             console.error(`getFragment: No component fragment id provided.`)
             return null 
         }
-        if (!window?.$vanilla?.fragmentRegistry?.has(componentClass)) { 
+        if (!window?.$components?.fragmentRegistry?.has(componentClass)) { 
             console.error(`getFragment: Component fragment ${componentClass} is not registered.`)
             return null 
         }
         
-        let fragment = window.$vanilla.fragmentRegistry.get(componentClass)
+        let fragment = window.$components.fragmentRegistry.get(componentClass)
         return fragment
     }
     static getObject = (componentObjectId) => {
@@ -688,12 +688,12 @@ class Component {
             console.error(`getObject: No component object id provided.`)
             return null 
         }
-        if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
+        if (!window?.$components?.objectRegistry?.has(componentObjectId)) { 
             console.error(`getObject: Component object ${componentObjectId} is not registered.`)
             return null 
         }
         
-        let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
+        let componentObjectInfo = window.$components.objectRegistry.get(componentObjectId)
         return componentObjectInfo.componentObject
     }
     static createComponentInclude = (includeIn, src, componentClass, componentId, props, vars) => {
@@ -834,7 +834,7 @@ class Loader {
     }
     static loadIncludeComponent = function (text, src, includeIn, componentClass, componentObjectId, include) {
         let fragment = ComponentLifecycle.compile(text)
-        let fragmentAlreadyRegistered = window?.$vanilla?.fragmentRegistry?.has(componentClass)
+        let fragmentAlreadyRegistered = window?.$components?.fragmentRegistry?.has(componentClass)
         let fragmentRegistered = fragmentAlreadyRegistered || ComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
 
         if (!fragmentRegistered) {

@@ -13,7 +13,7 @@ const cleanup = (fragmentId) => {
         componentTest?.remove()
         componentSyle?.remove()
     }
-    window.$vanilla = undefined
+    window.$components = undefined
     window.initialized = false
     window.beforeMount = false
     window.afterMount = false
@@ -283,7 +283,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         let componentScript = document.getElementById(`ScriptTag${fragmentId}`)
         let componentTest = document.getElementById(`TestTag${fragmentId}`)
         let componentSyle = document.getElementById(`StyleTag${fragmentId}`)
-        let componentInRegistry = window.$vanilla?.fragmentRegistry?.has(fragmentId)
+        let componentInRegistry = window.$components?.fragmentRegistry?.has(fragmentId)
         let results = []
 
         assert(registerResult,                                              `DOM fragment registered.`, results)
@@ -326,7 +326,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         componentScript?.remove()
         componentTest?.remove()
         componentSyle?.remove()
-        window.$vanilla.fragmentRegistry.delete(fragmentId)
+        window.$components.fragmentRegistry.delete(fragmentId)
         frag = ComponentLifecycle.compile(html)
         registerResult = ComponentLifecycle.registerDOMFragment(null, frag, false)
 
@@ -531,7 +531,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         let componentScript = document.getElementById(`ScriptTag${fragmentId}`)
         let componentTest = document.getElementById(`TestTag${fragmentId}`)
         let componentSyle = document.getElementById(`StyleTag${fragmentId}`)
-        let componentInRegistry = window.$vanilla?.fragmentRegistry?.has(fragmentId)
+        let componentInRegistry = window.$components?.fragmentRegistry?.has(fragmentId)
         let results = []
 
         assert(unregisterResult,                                            `DOM fragment unregistered.`, results)
@@ -547,7 +547,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         componentScript = document.getElementById(`ScriptTag${fragmentId}`)
         componentTest = document.getElementById(`TestTag${fragmentId}`)
         componentSyle = document.getElementById(`StyleTag${fragmentId}`)
-        componentInRegistry = window.$vanilla?.fragmentRegistry?.has(fragmentId)
+        componentInRegistry = window.$components?.fragmentRegistry?.has(fragmentId)
 
         assert(registerResult,                                              `DOM fragment registers successfully after an unregistered.`, results)
         assert(unregisterResult,                                            `DOM fragment unregistered (include test tag).`, results)
@@ -594,7 +594,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         setup(fragmentId, html, includeTagHTML)
 
         let componentObject = ComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
-        let objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
+        let objectInRegistry = window.$components?.objectRegistry?.has(fragmentId)
         let hasIncludeTag = document.getElementById(testIncludeTagId)
         let hasMarkerTag = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
@@ -613,7 +613,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         includeTagHTML = `<include-html props='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
         setup(fragmentId, html, includeTagHTML)
         componentObject = ComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
-        objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
+        objectInRegistry = window.$components?.objectRegistry?.has(fragmentId)
         hasIncludeTag = document.getElementById(`TestIncludeTag`)
 
         assert(componentObject,                                             `Component object successfully created.`, results)
@@ -625,7 +625,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         includeTagHTML = `<include-html vars='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
         setup(fragmentId, html, includeTagHTML)
         componentObject = ComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
-        objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
+        objectInRegistry = window.$components?.objectRegistry?.has(fragmentId)
 
         assert(componentObject,                                             `Component object successfully created.`, results)
         assert(!objectInRegistry,                                           `Creating a component does not register it.`, results)
@@ -670,7 +670,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         setup(fragmentId, html, includeTagHTML)
 
         let registerComponentObjectResult = ComponentLifecycle.registerComponentObject(fragmentId, componentObjectID, { test: `test` })
-        let objectInRegistry = window.$vanilla?.objectRegistry?.has(componentObjectID)
+        let objectInRegistry = window.$components?.objectRegistry?.has(componentObjectID)
 
         assert(registerComponentObjectResult,                               `Component object registered successfully.`, results)
         assert(objectInRegistry,                                            `Component object in registry.`, results)
@@ -737,7 +737,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
 
         let registerComponentObjectResult = ComponentLifecycle.registerComponentObject(`fragment`, `TestObject`, { test: `test` })
         let unregisterComponentObjectResult = ComponentLifecycle.unregisterComponentObject(`TestObject`)
-        let objectInRegistry = window.$vanilla?.objectRegistry?.has(`TestObject`)
+        let objectInRegistry = window.$components?.objectRegistry?.has(`TestObject`)
 
         assert(registerComponentObjectResult,                               `Component object registered successfully.`, results)
         assert(unregisterComponentObjectResult,                             `Component object unregistered successfully.`, results)
@@ -799,7 +799,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId)
         let mountResult = ComponentLifecycle.mount(componentObjectId)
-        let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
+        let componentObjectInfo = window.$components.objectRegistry.get(componentObjectId)
 
         assert(mountResult,                                                 `Component was mounted.`, results)
         assert(window.beforeMount,                                          `Component's beforeMount() method was called.`, results)
@@ -820,18 +820,18 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
 
         cleanup(fragmentId)
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId)
-        window.$vanilla.objectRegistry.set(componentObjectId, componentObjectInfo)
+        window.$components.objectRegistry.set(componentObjectId, componentObjectInfo)
 
-        let framentRegisryObject = window.$vanilla.fragmentRegistry.get(componentClass)
+        let framentRegisryObject = window.$components.fragmentRegistry.get(componentClass)
 
-        window.$vanilla.fragmentRegistry.delete(componentClass)
+        window.$components.fragmentRegistry.delete(componentClass)
         mountResult = ComponentLifecycle.mount(componentObjectId)
 
         assert(!mountResult,                                                `Mount fails when fragment is not registered.`, results)
 
         cleanup(fragmentId)
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId)
-        window.$vanilla.fragmentRegistry.set(componentClass, framentRegisryObject)
+        window.$components.fragmentRegistry.set(componentClass, framentRegisryObject)
 
         let markerElement = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
@@ -878,7 +878,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         let registerComponentObjectResult = ComponentLifecycle.registerComponentObject(fragmentId, `TestComponent1`, componentObject)
         let mountResult = ComponentLifecycle.mount(`TestComponent1`)
         let unmountResult = ComponentLifecycle.unmount(`TestComponent1`)
-        let componentObjectInfo = window.$vanilla.objectRegistry.get(`TestComponent1`)
+        let componentObjectInfo = window.$components.objectRegistry.get(`TestComponent1`)
 
         assert(unmountResult,                                               `Component was unmounted.`, results)
         assert(window.beforeUnmount,                                        `Component's beforeUnmount() method was called.`, results)
@@ -889,21 +889,21 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
 
         assert(!unmountResult,                                              `Unmount fails when no id is provided.`, results)
 
-        window.$vanilla.objectRegistry.delete(`TestComponent1`)
+        window.$components.objectRegistry.delete(`TestComponent1`)
         unmountResult = ComponentLifecycle.unmount()
 
         assert(!unmountResult,                                              `Unmount fails when component is not registered.`, results)
 
-        window.$vanilla.objectRegistry.set(`TestComponent1`, componentObjectInfo)
+        window.$components.objectRegistry.set(`TestComponent1`, componentObjectInfo)
 
-        let framentRegisryObject = window.$vanilla.fragmentRegistry.get(fragmentId)
+        let framentRegisryObject = window.$components.fragmentRegistry.get(fragmentId)
 
-        window.$vanilla.fragmentRegistry.delete(fragmentId)
+        window.$components.fragmentRegistry.delete(fragmentId)
         unmountResult = ComponentLifecycle.unmount(`TestComponent1`)
 
         assert(!unmountResult,                                              `Unmount fails when fragment is not registered.`, results)
 
-        window.$vanilla.fragmentRegistry.set(fragmentId, framentRegisryObject)
+        window.$components.fragmentRegistry.set(fragmentId, framentRegisryObject)
 
         let markerElement = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
@@ -920,9 +920,9 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
 ])
 suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
     await test (`Get component fragment`, `Ensure component fragments can be retrieved from the component fragment registry.`, [async () => {
-        window.$vanilla = {}
-        window.$vanilla.fragmentRegistry = new Map()
-        window.$vanilla.fragmentRegistry.set(`TestFragment`, { data: 'data'})
+        window.$components = {}
+        window.$components.fragmentRegistry = new Map()
+        window.$components.fragmentRegistry.set(`TestFragment`, { data: 'data'})
 
         let fragment =  Component.getComponentFragment(`TestFragment`)
         let results = []
@@ -934,7 +934,7 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
 
         assert(!fragment,                                                   `Get component fragment fails when no id is provided.`, results)
 
-        window.$vanilla.fragmentRegistry.delete(`TestFragment`)
+        window.$components.fragmentRegistry.delete(`TestFragment`)
         fragment =  Component.getComponentFragment(`TestFragment`)
 
         assert(!fragment,                                                   `Get component fragment fails when object not in the component fragment registry.`, results)
@@ -942,9 +942,9 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
         return results                                                                    
     }]),
     await test (`Get component object`, `Ensure component objects can be retrieved from the component object registry.`, [async () => {
-        window.$vanilla = {}
-        window.$vanilla.objectRegistry = new Map()
-        window.$vanilla.objectRegistry.set(`TestObject`, { componentObject: { data: 'data'}})
+        window.$components = {}
+        window.$components.objectRegistry = new Map()
+        window.$components.objectRegistry.set(`TestObject`, { componentObject: { data: 'data'}})
 
         let object =  Component.getObject(`TestObject`)
         let results = []
@@ -956,7 +956,7 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
 
         assert(!object,                                                     `Get component object fails when no id is provided.`, results)
 
-        window.$vanilla.objectRegistry.delete(`TestObject`)
+        window.$components.objectRegistry.delete(`TestObject`)
         object =  Component.getComponentFragment(`TestObject`)
 
         assert(!object,                                                     `Get component object fails when object not in the component object registry.`, results)
@@ -1201,7 +1201,7 @@ suite(`Test Loader`, `Ensure Loader correctly processes include files.`, [
 
         assert(!footer,                                                     `Loader does not include when include-in attribute is missing.`, results)
 
-        window.$vanilla = undefined
+        window.$components = undefined
         while (testingDOMNode.firstChild) {
             testingDOMNode.removeChild(testingDOMNode.firstChild)
         }
@@ -1237,7 +1237,7 @@ suite(`Test Loader`, `Ensure Loader correctly processes include files.`, [
         assert(testingDOM.children[3].children[0].innerText == `value2`,    `The second div's inner text replaced with the value of prop prop2.`, results)
         assert(testingDOM.children[3].children.length == 1,                 `The second div tag has only 1 child.`, results)
 
-        window.$vanilla = undefined
+        window.$components = undefined
         while (testingDOM.firstChild) {
             testingDOM.removeChild(testingDOM.firstChild)
         }

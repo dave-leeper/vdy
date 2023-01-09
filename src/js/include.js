@@ -719,12 +719,20 @@ class Component {
         return newInclude
     }
     className() {return this.constructor.name }
-    initialize(id) { this.id = id }
-    beforeMount() { }
-    afterMount() { }
-    beforeUnmount() { }
-    afterUnmount() { }
-    destroy() { ComponentLifecycle.destroyComponentObject(`${this.id}`) }
+    initialize(id) { 
+        Queue.broadcast(Messages.COMPONENT_BEFORE_INITIALIZATION, this)
+        this.id = id
+        Queue.broadcast(Messages.COMPONENT_AFTER_INITIALIZATION, this)
+    }
+    beforeMount() { Queue.broadcast(Messages.COMPONENT_BEFORE_MOUNT, this )}
+    afterMount() { Queue.broadcast(Messages.COMPONENT_AFTER_MOUNT, this )}
+    beforeUnmount() { Queue.broadcast(Messages.COMPONENT_BEFORE_UNMOUNT, this )}
+    afterUnmount() { Queue.broadcast(Messages.COMPONENT_AFTER_UNMOUNT, this )}
+    destroy() { 
+        Queue.broadcast(Messages.COMPONENT_BEFORE_DESTRUCTION, this)
+        ComponentLifecycle.destroyComponentObject(`${this.id}`) 
+        Queue.broadcast(Messages.COMPONENT_AFTER_DESTRUCTION, this)
+    }
 }
 
 class Loader {

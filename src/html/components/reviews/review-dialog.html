@@ -2,6 +2,25 @@
     <script>
         //# sourceURL=html/components/reviews/ReviewDialog.js
         class ReviewDialog extends Component {
+            initialize(id) {
+                super.initialize(id)
+
+                Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => { 
+                    const id = this.id
+                    const reviewHeaderEditableId = `${id}ReviewHeader`
+                    const firstNameId = `${reviewHeaderEditableId}EditableFirstName`
+                    const lastNameId = `${reviewHeaderEditableId}EditableLastName`
+                    const cityId = `${reviewHeaderEditableId}EditableCity`
+                    const stateId = `${reviewHeaderEditableId}EditableState`
+                    const avatarURLId = `${reviewHeaderEditableId}AvatarURL`
+
+                    if (firstNameId === component.id) { this.firstNameField = component }
+                    else if (lastNameId === component.id) { this.lastNameField = component }
+                    else if (cityId === component.id) { this.cityField = component }
+                    else if (stateId === component.id) { this.stateField = component }
+                    else if (avatarURLId === component.id) { this.avatarURLField = component }
+                })
+            }
             afterMount() {
                 const element = document.getElementById(this.id)
 
@@ -61,6 +80,35 @@
                 infoSnackbar.show()
             }
             async save() {
+                if (!this.firstNameField || !this.lastNameField || !this.cityField || !this.stateField || !this.avatarURLField) {
+                    this.showError(`Error getting review data.`)
+                    return
+                }
+                if (!this.firstNameField.vars.valid) {
+                    this.showError(`${this.firstNameField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.lastNameField.vars.valid) {
+                    this.showError(`${this.lastNameField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.cityField.vars.valid) {
+                    this.showError(`${this.cityField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.stateField.vars.valid) {
+                    this.showError(`${this.stateField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.avatarURLField.vars.valid) {
+                    this.showError(`${this.avatarURLField.props.name} is invalid.`)
+                    return
+                }
+                if (5 > this.vars.review.length) {
+                    this.showError(`Review text is required and must be at least 5 characters.`)
+                    return
+                }
+
                 const review = {
                     image: DOMPurify.sanitize(this.vars.reviewImageURL),
                     name: {

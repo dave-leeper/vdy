@@ -5,9 +5,42 @@
             className() {return this.constructor.name }
             initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
             beforeMount() { }
-            afterMount() { }
+            afterMount() {
+                const componentRootElement = document.querySelector(`#${this.props.componentObjectId}`)
+
+                if (!this.checkIfTextShouldBeTruncated()) { 
+                    const readMoreButtonElement = componentRootElement.querySelector(`#${this.props.componentObjectId}ReadMoreButton`)
+
+                    readMoreButtonElement.classList.toggle(`display-none`)
+                    return 
+                }
+            }
             beforeUnmount() { }
             afterUnmount() { }
+            checkIfTextShouldBeTruncated() {
+                const componentRootElement = document.querySelector(`#${this.props.componentObjectId}`)
+                const textElement = componentRootElement.querySelector(`#${this.props.componentObjectId}Text`)
+
+                if (textElement.offsetHeight < textElement.scrollHeight || textElement.offsetWidth < textElement.scrollWidth) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+            readMore() {
+                const componentRootElement = document.querySelector(`#${this.props.componentObjectId}`)
+                const textElement = componentRootElement.querySelector(`#${this.props.componentObjectId}Text`)
+
+                if (`Read More` === this.vars.readMore) { 
+                    this.vars.readMore = `Read Less` 
+                    textElement.style.height = `${textElement.scrollHeight}px`
+                }
+                else { 
+                    this.vars.readMore = `Read More`
+                    textElement.style.height = `4em`
+                }
+                textElement.classList.toggle(`line-clamp-4`)
+            }
             async unmountAndUnregister() {
                 await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
                 await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
@@ -17,30 +50,23 @@
             }
             vars = {
                 text: ``,
+                readMore: `Read More`
             }
         }
     </script>
     <test-script>
     </test-script>
     <style>
-        .show-more-text-label {}
-        .show-more-text-input {}
-
-        .show-more-text-label:after {
-            content: "Show More";
-        }
-        .show-more-text-input:checked + .show-more-text-label:after {
-            content: "Show Less";
-        }
-        .show-more-text-input:checked ~ div {
-            height: 100%;
+        .line-clamp-4 {
+            overflow:       hidden;
+            display:        -webkit-box;
+            -line-clamp:    4;  /* truncate to 4 lines */
         }
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="relative margin-b-20  cursor-default">
-            <input id="{componentObjectId}Input" type="checkbox" class="display-none show-more-text-input">
-            <label id="{componentObjectId}Label" for="{componentObjectId}-input" class="absolute top100 text-2 show-more-text-label text-button"></label>
-            <div id="{componentObjectId}Text" class="overflow-hidden h6-0em whitespace-pre-wrap overflow-wrap-break border-tb-solid border-2 border-blue-50 pad-5 text-2">{text}</div>
+        <div id="{componentObjectId}" class="flex-col margin-b-20 cursor-default">
+            <div id="{componentObjectId}Text" class="line-clamp-4 h4-0em whitespace-pre-wrap overflow-wrap-break border-tb-solid border-2 border-blue-50 pad-5 text-2">{text}</div>
+            <div id="{componentObjectId}ReadMoreButton" class="text-button" onclick="$obj.readMore()">{readMore}</div>
         </div>
 </component-markup>
 </vanilla-component>

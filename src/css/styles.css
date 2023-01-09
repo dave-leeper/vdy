@@ -1,4 +1,4 @@
-* {
+*, ::before, ::after {
     margin: 0;
     padding: 0;
     border: 0;
@@ -308,6 +308,9 @@
   .rotate-cc-45 {rotate: -45deg;}       .rotate-cc-90 {rotate: -90deg;}      .rotate-cc-135 {rotate: -135deg;}     .rotate-cc-180 {rotate: -180deg;}    .rotate-cc-225 {rotate: -225deg;}
   .rotate-cc-270 {rotate: -270deg;}     .rotate-cc-315 {rotate: -315deg;}    .rotate-cc-360 {rotate: -360deg;}
   
+  .clear-left {clear: left}         .clear-right {clear: right}      .clear-both {clear: both}
+
+  .w-auto {width: auto;}
   .w5 {width: 5%}           .w10 {width: 10%;}        .w20 {width: 20%;}        .w25 {width: 25%;}
   .w30 {width: 30%;}        .w33 {width: 33.33%;}     .w40 {width: 40%;}        .w50 {width: 50%;}
   .w60 {width: 60%;}        .w66 {width: 66.66%;}     .w70 {width: 70%;}        .w75 {width: 66%;}
@@ -332,6 +335,7 @@
   .w6-5rem {width: 6.5rem}  .w7-0rem {width: 7.0rem}  .w7-5rem {width: 7.5rem}  .w8-0rem {width: 8.0rem}
   .w8-5rem {width: 8.5rem}  .w9-0rem {width: 9.0rem}  .w9-5rem {width: 9.5rem}  .w10-0rem {width: 10.0rem}
 
+  .h-auto {height: auto;}
   .h5 {height: 15%;}        .h10 {height: 10%;}       .h20 {height: 20%;}       .h25 {height: 25%;}
   .h30 {height: 30%;}       .h33 {height: 33.33%;}    .h40 {height: 40%;}       .h50 {height: 50%;}
   .h60 {height: 60%;}       .h66 {height: 66.66%;}    .h70 {height: 70%;}       .h75 {height: 75%;}

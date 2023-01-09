@@ -3,7 +3,7 @@
         //# sourceURL=html/components/reviews/ReviewHeader.js
         class ReviewHeader extends Component {
             destroy() {
-                const avatarObj = Component.getComponentObject(`${this.id}Avatar`)
+                const avatarObj = Component.getObject(`${this.id}Avatar`)
 
                 avatarObj.destroy()
                 ComponentLifecycle.destroyComponentObject(`${this.id}`)

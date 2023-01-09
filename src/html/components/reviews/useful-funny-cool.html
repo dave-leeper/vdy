@@ -14,7 +14,7 @@
                     const replyElement = document.getElementById(this.getReviewComponentObjectId())
                     const replyButton = document.getElementById(`${this.id}ReplyButton`)
                     const reviewElementId = this.getReviewComponentObjectId()
-                    const reviewObject = Component.getComponentObject(`${reviewElementId}`)
+                    const reviewObject = Component.getObject(`${reviewElementId}`)
 
                     if (!replyElement) { return }
                     if (reviewObject.hasReply()) { return }
@@ -37,7 +37,7 @@
             }
             incriment(which) {
                 const reviewElementId = this.getReviewComponentObjectId()
-                const reviewObject = Component.getComponentObject(`${reviewElementId}`)
+                const reviewObject = Component.getObject(`${reviewElementId}`)
                 const reviewId = reviewObject.props.reviewId.replace(`_`, `:`)
                 const payload = {
                     id: reviewId,
@@ -53,7 +53,7 @@
             }
             reply() { 
                 const reviewElementId = this.getReviewComponentObjectId()
-                const reviewObject = Component.getComponentObject(`${reviewElementId}`)
+                const reviewObject = Component.getObject(`${reviewElementId}`)
 
                 reviewObject.reply()
             }

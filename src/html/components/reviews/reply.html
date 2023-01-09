@@ -16,7 +16,7 @@
                 })
             }
             destroy() {
-                const replyHeaderObj = Component.getComponentObject(`${this.id}ReplyHeader`)
+                const replyHeaderObj = Component.getObject(`${this.id}ReplyHeader`)
 
                 replyHeaderObj.destroy()
                 ComponentLifecycle.destroyComponentObject(`${this.id}`)
@@ -25,7 +25,7 @@
                 return document.getElementById(`Review${this.props.reviewId}`)
             }
             getReviewObject() {
-                return Component.getComponentObject(`Review${this.props.reviewId}`)
+                return Component.getObject(`Review${this.props.reviewId}`)
             }
             getReplyElement() {
                 return document.getElementById(`Reply${this.props.replyId}`)
@@ -42,12 +42,12 @@
                     await Loader.loadIncludes()
                 }
 
-                const replyDialog = Component.getComponentObject(`ReplyDialog`)
+                const replyDialog = Component.getObject(`ReplyDialog`)
 
                 replyDialog.show()
             }
             showError(message) {
-                let errorSnackbar = Component.getComponentObject(`SnackbarError`)
+                let errorSnackbar = Component.getObject(`SnackbarError`)
                         
                 errorSnackbar.vars.text = message
                 errorSnackbar.show()

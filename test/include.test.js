@@ -946,13 +946,13 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
         window.$vanilla.objectRegistry = new Map()
         window.$vanilla.objectRegistry.set(`TestObject`, { componentObject: { data: 'data'}})
 
-        let object =  Component.getComponentObject(`TestObject`)
+        let object =  Component.getObject(`TestObject`)
         let results = []
 
         assert(object,                                                      `An object was retrieved from the component object registry.`, results)
         assert(object.data === 'data',                                      `Correct object retrieved from the component object registry.`, results)
 
-        object =  Component.getComponentObject()
+        object =  Component.getObject()
 
         assert(!object,                                                     `Get component object fails when no id is provided.`, results)
 

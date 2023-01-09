@@ -21,8 +21,8 @@
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
             }
             destroy() {
-                const reviewHeaderObj = Component.getComponentObject(`${this.id}ReviewHeader`)
-                const starsObj = Component.getComponentObject(`${this.id}Stars`)
+                const reviewHeaderObj = Component.getObject(`${this.id}ReviewHeader`)
+                const starsObj = Component.getObject(`${this.id}Stars`)
 
                 reviewHeaderObj.destroy()
                 starsObj.destroy()
@@ -48,13 +48,13 @@
                 this.destroy()
             }
             showError(message) {
-                let errorSnackbar = Component.getComponentObject(`SnackbarError`)
+                let errorSnackbar = Component.getObject(`SnackbarError`)
                         
                 errorSnackbar.vars.text = message
                 errorSnackbar.show()
             }
             showInfo(message) {
-                let infoSnackbar = Component.getComponentObject(`SnackbarInfo`)
+                let infoSnackbar = Component.getObject(`SnackbarInfo`)
                         
                 infoSnackbar.vars.text = message
                 infoSnackbar.show()
@@ -86,7 +86,7 @@
                 const content = await response.json()
 
                 if (200 === response.status) {
-                    const reviewList = Component.getComponentObject(`ReviewList`)
+                    const reviewList = Component.getObject(`ReviewList`)
 
                     reviewList.destroyReviewsAndReplies()
                     reviewList.fetchReviews()

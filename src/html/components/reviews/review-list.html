@@ -11,7 +11,7 @@
                 })
             }
             destroy() {
-                const loadingObj = Component.getComponentObject(`${this.id}Loading`)
+                const loadingObj = Component.getObject(`${this.id}Loading`)
 
                 this.destroyReviewsAndReplies()
                 loadingObj.destroy()
@@ -20,12 +20,12 @@
             destroyReviewsAndReplies() {
                 for (const reviewAndReply of this.vars.reviews) {
                     if (reviewAndReply.reply) {
-                        const replyObj = Component.getComponentObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
+                        const replyObj = Component.getObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
 
                         if (replyObj) { replyObj.destroy() }
                     }
                     if (reviewAndReply.review) {
-                        const reviewObj = Component.getComponentObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
+                        const reviewObj = Component.getObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
 
                         if (reviewObj) { reviewObj.destroy() }
                     }
@@ -163,7 +163,7 @@
             }            
             updateAverageStars() {
                 const starsObjectId =  `${this.id}Stars`
-                let starsObject = Component.getComponentObject(starsObjectId)
+                let starsObject = Component.getObject(starsObjectId)
 
                 if (!starsObject) { return }
                 starsObject.setStars(this.vars.reviewAverage)

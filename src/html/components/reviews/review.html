@@ -3,10 +3,10 @@
         //# sourceURL=html/components/reviews/Review.js
         class Review extends Component {
             destroy() {
-                const reviewHeaderObj = Component.getComponentObject(`${this.id}ReviewHeader`)
-                const starsObj = Component.getComponentObject(`${this.id}Stars`)
-                const reviewObj = Component.getComponentObject(`${this.id}Review`)
-                const ufcObj = Component.getComponentObject(`${this.id}UFC`)
+                const reviewHeaderObj = Component.getObject(`${this.id}ReviewHeader`)
+                const starsObj = Component.getObject(`${this.id}Stars`)
+                const reviewObj = Component.getObject(`${this.id}Review`)
+                const ufcObj = Component.getObject(`${this.id}UFC`)
 
                 reviewHeaderObj.destroy()
                 starsObj.destroy()
@@ -18,7 +18,7 @@
                 return document.getElementById(`Review${this.props.reviewId}`)
             }
             getReviewObject() {
-                return Component.getComponentObject(`Review${this.props.reviewId}`)
+                return Component.getObject(`Review${this.props.reviewId}`)
             }
             getReplyElement() {
                 if (!this.hasReply()) { return null }
@@ -38,7 +38,7 @@
                     await Loader.loadIncludes()
                 }
 
-                const replyDialog = Component.getComponentObject(`ReplyDialog`)
+                const replyDialog = Component.getObject(`ReplyDialog`)
 
                 replyDialog.show()
             }

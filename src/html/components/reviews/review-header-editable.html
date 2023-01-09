@@ -13,12 +13,12 @@
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
             }
             destroy() {
-                const firstNameObj = Component.getComponentObject(`${this.id}EditableFirstName`)
-                const lastNameObj = Component.getComponentObject(`${this.id}EditableLastName`)
-                const cityObj = Component.getComponentObject(`${this.id}EditableCity`)
-                const stateObj = Component.getComponentObject(`${this.id}EditableState`)
-                const avatarObj = Component.getComponentObject(`${this.id}Avatar`)
-                const avatarURLObj = Component.getComponentObject(`${this.id}AvatarURL`)
+                const firstNameObj = Component.getObject(`${this.id}EditableFirstName`)
+                const lastNameObj = Component.getObject(`${this.id}EditableLastName`)
+                const cityObj = Component.getObject(`${this.id}EditableCity`)
+                const stateObj = Component.getObject(`${this.id}EditableState`)
+                const avatarObj = Component.getObject(`${this.id}Avatar`)
+                const avatarURLObj = Component.getObject(`${this.id}AvatarURL`)
 
                 firstNameObj.destroy()
                 lastNameObj.destroy()

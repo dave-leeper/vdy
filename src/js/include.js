@@ -454,7 +454,7 @@ class ComponentLifecycle {
                 let eventHandlerText = node.getAttribute(event)
 
                 if (eventHandlerText && -1 !== eventHandlerText.indexOf(`$obj.`)) {
-                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `Component.getComponentObject('${componentObjectId}').`)
+                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `Component.getObject('${componentObjectId}').`)
                     node.setAttribute(event, eventHandlerText)
                 }
                 for (const nodeChild of node.children) {
@@ -670,26 +670,26 @@ class JavascriptWebToken {
 }
 
 class Component {
-    static getComponentFragment = (componentClass) => {
+    static getFragment = (componentClass) => {
         if (!componentClass) { 
-            console.error(`getComponentFragment: No component fragment id provided.`)
+            console.error(`getFragment: No component fragment id provided.`)
             return null 
         }
         if (!window?.$vanilla?.fragmentRegistry?.has(componentClass)) { 
-            console.error(`getComponentFragment: Component fragment ${componentClass} is not registered.`)
+            console.error(`getFragment: Component fragment ${componentClass} is not registered.`)
             return null 
         }
         
         let fragment = window.$vanilla.fragmentRegistry.get(componentClass)
         return fragment
     }
-    static getComponentObject = (componentObjectId) => {
+    static getObject = (componentObjectId) => {
         if (!componentObjectId) { 
-            console.error(`getComponentObject: No component object id provided.`)
+            console.error(`getObject: No component object id provided.`)
             return null 
         }
         if (!window?.$vanilla?.objectRegistry?.has(componentObjectId)) { 
-            console.error(`getComponentObject: Component object ${componentObjectId} is not registered.`)
+            console.error(`getObject: Component object ${componentObjectId} is not registered.`)
             return null 
         }
         

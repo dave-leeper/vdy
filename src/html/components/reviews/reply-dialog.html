@@ -5,7 +5,7 @@
             initialize(id) {
                 super.initialize(id)
 
-                const reviewObj = Component.getComponentObject(`Review${this.props.reviewId}`)
+                const reviewObj = Component.getObject(`Review${this.props.reviewId}`)
 
                 this.vars.reviewImageURL = reviewObj.props.imageURL
                 this.vars.reviewFirstName = reviewObj.props.firstName
@@ -18,7 +18,7 @@
 
                 this.vars.editingExistingReply = false
                 if (this.props.replyId && this.props.replyId !== `undefined`) {
-                    const replyObj = Component.getComponentObject(`Reply${this.props.replyId}`)
+                    const replyObj = Component.getObject(`Reply${this.props.replyId}`)
 
                     this.vars.reply = replyObj.vars.reply
                     this.vars.editingExistingReply = true
@@ -32,13 +32,13 @@
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
             showError(message) {
-                let errorSnackbar = Component.getComponentObject(`SnackbarError`)
+                let errorSnackbar = Component.getObject(`SnackbarError`)
                         
                 errorSnackbar.vars.text = message
                 errorSnackbar.show()
             }
             showInfo(message) {
-                let infoSnackbar = Component.getComponentObject(`SnackbarInfo`)
+                let infoSnackbar = Component.getObject(`SnackbarInfo`)
                         
                 infoSnackbar.vars.text = message
                 infoSnackbar.show()
@@ -94,7 +94,7 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            const reviewList = Component.getComponentObject(`ReviewList`)
+                            const reviewList = Component.getObject(`ReviewList`)
 
                             reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
@@ -128,7 +128,7 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            const reviewList = Component.getComponentObject(`ReviewList`)
+                            const reviewList = Component.getObject(`ReviewList`)
 
                             JavascriptWebToken.storeCredentials(content.jwt)
                             reviewList.destroyReviewsAndReplies()

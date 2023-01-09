@@ -15,7 +15,7 @@
 
                 this.destroyReviewsAndReplies()
                 loadingObj.destroy()
-                ComponentLifecycle.destroyComponentObject(`${this.id}`)
+                super.destroy()
             }
             destroyReviewsAndReplies() {
                 for (const reviewAndReply of this.vars.reviews) {

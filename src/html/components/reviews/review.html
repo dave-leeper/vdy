@@ -12,7 +12,7 @@
                 starsObj.destroy()
                 reviewObj.destroy()
                 ufcObj.destroy()
-                ComponentLifecycle.destroyComponentObject(`${this.id}`)
+                super.destroy()
             }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)

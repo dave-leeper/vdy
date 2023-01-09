@@ -23,6 +23,7 @@
                     this.star4.classList.toggle(`cursor-default`)
                     this.star5.classList.toggle(`cursor-default`)
                 }
+                super.afterMount()
             }
             setStars(rating) {
                 if (1 === this.vars.rating && 1 === rating) {

@@ -6,7 +6,7 @@
                 const avatarObj = Component.getObject(`${this.id}Avatar`)
 
                 avatarObj.destroy()
-                ComponentLifecycle.destroyComponentObject(`${this.id}`)
+                super.destroy()
             }
             props = {
                 imageURL: ``,

@@ -14,12 +14,13 @@
 
                     replyElement.setAttribute(`class`, `text-button`)
                 })
+                super.afterMount()
             }
             destroy() {
                 const replyHeaderObj = Component.getObject(`${this.id}ReplyHeader`)
 
                 replyHeaderObj.destroy()
-                ComponentLifecycle.destroyComponentObject(`${this.id}`)
+                super.destroy()
             }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)

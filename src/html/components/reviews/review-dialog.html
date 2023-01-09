@@ -19,6 +19,7 @@
                     }
                 })
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
+                super.afterMount()
             }
             destroy() {
                 const reviewHeaderObj = Component.getObject(`${this.id}ReviewHeader`)
@@ -26,7 +27,7 @@
 
                 reviewHeaderObj.destroy()
                 starsObj.destroy()
-                ComponentLifecycle.destroyComponentObject(`${this.id}`)
+                super.destroy()
             }
             onBlur(event) { this.updateReview() }
             onInput(event) { this.updateReview() }

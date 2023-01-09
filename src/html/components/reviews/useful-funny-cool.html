@@ -21,6 +21,7 @@
 
                     replyButton.setAttribute(`class`, `text-button`)
                 })
+                super.afterMount()
             }
             getReviewComponentObjectId() { return this.id.slice(0, -3) }
             incrimentUseful() { 

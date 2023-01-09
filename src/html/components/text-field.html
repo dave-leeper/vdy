@@ -27,6 +27,7 @@
                 if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
                 if (this.props.labelAboveField) { wrapper.setAttribute('class', `flex-col`) } else { wrapper.setAttribute('class', `flex-row`) }
                 if (this.props.isPassword) { eyeField.setAttribute('class', `button`) } else { eyeField.setAttribute('class', `display-none`) }
+                super.afterMount()
             }
             async onFocus(event) {
                 this.validate()

@@ -11,6 +11,7 @@
                     readMoreButtonElement.classList.toggle(`display-none`)
                     return 
                 }
+                super.afterMount()
             }
             checkIfTextShouldBeTruncated() {
                 const componentRootElement = document.querySelector(`#${this.id}`)

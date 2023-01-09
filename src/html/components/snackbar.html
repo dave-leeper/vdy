@@ -3,9 +3,12 @@
         //# sourceURL=html/components/Snackbar.js
         class Snackbar extends Component {
             afterMount() { 
-                const snackbar = document.getElementById(this.id)
+                if (this.props.isError) { 
+                    const snackbar = document.getElementById(this.id)
 
-                if (this.props.isError) { snackbar.classList.toggle(`snackbar-error`) }
+                    snackbar.classList.toggle(`snackbar-error`) 
+                }
+                super.afterMount()
             }
             show() {
                 const snackbar = document.getElementById(this.id)

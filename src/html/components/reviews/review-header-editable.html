@@ -11,6 +11,7 @@
                     }
                 })
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
+                super.afterMount()
             }
             destroy() {
                 const firstNameObj = Component.getObject(`${this.id}EditableFirstName`)
@@ -26,7 +27,7 @@
                 stateObj.destroy()
                 avatarObj.destroy()
                 avatarURLObj.destroy()
-                ComponentLifecycle.destroyComponentObject(`${this.id}`)
+                super.destroy()
             }
             props = {
                 date: ``,

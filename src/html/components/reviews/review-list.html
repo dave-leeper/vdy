@@ -96,7 +96,7 @@
                     propsInnerText += "city: `" + review.city + "`, "
                     propsInnerText += "state: `" + review.state + "`, "
                     propsInnerText += "rating: " + review.stars + ", "
-                    propsInnerText += "review: `" + review.review + "`, "
+                    propsInnerText += "review: `" + review.review.replace(/\n/g, "\\n") + "`, "
                     propsInnerText += "usefulCount: " + review.usefulCount + ", "
                     propsInnerText += "funnyCount: " + review.funnyCount + ", "
                     propsInnerText += "coolCount: " + review.coolCount + " }"
@@ -117,7 +117,7 @@
                     propsInnerText += "title: `" + reply.title + "`, "
                     propsInnerText += "date: `" + reply.date + "` }"
 
-                    varsInnerText = reply.reply? "{ reply: `" + reply.reply + "` }" : "{ reply: `` }"
+                    varsInnerText = reply.reply? "{ reply: `" + reply.reply.replace(/\n/g, "\\n") + "` }" : "{ reply: `` }"
 
                     newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${this.getCleanId(reply.id)}`, propsInnerText, varsInnerText)
                     results.push(newInclude)

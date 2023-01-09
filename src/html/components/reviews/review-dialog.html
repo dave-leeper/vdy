@@ -61,15 +61,15 @@
             }
             async save() {
                 const review = {
-                    image: this.vars.reviewImageURL,
+                    image: DOMPurify.sanitize(this.vars.reviewImageURL),
                     name: {
-                        first: this.vars.reviewFirstName,
-                        last: this.vars.reviewLastName
+                        first: DOMPurify.sanitize(this.vars.reviewFirstName),
+                        last: DOMPurify.sanitize(this.vars.reviewLastName)
                     },
-                    city: this.vars.reviewCity,
-                    state: this.vars.reviewState,
+                    city: DOMPurify.sanitize(this.vars.reviewCity),
+                    state: DOMPurify.sanitize(this.vars.reviewState),
                     date: this.vars.reviewDate,
-                    review: this.vars.review.trim(),
+                    review: DOMPurify.sanitize(this.vars.review.trim()),
                     stars: this.vars.reviewRating,
                     usefulCount: 0,
                     funnyCount: 0,

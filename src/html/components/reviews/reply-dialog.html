@@ -25,10 +25,10 @@
                 }
             }
             destroy() { 
-                Component.destroyComponentObject(`${this.id}ReviewHeaderAvatar`)
-                Component.destroyComponentObject(`${this.id}ReviewHeader`)
-                Component.destroyComponentObject(`${this.id}Stars`)
-                Component.destroyComponentObject(this.id)
+                ComponentLifecycle.destroyComponentObject(`${this.id}ReviewHeaderAvatar`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}ReviewHeader`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}Stars`)
+                ComponentLifecycle.destroyComponentObject(this.id)
             }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
@@ -68,7 +68,6 @@
                         return
                     }
 
-                    console.log(`credentials: ${credentials}`)
                     if (this.vars.editingExistingReply) {
                         const replyNumber = this.props.replyId.split(`_`)[1]
                         const replyText = this.vars.reply.replace(/\n/g, "\\n")
@@ -102,10 +101,10 @@
                         const reviewNumber = this.props.reviewId.split(`_`)[1]
                         const reply = {
                             replyingTo: reviewNumber,
-                            image: credentials.image,
+                            image: DOMPurify.sanitize(credentials.image),
                             name: {
-                                first: credentials.name.first,
-                                last: credentials.name.last
+                                first: DOMPurify.sanitize(credentials.name.first),
+                                last: DOMPurify.sanitize(credentials.name.last)
                             },
                             title: `Business Owner`,
                             reply: this.vars.reply

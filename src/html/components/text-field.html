@@ -1,6 +1,6 @@
 <script src="../../js/test.js"></script>
 
-<vanilla-component>
+<custom-component>
     <script>
         //# sourceURL=html/components/TextField.js
         class TextField extends Component {
@@ -128,7 +128,7 @@
                             return !!phonePattern.test(phoneString);
                         }
 
-                        if (`phone` !== this.vars.type.toLowerCase()) { return results }
+                        if (`tel` !== this.vars.type.toLowerCase()) { return results }
                         assert(isValidPhone(this.vars.element.value),                           `Field '${this.props.name}' is a valid phone number.`, results, true)
                         return results
                     }]),
@@ -252,4 +252,4 @@
             </div>
         </div>
     </component-markup>
-</vanilla-component>
+</custom-component>

@@ -884,7 +884,7 @@ class Loader {
         await Loader.loadIncludes()
     }
     static registerCustomTags = function () {
-        customElements.define('vanilla-component', class VanillaComponentElement extends HTMLElement { }, { })
+        customElements.define('custom-component', class VanillaComponentElement extends HTMLElement { }, { })
         customElements.define('test-script', class TestScriptElement extends HTMLElement { }, { })
         customElements.define('component-markup', class ComponentMarkupElement extends HTMLElement { }, { })
         customElements.define('include-html', class IncludeHTMLElement extends HTMLElement { }, { })

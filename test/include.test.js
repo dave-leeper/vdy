@@ -256,7 +256,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         return results                                                                    
     }]),
     await test (`Register DOM fragment`, `Ensure component DOM fragment is properly registered.`, [async () => {
-        let html = `<vanilla-component><script>
+        let html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -273,7 +273,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         let frag = ComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
         let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
@@ -337,13 +337,13 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
 
         assert(!registerResult,                                             `Register DOM fragment fails when no fragment is provided.`, results)
 
-        html = `<vanilla-component><test-script>const myTest = function() { return 42; }</test-script>
+        html = `<custom-component><test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
             <component-markup>
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
 
         cleanup(fragmentId)
         frag = ComponentLifecycle.compile(html)
@@ -351,7 +351,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's no script tag.`, results)
 
-        html = `<vanilla-component><script>
+        html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -369,7 +369,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         
         cleanup(fragmentId)
         frag = ComponentLifecycle.compile(html)
@@ -377,7 +377,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two script tags.`, results)
     
-        html = `<vanilla-component><script>
+        html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -390,7 +390,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
             }</script>
             <test-script>const myTest = function() { return 42; }</test-script>
             <style>.buttonStyle { color: green; background-color: red; }</style>
-            </vanilla-component>`
+            </custom-component>`
 
         cleanup(fragmentId)
         frag = ComponentLifecycle.compile(html)
@@ -398,7 +398,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's no markup tag.`, results)
 
-        html = `<vanilla-component><script>
+        html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -417,7 +417,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
             </component-markup>
             <component-markup><div></div></component-markup>
-            </vanilla-component>`
+            </custom-component>`
 
         cleanup(fragmentId)
         frag = ComponentLifecycle.compile(html)
@@ -425,7 +425,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two markup tags.`, results)
 
-        html = `<vanilla-component><script>
+        html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -442,7 +442,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
             </component-markup>
-            </vanilla-component>`
+            </custom-component>`
 
         cleanup(fragmentId)
         frag = ComponentLifecycle.compile(html)
@@ -450,7 +450,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
     
         assert(registerResult,                                              `Register DOM fragment succeeds when including test tag, but there's no test tag.`, results)
 
-        html = `<vanilla-component><script>
+        html = `<custom-component><script>
         class TestComponent{
             className() { return this.constructor.name }
             initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -468,7 +468,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
             <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
             <div id='test-div-1'>{var2}</div>
             <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-        </component-markup></vanilla-component>`
+        </component-markup></custom-component>`
 
         cleanup(fragmentId)
         frag = ComponentLifecycle.compile(html)
@@ -476,7 +476,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two test tags.`, results)
 
-        html = `<vanilla-component><script>
+        html = `<custom-component><script>
         class TestComponent{
             className() { return this.constructor.name }
             initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -494,7 +494,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
             <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
             <div id='test-div-1'>{var2}</div>
             <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-        </component-markup></vanilla-component>`
+        </component-markup></custom-component>`
 
         cleanup(fragmentId)
         frag = ComponentLifecycle.compile(html)
@@ -506,7 +506,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         return results                                                                    
     }]),
     await test (`Unregister DOM fragment`, `Ensure component DOM fragment is properly unregistered.`, [async () => {
-        let html = `<vanilla-component><script>
+        let html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -523,7 +523,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         let frag = ComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
         let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
@@ -560,7 +560,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         return results                                                                    
     }]),
     await test (`Create component object`, `Ensure a component's object can be successfully created.`, [async () => {
-        let html = `<vanilla-component><script>
+        let html = `<custom-component><script>
             class TestComponent {
                 className() { return this.constructor.name }
                 initialize() { window.initialized = true }
@@ -576,7 +576,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         const setup = (fragmentId, html, includeTagHTML) => {
             let frag = ComponentLifecycle.compile(html)
             let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
@@ -636,7 +636,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         return results                                                                    
     }]),
     await test (`Register component object`, `Ensure a component's object can be successfully registered.`, [async () => {
-        let html = `<vanilla-component><script>
+        let html = `<custom-component><script>
             class TestComponent {
                 className() { return this.constructor.name }
                 initialize() { window.initialized = true }
@@ -652,7 +652,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         let results = []
         const setup = (fragmentId, html, includeTagHTML) => {
             let frag = ComponentLifecycle.compile(html)
@@ -702,7 +702,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         return results                                                                    
     }]),
     await test (`Unregister component object`, `Ensure a component's object can be successfully unregistered.`, [async () => {
-        let html = `<vanilla-component><script>
+        let html = `<custom-component><script>
             class TestComponent {
                 className() { return this.constructor.name }
                 initialize() { window.initialized = true }
@@ -718,7 +718,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         let results = []
         const setup = (fragmentId, html, includeTagHTML) => {
             let frag = ComponentLifecycle.compile(html)
@@ -758,7 +758,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         return results                                                                    
     }]),
     await test (`Mount component`, `Ensure a component can be successfully mounted.`, [async () => {
-        let html = `<vanilla-component><script>
+        let html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -774,7 +774,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         let results = []
         const setupComponent = (testIncludeTagId, componentClass, componentObjectId) => {
             let componentObject = ComponentLifecycle.createComponentObject(componentClass, componentObjectId, document.getElementById(testIncludeTagId))
@@ -846,7 +846,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
         return results                                                                    
     }]),
     await test (`Unmount component`, `Ensure a component can be successfully unmounted.`, [async () => {
-        let html = `<vanilla-component><script>
+        let html = `<custom-component><script>
             class TestComponent{
                 className() { return this.constructor.name }
                 initialize() { if (window.initialized !== undefined) { window.initialized = true } }
@@ -862,7 +862,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
                 <button id='test-button' name="{var2}" class="buttonStyle" onclick="console.log('clicked')">{var1}</button>
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
-            </component-markup></vanilla-component>`
+            </component-markup></custom-component>`
         let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
         let frag = ComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`

@@ -66,7 +66,7 @@
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableState">
-                    <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, tabindex: 4 }</include-props>
+                    <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <datalist id="{id}state_list">

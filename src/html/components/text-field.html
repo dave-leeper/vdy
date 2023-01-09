@@ -99,13 +99,49 @@
                             '((\\d{1,3}\\.){3}\\d{1,3}))'+                                      // validate OR ip (v4) address
                             '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+                                  // validate port and path
                             '(\\?[;&a-z\\d%_.~+=-]*)?'+                                         // validate query string
-                            '(\\#[-a-z\\d_]*)?$','i');                                          // validate fragment locator
+                            '(\\#[-a-z\\d_]*)?$','i')                                           // validate fragment locator
 
                             return !!urlPattern.test(urlString);
                         }
 
-                        if (`url` !== this.vars.type) { return results }
+                        if (`url` !== this.vars.type.toLowerCase()) { return results }
                         assert(isValidUrl(this.vars.element.value),                             `Field '${this.props.name}' is a valid url.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test email`, `Ensure field is a valid email.`, [async () => {
+                        let results = []
+                        const isValidEmail = emailString => {
+                            const emailPattern = new RegExp('^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3}','i')
+
+                            return !!emailPattern.test(emailString);
+                        }
+
+                        if (`email` !== this.vars.type.toLowerCase()) { return results }
+                        assert(isValidEmail(this.vars.element.value),                           `Field '${this.props.name}' is a valid email.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test phone`, `Ensure field is a valid phone number.`, [async () => {
+                        let results = []
+                        const isValidPhone = phoneString => {
+                            const phonePattern = new RegExp('^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$','i')
+
+                            return !!phonePattern.test(phoneString);
+                        }
+
+                        if (`phone` !== this.vars.type.toLowerCase()) { return results }
+                        assert(isValidPhone(this.vars.element.value),                           `Field '${this.props.name}' is a valid phone number.`, results, true)
+                        return results
+                    }]),
+                    await test (`Test number`, `Ensure field is a valid number.`, [async () => {
+                        let results = []
+                        const isValidNumber = numberString => {
+                            const numberPattern = new RegExp('^\d+$')
+
+                            return !!numberPattern.test(numberString);
+                        }
+
+                        if (`number` !== this.vars.type.toLowerCase()) { return results }
+                        assert(isValidNumber(this.vars.element.value),                          `Field '${this.props.name}' is a valid number.`, results, true)
                         return results
                     }]),
                 ]

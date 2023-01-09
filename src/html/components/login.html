@@ -27,7 +27,7 @@
                 let token = await response.text()
                 let params = new URLSearchParams()
 
-                VanillaJWT.storeCredentials(JSON.parse(token))
+                JavascriptWebToken.storeCredentials(JSON.parse(token))
                 params.append(`token`, token)
                 window.location.href = `/index?${params.toString()}`
             }

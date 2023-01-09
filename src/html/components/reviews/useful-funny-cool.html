@@ -3,7 +3,7 @@
         //# sourceURL=html/components/reviews/UsefulFunnyCool.js
         class UsefulFunnyCool extends Component {
             afterMount() {
-                VanillaJWT.getCredentials(async (error, credentials) => {
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
                         // TODO: Display error message.
                         return

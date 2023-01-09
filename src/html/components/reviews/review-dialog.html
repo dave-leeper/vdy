@@ -90,7 +90,7 @@
 
                     reviewList.destroyReviewsAndReplies()
                     reviewList.fetchReviews()
-                    VanillaJWT.storeCredentials(content.jwt)
+                    JavascriptWebToken.storeCredentials(content.jwt)
                     this.showInfo(`Review added.`)
                 } else {
                     this.showError(`Error adding review. Status code ${response.status}.`)

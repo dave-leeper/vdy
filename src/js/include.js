@@ -646,14 +646,14 @@ class ComponentLifecycle {
     }
 }
 
-class VanillaJWT {
+class JavascriptWebToken {
     static credentials = ``
     static getCredentials(callback) {
-        if (!VanillaJWT.credentials || 0 === VanillaJWT.credentials.length) {callback(`Credentials not set.`, null)}
-        else { callback(null, VanillaJWT.credentials) }
+        if (!JavascriptWebToken.credentials || 0 === JavascriptWebToken.credentials.length) {callback(`Credentials not set.`, null)}
+        else { callback(null, JavascriptWebToken.credentials) }
     }
     static storeCredentials(token) {
-        VanillaJWT.credentials = token
+        JavascriptWebToken.credentials = token
     }
     static parseJWT (token) {
         var base64Url = token.split('.')[1];
@@ -665,7 +665,7 @@ class VanillaJWT {
         return JSON.parse(jsonPayload);
     }
     static deleteTokenDatabase() {
-        VanillaJWT.credentials = null
+        JavascriptWebToken.credentials = null
     }
 }
 

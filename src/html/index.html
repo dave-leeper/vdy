@@ -24,7 +24,7 @@
         const params = new URLSearchParams(window.location.search)
         const token = params.get(`token`)
 
-        VanillaJWT.storeCredentials(JSON.parse(token))
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
       }
       function setCSSDefaults() {
         const r = document.querySelector(':root')

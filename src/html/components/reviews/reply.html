@@ -3,7 +3,7 @@
         //# sourceURL=html/components/reviews/Reply.js
         class Reply extends Component {
             afterMount() { 
-                VanillaJWT.getCredentials(async (error, credentials) => {
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) { return }
                     
                     const replyElement = document.getElementById(`${this.id}EditButton`)

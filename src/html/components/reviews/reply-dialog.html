@@ -69,7 +69,7 @@
                 await ComponentLifecycle.unregisterDOMFragment(this.className())
             }
             save() {
-                VanillaJWT.getCredentials(async (error, credentials) => {
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
                         this.showError(`Error getting credentials.`)
                         return
@@ -98,7 +98,7 @@
 
                             reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
-                            VanillaJWT.storeCredentials(content.jwt)
+                            JavascriptWebToken.storeCredentials(content.jwt)
                             this.showInfo(`Reply updated.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
@@ -130,7 +130,7 @@
                         if (200 === response.status) {
                             const reviewList = Component.getComponentObject(`ReviewList`)
 
-                            VanillaJWT.storeCredentials(content.jwt)
+                            JavascriptWebToken.storeCredentials(content.jwt)
                             reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
                             this.showInfo(`Reply added.`)

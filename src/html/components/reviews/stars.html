@@ -30,6 +30,7 @@
             beforeUnmount() { }
             afterUnmount() { 
             }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             setStars(rating) {
                 if (1 === this.vars.rating && 1 === rating) {
                     this.vars.rating = 0
@@ -61,10 +62,6 @@
             editStars(rating) {
                 if (!this.props.editable) { return }
                 this.setStars(rating)
-            }
-            async unmountAndUnregister() {
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``,

@@ -8,6 +8,18 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() {
+                const reviewHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReviewHeader`)
+                const starsObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Stars`)
+                const reviewObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Review`)
+                const ufcObj = Vanilla.getComponentObject(`${this.props.componentObjectId}UFC`)
+
+                reviewHeaderObj.destroy()
+                starsObj.destroy()
+                reviewObj.destroy()
+                ufcObj.destroy()
+                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+            }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)
             }
@@ -35,19 +47,6 @@
                 const replyDialog = Vanilla.getComponentObject(`ReplyDialog`)
 
                 replyDialog.show()
-            }
-            async unmountAndUnregister() {
-                const reviewHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReviewHeader`)
-                const starsObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Stars`)
-                const reviewObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Review`)
-                const ufcObj = Vanilla.getComponentObject(`${this.props.componentObjectId}UFC`)
-
-                await reviewHeaderObj.unmountAndUnregister()
-                await starsObj.unmountAndUnregister()
-                await reviewObj.unmountAndUnregister()
-                await ufcObj.unmountAndUnregister()
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``,

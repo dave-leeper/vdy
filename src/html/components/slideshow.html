@@ -8,6 +8,7 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             props = {
                 componentObjectId: ``,
             }

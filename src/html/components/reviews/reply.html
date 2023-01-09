@@ -7,11 +7,8 @@
             beforeMount() { }
             afterMount() { 
                 VanillaJWT.getCredentials(async (error, credentials) => {
-                    if (error) {
-                        // TODO: Display error message.
-                        this.showError(`Error updating reply. Status code ${response.status}.`)
-                        return
-                    }
+                    if (error) { return }
+                    
                     const replyElement = document.getElementById(`${this.props.componentObjectId}EditButton`)
 
                     if (!credentials?.roles) { return }
@@ -23,6 +20,12 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() {
+                const replyHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReplyHeader`)
+
+                replyHeaderObj.destroy()
+                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+            }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)
             }
@@ -47,13 +50,6 @@
                 const replyDialog = Vanilla.getComponentObject(`ReplyDialog`)
 
                 replyDialog.show()
-            }
-            async unmountAndUnregister() {
-                const replyHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReplyHeader`)
-
-                await replyHeaderObj.unmountAndUnregister()
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             showError(message) {
                 let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)

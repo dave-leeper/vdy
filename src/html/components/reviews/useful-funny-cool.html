@@ -27,6 +27,7 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             getReviewComponentObjectId() { return this.props.componentObjectId.slice(0, -3) }
             incrimentUseful() { 
                 this.vars.usefulCount++
@@ -61,10 +62,6 @@
                 const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
 
                 reviewObject.reply()
-            }
-            async unmountAndUnregister() {
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``,

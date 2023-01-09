@@ -25,6 +25,14 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() {
+                const reviewHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReviewHeader`)
+                const starsObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Stars`)
+
+                reviewHeaderObj.destroy()
+                starsObj.destroy()
+                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+            }
             onBlur(event) { this.updateReview() }
             onInput(event) { this.updateReview() }
             updateReview() {
@@ -38,11 +46,11 @@
 
                 modal.setAttribute(`class`, `display-block modal`)
             }
-            async hide() {
+            hide() {
                 const modal = document.getElementById(this.props.componentObjectId)
 
                 modal.setAttribute(`class`, `display-none modal`)
-                await this.unmountAndUnregister()
+                this.destroy()
             }
             showError(message) {
                 let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)
@@ -85,24 +93,14 @@
                 if (200 === response.status) {
                     const reviewList = Vanilla.getComponentObject(`ReviewList`)
 
-                    await reviewList.unmountAndUnregisterReviewsAndReplies()
-                    await reviewList.fetchReviews()
+                    reviewList.destroyReviewsAndReplies()
+                    reviewList.fetchReviews()
                     VanillaJWT.storeCredentials(content.jwt)
-                    location.reload()
                     this.showInfo(`Review added.`)
                 } else {
                     this.showError(`Error adding review. Status code ${response.status}.`)
                 }
                 this.hide()
-            }
-            async unmountAndUnregister() {
-                const reviewHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReviewHeader`)
-                const starsObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Stars`)
-
-                await reviewHeaderObj.unmountAndUnregister()
-                await starsObj.unmountAndUnregister()
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``

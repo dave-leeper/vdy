@@ -14,6 +14,27 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() {
+                const loadingObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Loading`)
+
+                this.destroyReviewsAndReplies()
+                loadingObj.destroy()
+                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+            }
+            destroyReviewsAndReplies() {
+                for (const reviewAndReply of this.vars.reviews) {
+                    if (reviewAndReply.reply) {
+                        const replyObj = Vanilla.getComponentObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
+
+                        if (replyObj) { replyObj.destroy() }
+                    }
+                    if (reviewAndReply.review) {
+                        const reviewObj = Vanilla.getComponentObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
+
+                        if (reviewObj) { reviewObj.destroy() }
+                    }
+                }
+            }
             fetchReviews() {
                 fetch(this.props.fetchURL)
                     .then((response) => response.json())
@@ -144,34 +165,12 @@
                 this.vars.reviewCount = this.vars.reviews.length
                 this.vars.reviewAverage = (sum / this.vars.reviewCount).toPrecision(1)
             }            
-            async updateAverageStars() {
+            updateAverageStars() {
                 const starsObjectId =  `${this.props.componentObjectId}Stars`
                 let starsObject = Vanilla.getComponentObject(starsObjectId)
 
                 if (!starsObject) { return }
                 starsObject.setStars(this.vars.reviewAverage)
-            }
-            async unmountAndUnregister() {
-                const loadingObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Loading`)
-
-                await this.unmountAndUnregisterReviewsAndReplies()
-                await loadingObj.unmountAndUnregister()
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
-            }
-            async unmountAndUnregisterReviewsAndReplies() {
-                for (const reviewAndReply of this.vars.reviews) {
-                    if (reviewAndReply.reply) {
-                        const replyObj = Vanilla.getComponentObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
-
-                        if (replyObj) { await replyObj.unmountAndUnregister() }
-                    }
-                    if (reviewAndReply.review) {
-                        const reviewObj = Vanilla.getComponentObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
-
-                        if (reviewObj) { await reviewObj.unmountAndUnregister() }
-                    }
-                }
             }
             // fetchURL: `http://127.0.0.1:8080/reviews`
             // fetchURL: `https://vdynode.fly.dev/reviews`

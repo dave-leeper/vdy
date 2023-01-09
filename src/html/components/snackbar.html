@@ -12,6 +12,7 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             show() {
                 const snackbar = document.getElementById(this.props.componentObjectId)
 

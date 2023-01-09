@@ -17,6 +17,7 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             checkIfTextShouldBeTruncated() {
                 const componentRootElement = document.querySelector(`#${this.props.componentObjectId}`)
                 const textElement = componentRootElement.querySelector(`#${this.props.componentObjectId}Text`)
@@ -40,10 +41,6 @@
                     textElement.style.height = `4em`
                 }
                 textElement.classList.toggle(`line-clamp-4`)
-            }
-            async unmountAndUnregister() {
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``,

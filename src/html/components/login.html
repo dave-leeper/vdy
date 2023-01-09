@@ -8,6 +8,7 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             async login() {
                 let user = Vanilla.getComponentObject(`LoginUser`)
                 let password = Vanilla.getComponentObject(`LoginPassword`)

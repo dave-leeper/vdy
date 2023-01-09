@@ -19,7 +19,7 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
-            async unmountAndUnregister() {
+            destroy() {
                 const firstNameObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableFirstName`)
                 const lastNameObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableLastName`)
                 const cityObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableCity`)
@@ -27,14 +27,13 @@
                 const avatarObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Avatar`)
                 const avatarURLObj = Vanilla.getComponentObject(`${this.props.componentObjectId}AvatarURL`)
 
-                await firstNameObj.unmountAndUnregister()
-                await lastNameObj.unmountAndUnregister()
-                await cityObj.unmountAndUnregister()
-                await stateObj.unmountAndUnregister()
-                await avatarObj.unmountAndUnregister()
-                await avatarURLObj.unmountAndUnregister()
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
+                firstNameObj.destroy()
+                lastNameObj.destroy()
+                cityObj.destroy()
+                stateObj.destroy()
+                avatarObj.destroy()
+                avatarURLObj.destroy()
+                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``,

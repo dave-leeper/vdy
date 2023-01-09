@@ -28,6 +28,7 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
             showError(message) {
@@ -95,10 +96,10 @@
                         if (200 === response.status) {
                             const reviewList = Vanilla.getComponentObject(`ReviewList`)
 
-                            await reviewList.unmountAndUnregisterReviewsAndReplies()
+                            reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
                             VanillaJWT.storeCredentials(content.jwt)
-                            location.reload()
+                            // location.reload()
                             this.showInfo(`Reply updated.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
@@ -131,9 +132,9 @@
                             const reviewList = Vanilla.getComponentObject(`ReviewList`)
 
                             VanillaJWT.storeCredentials(content.jwt)
-                            await reviewList.unmountAndUnregisterReviewsAndReplies()
+                            reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
-                            location.reload()
+                            // location.reload()
                             this.showInfo(`Reply added.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }

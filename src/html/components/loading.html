@@ -8,10 +8,7 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
-            async unmountAndUnregister() {
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
-            }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             props = {
                 componentObjectId: ``,
             }

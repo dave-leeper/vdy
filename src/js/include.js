@@ -97,6 +97,8 @@ class Tree {
                                                                     of its associated fragment.
     mount                       <--> unmount                        Component placed in DOM, rendered to screen.
     update                                                          Set vars to replace node and attribute values.
+    destroy                                                         The object is unmounted, unregistereed, and it's marker is removed
+                                                                    from the DOM.
 */
 class VanillaComponentLifecycle {
     static saveOriginalNodeValues = (node) => {
@@ -627,6 +629,14 @@ class VanillaComponentLifecycle {
         window.$vanilla.objectRegistry.set(componentObjectId, componentObjectInfo)
         if (componentObjectInfo.componentObject.afterMount) { componentObjectInfo.componentObject.afterUnmount() }
         return true
+    }
+    static destroyComponentObject(componentObjectId) {
+        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
+        let marker = document.getElementById(markerId)
+
+        VanillaComponentLifecycle.unmount(componentObjectId)
+        VanillaComponentLifecycle.unregisterComponentObject(componentObjectId)
+        marker.remove()
     }
 }
 

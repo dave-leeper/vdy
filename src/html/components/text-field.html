@@ -31,6 +31,7 @@
             }
             beforeUnmount() { }
             afterUnmount() { }
+            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             async onFocus(event) {
                 this.validate()
                 if (this.props.onFocusCallback) { this.props.onFocusCallback(this) }
@@ -156,10 +157,6 @@
                     this.vars.type = `password`
                     this.vars.imageURL = `../images/eye-closed.png`
                 }
-            }
-            async unmountAndUnregister() {
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}`)
             }
             props = {
                 componentObjectId: ``,

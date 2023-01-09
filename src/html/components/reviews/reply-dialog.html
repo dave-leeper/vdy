@@ -24,11 +24,12 @@
                     this.vars.editingExistingReply = true
                 }
             }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
-            destroy() { ComponentLifecycle.destroyComponentObject(`${this.id}`) }
+            destroy() { 
+                Component.destroyComponentObject(`${this.id}ReviewHeaderAvatar`)
+                Component.destroyComponentObject(`${this.id}ReviewHeader`)
+                Component.destroyComponentObject(`${this.id}Stars`)
+                Component.destroyComponentObject(this.id)
+            }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
             showError(message) {
@@ -54,19 +55,11 @@
 
                 modal.setAttribute(`class`, `display-block modal`)
             }
-            async hide() {
+            hide() {
                 const modal = document.getElementById(this.id)
 
                 modal.setAttribute(`class`, `display-none modal`)
-                await ComponentLifecycle.unmount(`${this.id}ReviewHeaderAvatar`)
-                await ComponentLifecycle.unregisterComponentObject(`${this.id}ReviewHeaderAvatar`)
-                await ComponentLifecycle.unmount(`${this.id}ReviewHeader`)
-                await ComponentLifecycle.unregisterComponentObject(`${this.id}ReviewHeader`)
-                await ComponentLifecycle.unmount(`${this.id}Stars`)
-                await ComponentLifecycle.unregisterComponentObject(`${this.id}Stars`)
-                await ComponentLifecycle.unmount(this.id)
-                await ComponentLifecycle.unregisterComponentObject(this.id)
-                await ComponentLifecycle.unregisterDOMFragment(this.className())
+                this.destroy()
             }
             save() {
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
@@ -75,12 +68,13 @@
                         return
                     }
 
+                    console.log(`credentials: ${credentials}`)
                     if (this.vars.editingExistingReply) {
                         const replyNumber = this.props.replyId.split(`_`)[1]
                         const replyText = this.vars.reply.replace(/\n/g, "\\n")
                         const reply = {
                             id: `review:${replyNumber}`,
-                            reply: replyText
+                            reply: DOMPurify.sanitize(replyText)
                         }
                         const response = await fetch('http://localhost:8080/update-reply', {
                             method: 'POST',
@@ -91,9 +85,9 @@
                             },
                             body: JSON.stringify(reply)
                         })
-                        const content = await response.json()
 
                         if (200 === response.status) {
+                            const content = await response.json()
                             const reviewList = Component.getObject(`ReviewList`)
 
                             reviewList.destroyReviewsAndReplies()
@@ -125,9 +119,9 @@
                             },
                             body: JSON.stringify(reply)
                         });
-                        const content = await response.json()
 
                         if (200 === response.status) {
+                            const content = await response.json()
                             const reviewList = Component.getObject(`ReviewList`)
 
                             JavascriptWebToken.storeCredentials(content.jwt)

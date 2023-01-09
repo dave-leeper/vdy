@@ -83,9 +83,9 @@
                     },
                     body: JSON.stringify(review)
                 })
-                const content = await response.json()
 
                 if (200 === response.status) {
+                    const content = await response.json()
                     const reviewList = Component.getObject(`ReviewList`)
 
                     reviewList.destroyReviewsAndReplies()

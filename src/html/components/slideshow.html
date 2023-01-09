@@ -1,18 +1,7 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/Slideshow.js
-        class Slideshow{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
-            props = {
-                componentObjectId: ``,
-            }
-        }
+        class Slideshow extends Component { }
         /*
         var img = document.getElementById('imageid'); 
 //or however you get a handle to the IMG
@@ -25,16 +14,16 @@ var height = img.clientHeight;
     <style>
     </style>
     <component-markup>
-        <section id="{componentObjectId}" class="flex-row w100 overflow-auto">
-            <img id="{componentObjectId}Img1" src="./images/o0.jpg" height="300">
-            <img id="{componentObjectId}Img2" src="./images/o1.jpg" height="300">
-            <img id="{componentObjectId}Img3" src="./images/o2.jpg" height="300">
-            <img id="{componentObjectId}Img4" src="./images/o3.jpg" height="300">
-            <img id="{componentObjectId}Img5" src="./images/o4.jpg" height="300">
-            <img id="{componentObjectId}Img6" src="./images/o5.jpg" height="300">
-            <img id="{componentObjectId}Img7" src="./images/o6.jpg" height="300">
-            <img id="{componentObjectId}Img8" src="./images/o7.jpg" height="300">
-            <img id="{componentObjectId}Img9" src="./images/o8.jpg" height="300">
+        <section id="{id}" class="flex-row w100 overflow-auto">
+            <img id="{id}Img1" src="./images/o0.jpg" height="300">
+            <img id="{id}Img2" src="./images/o1.jpg" height="300">
+            <img id="{id}Img3" src="./images/o2.jpg" height="300">
+            <img id="{id}Img4" src="./images/o3.jpg" height="300">
+            <img id="{id}Img5" src="./images/o4.jpg" height="300">
+            <img id="{id}Img6" src="./images/o5.jpg" height="300">
+            <img id="{id}Img7" src="./images/o6.jpg" height="300">
+            <img id="{id}Img8" src="./images/o7.jpg" height="300">
+            <img id="{id}Img9" src="./images/o8.jpg" height="300">
         </section>
     </component-markup>
 </vanilla-component>

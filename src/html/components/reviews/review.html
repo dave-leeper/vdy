@@ -1,30 +1,24 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/Review.js
-        class Review{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
+        class Review extends Component {
             destroy() {
-                const reviewHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReviewHeader`)
-                const starsObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Stars`)
-                const reviewObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Review`)
-                const ufcObj = Vanilla.getComponentObject(`${this.props.componentObjectId}UFC`)
+                const reviewHeaderObj = Component.getComponentObject(`${this.id}ReviewHeader`)
+                const starsObj = Component.getComponentObject(`${this.id}Stars`)
+                const reviewObj = Component.getComponentObject(`${this.id}Review`)
+                const ufcObj = Component.getComponentObject(`${this.id}UFC`)
 
                 reviewHeaderObj.destroy()
                 starsObj.destroy()
                 reviewObj.destroy()
                 ufcObj.destroy()
-                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}`)
             }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)
             }
             getReviewObject() {
-                return Vanilla.getComponentObject(`Review${this.props.reviewId}`)
+                return Component.getComponentObject(`Review${this.props.reviewId}`)
             }
             getReplyElement() {
                 if (!this.hasReply()) { return null }
@@ -38,18 +32,17 @@
                 let propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
 
                 if (!document.getElementById(`ReplyDialog`)) {
-                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
+                    let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
 
                     this.getReviewElement().appendChild(newInclude)
                     await Loader.loadIncludes()
                 }
 
-                const replyDialog = Vanilla.getComponentObject(`ReplyDialog`)
+                const replyDialog = Component.getComponentObject(`ReplyDialog`)
 
                 replyDialog.show()
             }
             props = {
-                componentObjectId: ``,
                 reviewId: ``,
                 imageURL: ``,
                 firstName: ``,
@@ -72,9 +65,9 @@
     <style>
     </style>
     <component-markup>
-        <section id="{componentObjectId}" class="flex-col bg-white shadow-white margin-tb-10 round-15px pad-5">
+        <section id="{id}" class="flex-col bg-white shadow-white margin-tb-10 round-15px pad-5">
             <div>
-                <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}ReviewHeader">
+                <include-html include-in="review.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{id}ReviewHeader">
                     <include-props class="display-none">
                         { 
                             imageURL: `{imageURL}`,
@@ -87,15 +80,15 @@
                     </include-props>
                 </include-html>
             </div>
-            <section id="{componentObjectId}ReviewBody" class="flex-col w100">
-                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}Stars">
+            <section id="{id}ReviewBody" class="flex-col w100">
+                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
                     <include-props class="display-none">{ editable: false }</include-props>
                     <include-vars class="display-none">{ rating: {rating} }</include-vars>
                 </include-html>
-                <include-html include-in="review.html" src="./html/components/reviews/show-more-text.html" component-class="ShowMoreText" component-id="{componentObjectId}Review">
+                <include-html include-in="review.html" src="./html/components/reviews/show-more-text.html" component-class="ShowMoreText" component-id="{id}Review">
                     <include-vars class="display-none">{ text: `{review}` }</include-vars>
                 </include-html>
-                <include-html include-in="review.html" src="./html/components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{componentObjectId}UFC">
+                <include-html include-in="review.html" src="./html/components/reviews/useful-funny-cool.html" component-class="UsefulFunnyCool" component-id="{id}UFC">
                     <include-vars class="display-none">{ usefulCount: {usefulCount}, funnyCount: {funnyCount}, coolCount: {coolCount}, replyId: `{replyId}` }</include-vars>
                 </include-html>
             </section>

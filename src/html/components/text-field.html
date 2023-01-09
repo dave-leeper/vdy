@@ -3,20 +3,19 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/TextField.js
-        class TextField{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { 
-                this.props.componentObjectId = componentObjectId
+        class TextField extends Component {
+            initialize(id) {
+                super.initialize(id)
+
                 this.props.isPassword = `password` === this.vars.type.toLowerCase()
                 this.vars.valid = false
             }
-            beforeMount() { }
             afterMount() { 
-                let wrapper = document.getElementById(`${this.props.componentObjectId}Wrapper`)
-                let eyeField = document.getElementById(`${this.props.componentObjectId}Eye`)
+                let wrapper = document.getElementById(`${this.id}Wrapper`)
+                let eyeField = document.getElementById(`${this.id}Eye`)
 
-                this.vars.element = document.getElementById(this.props.componentObjectId)
-                this.vars.errorElement = document.getElementById(`${this.props.componentObjectId}Error`)
+                this.vars.element = document.getElementById(this.id)
+                this.vars.errorElement = document.getElementById(`${this.id}Error`)
 
                 if (this.props.required) { this.vars.element.setAttribute('required', true) } else { this.vars.element.removeAttribute('required') }
                 if (this.props.readonly) { this.vars.element.setAttribute('readonly', true) } else { this.vars.element.removeAttribute('readonly') }
@@ -29,9 +28,6 @@
                 if (this.props.labelAboveField) { wrapper.setAttribute('class', `flex-col`) } else { wrapper.setAttribute('class', `flex-row`) }
                 if (this.props.isPassword) { eyeField.setAttribute('class', `button`) } else { eyeField.setAttribute('class', `display-none`) }
             }
-            beforeUnmount() { }
-            afterUnmount() { }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             async onFocus(event) {
                 this.validate()
                 if (this.props.onFocusCallback) { this.props.onFocusCallback(this) }
@@ -127,7 +123,7 @@
                             detail: { 
                                 text: () => this.vars.value, 
                                 component: this, 
-                                element: document.getElementById(this.props.componentObjectId) 
+                                element: document.getElementById(this.id) 
                             }
                         }
                     )
@@ -159,7 +155,6 @@
                 }
             }
             props = {
-                componentObjectId: ``,
                 required: false,
                 size: 20,
                 minlength: 0,
@@ -193,12 +188,12 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}Wrapper">
-            <label id="{componentObjectId}Label" for="{name}" class="text-field-label">{label}</label>
+        <div id="{id}Wrapper">
+            <label id="{id}Label" for="{name}" class="text-field-label">{label}</label>
             <div>
                 <div class="flex-row">
                     <input 
-                        id="{componentObjectId}" 
+                        id="{id}" 
                         class="text-field"
                         type="{type}" 
                         name="{name}"
@@ -213,9 +208,9 @@
                         oninput="$obj.onInput(event)"
                         tabindex="{tabindex}"
                     >
-                    <img id="{componentObjectId}Eye" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()" loading="lazy">
+                    <img id="{id}Eye" src="{imageURL}" width="25" onclick="$obj.onShowHideClicked()" loading="lazy">
                 </div>
-                <div id="{componentObjectId}Error"></div>
+                <div id="{id}Error"></div>
             </div>
         </div>
     </component-markup>

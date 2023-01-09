@@ -1,14 +1,9 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/ReviewHeaderEditable.js
-        class ReviewHeaderEditable{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { 
-                this.props.componentObjectId = componentObjectId
-            }
-            beforeMount() { }
+        class ReviewHeaderEditable extends Component {
             afterMount() { 
-                const element = document.getElementById(this.props.componentObjectId)
+                const element = document.getElementById(this.id)
 
                 element.addEventListener(`newTextData`, (e) => { 
                     if (`AvatarURL` === e.detail.component.props.name) {
@@ -17,15 +12,13 @@
                 })
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
             }
-            beforeUnmount() { }
-            afterUnmount() { }
             destroy() {
-                const firstNameObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableFirstName`)
-                const lastNameObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableLastName`)
-                const cityObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableCity`)
-                const stateObj = Vanilla.getComponentObject(`${this.props.componentObjectId}EditableState`)
-                const avatarObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Avatar`)
-                const avatarURLObj = Vanilla.getComponentObject(`${this.props.componentObjectId}AvatarURL`)
+                const firstNameObj = Component.getComponentObject(`${this.id}EditableFirstName`)
+                const lastNameObj = Component.getComponentObject(`${this.id}EditableLastName`)
+                const cityObj = Component.getComponentObject(`${this.id}EditableCity`)
+                const stateObj = Component.getComponentObject(`${this.id}EditableState`)
+                const avatarObj = Component.getComponentObject(`${this.id}Avatar`)
+                const avatarURLObj = Component.getComponentObject(`${this.id}AvatarURL`)
 
                 firstNameObj.destroy()
                 lastNameObj.destroy()
@@ -33,10 +26,9 @@
                 stateObj.destroy()
                 avatarObj.destroy()
                 avatarURLObj.destroy()
-                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}`)
             }
             props = {
-                componentObjectId: ``,
                 date: ``,
             }
             vars = {
@@ -58,30 +50,30 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="flex-row">
+        <div id="{id}" class="flex-row">
             <div class="flex-col margin-l-2 w350px">
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableFirstName">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableFirstName">
                     <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableLastName">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableLastName">
                     <include-props class="display-none">{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, tabindex: 2 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableCity">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableCity">
                     <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, tabindex: 3 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}EditableState">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableState">
                     <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
             </div>
-            <div id="{componentObjectId}AvatarWrapper" class="flex_col margin-l-2">
-                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}Avatar">
+            <div id="{id}AvatarWrapper" class="flex_col margin-l-2">
+                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{id}Avatar">
                     <include-props class="display-none">{ imageURL: `{imageURL}` }</include-props>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{componentObjectId}AvatarURL">
+                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}AvatarURL">
                     <include-props class="display-none">{ name: `AvatarURL`, placeholder: `Avatar URL`, label: `Avatar URL`, labelAboveField: false, minlength: 4, maxlength: 2048, tabindex: 5 }</include-props>
                     <include-vars class="display-none">{ type: `url` } </include-vars>
                 </include-html>

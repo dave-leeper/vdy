@@ -1,12 +1,12 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/ReplyDialog.js
-        class ReplyDialog{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { 
-                const reviewObj = Vanilla.getComponentObject(`Review${this.props.reviewId}`)
+        class ReplyDialog extends Component {
+            initialize(id) {
+                super.initialize(id)
 
-                this.props.componentObjectId = componentObjectId 
+                const reviewObj = Component.getComponentObject(`Review${this.props.reviewId}`)
+
                 this.vars.reviewImageURL = reviewObj.props.imageURL
                 this.vars.reviewFirstName = reviewObj.props.firstName
                 this.vars.reviewLastName = reviewObj.props.lastName
@@ -18,7 +18,7 @@
 
                 this.vars.editingExistingReply = false
                 if (this.props.replyId && this.props.replyId !== `undefined`) {
-                    const replyObj = Vanilla.getComponentObject(`Reply${this.props.replyId}`)
+                    const replyObj = Component.getComponentObject(`Reply${this.props.replyId}`)
 
                     this.vars.reply = replyObj.vars.reply
                     this.vars.editingExistingReply = true
@@ -28,45 +28,45 @@
             afterMount() { }
             beforeUnmount() { }
             afterUnmount() { }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
+            destroy() { ComponentLifecycle.destroyComponentObject(`${this.id}`) }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
             showError(message) {
-                let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)
+                let errorSnackbar = Component.getComponentObject(`SnackbarError`)
                         
                 errorSnackbar.vars.text = message
                 errorSnackbar.show()
             }
             showInfo(message) {
-                let infoSnackbar = Vanilla.getComponentObject(`SnackbarInfo`)
+                let infoSnackbar = Component.getComponentObject(`SnackbarInfo`)
                         
                 infoSnackbar.vars.text = message
                 infoSnackbar.show()
             }
             updateReply() {
-                const textAreaId = `${this.props.componentObjectId}ReplyText`
+                const textAreaId = `${this.id}ReplyText`
                 let textarea = document.getElementById(textAreaId)
 
                 this.vars.reply = textarea.value
             }
             show() {
-                const modal = document.getElementById(this.props.componentObjectId)
+                const modal = document.getElementById(this.id)
 
                 modal.setAttribute(`class`, `display-block modal`)
             }
             async hide() {
-                const modal = document.getElementById(this.props.componentObjectId)
+                const modal = document.getElementById(this.id)
 
                 modal.setAttribute(`class`, `display-none modal`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeaderAvatar`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeaderAvatar`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}ReviewHeader`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}ReviewHeader`)
-                await VanillaComponentLifecycle.unmount(`${this.props.componentObjectId}Stars`)
-                await VanillaComponentLifecycle.unregisterComponentObject(`${this.props.componentObjectId}Stars`)
-                await VanillaComponentLifecycle.unmount(this.props.componentObjectId)
-                await VanillaComponentLifecycle.unregisterComponentObject(this.props.componentObjectId)
-                await VanillaComponentLifecycle.unregisterDOMFragment(this.className())
+                await ComponentLifecycle.unmount(`${this.id}ReviewHeaderAvatar`)
+                await ComponentLifecycle.unregisterComponentObject(`${this.id}ReviewHeaderAvatar`)
+                await ComponentLifecycle.unmount(`${this.id}ReviewHeader`)
+                await ComponentLifecycle.unregisterComponentObject(`${this.id}ReviewHeader`)
+                await ComponentLifecycle.unmount(`${this.id}Stars`)
+                await ComponentLifecycle.unregisterComponentObject(`${this.id}Stars`)
+                await ComponentLifecycle.unmount(this.id)
+                await ComponentLifecycle.unregisterComponentObject(this.id)
+                await ComponentLifecycle.unregisterDOMFragment(this.className())
             }
             save() {
                 VanillaJWT.getCredentials(async (error, credentials) => {
@@ -94,12 +94,11 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            const reviewList = Vanilla.getComponentObject(`ReviewList`)
+                            const reviewList = Component.getComponentObject(`ReviewList`)
 
                             reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
                             VanillaJWT.storeCredentials(content.jwt)
-                            // location.reload()
                             this.showInfo(`Reply updated.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
@@ -129,12 +128,11 @@
                         const content = await response.json()
 
                         if (200 === response.status) {
-                            const reviewList = Vanilla.getComponentObject(`ReviewList`)
+                            const reviewList = Component.getComponentObject(`ReviewList`)
 
                             VanillaJWT.storeCredentials(content.jwt)
                             reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
-                            // location.reload()
                             this.showInfo(`Reply added.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
@@ -145,7 +143,6 @@
                 this.hide()
             }
             props = {
-                componentObjectId: ``,
                 reviewId: ``,
                 replyId: ``
             }
@@ -169,9 +166,9 @@
 
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="modal display-none" onclick="$obj.hide()">
-              <div id="{componentObjectId}Frame" class="modal-content" onclick="event.stopPropagation()">
-                <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{componentObjectId}ReviewHeader">
+        <div id="{id}" class="modal display-none" onclick="$obj.hide()">
+              <div id="{id}Frame" class="modal-content" onclick="event.stopPropagation()">
+                <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{id}ReviewHeader">
                     <include-props class="display-none">
                         { 
                             imageURL: `{reviewImageURL}`,
@@ -183,24 +180,24 @@
                         }          
                     </include-props>
                 </include-html>
-                <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}Stars">
+                <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
                     <include-props class="display-none">{ editable: false }</include-props>
                     <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
                 </include-html>
                 <div class="flex-col margin-b-10 cursor-default">
-                    <h3 id="{componentObjectId}ReviewTitle" class="subtitle-2">Review</h3>
-                    <p id="{componentObjectId}Review" class="caption-1 whitespace-pre-wrap">{review}</p>
+                    <h3 id="{id}ReviewTitle" class="subtitle-2">Review</h3>
+                    <p id="{id}Review" class="caption-1 whitespace-pre-wrap">{review}</p>
                 </div>
                 <div class="flex-col margin-b-5">
-                    <h3 id="{componentObjectId}ReplyTitle" class="subtitle-2">Reply</h3>
-                    <textarea id="{componentObjectId}ReplyText" name="reply" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" autofocus onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)">{reply}</textarea>
+                    <h3 id="{id}ReplyTitle" class="subtitle-2">Reply</h3>
+                    <textarea id="{id}ReplyText" name="reply" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" autofocus onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)">{reply}</textarea>
                 </div>
-                <div id="{componentObjectId}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
-                    <div id="{componentObjectId}CancelButton" class="button" onclick="$obj.hide()">
-                        <div id="{componentObjectId}CancelButtonText" class="margin-1">Cancel</div> 
+                <div id="{id}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
+                    <div id="{id}CancelButton" class="button" onclick="$obj.hide()">
+                        <div id="{id}CancelButtonText" class="margin-1">Cancel</div> 
                     </div>
-                    <div id="{componentObjectId}SaveButton" class="button" onclick="$obj.save()">
-                        <div id="{componentObjectId}SaveButtonText" class="margin-1">Save</div> 
+                    <div id="{id}SaveButton" class="button" onclick="$obj.save()">
+                        <div id="{id}SaveButtonText" class="margin-1">Save</div> 
                     </div>
                 </div>    
             </div>

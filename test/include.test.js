@@ -129,10 +129,10 @@ suite(`Test IncludeTree`, `Ensure IncludeTree is working.`, [
     }]),
 ])
 
-suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is working.`, [
+suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
     await test (`Compile`, `Ensure html is properly compiled.`, [async () => {
         let html = `<div>First Div</div><span>Parent Div<div>Child Div</div></span>`
-        let frag = VanillaComponentLifecycle.compile(html)
+        let frag = ComponentLifecycle.compile(html)
         let results = []
 
         assert(frag,                                                        `DOM elements created.`, results)
@@ -160,8 +160,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         testDiv.appendChild(testDivChild)
         testDivChild.appendChild(testDivChildText)
         document.getElementById(`TestingDOM`).appendChild(testDiv)
-        VanillaComponentLifecycle.replaceNodeValue(testDiv, testData, `field1`)
-        VanillaComponentLifecycle.replaceNodeValue(testDiv, testData, `field2`)
+        ComponentLifecycle.replaceNodeValue(testDiv, testData, `field1`)
+        ComponentLifecycle.replaceNodeValue(testDiv, testData, `field2`)
         
         assert(testDivText.nodeValue === `Original Text value 1`,           `Node value replaced.`, results)
         assert(testDivText.originalNodeValue === text,                      `Original value saved.`, results)
@@ -194,8 +194,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         testDivChild.setAttributeNode(testDivChildAttr)
         document.getElementById(`TestingDOM`).appendChild(testDiv)
 
-        VanillaComponentLifecycle.replaceAttributeValue(testDiv, testData, `field1`)
-        VanillaComponentLifecycle.replaceAttributeValue(testDiv, testData, `field2`)
+        ComponentLifecycle.replaceAttributeValue(testDiv, testData, `field1`)
+        ComponentLifecycle.replaceAttributeValue(testDiv, testData, `field2`)
         
         assert(testDivAttr.value === `Original Text value 1`,               `Attribute value replaced.`, results)
         assert(testDivAttr.originalAttributeValue === text,                 `Original value saved.`, results)
@@ -220,10 +220,10 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         }
         let testComponent = new TestComponent()
         let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-gray-e border-2 border-solid border-black">My Footer</footer>`
-        let componentFragment = VanillaComponentLifecycle.compile(html)
+        let componentFragment = ComponentLifecycle.compile(html)
         let results = []
 
-        VanillaComponentLifecycle.wrapProps(componentFragment, testComponent)
+        ComponentLifecycle.wrapProps(componentFragment, testComponent)
         testComponent.props.prop1 = `New Value`
 
         assert(testComponent.props.$propsStore,                             `Data store created.`, results)
@@ -244,10 +244,10 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         }
         let testComponent = new TestComponent()
         let html = `<footer class="center-text caption-1 red-f pad-tb-5 margin-tb-5 bg-gray-e border-2 border-solid border-black">My Footer</footer>`
-        let componentFragment = VanillaComponentLifecycle.compile(html)
+        let componentFragment = ComponentLifecycle.compile(html)
         let results = []
 
-        VanillaComponentLifecycle.wrapVars(componentFragment, testComponent)
+        ComponentLifecycle.wrapVars(componentFragment, testComponent)
         testComponent.vars.var1 = `New Value`
 
         assert(testComponent.vars.$varsStore,                               `Data store created.`, results)
@@ -274,9 +274,9 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
             </component-markup></vanilla-component>`
-        let frag = VanillaComponentLifecycle.compile(html)
+        let frag = ComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
-        let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+        let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
         let fragmentScripts = frag.querySelectorAll(`script`)
         let fragmentTests = frag.querySelectorAll(`test-script`)
         let fragmentStyles = frag.querySelectorAll(`style`)
@@ -298,8 +298,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(document.head.querySelector(`#StyleTag${fragmentId}`),       `Component style moved to head.`, results)
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
         componentScript = document.getElementById(`ScriptTag${fragmentId}`)
         componentTest = document.getElementById(`TestTag${fragmentId}`)
         componentSyle = document.getElementById(`StyleTag${fragmentId}`)
@@ -316,7 +316,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(componentSyle,                                               `Component style still in document (include test tag).`, results)
         assert(document.head.querySelector(`#StyleTag${fragmentId}`),       `Component style moved to head (include test tag).`, results)
 
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
 
         assert(!registerResult,                                             `Register DOM fragment fails when fragment is already registered.`, results)
 
@@ -327,13 +327,13 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         componentTest?.remove()
         componentSyle?.remove()
         window.$vanilla.fragmentRegistry.delete(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(null, frag, false)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(null, frag, false)
 
         assert(!registerResult,                                             `Register DOM fragment fails when no fragment id is provided.`, results)
 
         cleanup(fragmentId)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, null, false)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, null, false)
 
         assert(!registerResult,                                             `Register DOM fragment fails when no fragment is provided.`, results)
 
@@ -346,8 +346,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </component-markup></vanilla-component>`
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's no script tag.`, results)
 
@@ -372,8 +372,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </component-markup></vanilla-component>`
         
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two script tags.`, results)
     
@@ -393,8 +393,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </vanilla-component>`
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's no markup tag.`, results)
 
@@ -420,8 +420,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </vanilla-component>`
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two markup tags.`, results)
 
@@ -445,8 +445,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </vanilla-component>`
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
     
         assert(registerResult,                                              `Register DOM fragment succeeds when including test tag, but there's no test tag.`, results)
 
@@ -471,8 +471,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         </component-markup></vanilla-component>`
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two test tags.`, results)
 
@@ -497,8 +497,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         </component-markup></vanilla-component>`
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
     
         assert(!registerResult,                                             `Register DOM fragment fails when there's two style tags.`, results)
 
@@ -524,10 +524,10 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 <div id='test-div-1'>{var2}</div>
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
             </component-markup></vanilla-component>`
-        let frag = VanillaComponentLifecycle.compile(html)
+        let frag = ComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
-        let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
-        let unregisterResult = VanillaComponentLifecycle.unregisterDOMFragment(fragmentId)
+        let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+        let unregisterResult = ComponentLifecycle.unregisterDOMFragment(fragmentId)
         let componentScript = document.getElementById(`ScriptTag${fragmentId}`)
         let componentTest = document.getElementById(`TestTag${fragmentId}`)
         let componentSyle = document.getElementById(`StyleTag${fragmentId}`)
@@ -541,9 +541,9 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(componentSyle === null,                                      `Component style still in document.`, results)
 
         cleanup(fragmentId)
-        frag = VanillaComponentLifecycle.compile(html)
-        registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
-        unregisterResult = VanillaComponentLifecycle.unregisterDOMFragment(fragmentId)
+        frag = ComponentLifecycle.compile(html)
+        registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, true)
+        unregisterResult = ComponentLifecycle.unregisterDOMFragment(fragmentId)
         componentScript = document.getElementById(`ScriptTag${fragmentId}`)
         componentTest = document.getElementById(`TestTag${fragmentId}`)
         componentSyle = document.getElementById(`StyleTag${fragmentId}`)
@@ -578,8 +578,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
             </component-markup></vanilla-component>`
         const setup = (fragmentId, html, includeTagHTML) => {
-            let frag = VanillaComponentLifecycle.compile(html)
-            let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+            let frag = ComponentLifecycle.compile(html)
+            let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
             let testingDOMNode = document.getElementById(`TestingDOM`)
     
             assert(registerResult,                                          `DOM fragment registered successfully.`, results)
@@ -593,7 +593,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         
         setup(fragmentId, html, includeTagHTML)
 
-        let componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
+        let componentObject = ComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
         let hasIncludeTag = document.getElementById(testIncludeTagId)
         let hasMarkerTag = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
@@ -612,7 +612,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         cleanup(fragmentId)
         includeTagHTML = `<include-html props='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
         setup(fragmentId, html, includeTagHTML)
-        componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
+        componentObject = ComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
         objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
         hasIncludeTag = document.getElementById(`TestIncludeTag`)
 
@@ -624,7 +624,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         cleanup(fragmentId)
         includeTagHTML = `<include-html vars='{"q":"Q"}' id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
         setup(fragmentId, html, includeTagHTML)
-        componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
+        componentObject = ComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(testIncludeTagId))
         objectInRegistry = window.$vanilla?.objectRegistry?.has(fragmentId)
 
         assert(componentObject,                                             `Component object successfully created.`, results)
@@ -655,8 +655,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </component-markup></vanilla-component>`
         let results = []
         const setup = (fragmentId, html, includeTagHTML) => {
-            let frag = VanillaComponentLifecycle.compile(html)
-            let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+            let frag = ComponentLifecycle.compile(html)
+            let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
             let testingDOMNode = document.getElementById(`TestingDOM`)
     
             assert(registerResult,                                          `DOM fragment registered successfully.`, results)
@@ -669,31 +669,31 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         setup(fragmentId, html, includeTagHTML)
 
-        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(fragmentId, componentObjectID, { test: `test` })
+        let registerComponentObjectResult = ComponentLifecycle.registerComponentObject(fragmentId, componentObjectID, { test: `test` })
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(componentObjectID)
 
         assert(registerComponentObjectResult,                               `Component object registered successfully.`, results)
         assert(objectInRegistry,                                            `Component object in registry.`, results)
 
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(fragmentId, componentObjectID, { test: `test` })
+        registerComponentObjectResult = ComponentLifecycle.registerComponentObject(fragmentId, componentObjectID, { test: `test` })
 
         assert(!registerComponentObjectResult,                              `Registering an object fails when it is already registered.`, results)
 
         cleanup(fragmentId)
         setup(fragmentId, html, includeTagHTML)
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(fragmentId, null, { test: `test` })
+        registerComponentObjectResult = ComponentLifecycle.registerComponentObject(fragmentId, null, { test: `test` })
 
         assert(!registerComponentObjectResult,                              `Registering an object fails when no component object id is provided.`, results)
 
         cleanup(fragmentId)
         setup(fragmentId, html, includeTagHTML)
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(fragmentId, componentObjectID, null)
+        registerComponentObjectResult = ComponentLifecycle.registerComponentObject(fragmentId, componentObjectID, null)
 
         assert(!registerComponentObjectResult,                              `Registering an object fails when no component object is provided.`, results)
 
         cleanup(fragmentId)
         setup(fragmentId, html, includeTagHTML)
-        registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(null, componentObjectID, { test: `test` })
+        registerComponentObjectResult = ComponentLifecycle.registerComponentObject(null, componentObjectID, { test: `test` })
 
         assert(!registerComponentObjectResult,                              `Registering an object fails when no component class is provided.`, results)
 
@@ -721,8 +721,8 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </component-markup></vanilla-component>`
         let results = []
         const setup = (fragmentId, html, includeTagHTML) => {
-            let frag = VanillaComponentLifecycle.compile(html)
-            let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+            let frag = ComponentLifecycle.compile(html)
+            let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
             let testingDOMNode = document.getElementById(`TestingDOM`)
     
             assert(registerResult,                                          `DOM fragment registered successfully.`, results)
@@ -735,21 +735,21 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         setup(fragmentId, html, includeTagHTML)
 
-        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(`fragment`, `TestObject`, { test: `test` })
-        let unregisterComponentObjectResult = VanillaComponentLifecycle.unregisterComponentObject(`TestObject`)
+        let registerComponentObjectResult = ComponentLifecycle.registerComponentObject(`fragment`, `TestObject`, { test: `test` })
+        let unregisterComponentObjectResult = ComponentLifecycle.unregisterComponentObject(`TestObject`)
         let objectInRegistry = window.$vanilla?.objectRegistry?.has(`TestObject`)
 
         assert(registerComponentObjectResult,                               `Component object registered successfully.`, results)
         assert(unregisterComponentObjectResult,                             `Component object unregistered successfully.`, results)
         assert(!objectInRegistry,                                           `Component object in registry.`, results)
 
-        unregisterComponentObjectResult = VanillaComponentLifecycle.unregisterComponentObject(`fragment`, `TestObject`, { test: `test` })
+        unregisterComponentObjectResult = ComponentLifecycle.unregisterComponentObject(`fragment`, `TestObject`, { test: `test` })
 
         assert(!unregisterComponentObjectResult,                            `Unregistering an object fails when it is already unregistered.`, results)
 
         cleanup(fragmentId)
         setup(fragmentId, html, includeTagHTML)
-        unregisterComponentObjectResult = VanillaComponentLifecycle.registerComponentObject()
+        unregisterComponentObjectResult = ComponentLifecycle.registerComponentObject()
 
         assert(!unregisterComponentObjectResult,                            `Unegistering an object fails when no component object id is provided.`, results)
 
@@ -777,13 +777,13 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
             </component-markup></vanilla-component>`
         let results = []
         const setupComponent = (testIncludeTagId, componentClass, componentObjectId) => {
-            let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, componentObjectId, document.getElementById(testIncludeTagId))
-            let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
+            let componentObject = ComponentLifecycle.createComponentObject(componentClass, componentObjectId, document.getElementById(testIncludeTagId))
+            let registerComponentObjectResult = ComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
             assert(registerComponentObjectResult,                           `Component object registered successfully.`, results)
         }
         const setup = (fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId) => {
-            let frag = VanillaComponentLifecycle.compile(html)
-            let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+            let frag = ComponentLifecycle.compile(html)
+            let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
             let testingDOMNode = document.getElementById(`TestingDOM`)
     
             assert(registerResult,                                          `DOM fragment registered successfully.`, results)
@@ -798,7 +798,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let componentObjectId = `TestComponent1`
         let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId)
-        let mountResult = VanillaComponentLifecycle.mount(componentObjectId)
+        let mountResult = ComponentLifecycle.mount(componentObjectId)
         let componentObjectInfo = window.$vanilla.objectRegistry.get(componentObjectId)
 
         assert(mountResult,                                                 `Component was mounted.`, results)
@@ -808,13 +808,13 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
 
         cleanup(fragmentId)
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, componentObjectId)
-        mountResult = VanillaComponentLifecycle.mount()
+        mountResult = ComponentLifecycle.mount()
 
         assert(!mountResult,                                                `Mount fails when no id is provided.`, results)
 
         cleanup(fragmentId)
         setup(fragmentId, testIncludeTagId, html, includeTagHTML, componentClass, `WrongComponentObjectId`)
-        mountResult = VanillaComponentLifecycle.mount(componentObjectId)
+        mountResult = ComponentLifecycle.mount(componentObjectId)
 
         assert(!mountResult,                                                `Mount fails when component is not registered.`, results)
 
@@ -825,7 +825,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let framentRegisryObject = window.$vanilla.fragmentRegistry.get(componentClass)
 
         window.$vanilla.fragmentRegistry.delete(componentClass)
-        mountResult = VanillaComponentLifecycle.mount(componentObjectId)
+        mountResult = ComponentLifecycle.mount(componentObjectId)
 
         assert(!mountResult,                                                `Mount fails when fragment is not registered.`, results)
 
@@ -836,7 +836,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let markerElement = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
         markerElement.remove()
-        mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
+        mountResult = ComponentLifecycle.mount(`TestComponent1`)
 
         assert(!mountResult,                                                `Mount fails when marker tag is not in DOM.`, results)
 
@@ -864,9 +864,9 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
                 <div id='test-div-2'>{prop1}<div id='test-div-3'>{prop2}</div></div>
             </component-markup></vanilla-component>`
         let includeTagHTML = `<include-html id="TestIncludeTag" component="TestComponent" component-id="TestComponent1" src="./components/not-used-for-this-test.html"></include-html>`
-        let frag = VanillaComponentLifecycle.compile(html)
+        let frag = ComponentLifecycle.compile(html)
         let fragmentId = `TestComponent`
-        let registerResult = VanillaComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
+        let registerResult = ComponentLifecycle.registerDOMFragment(fragmentId, frag, false)
         let testingDOMElement = document.getElementById(`TestingDOM`)
         let results = []
 
@@ -874,10 +874,10 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         window.afterUnmount = false
         testingDOMElement.append(...new DOMParser().parseFromString(includeTagHTML, `text/html`).body.childNodes)
 
-        let componentObject = VanillaComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(`TestIncludeTag`))
-        let registerComponentObjectResult = VanillaComponentLifecycle.registerComponentObject(fragmentId, `TestComponent1`, componentObject)
-        let mountResult = VanillaComponentLifecycle.mount(`TestComponent1`)
-        let unmountResult = VanillaComponentLifecycle.unmount(`TestComponent1`)
+        let componentObject = ComponentLifecycle.createComponentObject(fragmentId, `TestComponent1`, document.getElementById(`TestIncludeTag`))
+        let registerComponentObjectResult = ComponentLifecycle.registerComponentObject(fragmentId, `TestComponent1`, componentObject)
+        let mountResult = ComponentLifecycle.mount(`TestComponent1`)
+        let unmountResult = ComponentLifecycle.unmount(`TestComponent1`)
         let componentObjectInfo = window.$vanilla.objectRegistry.get(`TestComponent1`)
 
         assert(unmountResult,                                               `Component was unmounted.`, results)
@@ -885,12 +885,12 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         assert(window.afterUnmount,                                         `Component's afterUnmount() method was called.`, results)
         assert(!componentObjectInfo?.mounted,                               `Component marked as unmounted.`, results)
 
-        unmountResult = VanillaComponentLifecycle.unmount()
+        unmountResult = ComponentLifecycle.unmount()
 
         assert(!unmountResult,                                              `Unmount fails when no id is provided.`, results)
 
         window.$vanilla.objectRegistry.delete(`TestComponent1`)
-        unmountResult = VanillaComponentLifecycle.unmount()
+        unmountResult = ComponentLifecycle.unmount()
 
         assert(!unmountResult,                                              `Unmount fails when component is not registered.`, results)
 
@@ -899,7 +899,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let framentRegisryObject = window.$vanilla.fragmentRegistry.get(fragmentId)
 
         window.$vanilla.fragmentRegistry.delete(fragmentId)
-        unmountResult = VanillaComponentLifecycle.unmount(`TestComponent1`)
+        unmountResult = ComponentLifecycle.unmount(`TestComponent1`)
 
         assert(!unmountResult,                                              `Unmount fails when fragment is not registered.`, results)
 
@@ -908,7 +908,7 @@ suite(`Test VanillaComponentLifecycle`, `Ensure VanillaComponentLifecycle is wor
         let markerElement = document.getElementById(`-VanillaComponentBeginMarkerTestComponent1`)
 
         markerElement.remove()
-        unmountResult = VanillaComponentLifecycle.unmount(`TestComponent1`)
+        unmountResult = ComponentLifecycle.unmount(`TestComponent1`)
 
         assert(!unmountResult,                                              `Unmount fails when marker tag is not in DOM.`, results)
 
@@ -924,18 +924,18 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
         window.$vanilla.fragmentRegistry = new Map()
         window.$vanilla.fragmentRegistry.set(`TestFragment`, { data: 'data'})
 
-        let fragment =  Vanilla.getComponentFragment(`TestFragment`)
+        let fragment =  Component.getComponentFragment(`TestFragment`)
         let results = []
 
         assert(fragment,                                                    `An object was retrieved from the component fragment registry.`, results)
         assert(fragment.data === 'data',                                    `Correct object retrieved from the component fragment registry.`, results)
 
-        fragment =  Vanilla.getComponentFragment()
+        fragment =  Component.getComponentFragment()
 
         assert(!fragment,                                                   `Get component fragment fails when no id is provided.`, results)
 
         window.$vanilla.fragmentRegistry.delete(`TestFragment`)
-        fragment =  Vanilla.getComponentFragment(`TestFragment`)
+        fragment =  Component.getComponentFragment(`TestFragment`)
 
         assert(!fragment,                                                   `Get component fragment fails when object not in the component fragment registry.`, results)
 
@@ -946,18 +946,18 @@ suite(`Test Vanilla`, `Ensure Vanilla utility class is working.`, [
         window.$vanilla.objectRegistry = new Map()
         window.$vanilla.objectRegistry.set(`TestObject`, { componentObject: { data: 'data'}})
 
-        let object =  Vanilla.getComponentObject(`TestObject`)
+        let object =  Component.getComponentObject(`TestObject`)
         let results = []
 
         assert(object,                                                      `An object was retrieved from the component object registry.`, results)
         assert(object.data === 'data',                                      `Correct object retrieved from the component object registry.`, results)
 
-        object =  Vanilla.getComponentObject()
+        object =  Component.getComponentObject()
 
         assert(!object,                                                     `Get component object fails when no id is provided.`, results)
 
         window.$vanilla.objectRegistry.delete(`TestObject`)
-        object =  Vanilla.getComponentFragment(`TestObject`)
+        object =  Component.getComponentFragment(`TestObject`)
 
         assert(!object,                                                     `Get component object fails when object not in the component object registry.`, results)
 

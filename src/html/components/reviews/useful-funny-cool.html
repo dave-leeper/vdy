@@ -1,10 +1,7 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/UsefulFunnyCool.js
-        class UsefulFunnyCool{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
+        class UsefulFunnyCool extends Component {
             afterMount() {
                 VanillaJWT.getCredentials(async (error, credentials) => {
                     if (error) {
@@ -15,9 +12,9 @@
                     if (!credentials.roles.includes("Admin")) { return }
 
                     const replyElement = document.getElementById(this.getReviewComponentObjectId())
-                    const replyButton = document.getElementById(`${this.props.componentObjectId}ReplyButton`)
+                    const replyButton = document.getElementById(`${this.id}ReplyButton`)
                     const reviewElementId = this.getReviewComponentObjectId()
-                    const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
+                    const reviewObject = Component.getComponentObject(`${reviewElementId}`)
 
                     if (!replyElement) { return }
                     if (reviewObject.hasReply()) { return }
@@ -25,10 +22,7 @@
                     replyButton.setAttribute(`class`, `text-button`)
                 })
             }
-            beforeUnmount() { }
-            afterUnmount() { }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
-            getReviewComponentObjectId() { return this.props.componentObjectId.slice(0, -3) }
+            getReviewComponentObjectId() { return this.id.slice(0, -3) }
             incrimentUseful() { 
                 this.vars.usefulCount++
                 this.incriment(`useful`)
@@ -43,7 +37,7 @@
             }
             incriment(which) {
                 const reviewElementId = this.getReviewComponentObjectId()
-                const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
+                const reviewObject = Component.getComponentObject(`${reviewElementId}`)
                 const reviewId = reviewObject.props.reviewId.replace(`_`, `:`)
                 const payload = {
                     id: reviewId,
@@ -59,12 +53,9 @@
             }
             reply() { 
                 const reviewElementId = this.getReviewComponentObjectId()
-                const reviewObject = Vanilla.getComponentObject(`${reviewElementId}`)
+                const reviewObject = Component.getComponentObject(`${reviewElementId}`)
 
                 reviewObject.reply()
-            }
-            props = {
-                componentObjectId: ``,
             }
             vars = {
                 usefulCount: 0,
@@ -79,26 +70,26 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="flex-row flex-wrap margin-t-10">
+        <div id="{id}" class="flex-row flex-wrap margin-t-10">
             <!--
-            <div id="{componentObjectId}Useful" class="button" onclick="$obj.incrimentUseful()">
-                <div id="{componentObjectId}UsefulIcon" class="margin-1">💡</div> 
-                <div id="{componentObjectId}UsefulText" class="margin-1">Useful</div> 
-                <div id="{componentObjectId}UsefulCount" class="margin-1">{usefulCount}</div> 
+            <div id="{id}Useful" class="button" onclick="$obj.incrimentUseful()">
+                <div id="{id}UsefulIcon" class="margin-1">💡</div> 
+                <div id="{id}UsefulText" class="margin-1">Useful</div> 
+                <div id="{id}UsefulCount" class="margin-1">{usefulCount}</div> 
             </div>
-            <div id="{componentObjectId}Funny" class="button" onclick="$obj.incrimentFunny()">
-                <div id="{componentObjectId}FunnyIcon" class="margin-1">😀</div> 
-                <div id="{componentObjectId}FunnyText" class="margin-1">Funny</div> 
-                <div id="{componentObjectId}FunnyCount" class="margin-1">{funnyCount}</div> 
+            <div id="{id}Funny" class="button" onclick="$obj.incrimentFunny()">
+                <div id="{id}FunnyIcon" class="margin-1">😀</div> 
+                <div id="{id}FunnyText" class="margin-1">Funny</div> 
+                <div id="{id}FunnyCount" class="margin-1">{funnyCount}</div> 
             </div>
-            <div id="{componentObjectId}Cool" class="button" onclick="$obj.incrimentCool()">
-                <div id="{componentObjectId}CoolIcon" class="margin-1">😎</div> 
-                <div id="{componentObjectId}CoolText" class="margin-1">Cool</div> 
-                <div id="{componentObjectId}CoolCount" class="margin-1">{coolCount}</div> 
+            <div id="{id}Cool" class="button" onclick="$obj.incrimentCool()">
+                <div id="{id}CoolIcon" class="margin-1">😎</div> 
+                <div id="{id}CoolText" class="margin-1">Cool</div> 
+                <div id="{id}CoolCount" class="margin-1">{coolCount}</div> 
             </div>
             -->
-            <div id="{componentObjectId}ReplyButton" class="display-none" onclick="$obj.reply()">
-                <div id="{componentObjectId}ReplyButtonText" class="margin-1">Reply</div> 
+            <div id="{id}ReplyButton" class="display-none" onclick="$obj.reply()">
+                <div id="{id}ReplyButtonText" class="margin-1">Reply</div> 
             </div>
         </div>
     </component-markup>

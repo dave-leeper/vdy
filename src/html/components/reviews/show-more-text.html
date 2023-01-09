@@ -1,26 +1,20 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/ShowMoreText.js
-        class ShowMoreText{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
+        class ShowMoreText extends Component {
             afterMount() {
-                const componentRootElement = document.querySelector(`#${this.props.componentObjectId}`)
+                const componentRootElement = document.querySelector(`#${this.id}`)
 
                 if (!this.checkIfTextShouldBeTruncated()) { 
-                    const readMoreButtonElement = componentRootElement.querySelector(`#${this.props.componentObjectId}ReadMoreButton`)
+                    const readMoreButtonElement = componentRootElement.querySelector(`#${this.id}ReadMoreButton`)
 
                     readMoreButtonElement.classList.toggle(`display-none`)
                     return 
                 }
             }
-            beforeUnmount() { }
-            afterUnmount() { }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             checkIfTextShouldBeTruncated() {
-                const componentRootElement = document.querySelector(`#${this.props.componentObjectId}`)
-                const textElement = componentRootElement.querySelector(`#${this.props.componentObjectId}Text`)
+                const componentRootElement = document.querySelector(`#${this.id}`)
+                const textElement = componentRootElement.querySelector(`#${this.id}Text`)
 
                 if (textElement.offsetHeight < textElement.scrollHeight || textElement.offsetWidth < textElement.scrollWidth) {
                     return true
@@ -29,8 +23,8 @@
                 }
             }
             readMore() {
-                const componentRootElement = document.querySelector(`#${this.props.componentObjectId}`)
-                const textElement = componentRootElement.querySelector(`#${this.props.componentObjectId}Text`)
+                const componentRootElement = document.querySelector(`#${this.id}`)
+                const textElement = componentRootElement.querySelector(`#${this.id}Text`)
 
                 if (`Read More` === this.vars.readMore) { 
                     this.vars.readMore = `Read Less` 
@@ -41,9 +35,6 @@
                     textElement.style.height = `4em`
                 }
                 textElement.classList.toggle(`line-clamp-4`)
-            }
-            props = {
-                componentObjectId: ``,
             }
             vars = {
                 text: ``,
@@ -61,9 +52,9 @@
         }
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="flex-col margin-b-20 cursor-default">
-            <div id="{componentObjectId}Text" class="line-clamp-4 h4-0em whitespace-pre-wrap overflow-wrap-break border-tb-solid border-2 border-blue-50 pad-5 text-2">{text}</div>
-            <div id="{componentObjectId}ReadMoreButton" class="text-button" onclick="$obj.readMore()">{readMore}</div>
+        <div id="{id}" class="flex-col margin-b-20 cursor-default">
+            <div id="{id}Text" class="line-clamp-4 h4-0em whitespace-pre-wrap overflow-wrap-break border-tb-solid border-2 border-blue-50 pad-5 text-2">{text}</div>
+            <div id="{id}ReadMoreButton" class="text-button" onclick="$obj.readMore()">{readMore}</div>
         </div>
 </component-markup>
 </vanilla-component>

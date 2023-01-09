@@ -1,21 +1,14 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/ReviewHeader.js
-        class ReviewHeader{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
+        class ReviewHeader extends Component {
             destroy() {
-                const avatarObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Avatar`)
+                const avatarObj = Component.getComponentObject(`${this.id}Avatar`)
 
                 avatarObj.destroy()
-                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}`)
             }
             props = {
-                componentObjectId: ``,
                 imageURL: ``,
                 firstName: ``,
                 lastName: ``,
@@ -30,16 +23,16 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="flex-row">
-            <div id="{componentObjectId}AvatarWrapper" class="margin-l-2">
-                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{componentObjectId}Avatar">
+        <div id="{id}" class="flex-row">
+            <div id="{id}AvatarWrapper" class="margin-l-2">
+                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{id}Avatar">
                     <include-props class="display-none">{ imageURL: `{imageURL}` }</include-props>
                 </include-html>
             </div>
             <div class="flex-col margin-l-2 cursor-default">
-                <div id="{componentObjectId}Name" class="subtitle-2">{firstName} {lastName}</div>
-                <div id="{componentObjectId}CityState">{city}, {state}</div>
-                <div id="{componentObjectId}Date">{date}</div>
+                <div id="{id}Name" class="subtitle-2">{firstName} {lastName}</div>
+                <div id="{id}CityState">{city}, {state}</div>
+                <div id="{id}Date">{date}</div>
             </div>
         </div>
     </component-markup>

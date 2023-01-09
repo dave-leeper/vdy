@@ -1,12 +1,9 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/ReviewDialog.js
-        class ReviewDialog{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
+        class ReviewDialog extends Component {
             afterMount() {
-                const element = document.getElementById(this.props.componentObjectId)
+                const element = document.getElementById(this.id)
 
                 element.addEventListener(`newTextData`, (e) => { 
                     if (`FirstName` === e.detail.component.props.name) {
@@ -23,43 +20,41 @@
                 })
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
             }
-            beforeUnmount() { }
-            afterUnmount() { }
             destroy() {
-                const reviewHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReviewHeader`)
-                const starsObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Stars`)
+                const reviewHeaderObj = Component.getComponentObject(`${this.id}ReviewHeader`)
+                const starsObj = Component.getComponentObject(`${this.id}Stars`)
 
                 reviewHeaderObj.destroy()
                 starsObj.destroy()
-                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}`)
             }
             onBlur(event) { this.updateReview() }
             onInput(event) { this.updateReview() }
             updateReview() {
-                const textAreaId = `${this.props.componentObjectId}ReviewText`
+                const textAreaId = `${this.id}ReviewText`
                 let textarea = document.getElementById(textAreaId)
 
                 this.vars.review = textarea.value
             }
             show() {
-                const modal = document.getElementById(this.props.componentObjectId)
+                const modal = document.getElementById(this.id)
 
                 modal.setAttribute(`class`, `display-block modal`)
             }
             hide() {
-                const modal = document.getElementById(this.props.componentObjectId)
+                const modal = document.getElementById(this.id)
 
                 modal.setAttribute(`class`, `display-none modal`)
                 this.destroy()
             }
             showError(message) {
-                let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)
+                let errorSnackbar = Component.getComponentObject(`SnackbarError`)
                         
                 errorSnackbar.vars.text = message
                 errorSnackbar.show()
             }
             showInfo(message) {
-                let infoSnackbar = Vanilla.getComponentObject(`SnackbarInfo`)
+                let infoSnackbar = Component.getComponentObject(`SnackbarInfo`)
                         
                 infoSnackbar.vars.text = message
                 infoSnackbar.show()
@@ -91,7 +86,7 @@
                 const content = await response.json()
 
                 if (200 === response.status) {
-                    const reviewList = Vanilla.getComponentObject(`ReviewList`)
+                    const reviewList = Component.getComponentObject(`ReviewList`)
 
                     reviewList.destroyReviewsAndReplies()
                     reviewList.fetchReviews()
@@ -101,9 +96,6 @@
                     this.showError(`Error adding review. Status code ${response.status}.`)
                 }
                 this.hide()
-            }
-            props = {
-                componentObjectId: ``
             }
             vars = {
                 reviewImageURL: `./images/generic-avatar.png`,
@@ -123,14 +115,14 @@
 
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="modal display-none" onclick="$obj.hide()">
-              <div id="{componentObjectId}Frame" class="modal-content h525px" onclick="event.stopPropagation()">
+        <div id="{id}" class="modal display-none" onclick="$obj.hide()">
+              <div id="{id}Frame" class="modal-content h525px" onclick="event.stopPropagation()">
                 <div class="h160px">
-                    <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}Stars">
+                    <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
                         <include-props class="display-none">{ editable: true }</include-props>
                         <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
                     </include-html>
-                    <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header-editable.html" component-class="ReviewHeaderEditable" component-id="{componentObjectId}ReviewHeader">
+                    <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header-editable.html" component-class="ReviewHeaderEditable" component-id="{id}ReviewHeader">
                         <include-vars class="display-none">
                             { 
                                 imageURL: `{reviewImageURL}`,
@@ -144,15 +136,15 @@
                     </include-html>
                 </div>
                 <div class="flex-col margin-b-5 margin-t-20">
-                    <h3 id="{componentObjectId}ReviewTitle" class="subtitle-2">Review</h3>
-                    <textarea id="{componentObjectId}ReviewText" name="review" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{review}</textarea>
+                    <h3 id="{id}ReviewTitle" class="subtitle-2">Review</h3>
+                    <textarea id="{id}ReviewText" name="review" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{review}</textarea>
                 </div>
-                <div id="{componentObjectId}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
-                    <div id="{componentObjectId}CancelButton" class="button" onclick="$obj.hide()">
-                        <div id="{componentObjectId}CancelButtonText" class="margin-1">Cancel</div> 
+                <div id="{id}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
+                    <div id="{id}CancelButton" class="button" onclick="$obj.hide()">
+                        <div id="{id}CancelButtonText" class="margin-1">Cancel</div> 
                     </div>
-                    <div id="{componentObjectId}SaveButton" class="button" onclick="$obj.save()">
-                        <div id="{componentObjectId}SaveButtonText" class="margin-1">Save</div> 
+                    <div id="{id}SaveButton" class="button" onclick="$obj.save()">
+                        <div id="{id}SaveButtonText" class="margin-1">Save</div> 
                     </div>
                 </div>    
             </div>

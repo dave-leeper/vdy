@@ -100,13 +100,16 @@ class Tree {
     destroy                                                         The object is unmounted, unregistereed, and it's marker is removed
                                                                     from the DOM.
 */
-class VanillaComponentLifecycle {
+class ComponentLifecycle {
+    static initialize() {
+        window.$vanilla = undefined
+    }
     static saveOriginalNodeValues = (node) => {
         if (node.nodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
         }
         for (let child of node.childNodes) {
-            VanillaComponentLifecycle.saveOriginalNodeValues(child)
+            ComponentLifecycle.saveOriginalNodeValues(child)
         }
     }
     static saveOriginalNodeAttributes = (node) => {
@@ -116,7 +119,7 @@ class VanillaComponentLifecycle {
             }
         }
         for (let child of node.childNodes) {
-            VanillaComponentLifecycle.saveOriginalNodeAttributes(child)
+            ComponentLifecycle.saveOriginalNodeAttributes(child)
         }
     }
     static copyOriginalNodeValues = (srcNode, destNode) => {
@@ -128,7 +131,7 @@ class VanillaComponentLifecycle {
         for (let loop = 0; loop < srcNode.childNodes.length; loop++) {
             let srcChildNode = srcNode.childNodes[loop]
             let destChildNode = destNode.childNodes[loop]
-            VanillaComponentLifecycle.copyOriginalNodeValues(srcChildNode, destChildNode)
+            ComponentLifecycle.copyOriginalNodeValues(srcChildNode, destChildNode)
         }
     }
     static copyOriginalNodeAttributes = (srcNode, destNode) => {
@@ -145,7 +148,7 @@ class VanillaComponentLifecycle {
         for (let loop = 0; loop < srcNode.childNodes.length; loop++) {
             let srcChildNode = srcNode.childNodes[loop]
             let destChildNode = destNode.childNodes[loop]
-            VanillaComponentLifecycle.copyOriginalNodeAttributes(srcChildNode, destChildNode)
+            ComponentLifecycle.copyOriginalNodeAttributes(srcChildNode, destChildNode)
         }
     }
     static replaceNodeValue = (node, data, member) => {
@@ -169,7 +172,7 @@ class VanillaComponentLifecycle {
             }
         }
         for (let child of node.childNodes) {
-            VanillaComponentLifecycle.replaceNodeValue(child, data, member)
+            ComponentLifecycle.replaceNodeValue(child, data, member)
         }
     }
     static replaceAttributeValue = (node, data, member) => {
@@ -193,7 +196,7 @@ class VanillaComponentLifecycle {
             }
         }
         for (let child of node.childNodes) {
-            VanillaComponentLifecycle.replaceAttributeValue(child, data, member)
+            ComponentLifecycle.replaceAttributeValue(child, data, member)
         }
     }
     static wrapProps = (componentFragment, componentObject) => {
@@ -209,8 +212,8 @@ class VanillaComponentLifecycle {
                 set: function(newValue) {
                 }
             })
-            VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.props, member)
-            VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.props, member)
+            ComponentLifecycle.replaceNodeValue(componentFragment, componentObject.props, member)
+            ComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.props, member)
         }
     }
     static wrapVars = (componentFragment, componentObject) => {
@@ -219,20 +222,18 @@ class VanillaComponentLifecycle {
 
         componentObject.vars.$varsStore = {...componentObject.vars}
         for (let member of members) {
-            if (`Review` === componentObject.className()) {
-            }
             Object.defineProperty(componentObject.vars, member, {
                 get: function() {
                     return componentObject.vars.$varsStore[member]
                 },
                 set: function(newValue) {
                     componentObject.vars.$varsStore[member] = newValue
-                    VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
-                    VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
+                    ComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
+                    ComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
                 }
             })
-            VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
-            VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
+            ComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
+            ComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
         }
     }
     static compile = (html) => {
@@ -313,8 +314,8 @@ class VanillaComponentLifecycle {
         }
         if (!window.$vanilla) { window.$vanilla = {} }
         if (!window.$vanilla.fragmentRegistry) { window.$vanilla.fragmentRegistry = new Map() }
-        VanillaComponentLifecycle.saveOriginalNodeValues(componentFragment)
-        VanillaComponentLifecycle.saveOriginalNodeAttributes(componentFragment)
+        ComponentLifecycle.saveOriginalNodeValues(componentFragment)
+        ComponentLifecycle.saveOriginalNodeAttributes(componentFragment)
         window.$vanilla.fragmentRegistry.set(componentClass, componentFragment)
 
         return true
@@ -393,19 +394,24 @@ class VanillaComponentLifecycle {
         }
         if (componentObject.initialize) { componentObject.initialize(componentObjectId) }
 
-        let members = Object.getOwnPropertyNames(componentObject.props)
+        ComponentLifecycle.replaceNodeValue(componentFragment, componentObject, `id`)
+        ComponentLifecycle.replaceAttributeValue(componentFragment, componentObject, `id`)
 
-        for (let member of members) {
-            VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.props, member)
-            VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.props, member)
-        }    
-
-        if (componentObject.vars) {
-            members = Object.getOwnPropertyNames(componentObject.vars)
+        if (componentObject.props) {
+            let members = Object.getOwnPropertyNames(componentObject.props)
 
             for (let member of members) {
-                VanillaComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
-                VanillaComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
+                ComponentLifecycle.replaceNodeValue(componentFragment, componentObject.props, member)
+                ComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.props, member)
+            }
+        }
+
+        if (componentObject.vars) {
+            let members = Object.getOwnPropertyNames(componentObject.vars)
+
+            for (let member of members) {
+                ComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
+                ComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
             }
         }
         return componentObject
@@ -448,7 +454,7 @@ class VanillaComponentLifecycle {
                 let eventHandlerText = node.getAttribute(event)
 
                 if (eventHandlerText && -1 !== eventHandlerText.indexOf(`$obj.`)) {
-                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `Vanilla.getComponentObject('${componentObjectId}').`)
+                    eventHandlerText = eventHandlerText.replaceAll(`$obj.`, `Component.getComponentObject('${componentObjectId}').`)
                     node.setAttribute(event, eventHandlerText)
                 }
                 for (const nodeChild of node.children) {
@@ -512,13 +518,13 @@ class VanillaComponentLifecycle {
             setEventHamdler(clonedChild, `onvolumechange`)
             setEventHamdler(clonedChild, `onwaiting`)
             setEventHamdler(clonedChild, `ontoggle`)
-            VanillaComponentLifecycle.copyOriginalNodeValues(originalChild, clonedChild)
-            VanillaComponentLifecycle.copyOriginalNodeAttributes(originalChild, clonedChild)
+            ComponentLifecycle.copyOriginalNodeValues(originalChild, clonedChild)
+            ComponentLifecycle.copyOriginalNodeAttributes(originalChild, clonedChild)
         }
 
         for (let node of componentDOM) {
-            VanillaComponentLifecycle.wrapVars(node, componentObject)
-            VanillaComponentLifecycle.wrapProps(node, componentObject)
+            ComponentLifecycle.wrapVars(node, componentObject)
+            ComponentLifecycle.wrapProps(node, componentObject)
         }
 
         window.$vanilla.objectRegistry.set(componentObjectId, {componentObject: componentObject, componentClass, componentDOM, mounted: false})
@@ -634,9 +640,9 @@ class VanillaComponentLifecycle {
         let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
 
-        VanillaComponentLifecycle.unmount(componentObjectId)
-        VanillaComponentLifecycle.unregisterComponentObject(componentObjectId)
-        marker.remove()
+        ComponentLifecycle.unmount(componentObjectId)
+        ComponentLifecycle.unregisterComponentObject(componentObjectId)
+        if (marker) { marker.remove() }
     }
 }
 
@@ -663,10 +669,7 @@ class VanillaJWT {
     }
 }
 
-class Vanilla {
-    static initialize() {
-        window.$vanilla = undefined
-    }
+class Component {
     static getComponentFragment = (componentClass) => {
         if (!componentClass) { 
             console.error(`getComponentFragment: No component fragment id provided.`)
@@ -715,6 +718,13 @@ class Vanilla {
         }
         return newInclude
     }
+    className() {return this.constructor.name }
+    initialize(id) { this.id = id }
+    beforeMount() { }
+    afterMount() { }
+    beforeUnmount() { }
+    afterUnmount() { }
+    destroy() { ComponentLifecycle.destroyComponentObject(`${this.id}`) }
 }
 
 class Loader {
@@ -795,15 +805,11 @@ class Loader {
     static loadInclude = async function (include) {
         let [src, includeIn, componentClass, componentObjectId, repeat] = Loader.validateIncludeAttributes(include.attributes)
 
-        if (!src || !includeIn) { 
-            return false 
-        }
+        if (!src || !includeIn) { return false }
 
         let nodeAddedToIncludeTree = Loader.updateIncludeTree(includeIn, src)
 
-        if (!nodeAddedToIncludeTree) {
-            return false
-        }
+        if (!nodeAddedToIncludeTree) { return false }
 
         let text = await Loader.loadFile(include.attributes.src.value)
 
@@ -819,30 +825,30 @@ class Loader {
         return true
     }
     static loadIncludeComponent = function (text, src, includeIn, componentClass, componentObjectId, include) {
-        let fragment = VanillaComponentLifecycle.compile(text)
+        let fragment = ComponentLifecycle.compile(text)
         let fragmentAlreadyRegistered = window?.$vanilla?.fragmentRegistry?.has(componentClass)
-        let fragmentRegistered = fragmentAlreadyRegistered || VanillaComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
+        let fragmentRegistered = fragmentAlreadyRegistered || ComponentLifecycle.registerDOMFragment(componentClass, fragment, false)
 
         if (!fragmentRegistered) {
             console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
 
-        let componentObject = VanillaComponentLifecycle.createComponentObject(componentClass, componentObjectId, include)
+        let componentObject = ComponentLifecycle.createComponentObject(componentClass, componentObjectId, include)
 
         if (!componentObject) {
             console.error(`loadIncludeComponent: Failed to create component. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
 
-        let componentObjectRegistered = VanillaComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
+        let componentObjectRegistered = ComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
 
         if (!componentObjectRegistered) {
             console.error(`loadIncludeComponent: Failed to register component object. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
         
-        let componentMounted = VanillaComponentLifecycle.mount(componentObjectId)
+        let componentMounted = ComponentLifecycle.mount(componentObjectId)
 
         if (!componentMounted) {
             console.error(`loadIncludeComponent: Failed to mount component object ${componentObjectId}. Include processing halted. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)

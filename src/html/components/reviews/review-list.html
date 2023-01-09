@@ -1,35 +1,31 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/ReviewList.js
-        class ReviewList{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { 
-                this.props.componentObjectId = componentObjectId
+        class ReviewList extends Component {
+            initialize(id) { 
+                super.initialize(id)
+
                 Queue.register(this, Messages.INCLUDES_LOADED, () => { 
                     Queue.unregister(this, Messages.INCLUDES_LOADED)
                     this.fetchReviews()
                 })
             }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
             destroy() {
-                const loadingObj = Vanilla.getComponentObject(`${this.props.componentObjectId}Loading`)
+                const loadingObj = Component.getComponentObject(`${this.id}Loading`)
 
                 this.destroyReviewsAndReplies()
                 loadingObj.destroy()
-                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}`)
             }
             destroyReviewsAndReplies() {
                 for (const reviewAndReply of this.vars.reviews) {
                     if (reviewAndReply.reply) {
-                        const replyObj = Vanilla.getComponentObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
+                        const replyObj = Component.getComponentObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
 
                         if (replyObj) { replyObj.destroy() }
                     }
                     if (reviewAndReply.review) {
-                        const reviewObj = Vanilla.getComponentObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
+                        const reviewObj = Component.getComponentObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
 
                         if (reviewObj) { reviewObj.destroy() }
                     }
@@ -122,7 +118,7 @@
                     propsInnerText += "funnyCount: " + review.funnyCount + ", "
                     propsInnerText += "coolCount: " + review.coolCount + " }"
 
-                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsInnerText, varsInnerText)
+                    let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsInnerText, varsInnerText)
 
                     results.push(newInclude)
 
@@ -140,13 +136,13 @@
 
                     varsInnerText = reply.reply? "{ reply: `" + reply.reply.replace(/\n/g, "\\n") + "` }" : "{ reply: `` }"
 
-                    newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${this.getCleanId(reply.id)}`, propsInnerText, varsInnerText)
+                    newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${this.getCleanId(reply.id)}`, propsInnerText, varsInnerText)
                     results.push(newInclude)
                 }
                 return results
             }
             async buildListElements(newDOMElements) {
-                const listRootElement = document.getElementById(this.props.componentObjectId)
+                const listRootElement = document.getElementById(this.id)
 
                 for (const element of newDOMElements) {
                     listRootElement.appendChild(element)
@@ -166,8 +162,8 @@
                 this.vars.reviewAverage = (sum / this.vars.reviewCount).toPrecision(1)
             }            
             updateAverageStars() {
-                const starsObjectId =  `${this.props.componentObjectId}Stars`
-                let starsObject = Vanilla.getComponentObject(starsObjectId)
+                const starsObjectId =  `${this.id}Stars`
+                let starsObject = Component.getComponentObject(starsObjectId)
 
                 if (!starsObject) { return }
                 starsObject.setStars(this.vars.reviewAverage)
@@ -175,7 +171,6 @@
             // fetchURL: `http://127.0.0.1:8080/reviews`
             // fetchURL: `https://vdynode.fly.dev/reviews`
             props = {
-                componentObjectId: ``,
                 fetchURL: `http://localhost:8080/reviews`
             }
             vars = {
@@ -191,18 +186,18 @@
     <style>
     </style>
     <component-markup>
-        <article id="{componentObjectId}" class="flex-col bg-white round-15px pad-5">
-            <div id="{componentObjectId}LoadingWrapper" class="{loadingClass}">
-                <div id="{componentObjectId}LoadingText">Loading reviews...</div>
-                <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{componentObjectId}Loading"></include-html>
+        <article id="{id}" class="flex-col bg-white round-15px pad-5">
+            <div id="{id}LoadingWrapper" class="{loadingClass}">
+                <div id="{id}LoadingText">Loading reviews...</div>
+                <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{id}Loading"></include-html>
             </div>
-            <div id="{componentObjectId}Summary" class="flex-row flex-space-between flex-center flex-align-baseline ">
-                <div id="{componentObjectId}SummaryReviewCount">{reviewCount} Reviews</div>
-                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{componentObjectId}Stars">
+            <div id="{id}Summary" class="flex-row flex-space-between flex-center flex-align-baseline ">
+                <div id="{id}SummaryReviewCount">{reviewCount} Reviews</div>
+                <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
                     <include-props class="display-none">{ editable: false }</include-props>
                     <include-vars class="display-none">{ rating: {reviewAverage} }</include-vars>
                 </include-html>
-                <div id="{componentObjectId}SummaryReviewAverage">{reviewAverage} Star Average</div>
+                <div id="{id}SummaryReviewAverage">{reviewAverage} Star Average</div>
             </div>
         </article>
     </component-markup>

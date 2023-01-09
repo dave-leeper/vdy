@@ -1,17 +1,10 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/Login.js
-        class Login{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
+        class Login extends Component {
             async login() {
-                let user = Vanilla.getComponentObject(`LoginUser`)
-                let password = Vanilla.getComponentObject(`LoginPassword`)
+                let user = Component.getComponentObject(`LoginUser`)
+                let password = Component.getComponentObject(`LoginPassword`)
                 let login = {name: ``, password: ``}
 
                 if (!user.vars.valid || !password.vars.valid) {
@@ -37,9 +30,6 @@
                 VanillaJWT.storeCredentials(JSON.parse(token))
                 params.append(`token`, token)
                 window.location.href = `/index?${params.toString()}`
-            }
-            props = {
-                componentObjectId: ``,
             }
         }
     </script>

@@ -1,18 +1,8 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/Avatar.js
-        class Avatar{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
-            afterMount() { }
-            beforeUnmount() { }
-            afterUnmount() { }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
-            props = {
-                componentObjectId: ``,
-                imageURL: ``,
-            }
+        class Avatar extends Component {
+            props = { imageURL: `` }
         }
     </script>
     <test-script>
@@ -20,8 +10,8 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="round-50 overflow-hidden center-text border-solid border-1 border-black w45px h45px">
-            <img id="{componentObjectId}Img" src="{imageURL}" width="45" alt="Avatar image" loading="lazy">
+        <div id="{id}" class="round-50 overflow-hidden center-text border-solid border-1 border-black w45px h45px">
+            <img id="{id}Img" src="{imageURL}" width="45" alt="Avatar image" loading="lazy">
         </div>
     </component-markup>
 </vanilla-component>

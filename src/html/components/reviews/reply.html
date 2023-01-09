@@ -1,15 +1,12 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/Reply.js
-        class Reply{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
+        class Reply extends Component {
             afterMount() { 
                 VanillaJWT.getCredentials(async (error, credentials) => {
                     if (error) { return }
                     
-                    const replyElement = document.getElementById(`${this.props.componentObjectId}EditButton`)
+                    const replyElement = document.getElementById(`${this.id}EditButton`)
 
                     if (!credentials?.roles) { return }
                     if (!credentials.roles.includes("Admin")) { return }
@@ -18,19 +15,17 @@
                     replyElement.setAttribute(`class`, `text-button`)
                 })
             }
-            beforeUnmount() { }
-            afterUnmount() { }
             destroy() {
-                const replyHeaderObj = Vanilla.getComponentObject(`${this.props.componentObjectId}ReplyHeader`)
+                const replyHeaderObj = Component.getComponentObject(`${this.id}ReplyHeader`)
 
                 replyHeaderObj.destroy()
-                VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`)
+                ComponentLifecycle.destroyComponentObject(`${this.id}`)
             }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)
             }
             getReviewObject() {
-                return Vanilla.getComponentObject(`Review${this.props.reviewId}`)
+                return Component.getComponentObject(`Review${this.props.reviewId}`)
             }
             getReplyElement() {
                 return document.getElementById(`Reply${this.props.replyId}`)
@@ -41,24 +36,23 @@
                 let propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
 
                 if (!document.getElementById(`ReplyDialog`)) {
-                    let newInclude = Vanilla.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
+                    let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
 
                     this.getReviewElement().appendChild(newInclude)
                     await Loader.loadIncludes()
                 }
 
-                const replyDialog = Vanilla.getComponentObject(`ReplyDialog`)
+                const replyDialog = Component.getComponentObject(`ReplyDialog`)
 
                 replyDialog.show()
             }
             showError(message) {
-                let errorSnackbar = Vanilla.getComponentObject(`SnackbarError`)
+                let errorSnackbar = Component.getComponentObject(`SnackbarError`)
                         
                 errorSnackbar.vars.text = message
                 errorSnackbar.show()
             }
             props = {
-                componentObjectId: ``,
                 reviewId: ``,
                 replyId: ``,
                 imageURL: ``,
@@ -76,9 +70,9 @@
     <style>
     </style>
     <component-markup>
-        <section id="{componentObjectId}" class="flex-col shadow-white round-15px pad-5 margin-b-10 margin-l-20 bg-blue-50">
+        <section id="{id}" class="flex-col shadow-white round-15px pad-5 margin-b-10 margin-l-20 bg-blue-50">
             <div>
-                <include-html include-in="reply.html" src="./html/components/reviews/reply-header.html" component-class="ReplyHeader" component-id="{componentObjectId}ReplyHeader">
+                <include-html include-in="reply.html" src="./html/components/reviews/reply-header.html" component-class="ReplyHeader" component-id="{id}ReplyHeader">
                     <include-props class="display-none">
                         { 
                             imageURL: `{imageURL}`,
@@ -90,11 +84,11 @@
                     </include-props>
                 </include-html>
             </div>
-            <section id="{componentObjectId}ReplyBody" class="flex-col w100">
-                <div id="{componentObjectId}Reply" class="whitespace-pre-wrap overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2 cursor-default">{reply}</div>
+            <section id="{id}ReplyBody" class="flex-col w100">
+                <div id="{id}Reply" class="whitespace-pre-wrap overflow-wrap-break border-tb-solid border-1 border-gray-7 pad-5 text-2 cursor-default">{reply}</div>
             </section>
-            <div id="{componentObjectId}EditButton" class="display-none" onclick="$obj.edit()">
-                <div id="{componentObjectId}EditButtonText" class="margin-1">Edit</div> 
+            <div id="{id}EditButton" class="display-none" onclick="$obj.edit()">
+                <div id="{id}EditButtonText" class="margin-1">Edit</div> 
             </div>
         </section>
     </component-markup>

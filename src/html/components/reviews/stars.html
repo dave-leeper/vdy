@@ -1,16 +1,13 @@
 <vanilla-component>
     <script>
         //# sourceURL=html/components/reviews/Stars.js
-        class Stars{
-            className() {return this.constructor.name }
-            initialize(componentObjectId) { this.props.componentObjectId = componentObjectId }
-            beforeMount() { }
+        class Stars extends Component {
             afterMount() { 
-                this.star1 = document.getElementById(`${this.props.componentObjectId}Star1`)
-                this.star2 = document.getElementById(`${this.props.componentObjectId}Star2`)
-                this.star3 = document.getElementById(`${this.props.componentObjectId}Star3`)
-                this.star4 = document.getElementById(`${this.props.componentObjectId}Star4`)
-                this.star5 = document.getElementById(`${this.props.componentObjectId}Star5`)
+                this.star1 = document.getElementById(`${this.id}Star1`)
+                this.star2 = document.getElementById(`${this.id}Star2`)
+                this.star3 = document.getElementById(`${this.id}Star3`)
+                this.star4 = document.getElementById(`${this.id}Star4`)
+                this.star5 = document.getElementById(`${this.id}Star5`)
                 this.setStars(this.vars.rating)
 
                 if (this.props.editable) {
@@ -27,10 +24,6 @@
                     this.star5.classList.toggle(`cursor-default`)
                 }
             }
-            beforeUnmount() { }
-            afterUnmount() { 
-            }
-            destroy() { VanillaComponentLifecycle.destroyComponentObject(`${this.props.componentObjectId}`) }
             setStars(rating) {
                 if (1 === this.vars.rating && 1 === rating) {
                     this.vars.rating = 0
@@ -51,11 +44,11 @@
                         detail: {
                             rating: this.vars.rating,
                             component: this, 
-                            element: document.getElementById(this.props.componentObjectId) 
+                            element: document.getElementById(this.id) 
                         }
                     }
                 )
-                const element = document.getElementById(this.props.componentObjectId)
+                const element = document.getElementById(this.id)
 
                 element.dispatchEvent(newRatingEvent)
             }
@@ -64,7 +57,6 @@
                 this.setStars(rating)
             }
             props = {
-                componentObjectId: ``,
                 editable: true,
             }
             vars = {
@@ -77,12 +69,12 @@
     <style>
     </style>
     <component-markup>
-        <div id="{componentObjectId}" class="flex-row flex-align-center">
-            <div id="{componentObjectId}Star1" class="red-f margin-1 header-6" onclick="$obj.editStars(1)">☆</div>
-            <div id="{componentObjectId}Star2" class="red-f margin-1 header-6" onclick="$obj.editStars(2)">☆</div>
-            <div id="{componentObjectId}Star3" class="red-f margin-1 header-6" onclick="$obj.editStars(3)">☆</div>
-            <div id="{componentObjectId}Star4" class="red-f margin-1 header-6" onclick="$obj.editStars(4)">☆</div>
-            <div id="{componentObjectId}Star5" class="red-f margin-1 header-6" onclick="$obj.editStars(5)">☆</div>
+        <div id="{id}" class="flex-row flex-align-center">
+            <div id="{id}Star1" class="red-f margin-1 header-6" onclick="$obj.editStars(1)">☆</div>
+            <div id="{id}Star2" class="red-f margin-1 header-6" onclick="$obj.editStars(2)">☆</div>
+            <div id="{id}Star3" class="red-f margin-1 header-6" onclick="$obj.editStars(3)">☆</div>
+            <div id="{id}Star4" class="red-f margin-1 header-6" onclick="$obj.editStars(4)">☆</div>
+            <div id="{id}Star5" class="red-f margin-1 header-6" onclick="$obj.editStars(5)">☆</div>
         </div>
     </component-markup>
 </vanilla-component>

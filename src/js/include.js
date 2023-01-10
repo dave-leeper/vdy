@@ -468,7 +468,6 @@ class ComponentLifecycle {
             const copyAttributes = (includeElementSrc, clonedChildDest) => {
                 for (let attributeLoop = 0; attributeLoop < includeElementSrc.attributes.length; attributeLoop++) {
                     const attribute = includeElementSrc.attributes[attributeLoop]
-                    console.log(`attributeLoop: ${attributeLoop} attributes.length: ${includeElementSrc.attributes.length} attribute.name: ${attribute.name} attribute.value: ${attribute.value}`)
                     if (`include-in` === attribute.name) { continue }
                     if (`src` === attribute.name) { continue }
                     if (`component-class` === attribute.name) { continue }
@@ -756,6 +755,68 @@ class Component {
     }
 }
 
+class SlotManager {
+    static getAllSlotMarkup() {
+        return document.querySelectorAll('slot-markup')
+    }
+    static getSlot(forComponentId, slotName) {
+        const componentElement = document.getElementById(forComponentId)
+
+        if (!componentElement) {
+            console.error(`getSlot: Component element ${forComponentId} was not found.`)
+            return null
+        }
+
+        const componentSlot = componentElement.querySelector(`component-slot[id=${slotName}]`)
+
+        if (!componentSlot) {
+            console.error(`getSlot: Component slot ${slotName} was not found.`)
+            return null
+        }
+
+        return componentSlot
+    }
+    static moveSlotContentToComponent(slotContentElement, componentSlotElement) {
+        if (0 === slotContentElement.children.length) {
+            console.error(`moveSlotContentToComponent: Slot content element has no children.`)
+            return false
+        }
+        if (0 !== componentSlotElement.children.length) {
+            console.error(`moveSlotContentToComponent: Component slot ${componentElement.getAttribute(`for-slot`)} was not found.`)
+            return false
+        }
+
+        while (0 < slotContentElement.children.length) {
+            componentSlotElement.after(slotContentElement.firstChild)
+        }
+        componentSlotElement.remove()
+        slotContentElement.remove()
+
+        return true
+    }
+    static loadSlots() {
+        const slotMarkupElements = SlotManager.getAllSlotMarkup()
+
+        for (let slotContent of slotMarkupElements) {
+            const forComponentId = slotContent.getAttribute(`for-component-id`)
+
+            if (!forComponentId) {
+                console.error(`loadSlots: The for-component-id attribute is required on slot-markup tags.`)
+                continue
+            }
+
+            const slotName = slotContent.getAttribute(`for-slot`)
+            const componentSlot = SlotManager.getSlot(forComponentId, slotName)
+
+            if (!componentSlot) { continue }
+            if (!SlotManager.moveSlotContentToComponent(slotContent, componentSlot)) {
+                console.error(`loadSlots: An error occured while moving slot content to the ${componentElement.getAttribute(`for-slot`)}] slot of ${forComponentId}.`)
+                continue
+            }
+        }
+    }
+}
+
 class Loader {
     static includeTree = new Tree()
     static get tree() { return Loader.includeTree }
@@ -912,13 +973,24 @@ class Loader {
         customElements.define('include-props', class IncludePropsElement extends HTMLElement { }, { })
         customElements.define('include-vars', class IncludeVarsElement extends HTMLElement { }, { })
         // TO DO: Add support for the following tags
-        customElements.define('include-slot', class IncludeVarsElement extends HTMLElement { }, { })
+        // * Slots are loaded after all incude tags have been processed.
+        // * component-slot appears inside a component. It's only attribute is an id. It marks a location that can
+        // accept content from a slot-markup tag.
+        customElements.define('component-slot', class ComponentMarkupElement extends HTMLElement { }, { })
+        // * A slot-markup tag apears anywhere in the body of the page outside of a component. The slot-markup tag
+        // has for-component-id and for-slot attributes that indicate which slot it's associated with. All children 
+        // elements of the slot-markup tag become children elements of the associated component-slot tag. Once this is
+        // done, the empty slot-markup tag is removed from the document.
+        // * The contents of a slot-markup tag are associated only with the DOM elements of an instance of a component.
+        // They are not associated with the DOM fragment.
+        customElements.define('slot-markup', class IncludeVarsElement extends HTMLElement { }, { })
     }
 }
 
-document.addEventListener(`DOMContentLoaded`, () => { 
+document.addEventListener(`DOMContentLoaded`, async () => { 
     Loader.registerCustomTags()
-    Loader.loadIncludes() 
+    await Loader.loadIncludes()
+    SlotManager.loadSlots()
 })
 window.onload = () => { console.log(`onload`) }
 window.onbeforeunload = () => { console.log(`onbeforeunload`) }

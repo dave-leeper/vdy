@@ -3,8 +3,8 @@
         //# sourceURL=html/components/Login.js
         class Login extends Component {
             async login() {
-                let user = Component.getObject(`LoginUser`)
-                let password = Component.getObject(`LoginPassword`)
+                let user = Component.getObject(`${this.id}LoginUser`)
+                let password = Component.getObject(`${this.id}LoginPassword`)
                 let login = {name: ``, password: ``}
 
                 if (!user.vars.valid || !password.vars.valid) {
@@ -38,30 +38,30 @@
     <style>
     </style>
     <component-markup>
-        <span>
-        <section id="LoginPage" class="flex-row flex-center margin-5 bg-grey-e w100">
-            <span id="LoginPageBorder" class="flex-col round-5px border-solid border-2 border-blue-50 w400px h100 pad-10">
-                <h1 id="LoginPageTitle" class="header-6 margin-5 w100 center-text">Login To Vince Drives You</h1>
-                <span id="LoginPageForm" class="flex-row flex-space-between">
-                    <span id="LoginPageFields" class="flex-col">
-                        <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="LoginUser">
-                            <include-props class="display-none">{ name: `UserField`, placeholder: `User`, label: `User`, labelAboveField: false, required: true, autofocus: true, autocomplete: true, minlength: 2 }</include-props>
-                            <include-vars class="display-none">{ type: `text` } </include-vars>
-                        </include-html>
-                        <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="LoginPassword">
-                            <include-props class="display-none">{ name: `PasswordField`, label: `Password`, labelAboveField: false, required: true, minlength: 2, size: 22 }</include-props>
-                            <include-vars class="display-none">{ type: `password` }</include-vars>
-                        </include-html>
-                    </span>
-                    <span id="LoginPageButtonWrapper">
-                        <div id="LoginPageButton" class="flex-row flex-align-start w100 margin-t-25" onclick="$obj.login()">
-                            <div id="LoginPageButtonText" class="button">Login</div>
-                        </div>
+        <span id="{id}">
+            <section id="{id}LoginPage" class="flex-row flex-center margin-5 bg-grey-e w100">
+                <span id="{id}LoginPageBorder" class="flex-col round-5px border-solid border-2 border-blue-50 w400px h100 pad-10">
+                    <h1 id="{id}LoginPageTitle" class="header-6 margin-5 w100 center-text">Login To Vince Drives You</h1>
+                    <span id="{id}LoginPageForm" class="flex-row flex-space-between">
+                        <span id="{id}LoginPageFields" class="flex-col">
+                            <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}LoginUser">
+                                <include-props class="display-none">{ name: `UserField`, placeholder: `User`, label: `User`, labelAboveField: false, required: true, autofocus: true, autocomplete: true, minlength: 2 }</include-props>
+                                <include-vars class="display-none">{ type: `text` } </include-vars>
+                            </include-html>
+                            <include-html include-in="index.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}LoginPassword">
+                                <include-props class="display-none">{ name: `PasswordField`, label: `Password`, labelAboveField: false, required: true, minlength: 2, size: 22 }</include-props>
+                                <include-vars class="display-none">{ type: `password` }</include-vars>
+                            </include-html>
+                        </span>
+                        <span id="{id}LoginPageButtonWrapper">
+                            <div id="{id}LoginPageButton" class="flex-row flex-align-start w100 margin-t-25" onclick="$obj.login()">
+                                <div id="{id}LoginPageButtonText" class="button">Login</div>
+                            </div>
+                        </span>
                     </span>
                 </span>
-            </span>
-        </section>
-    </span>
+            </section>
+        </span>
     </component-markup>
 </custom-component>
 

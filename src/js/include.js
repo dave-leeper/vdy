@@ -1004,8 +1004,8 @@ class Loader {
         //      * A style tag that contains CSS. This is usually CSS used by the component.
         customElements.define('custom-component', class VanillaComponentElement extends HTMLElement { }, { })
 
-        // * Contains tests for the component. In normal web pages, this section will be
-        //      when the tag is downloaded. On a testing page, the tests are executed.
+        // * Contains tests for the component. In normal web pages, this section will be removed from the DOM
+        // when the tag is downloaded. On a testing page, the tests are executed.
         customElements.define('test-script', class TestScriptElement extends HTMLElement { }, { })
 
         // * A component-markup tag contains HTML markup that defines a component. The component-markup tag can

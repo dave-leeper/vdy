@@ -967,6 +967,8 @@ class Loader {
         // included can be a normal HTML snippet, or can be an HTML component. 
         // * In both cases the include-in attribute is used to indicate the name of the file receiving the HTML and 
         // the src attribute is used to provide the location of the file to be included.
+        //
+        // Including Components
         // * When including an HTML component, the include-html tag must also have a component-class attribute
         // indicating the class of the component and a component-id attribute providing an id for the component instance.
         // * An object of the type indicated by the component-class attrubute which represents the component instance is
@@ -986,19 +988,24 @@ class Loader {
         // * Components can have props, which are values that cannot be changed after the component has been initialized. The
         // values for the props of an instance of a component can be set using the include-props tag. The inner text of this
         // tag contans JSON used to inialize the props.
-        // * The include-props tag can only appear inside the include-html tag of a component. 
+        // * The include-props tag can only appear inside the include-html tag of a component.
+        // * The values of the props of the object representing the component can be accessed in the HTML markup of the 
+        // component in attributes or in innerText using the {prop-name} syntax. Example: <div>{myProp}</div>".
         customElements.define('include-props', class IncludePropsElement extends HTMLElement { }, { })
 
         // * Components can have vars, which are values that can be changed throughout the lifetime of the component object. The
         // values for the vars of an instance of a component can be set using the include-vars tag. The inner text of this
         // tag contans JSON used to inialize the vars.
         // * The include-vars tag can only appear inside the include-html tag of a component. 
+        // * The values of the vars of the object representing the component can be accessed in the HTML markup of the 
+        // component in attributes or in innerText using the {var-name} syntax. Example: <div>{myVar}</div>".
         customElements.define('include-vars', class IncludeVarsElement extends HTMLElement { }, { })
 
         // * Defines a custom component. Custom components must contain:
         //      * A script tag which contains the javascript for a class that extends the Component class. The script
         //       tag may optionally contain additonal javascript.
-        //      * A component-markup that provides the HTML markup for the component.
+        //      * A component-markup that provides the HTML markup for the component. The component-markup tag may optionally
+        //       contain one or more component-slot tags.
         // * A custom-component tag may also contain:
         //      * A test-script tag that contains testing code for the tag.
         //      * A style tag that contains CSS. This is usually CSS used by the component.

@@ -9,7 +9,6 @@
 
                 this.props.isPassword = `password` === this.vars.type.toLowerCase()
                 this.vars.valid = false
-                console.log(`${this.id}  ${this.props.list}`)
             }
             afterMount() { 
                 let wrapper = document.getElementById(`${this.id}Wrapper`)
@@ -148,10 +147,11 @@
                 ]
 
                 if (this.vars.customValidationTests && Array.isArray(this.vars.customValidationTests) && 0 < this.vars.customValidationTests.length) {
-                    testArray = testArray.concat(this.vars.customValidationTests)
+                    let customTestArray = await test (`Custom tests`, `Ensure field passes custom tests.`, this.vars.customValidationTests )
+                    testArray.push(customTestArray)
                 }
 
-                let results = await suite(`Test field contents oninput`, `Ensure field meets all requirements.`, testArray)
+                let results = await suite(`Validate field.`, `Ensure field meets all requirements.`, testArray)
                 this.vars.valid = (0 === results.failCount)
                 if (this.vars.valid) { 
                     const newTextDataEvent = new CustomEvent(

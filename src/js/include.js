@@ -416,7 +416,7 @@ class ComponentLifecycle {
         }
         return componentObject
     }
-    static registerComponentObject = (componentClass, componentObjectId, componentObject) => {
+    static registerComponentObject = (componentClass, componentObjectId, componentObject, includeElement) => {
         if (!componentObjectId) { 
             console.error(`registerComponentObject: No component object id provided for component object registration.`)
             return false 
@@ -427,6 +427,10 @@ class ComponentLifecycle {
         }
         if (!componentClass) { 
             console.error(`registerComponentObject: No fragment id provided for component object registration.`)
+            return false 
+        }
+        if (!includeElement) { 
+            console.error(`registerComponentObject: No include element provided for component object registration.`)
             return false 
         }
         if (window?.$components?.objectRegistry?.has(componentObjectId)) { 
@@ -450,7 +454,7 @@ class ComponentLifecycle {
         for (let loop = clonedMarkup.children.length - 1; loop >= 0; loop--) {
             let originalChild = markup.children[loop]
             let clonedChild = clonedMarkup.children[loop]
-            const setEventHamdler = (node, event) => {
+            const setEventHandler = (node, event) => {
                 let eventHandlerText = node.getAttribute(event)
 
                 if (eventHandlerText && -1 !== eventHandlerText.indexOf(`$obj.`)) {
@@ -458,66 +462,83 @@ class ComponentLifecycle {
                     node.setAttribute(event, eventHandlerText)
                 }
                 for (const nodeChild of node.children) {
-                    setEventHamdler(nodeChild, event)
+                    setEventHandler(nodeChild, event)
                 }
             }
+            const copyAttributes = (includeElementSrc, clonedChildDest) => {
+                for (let attributeLoop = 0; attributeLoop < includeElementSrc.attributes.length; attributeLoop++) {
+                    const attribute = includeElementSrc.attributes[attributeLoop]
+                    console.log(`attributeLoop: ${attributeLoop} attributes.length: ${includeElementSrc.attributes.length} attribute.name: ${attribute.name} attribute.value: ${attribute.value}`)
+                    if (`include-in` === attribute.name) { continue }
+                    if (`src` === attribute.name) { continue }
+                    if (`component-class` === attribute.name) { continue }
+                    if (`component-id` === attribute.name) { continue }
+                    if (`repeat` === attribute.name) { continue }
+
+                    const attributeValue = ``
+
+                    if (clonedChildDest.hasAttribute(attribute.name)) { attributeValue = clonedChildDest.getAttribute(attribute.name) }
+                    clonedChildDest.setAttribute(attribute.name, attributeValue + attribute.value)
+                }
+            }
+            if (0 === loop) { copyAttributes(includeElement, clonedChild) }
 
             componentDOM.push(clonedChild)
-            setEventHamdler(clonedChild, `onblur`)
-            setEventHamdler(clonedChild, `onchange`)
-            setEventHamdler(clonedChild, `oncontextmenu`)
-            setEventHamdler(clonedChild, `onfocus`)
-            setEventHamdler(clonedChild, `oninput`)
-            setEventHamdler(clonedChild, `oninvalid`)
-            setEventHamdler(clonedChild, `onreset`)
-            setEventHamdler(clonedChild, `onsearch`)
-            setEventHamdler(clonedChild, `onselect`)
-            setEventHamdler(clonedChild, `onsubmit`)
-            setEventHamdler(clonedChild, `onkeydown`)
-            setEventHamdler(clonedChild, `onkeyup`)
-            setEventHamdler(clonedChild, `onclick`)
-            setEventHamdler(clonedChild, `ondblclick`)
-            setEventHamdler(clonedChild, `onmousedown`)
-            setEventHamdler(clonedChild, `onmousemove`)
-            setEventHamdler(clonedChild, `onmouseout`)
-            setEventHamdler(clonedChild, `onmouseover`)
-            setEventHamdler(clonedChild, `onmouseup`)
-            setEventHamdler(clonedChild, `onwheel`)
-            setEventHamdler(clonedChild, `ondrag`)
-            setEventHamdler(clonedChild, `ondragend`)
-            setEventHamdler(clonedChild, `ondragenter`)
-            setEventHamdler(clonedChild, `ondragleave`)
-            setEventHamdler(clonedChild, `ondragover`)
-            setEventHamdler(clonedChild, `ondragstart`)
-            setEventHamdler(clonedChild, `ondrop`)
-            setEventHamdler(clonedChild, `onscroll`)
-            setEventHamdler(clonedChild, `oncopy`)
-            setEventHamdler(clonedChild, `oncut`)
-            setEventHamdler(clonedChild, `onpaste`)
-            setEventHamdler(clonedChild, `onabort`)
-            setEventHamdler(clonedChild, `oncanplay`)
-            setEventHamdler(clonedChild, `oncanplaythrough`)
-            setEventHamdler(clonedChild, `oncuechange`)
-            setEventHamdler(clonedChild, `ondurationchange`)
-            setEventHamdler(clonedChild, `onemptied`)
-            setEventHamdler(clonedChild, `onended`)
-            setEventHamdler(clonedChild, `onerror`)
-            setEventHamdler(clonedChild, `onloadeddata`)
-            setEventHamdler(clonedChild, `onloadedmetadata`)
-            setEventHamdler(clonedChild, `onloadstart`)
-            setEventHamdler(clonedChild, `onpause`)
-            setEventHamdler(clonedChild, `onplay`)
-            setEventHamdler(clonedChild, `onplaying`)
-            setEventHamdler(clonedChild, `onprogress`)
-            setEventHamdler(clonedChild, `onratechange`)
-            setEventHamdler(clonedChild, `onseeked`)
-            setEventHamdler(clonedChild, `onseeking`)
-            setEventHamdler(clonedChild, `onstalled`)
-            setEventHamdler(clonedChild, `onsuspend`)
-            setEventHamdler(clonedChild, `ontimeupdate`)
-            setEventHamdler(clonedChild, `onvolumechange`)
-            setEventHamdler(clonedChild, `onwaiting`)
-            setEventHamdler(clonedChild, `ontoggle`)
+            setEventHandler(clonedChild, `onblur`)
+            setEventHandler(clonedChild, `onchange`)
+            setEventHandler(clonedChild, `oncontextmenu`)
+            setEventHandler(clonedChild, `onfocus`)
+            setEventHandler(clonedChild, `oninput`)
+            setEventHandler(clonedChild, `oninvalid`)
+            setEventHandler(clonedChild, `onreset`)
+            setEventHandler(clonedChild, `onsearch`)
+            setEventHandler(clonedChild, `onselect`)
+            setEventHandler(clonedChild, `onsubmit`)
+            setEventHandler(clonedChild, `onkeydown`)
+            setEventHandler(clonedChild, `onkeyup`)
+            setEventHandler(clonedChild, `onclick`)
+            setEventHandler(clonedChild, `ondblclick`)
+            setEventHandler(clonedChild, `onmousedown`)
+            setEventHandler(clonedChild, `onmousemove`)
+            setEventHandler(clonedChild, `onmouseout`)
+            setEventHandler(clonedChild, `onmouseover`)
+            setEventHandler(clonedChild, `onmouseup`)
+            setEventHandler(clonedChild, `onwheel`)
+            setEventHandler(clonedChild, `ondrag`)
+            setEventHandler(clonedChild, `ondragend`)
+            setEventHandler(clonedChild, `ondragenter`)
+            setEventHandler(clonedChild, `ondragleave`)
+            setEventHandler(clonedChild, `ondragover`)
+            setEventHandler(clonedChild, `ondragstart`)
+            setEventHandler(clonedChild, `ondrop`)
+            setEventHandler(clonedChild, `onscroll`)
+            setEventHandler(clonedChild, `oncopy`)
+            setEventHandler(clonedChild, `oncut`)
+            setEventHandler(clonedChild, `onpaste`)
+            setEventHandler(clonedChild, `onabort`)
+            setEventHandler(clonedChild, `oncanplay`)
+            setEventHandler(clonedChild, `oncanplaythrough`)
+            setEventHandler(clonedChild, `oncuechange`)
+            setEventHandler(clonedChild, `ondurationchange`)
+            setEventHandler(clonedChild, `onemptied`)
+            setEventHandler(clonedChild, `onended`)
+            setEventHandler(clonedChild, `onerror`)
+            setEventHandler(clonedChild, `onloadeddata`)
+            setEventHandler(clonedChild, `onloadedmetadata`)
+            setEventHandler(clonedChild, `onloadstart`)
+            setEventHandler(clonedChild, `onpause`)
+            setEventHandler(clonedChild, `onplay`)
+            setEventHandler(clonedChild, `onplaying`)
+            setEventHandler(clonedChild, `onprogress`)
+            setEventHandler(clonedChild, `onratechange`)
+            setEventHandler(clonedChild, `onseeked`)
+            setEventHandler(clonedChild, `onseeking`)
+            setEventHandler(clonedChild, `onstalled`)
+            setEventHandler(clonedChild, `onsuspend`)
+            setEventHandler(clonedChild, `ontimeupdate`)
+            setEventHandler(clonedChild, `onvolumechange`)
+            setEventHandler(clonedChild, `onwaiting`)
+            setEventHandler(clonedChild, `ontoggle`)
             ComponentLifecycle.copyOriginalNodeValues(originalChild, clonedChild)
             ComponentLifecycle.copyOriginalNodeAttributes(originalChild, clonedChild)
         }
@@ -849,7 +870,7 @@ class Loader {
             return false
         }
 
-        let componentObjectRegistered = ComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
+        let componentObjectRegistered = ComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject, include)
 
         if (!componentObjectRegistered) {
             console.error(`loadIncludeComponent: Failed to register component object. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
@@ -891,7 +912,6 @@ class Loader {
         customElements.define('include-props', class IncludePropsElement extends HTMLElement { }, { })
         customElements.define('include-vars', class IncludeVarsElement extends HTMLElement { }, { })
         // TO DO: Add support for the following tags
-        customElements.define('include-attributes', class IncludeVarsElement extends HTMLElement { }, { })
         customElements.define('include-slot', class IncludeVarsElement extends HTMLElement { }, { })
     }
 }

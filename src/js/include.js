@@ -1009,7 +1009,7 @@ class Loader {
         // * A custom-component tag may also contain:
         //      * A test-script tag that contains testing code for the tag.
         //      * A style tag that contains CSS. This is usually CSS used by the component.
-        customElements.define('custom-component', class VanillaComponentElement extends HTMLElement { }, { })
+        customElements.define('custom-component', class CustomComponentElement extends HTMLElement { }, { })
 
         // * Contains tests for the component. In normal web pages, this section will be removed from the DOM
         // when the tag is downloaded. On a testing page, the tests are executed.
@@ -1022,7 +1022,7 @@ class Loader {
         // * Slots are loaded after all incude tags have been processed.
         // * component-slot appears inside a component. It's only attribute is an id. It marks a location that can
         // accept content from a slot-markup tag.
-        customElements.define('component-slot', class ComponentMarkupElement extends HTMLElement { }, { })
+        customElements.define('component-slot', class ComponentSlotElement extends HTMLElement { }, { })
 
         // * A slot-markup tag apears anywhere in the body of the page outside of a component. The slot-markup tag
         // has for-component-id and for-slot attributes that indicate which slot it's associated with. All children 
@@ -1030,7 +1030,7 @@ class Loader {
         // done, the empty slot-markup and the component-slot tags are removed from the document.
         // * The contents of a slot-markup tag are associated only with the DOM elements of an instance of a component.
         // They are not associated with the DOM fragment.
-        customElements.define('slot-markup', class IncludeVarsElement extends HTMLElement { }, { })
+        customElements.define('slot-markup', class SlotMarkupElement extends HTMLElement { }, { })
     }
 }
 

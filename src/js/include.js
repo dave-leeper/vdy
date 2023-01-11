@@ -205,6 +205,7 @@ class ComponentLifecycle {
 
         componentObject.props.$propsStore = {...componentObject.props}
         for (let member of members) {
+            if (`$propsStore` === member) { continue }
             Object.defineProperty(componentObject.props, member, {
                 get: function() {
                     return componentObject.props.$propsStore[member]
@@ -222,6 +223,7 @@ class ComponentLifecycle {
 
         componentObject.vars.$varsStore = {...componentObject.vars}
         for (let member of members) {
+            if (`$varsStore` === member) { continue }
             Object.defineProperty(componentObject.vars, member, {
                 get: function() {
                     return componentObject.vars.$varsStore[member]

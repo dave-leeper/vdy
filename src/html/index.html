@@ -53,6 +53,9 @@
     </div>
     <div class="w33">
       <include-html include-in="index.html" src="./html/components/reviews/write-review-button.html" component-class="WriteReviewButton" component-id="WriteReviewButton"></include-html>
+      <include-html include-in="index.html" src="./html/components/calendar.html" component-class="Calendar" component-id="Calendar">
+        <include-vars class="display-none">{ year: 2023, month: 0 }</include-vars>
+      </include-html>
       <div class="w100 h20px"></div>
       <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList"></include-html>
     </div>

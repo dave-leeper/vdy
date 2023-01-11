@@ -1,0 +1,135 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/Calendar.html
+        class Calendar extends Component {
+            initialize(id) {
+                super.initialize(id)
+                this.createCalendar()
+            }
+            afterMount() {
+                this.setCalendar()
+                super.afterMount()
+            }
+            createCalendar() {
+                let year = this.vars.year
+                let month = this.vars.month
+                let date = new Date(year, month)                    
+                let table = `<table class="calendar"><tr class="header"><th class="cell">SU</th><th class="cell">MO</th><th class="cell">TU</th><th class="cell">WE</th><th class="cell">TH</th><th class="cell">FR</th><th class="cell">SA</th></tr><tr>`
+                const isDateBeforeToday = (date) => {
+                    const now = new Date()
+
+                    if (now.getFullYear() > date.getFullYear()) { return true }
+                    if (now.getFullYear() < date.getFullYear()) { return false }
+                    if (now.getMonth() > date.getMonth()) { return true }
+                    if (now.getMonth() < date.getMonth()) { return false }
+                    if (now.getDate() > date.getDate()) { return true }
+                    return false
+                }
+
+                this.vars.monthName = new Date(year, month, 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' });
+
+                // spaces for the first row
+                // from Sunday till the first day of the month
+                // * * * 1  2  3  4
+                for (let loop = 0; loop < date.getDay(); loop++) { table += `<td class="cell"></td>` }
+
+                // <td> with actual dates
+                while (date.getMonth() == month) {
+                    const dateClass = isDateBeforeToday(date)? `past-cell` : `cell`
+
+                    table += `<td class="${dateClass}">` + date.getDate() + `</td>`
+                    if (date.getDay() % 7 == 6) { table += `</tr><tr>` }     // sunday, last day of week - newline
+                    date.setDate(date.getDate() + 1)
+                }
+
+                // add spaces after last days of month for the last row
+                // 29 30 31 * * * *
+                if (date.getDay() != 0) {
+                    for (let loop = date.getDay(); loop < 7; loop++) { table += `<td class="cell"></td>` }
+                }
+
+                // close the table
+                table += `</tr></table>`
+                this.tableHTML = table
+            }
+            setCalendar() {
+                if (!this.tableHTML) { return }
+                
+                const calendarBody = document.getElementById(`${this.id}Body`)
+                calendarBody.innerHTML = this.tableHTML
+            }
+            resetCalendar() {
+                this.createCalendar()
+                this.setCalendar()
+            }
+            subtractMonth() {
+                let date = new Date(this.vars.year, this.vars.month, 1, 0, 0, 0, 0)
+
+                date.setMonth(date.getMonth() - 1)
+                this.vars.year = date.getFullYear()
+                this.vars.month = date.getMonth()
+                this.resetCalendar()
+            }
+            addMonth() {
+                let date = new Date(this.vars.year, this.vars.month, 1, 0, 0, 0, 0)
+
+                date.setMonth(date.getMonth() + 1)
+                this.vars.year = date.getFullYear()
+                this.vars.month = date.getMonth()
+                this.resetCalendar()
+            }
+            props = {
+                pastDatesAreGray: true
+            }
+            vars = {
+                year: 0,
+                month: 0,
+                monthName: ``
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+        .calendar {
+            border-collapse: collapse;
+        }
+
+        .calendar-title {
+            width: 201px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .cell {
+            padding: 3px;
+            font-weight: var(--text-1-font-weight);
+            text-align: center;
+            color: black;
+            cursor: default;
+        }
+
+        .past-cell {
+            padding: 3px;
+            font-weight: var(--text-1-font-weight);
+            text-align: center;
+            color: var(--gray-a);
+            cursor: default;
+        }
+
+        .header {
+            font-weight: var(--text-1-font-weight);
+            background-color: var(--blue-50);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-col">
+            <div id="{id}TitleBar" class="flex-row flex-space-between flex-align-baseline calendar-title">
+                <div id="{id}PreviousMonthButton" class="button" onclick="$obj.subtractMonth()">&lt</div>
+                <div id="{id}Title" class="cursor-default">{monthName} {year}</div>
+                <div id="{id}NextMonthButton" class="button" onclick="$obj.addMonth()">&gt</div>
+            </div>
+            <div id="{id}Body"></div>
+        </div>
+    </component-markup>
+</custom-component>

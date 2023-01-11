@@ -227,9 +227,12 @@ class ComponentLifecycle {
                     return componentObject.vars.$varsStore[member]
                 },
                 set: function(newValue) {
+                    const oldValue = componentObject.vars.$varsStore[member]
+
                     componentObject.vars.$varsStore[member] = newValue
                     ComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)
                     ComponentLifecycle.replaceAttributeValue(componentFragment, componentObject.vars, member)
+                    Queue.broadcast(Messages.VALUE_CHANGED, { componentObject, member, oldValue, newValue})
                 }
             })
             ComponentLifecycle.replaceNodeValue(componentFragment, componentObject.vars, member)

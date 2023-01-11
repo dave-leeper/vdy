@@ -1,0 +1,20 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/RadioButton.html
+        class RadioButton extends Component {
+            props = {
+                label: ``,
+                name: ``,
+                value: ``
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <input id="{id}" type="radio"  name="{name}" value="{value}">
+        <label id="{id}Label" for="{id}">{label}</label>
+    </component-markup>
+</custom-component>

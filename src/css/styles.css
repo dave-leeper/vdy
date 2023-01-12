@@ -185,10 +185,12 @@
     --snackbar-error-z-index: 10;
 
     --calendar-card-flex: column;
-    --calendar-card-shadow: box-shadow: 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;
-    --calandar-card-border-radius: 15px;
-    --calandar-card-padding: 5px;
-    --calandar-card-margin: 5px;
+    --calendar-card-width: 220px;
+    --calendar-card-overflow: hidden ;
+    --calendar-card-shadow: 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;
+    --calendar-card-border-radius: 15px;
+    --calendar-card-padding: 5px;
+    --calendar-card-margin: 5px;
 
     --calendar-border-collapse: collapse;
 

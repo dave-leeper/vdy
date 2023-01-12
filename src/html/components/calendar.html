@@ -38,7 +38,7 @@
 
                 this.vars.monthName = new Date(year, month, 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' });
 
-                // Empty cells for the first row until the first day of the month
+                // Add empty cells for the first row until the first day of the month
                 for (let loop = 0; loop < date.getDay(); loop++) { table += `${cellBegin}${cellEnd}` }
 
                 // Cells with actual dates
@@ -50,7 +50,7 @@
                     date.setDate(date.getDate() + 1)
                 }
 
-                // Add empty cell after last days of month for the last row
+                // Add empty cells after last days of month for the last row
                 if (date.getDay() != 0) {
                     for (let loop = date.getDay(); loop < 7; loop++) { table += `${cellBegin}${cellEnd}` }
                 }
@@ -97,12 +97,21 @@
     <test-script>
     </test-script>
     <style>
+        .calendar-card {
+            flex: var(--calendar-card-flex);
+            box-shadow: var(--calendar-card-shadow);
+            border-radius: var(--calendar-card-border-radius);
+            padding: var(--calendar-card-padding);
+            margin: var(--calendar-card-margin);
+        }
+        
         .calendar {
             border-collapse: var(--calendar-border-collapse);
         }
 
         .calendar-title {
-            flex: var(--calendar-title-flex);
+            display: var(--calendar-title-display);
+            flex-direction: var(--calendar-title-flex-direction);
             justify-content: var(--calendar-title-flex-justify-content);
             align-items: var(--calendar-title-flex-align-items);
             width: var(--calendar-title-width);
@@ -168,11 +177,11 @@
         }
     </style>
     <component-markup>
-        <div id="{id}" class="flex-col">
-            <div id="{id}TitleBar" class="flex-row flex-space-between flex-align-baseline calendar-title">
-                <div id="{id}PreviousMonthButton" class="button" onclick="$obj.subtractMonth()">&lt</div>
-                <div id="{id}Title" class="cursor-default">{monthName} {year}</div>
-                <div id="{id}NextMonthButton" class="button" onclick="$obj.addMonth()">&gt</div>
+        <div id="{id}" class="calendar-card">
+            <div id="{id}TitleBar" class="calendar-title">
+                <div id="{id}PreviousMonthButton" class="button w30px" onclick="$obj.subtractMonth()">&lt</div>
+                <div id="{id}Title">{monthName} {year}</div>
+                <div id="{id}NextMonthButton" class="button w30px" onclick="$obj.addMonth()">&gt</div>
             </div>
             <div id="{id}Body"></div>
         </div>

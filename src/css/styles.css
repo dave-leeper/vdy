@@ -184,9 +184,16 @@
     --snackbar-error-top: 30px;
     --snackbar-error-z-index: 10;
 
+    --calendar-card-flex: column;
+    --calendar-card-shadow: box-shadow: 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;
+    --calandar-card-border-radius: 15px;
+    --calandar-card-padding: 5px;
+    --calandar-card-margin: 5px;
+
     --calendar-border-collapse: collapse;
 
-    --calendar-title-flex: row;
+    --calendar-title-display: flex;
+    --calendar-title-flex-direction: row;
     --calendar-title-flex-justify-content: space-between;
     --calendar-title-flex-align-items: baseline;
     --calendar-title-width: 210px;

@@ -183,6 +183,64 @@
     --snackbar-error-left: 50%;
     --snackbar-error-top: 30px;
     --snackbar-error-z-index: 10;
+
+    --calendar-border-collapse: collapse;
+
+    --calendar-title-flex: row;
+    --calendar-title-flex-justify-content: space-between;
+    --calendar-title-flex-align-items: baseline;
+    --calendar-title-width: 210px;
+    --calendar-title-height: 30px;
+    --calendar-title-color: black;
+    --calendar-title-text-align: center;
+    --calendar-title-font-family: var(--primary-font-family);
+    --calendar-title-font-size: var(--text-2-font-size);
+    --calendar-title-font-weight: var(--text-2-font-weight);
+    --calendar-title-margin-bottom: 10px;
+    --calendar-title-cursor: default;
+
+    --calendar-header-width: 210px;
+    --calendar-header-height: 30px;
+    --calendar-header-color: black;
+    --calendar-header-background-color: var(--blue-50);
+    --calendar-header-text-align: center;
+    --calendar-header-font-family: var(--primary-font-family);
+    --calendar-header-font-size: var(--text-2-font-size);
+    --calendar-header-font-weight: var(--text-1-font-weight);
+    --calendar-header-cursor: default;
+
+    --calendar-header-cell-width: 30px;
+    --calendar-header-cell-height: 30px;
+    --calendar-header-cell-color: black;
+    --calendar-header-cell-background-color: white;
+    --calendar-header-cell-text-align: center;
+    --calendar-header-cell-font-family: var(--primary-font-family);
+    --calendar-header-cell-font-size: var(--text-2-font-size);
+    --calendar-header-cell-font-weight: var(--text-1-font-weight);
+    --calendar-header-cell-cursor: default;
+    --calendar-header-cell-padding: 3px;
+
+    --calendar-cell-width: 30px;
+    --calendar-cell-height: 30px;
+    --calendar-cell-color: black;
+    --calendar-cell-background-color: white;
+    --calendar-cell-text-align: center;
+    --calendar-cell-font-family: var(--primary-font-family);
+    --calendar-cell-font-size: var(--text-2-font-size);
+    --calendar-cell-font-weight: var(--text-1-font-weight);
+    --calendar-cell-cursor: pointer;
+    --calendar-cell-padding: 3px;
+
+    --calendar-past-cell-width: 30px;
+    --calendar-past-cell-height: 30px;
+    --calendar-past-cell-color: var(--gray-a);
+    --calendar-past-cell-background-color: white;
+    --calendar-past-cell-text-align: center;
+    --calendar-past-cell-font-family: var(--primary-font-family);
+    --calendar-past-cell-font-size: var(--text-2-font-size);
+    --calendar-past-cell-font-weight: var(--text-1-font-weight);
+    --calendar-past-cell-cursor: default;
+    --calendar-past-cell-padding: 3px;
   }
 
   body {
@@ -212,6 +270,8 @@
   .columns-2 {columns: 2;}      .columns-3 {columns: 3;}      .columns-4 {columns: 4;}          .columns-5 {columns: 5;}          .columns-6 {columns: 6;}
   .columns-7 {columns: 7;}      .columns-8 {columns: 8;}      .columns-9 {columns: 9;}          .columns-10 {columns: 10;}        .columns-11 {columns: 11;}
   .columns-12 {columns: 12;}    .column-span-all {column-span: all;}                            .column-span-none {column-span: none;}
+
+  .table-border-collapse { border-collapse: collapse; }               .table-border-separate  { border-collapse: separate; }
 
   .font-size-9 {font-size: 9px}     .font-size-10 {font-size: 10px}   .font-size-11 {font-size: 11px}   .font-size-12 {font-size: 12px}   .font-size-16 {font-size: 16px}
   .font-size-18 {font-size: 18px}   .font-size-20 {font-size: 20px}   .font-size-24 {font-size: 24px}   .font-size-30 {font-size: 30px}   .font-size-36 {font-size: 36px}

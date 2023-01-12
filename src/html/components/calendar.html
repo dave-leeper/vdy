@@ -13,8 +13,18 @@
             createCalendar() {
                 let year = this.vars.year
                 let month = this.vars.month
-                let date = new Date(year, month)                    
-                let table = `<table class="calendar"><tr class="header"><th class="cell">SU</th><th class="cell">MO</th><th class="cell">TU</th><th class="cell">WE</th><th class="cell">TH</th><th class="cell">FR</th><th class="cell">SA</th></tr><tr>`
+                let date = new Date(year, month)
+                const tableBegin = `<table class="calendar">`                    
+                const tableEnd = `</table>`                    
+                const rowBegin = `<tr class="header">`                    
+                const rowEnd = `<tr>`                    
+                const headerCellBegin = `<th class="header-cell">`                    
+                const headerCellEnd = `</th>`                    
+                const cellBegin = `<td class="cell">`                    
+                const cellEnd = `</td>`                    
+                const pastCellBegin = `<td class="past-cell">`                    
+                const pastCellEnd = `</td>`                    
+                let table = `${tableBegin}${rowBegin}${headerCellBegin}SU${headerCellEnd}${headerCellBegin}MO${headerCellEnd}${headerCellBegin}TU${headerCellEnd}${headerCellBegin}WE${headerCellEnd}${headerCellBegin}TH${headerCellEnd}${headerCellBegin}FR${headerCellEnd}${headerCellBegin}SA${headerCellEnd}${rowEnd}${rowBegin}`
                 const isDateBeforeToday = (date) => {
                     const now = new Date()
 
@@ -28,28 +38,24 @@
 
                 this.vars.monthName = new Date(year, month, 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' });
 
-                // spaces for the first row
-                // from Sunday till the first day of the month
-                // * * * 1  2  3  4
-                for (let loop = 0; loop < date.getDay(); loop++) { table += `<td class="cell"></td>` }
+                // Empty cells for the first row until the first day of the month
+                for (let loop = 0; loop < date.getDay(); loop++) { table += `${cellBegin}${cellEnd}` }
 
-                // <td> with actual dates
+                // Cells with actual dates
                 while (date.getMonth() == month) {
-                    const dateClass = isDateBeforeToday(date)? `past-cell` : `cell`
+                    const begin = isDateBeforeToday(date)? pastCellBegin : cellBegin
 
-                    table += `<td class="${dateClass}">` + date.getDate() + `</td>`
-                    if (date.getDay() % 7 == 6) { table += `</tr><tr>` }     // sunday, last day of week - newline
+                    table += `${begin}${date.getDate()}${cellEnd}`
+                    if (date.getDay() % 7 == 6) { table += `${rowEnd}${rowBegin}` }     // sunday, last day of week - newline
                     date.setDate(date.getDate() + 1)
                 }
 
-                // add spaces after last days of month for the last row
-                // 29 30 31 * * * *
+                // Add empty cell after last days of month for the last row
                 if (date.getDay() != 0) {
-                    for (let loop = date.getDay(); loop < 7; loop++) { table += `<td class="cell"></td>` }
+                    for (let loop = date.getDay(); loop < 7; loop++) { table += `${cellBegin}${cellEnd}` }
                 }
 
-                // close the table
-                table += `</tr></table>`
+                table += `${rowEnd}${tableEnd}`
                 this.tableHTML = table
             }
             setCalendar() {
@@ -82,9 +88,9 @@
                 pastDatesAreGray: true
             }
             vars = {
-                year: 0,
-                month: 0,
-                monthName: ``
+                year: new Date().getFullYear(),
+                month: new Date().getMonth(),
+                monthName: new Date(new Date().getFullYear(), new Date().getMonth(), 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' })
             }
         }
     </script>
@@ -92,34 +98,73 @@
     </test-script>
     <style>
         .calendar {
-            border-collapse: collapse;
+            border-collapse: var(--calendar-border-collapse);
         }
 
         .calendar-title {
-            width: 201px;
-            text-align: center;
-            margin-bottom: 10px;
+            flex: var(--calendar-title-flex);
+            justify-content: var(--calendar-title-flex-justify-content);
+            align-items: var(--calendar-title-flex-align-items);
+            width: var(--calendar-title-width);
+            height: var(--calendar-title-height);
+            color: var(--calendar-title-text-align);
+            text-align: var(--calendar-title-text-align);
+            font-family: var(--calendar-title-font-family);
+            font-size: var(--calendar-title-font-size);
+            font-weight: var(--calendar-title-font-weight);
+            margin-bottom: var(--calendar-title-margin-bottom);
+            cursor: var(--calendar-title-cursor);
+        }
+ 
+        .header {
+            width: var(--calendar-header-width);
+            height: var(--calendar-header-height);
+            color: var(--calendar-header-color);
+            background-color: var(--calendar-header-background-color);
+            text-align: var(--calendar-header-text-align);
+            font-family: var(--calendar-header-font-family);
+            font-size: var(--calendar-header-font-size);
+            font-weight: var(--calendar-header-font-weight);
+            cursor: var(--calendar-header-cursor);
+        }
+
+        .header-cell {
+            width: var(--calendar-header-cell-width);
+            height: var(--calendar-header-cell-height);
+            color: var(--calendar-header-cell-color);
+            background-color: var(--calendar-header-cell-background-color);
+            text-align: var(--calendar-header-cell-text-align);
+            font-family: var(--calendar-header-cell-font-family);
+            font-size: var(--calendar-header-cell-font-size);
+            font-weight: var(--calendar-header-cell-font-weight);
+            cursor: var(--calendar-header-cell-cursor);
+            padding: var(--calendar-header-cell-padding);
         }
 
         .cell {
-            padding: 3px;
-            font-weight: var(--text-1-font-weight);
-            text-align: center;
-            color: black;
-            cursor: default;
+            width: var(--calendar-cell-width);
+            height: var(--calendar-cell-height);
+            color: var(--calendar-cell-color);
+            background-color: var(--calendar-cell-background-color);
+            text-align: var(--calendar-cell-text-align);
+            font-family: var(--calendar-cell-font-family);
+            font-size: var(--calendar-cell-font-size);
+            font-weight: var(--calendar-cell-font-weight);
+            cursor: var(--calendar-cell-cursor);
+            padding: var(--calendar-cell-padding);
         }
 
         .past-cell {
-            padding: 3px;
-            font-weight: var(--text-1-font-weight);
-            text-align: center;
-            color: var(--gray-a);
-            cursor: default;
-        }
-
-        .header {
-            font-weight: var(--text-1-font-weight);
-            background-color: var(--blue-50);
+            width: var(--calendar-past-cell-width);
+            height: var(--calendar-past-cell-height);
+            color: var(--calendar-past-cell-color);
+            background-color: var(--calendar-past-cell-background-color);
+            text-align: var(--calendar-past-cell-text-align);
+            font-family: var(--calendar-past-cell-font-family);
+            font-size: var(--calendar-past-cell-font-size);
+            font-weight: var(--calendar-past-cell-font-weight);
+            cursor: var(--calendar-past-cell-cursor);
+            padding: var(--calendar-past-cell-padding);
         }
     </style>
     <component-markup>

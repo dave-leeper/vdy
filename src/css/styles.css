@@ -239,6 +239,8 @@
     --calendar-cell-font-weight: var(--text-1-font-weight);
     --calendar-cell-cursor: pointer;
     --calendar-cell-padding: 3px;
+    --calendar-cell-background: radial-gradient(ellipse at center,  var(--blue-50) 0%,var(--blue-50) 47%,var(--blue-50) 47%,white 47%,white 48%);
+
 
     --calendar-past-cell-width: 30px;
     --calendar-past-cell-height: 30px;

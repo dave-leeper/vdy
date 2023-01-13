@@ -13,14 +13,16 @@
             createCalendar() {
                 let year = this.vars.year
                 let month = this.vars.month
-                let date = new Date(year, month)
+                let day = this.vars.day
+                let date = new Date(year, month, day)
+                let dayOfTheMonth = new Date(year, month, 1, 0, 0, 0, 0)
                 const tableBegin = `<table class="calendar">`                    
                 const tableEnd = `</table>`                    
                 const rowBegin = `<tr class="header">`                    
                 const rowEnd = `<tr>`                    
                 const headerCellBegin = `<th class="header-cell">`                    
                 const headerCellEnd = `</th>`                    
-                const cellBegin = `<td class="cell">`                    
+                const cellBegin = `<td class="cell"`                    
                 const cellEnd = `</td>`                    
                 const pastCellBegin = `<td class="past-cell">`                    
                 const pastCellEnd = `</td>`                    
@@ -36,23 +38,25 @@
                     return false
                 }
 
-                this.vars.monthName = new Date(year, month, 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' });
+                this.vars.monthName = dayOfTheMonth.toLocaleString('default', { month: 'long' });
 
                 // Add empty cells for the first row until the first day of the month
-                for (let loop = 0; loop < date.getDay(); loop++) { table += `${cellBegin}${cellEnd}` }
+                for (let loop = 0; loop < dayOfTheMonth.getDay(); loop++) { table += `${cellBegin}>${cellEnd}` }
 
                 // Cells with actual dates
-                while (date.getMonth() == month) {
-                    const begin = isDateBeforeToday(date)? pastCellBegin : cellBegin
+                while (dayOfTheMonth.getMonth() == month) {
+                    const begin = isDateBeforeToday(dayOfTheMonth)? pastCellBegin : `${cellBegin} id="${this.id}Day_${dayOfTheMonth.getDate()}_${dayOfTheMonth.getMonth()}_${dayOfTheMonth.getFullYear()}" onclick="Component.getObject('${this.id}').toggleDateSelected(${dayOfTheMonth.getDate()}, ${dayOfTheMonth.getMonth()}, ${dayOfTheMonth.getFullYear()})">`
+                    const workingDate = dayOfTheMonth.getDate()
+                    const workingDay = dayOfTheMonth.getDay()
 
-                    table += `${begin}${date.getDate()}${cellEnd}`
-                    if (date.getDay() % 7 == 6) { table += `${rowEnd}${rowBegin}` }     // sunday, last day of week - newline
-                    date.setDate(date.getDate() + 1)
+                    table += `${begin}${workingDate}${cellEnd}`
+                    if (workingDay % 7 == 6) { table += `${rowEnd}${rowBegin}` }     // sunday, last day of week - newline
+                    dayOfTheMonth.setDate(workingDate + 1)
                 }
 
                 // Add empty cells after last days of month for the last row
                 if (date.getDay() != 0) {
-                    for (let loop = date.getDay(); loop < 7; loop++) { table += `${cellBegin}${cellEnd}` }
+                    for (let loop = date.getDay(); loop <= 7; loop++) { table += `${cellBegin}>${cellEnd}` }
                 }
 
                 table += `${rowEnd}${tableEnd}`
@@ -84,13 +88,28 @@
                 this.vars.month = date.getMonth()
                 this.resetCalendar()
             }
+            toggleDateSelected(day, month, year) {
+                if (null != this.vars.selectedDate) {
+                    let selectedCell = document.getElementById(`${this.id}Day_${this.vars.selectedDate.getDate()}_${this.vars.selectedDate.getMonth()}_${this.vars.selectedDate.getFullYear()}`)
+
+                    if (selectedCell) { selectedCell.classList.toggle(`cell-selected`) }
+                    
+                }
+
+                let selectedCell = document.getElementById(`${this.id}Day_${day}_${month}_${year}`)
+
+                selectedCell.classList.toggle(`cell-selected`)
+                this.vars.selectedDate = new Date(year, month, day)
+            }
             props = {
                 pastDatesAreGray: true
             }
             vars = {
                 year: new Date().getFullYear(),
                 month: new Date().getMonth(),
-                monthName: new Date(new Date().getFullYear(), new Date().getMonth(), 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' })
+                monthName: new Date(new Date().getFullYear(), new Date().getMonth(), 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' }),
+                day: new Date().getDate(),
+                selectedDate: null
             }
         }
     </script>
@@ -163,6 +182,10 @@
             font-weight: var(--calendar-cell-font-weight);
             cursor: var(--calendar-cell-cursor);
             padding: var(--calendar-cell-padding);
+        }
+
+        .cell-selected {
+            background: var(--calendar-cell-background);
         }
 
         .past-cell {

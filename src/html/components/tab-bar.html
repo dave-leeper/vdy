@@ -1,0 +1,93 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/TabBar.html
+        class TabBar extends Component {
+            afterMount() {
+                let tabWrapper = document.getElementById(this.id)
+
+                for (let tab of this.vars.tabs) {
+                    const click = () => { if (tab !== this.vars.tabs[this.vars.activeTab]) { 
+                        Queue.broadcast(Messages.ACTIVE_TAB_CHANGED, { tabBar: this, newActiveTab: tab } )
+                        this.setActiveTab(tab)
+                    }}
+                    let tabId = `${this.id}Tab${tab.replace(' ', '_')}`
+                    let tabHTML = `<div id="${tabId}" class="tab" onclick="Component.getObject('${this.id}').setActiveTab('${tab}')">${tab}</div>`
+                    var temp = document.createElement('div')
+
+                    temp.innerHTML = tabHTML
+                    tabWrapper.appendChild(temp.firstChild)
+                }
+                let activeTabName = this.vars.tabs[this.vars.activeTab]
+                let activeTabId = `${this.id}Tab${activeTabName.replace(' ', '_')}`
+                let activeTabElement = document.getElementById(activeTabId)
+
+                activeTabElement?.classList.toggle(`active-tab`)
+
+                super.afterMount()
+            }
+            setActiveTab(tabName) {
+                for (let loop = 0; loop < this.vars.tabs.length; loop++) {
+                    if (tabName !== this.vars.tabs[loop]) { continue }
+
+                    let previousActiveTabName = this.vars.tabs[this.vars.activeTab]
+                    let previousActiveTabId = `${this.id}Tab${previousActiveTabName.replace(' ', '_')}`
+                    let previousActiveTabElement = document.getElementById(previousActiveTabId)
+                    let newActiveTabName = this.vars.tabs[loop]
+                    let newActiveTabId = `${this.id}Tab${newActiveTabName.replace(' ', '_')}`
+                    let newActiveTabElement = document.getElementById(newActiveTabId)
+
+                    previousActiveTabElement?.classList.toggle(`active-tab`)
+                    newActiveTabElement?.classList.toggle(`active-tab`)
+                    this.vars.activeTab = loop
+                    break
+                }
+            }        
+            vars = {
+                tabs: [],
+                activeTab: 0
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+        :root {
+            --tab-display: flex;
+            --tab-justify-content: center;
+            --tab-align-items: center;
+            --tab-height: 20px;
+            --tab-color: var(--primary-text-color);
+            --tab-background-color: white;
+            --tab-active-background-color: var(--blue-50);
+            --tab-text-align: center;
+            --tab-font-family: var(--primary-font-family);
+            --tab-font-size: var(--text-2-font-size);
+            --tab-font-weight: var(--text-1-font-weight);
+            --tab-cursor: pointer;
+            --tab-padding: 0 3px 0 3px;
+            --tab-margin: 10px;
+        }        
+        .tab {
+            display: var(--tab-display);
+            justify-content: var(--tab-justify-content);
+            align-items: var(--tab-align-items);
+            height: var(--tab-height);
+            color: var(--tab-color);
+            background-color: var(--tab-background-color);
+            text-align: var(--tab-text-align);
+            font-family: var(--tab-font-family);
+            font-size: var(--tab-font-size);
+            font-weight: var(--tab-font-weight);
+            cursor: var(--tab-cursor);
+            padding: var(--tab-padding);
+            margin: var(--tab-margin);
+        }
+        .active-tab {
+            background-color: var(--tab-active-background-color);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-center">
+        </div>
+    </component-markup>
+</custom-component>

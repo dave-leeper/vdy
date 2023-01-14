@@ -225,6 +225,69 @@
     <test-script>
     </test-script>
     <style>
+        :root {
+            --text-field-color: var(--primary-text-color);
+            --text-field-padding: none;
+            --text-field-margin: 3px;
+            --text-field-cursor: text;
+            --text-field-font-family: var(--primary-font-family);
+            --text-field-font-size: var(--text-2-font-size);
+            --text-field-font-weight: var(--text-2-font-weight);
+            --text-field-background-color: var(--background-color);
+            --text-field-border-color: var(--blue-200);
+            --text-field-border-width: 2px;
+            --text-field-border-style: solid;
+            --text-field-border-radius: 0px;
+
+            --text-field-label-color: var(--primary-text-color);
+            --text-field-label-padding: none;
+            --text-field-label-margin: 3px;
+            --text-field-label-cursor: default;
+            --text-field-label-font-family: var(--primary-font-family);
+            --text-field-label-font-size: var(--text-2-font-size);
+            --text-field-label-font-weight: bold;
+            --text-field-label-background-color: var(--background-color);
+            --text-field-label-border-color: hidden;
+            --text-field-label-border-width: 0;
+            --text-field-label-border-style: none;
+            --text-field-label-border-radius: 0px;
+        }
+        .text-field {
+            color: var(--text-field-color);
+            border-radius: var(--text-field-border-radius);
+            padding: var(--text-field-padding);
+            margin: var(--text-field-margin);
+            cursor: var(--text-field-cursor);
+            font-family: var(--text-field-font-family);
+            font-size: var(--text-field-font-size);
+            font-weight: var(--text-field-font-weight);
+            background-color: var(--text-field-background-color);
+
+        }
+        .text-field:focus {
+            border-top-style: hidden;
+            border-right-style: hidden;
+            border-left-style: hidden;
+            border-bottom-color: var(--text-field-border-color);
+            border-bottom-width: var(--text-field-border-width);
+            border-bottom-style: var(--text-field-border-style);
+            outline: none;
+        }
+
+        .text-field-label {
+            color: var(--text-field-label-color);
+            padding: var(--text-field-label-padding);
+            margin: var(--text-field-label-margin);
+            cursor: var(--text-field-label-cursor);
+            font-family: var(--text-field-label-font-family);
+            font-size: var(--text-field-label-font-size);
+            font-weight: var(--text-field-label-font-weight);
+            background-color: var(--text-field-label-background-color);
+            border-color: var(--text-field-label-border-color);
+            border-width: var(--text-field-label-border-width);
+            border-style: var(--text-field-label-border-style);
+            border-radius: var(--text-field-label-border-radius);
+        }
     </style>
     <component-markup>
         <div id="{id}Wrapper">

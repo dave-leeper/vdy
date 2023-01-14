@@ -49,6 +49,9 @@
     </include-html>
     <div class="h300px margin-b-50">
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow"></include-html>
+      <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
+        <include-vars class="display-none">{ tabs: [`Tab 1`, `Tab 2`, `Tab 3`, `Tab 4`], activeTab: 0 }</include-vars>
+      </include-html>
       <div class="w100 h20px"></div>
     </div>
     <div class="w33">

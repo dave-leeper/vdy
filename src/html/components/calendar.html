@@ -92,8 +92,7 @@
                 if (null != this.vars.selectedDate) {
                     let selectedCell = document.getElementById(`${this.id}Day_${this.vars.selectedDate.getDate()}_${this.vars.selectedDate.getMonth()}_${this.vars.selectedDate.getFullYear()}`)
 
-                    if (selectedCell) { selectedCell.classList.toggle(`cell-selected`) }
-                    
+                    if (selectedCell) { selectedCell.classList.toggle(`cell-selected`) }    // Selected cell can disappear when month changes.
                 }
 
                 let selectedCell = document.getElementById(`${this.id}Day_${day}_${month}_${year}`)

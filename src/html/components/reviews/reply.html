@@ -16,6 +16,10 @@
                 })
                 super.afterMount()
             }
+            beforeUnmount() {
+                super.beforeUnmount()
+                ComponentLifecycle.unmount(`${this.id}ReplyHeader`)
+            }
             destroy() {
                 const replyHeaderObj = Component.getObject(`${this.id}ReplyHeader`)
 

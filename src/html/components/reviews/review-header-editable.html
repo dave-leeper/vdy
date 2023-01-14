@@ -33,6 +33,15 @@
                 })
                 super.afterMount()
             }
+            beforeUnmount() {
+                super.beforeUnmount()
+                ComponentLifecycle.unmount(`${this.id}EditableFirstName`)
+                ComponentLifecycle.unmount(`${this.id}EditableLastName`)
+                ComponentLifecycle.unmount(`${this.id}EditableCity`)
+                ComponentLifecycle.unmount(`${this.id}EditableState`)
+                ComponentLifecycle.unmount(`${this.id}Avatar`)
+                ComponentLifecycle.unmount(`${this.id}AvatarURL`)
+            }
             destroy() {
                 const firstNameObj = Component.getObject(`${this.id}EditableFirstName`)
                 const lastNameObj = Component.getObject(`${this.id}EditableLastName`)

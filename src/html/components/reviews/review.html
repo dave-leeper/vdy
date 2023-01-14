@@ -2,6 +2,13 @@
     <script>
         //# sourceURL=html/components/reviews/Review.html
         class Review extends Component {
+            beforeUnmount() {
+                super.beforeUnmount()
+                ComponentLifecycle.unmount(`${this.id}ReviewHeader`)
+                ComponentLifecycle.unmount(`${this.id}Stars`)
+                ComponentLifecycle.unmount(`${this.id}Review`)
+                ComponentLifecycle.unmount(`${this.id}UFC`)
+            }
             destroy() {
                 const reviewHeaderObj = Component.getObject(`${this.id}ReviewHeader`)
                 const starsObj = Component.getObject(`${this.id}Stars`)

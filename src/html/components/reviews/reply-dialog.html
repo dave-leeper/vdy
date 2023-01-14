@@ -24,6 +24,12 @@
                     this.vars.editingExistingReply = true
                 }
             }
+            beforeUnmount() {
+                super.beforeUnmount()
+                ComponentLifecycle.unmount(`${this.id}ReviewHeaderAvatar`)
+                ComponentLifecycle.unmount(`${this.id}ReviewHeader`)
+                ComponentLifecycle.unmount(`${this.id}Stars`)
+            }
             destroy() { 
                 ComponentLifecycle.destroyComponentObject(`${this.id}ReviewHeaderAvatar`)
                 ComponentLifecycle.destroyComponentObject(`${this.id}ReviewHeader`)

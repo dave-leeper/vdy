@@ -664,8 +664,9 @@ class ComponentLifecycle {
     static destroyComponentObject(componentObjectId) {
         let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
+        let component = Component.getObject(componentObjectId)
 
-        ComponentLifecycle.unmount(componentObjectId)
+        if (component && component.isMounted()) { ComponentLifecycle.unmount(componentObjectId) }
         ComponentLifecycle.unregisterComponentObject(componentObjectId)
         if (marker) { marker.remove() }
     }
@@ -753,6 +754,7 @@ class Component {
     afterMount() { Queue.broadcast(Messages.COMPONENT_AFTER_MOUNT, this )}
     beforeUnmount() { Queue.broadcast(Messages.COMPONENT_BEFORE_UNMOUNT, this )}
     afterUnmount() { Queue.broadcast(Messages.COMPONENT_AFTER_UNMOUNT, this )}
+    isMounted() { return window.$components.objectRegistry.get(this.id).mounted } 
     destroy() { 
         Queue.broadcast(Messages.COMPONENT_BEFORE_DESTRUCTION, this)
         ComponentLifecycle.destroyComponentObject(`${this.id}`) 

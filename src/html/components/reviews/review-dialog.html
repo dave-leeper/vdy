@@ -40,6 +40,11 @@
                 element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
                 super.afterMount()
             }
+            beforeUnmount() {
+                super.beforeUnmount()
+                ComponentLifecycle.unmount(`${this.id}ReviewHeader`)
+                ComponentLifecycle.unmount(`${this.id}Stars`)
+            }
             destroy() {
                 const reviewHeaderObj = Component.getObject(`${this.id}ReviewHeader`)
                 const starsObj = Component.getObject(`${this.id}Stars`)

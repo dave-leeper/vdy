@@ -1,0 +1,24 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reviews/TabBar.html
+        class TabBar extends Component {
+            afterMount() {
+                for (let tab of this.vars.tabs) {
+                    let tabHTML = `<div id="${this.id}Tab${tab}" class="tab">${tab}</div>`
+                }
+                super.afterMount()
+            }            
+            vars = {
+                tabs: [],
+            }
+        }
+    </script>
+    <test-script>
+    </test-script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-center">
+        </div>
+    </component-markup>
+</custom-component>

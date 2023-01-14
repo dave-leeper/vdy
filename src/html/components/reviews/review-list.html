@@ -10,6 +10,25 @@
                     this.fetchReviews()
                 })
             }
+            beforeUnmount() {
+                super.beforeUnmount()
+                ComponentLifecycle.unmount(`${this.id}Loading`)
+                this.unmountReviewsAndReplies()
+            }
+            unmountReviewsAndReplies() {
+                for (const reviewAndReply of this.vars.reviews) {
+                    if (reviewAndReply.reply) {
+                        const replyObj = Component.getObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
+
+                        if (replyObj) { ComponentLifecycle.unmount(`${replyObj.id}`) }
+                    }
+                    if (reviewAndReply.review) {
+                        const reviewObj = Component.getObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
+
+                        if (reviewObj) { ComponentLifecycle.unmount(`${reviewObj.id}`) }
+                    }
+                }
+            }
             destroy() {
                 const loadingObj = Component.getObject(`${this.id}Loading`)
 

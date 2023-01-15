@@ -52,6 +52,18 @@
       <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
         <include-vars class="display-none">{ tabs: [`Tab 1`, `Tab 2`, `Tab 3`, `Tab 4`], activeTab: 0 }</include-vars>
       </include-html>
+      <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="Tab1">
+        <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Tab 1` }</include-props>
+      </include-html>
+      <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="Tab2">
+        <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Tab 2` }</include-props>
+      </include-html>
+      <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="Tab3">
+        <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Tab 3` }</include-props>
+      </include-html>
+      <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="Tab4">
+        <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Tab 4` }</include-props>
+      </include-html>
       <div class="w100 h20px"></div>
     </div>
     <div class="w33">

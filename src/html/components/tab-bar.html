@@ -1,21 +1,20 @@
 <custom-component>
     <script>
-        //# sourceURL=html/components/TabBar.html
+        //# sourceURL=html/components/tab-bar.html
         class TabBar extends Component {
             afterMount() {
                 let tabWrapper = document.getElementById(this.id)
 
                 for (let tab of this.vars.tabs) {
-                    const click = () => { if (tab !== this.vars.tabs[this.vars.activeTab]) { 
-                        Queue.broadcast(Messages.ACTIVE_TAB_CHANGED, { tabBar: this, newActiveTab: tab } )
-                        this.setActiveTab(tab)
-                    }}
                     let tabId = `${this.id}Tab${tab.replace(' ', '_')}`
                     let tabHTML = `<div id="${tabId}" class="tab" onclick="Component.getObject('${this.id}').setActiveTab('${tab}')">${tab}</div>`
-                    var temp = document.createElement('div')
+                    let temp = document.createElement('div')
+                    const message = { tabBar: this, tab }
 
                     temp.innerHTML = tabHTML
                     tabWrapper.appendChild(temp.firstChild)
+                    if (tab ===  this.vars.tabs[0]) { Queue.broadcast(Messages.SHOW_TAB, message )}
+                    else { Queue.broadcast(Messages.HIDE_TAB, message )}
                 }
                 let activeTabName = this.vars.tabs[this.vars.activeTab]
                 let activeTabId = `${this.id}Tab${activeTabName.replace(' ', '_')}`
@@ -39,6 +38,8 @@
                     previousActiveTabElement?.classList.toggle(`active-tab`)
                     newActiveTabElement?.classList.toggle(`active-tab`)
                     this.vars.activeTab = loop
+                    Queue.broadcast(Messages.HIDE_TAB, { tabBar: this, tab: previousActiveTabName })
+                    Queue.broadcast(Messages.SHOW_TAB, { tabBar: this, tab: newActiveTabName })
                     break
                 }
             }        

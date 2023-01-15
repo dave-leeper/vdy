@@ -10,7 +10,7 @@
 
                     let tabElement = document.getElementById(this.id)
 
-                    tabElement.classList.remove(`display-none`)
+                    tabElement?.classList.remove(`display-none`)
                 })
                 Queue.register(this, Messages.HIDE_TAB, (message) => {
                     if (message.tabBar.id !== this.props.tabBarId) { return }
@@ -18,7 +18,7 @@
 
                     let tabElement = document.getElementById(this.id)
 
-                    tabElement.classList.add(`display-none`)
+                    tabElement?.classList.add(`display-none`)
                 })
             }
             props = {

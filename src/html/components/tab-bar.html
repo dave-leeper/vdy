@@ -2,6 +2,21 @@
     <script>
         //# sourceURL=html/components/tab-bar.html
         class TabBar extends Component {
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => {
+                    if (this.vars.initialTabMounted) { return }
+                    if (this.id !== component.props?.tabBarId) { return }
+                    this.vars.mountedTabCount++
+                    if (this.vars.mountedTabCount < this.vars.tabs.length) { return }
+
+                    const tab = this.vars.tabs[this.vars.activeTab]
+                    const message = { tabBar: this, tab }
+
+                    Queue.broadcast(Messages.SHOW_TAB, message )
+                    this.vars.initialTabMounted = true
+                })
+            }
             afterMount() {
                 let tabWrapper = document.getElementById(this.id)
 
@@ -42,10 +57,12 @@
                     Queue.broadcast(Messages.SHOW_TAB, { tabBar: this, tab: newActiveTabName })
                     break
                 }
-            }        
+            }
             vars = {
                 tabs: [],
-                activeTab: 0
+                activeTab: 0,
+                mountedTabCount: 0, 
+                initialTabMounted: false       
             }
         }
     </script>

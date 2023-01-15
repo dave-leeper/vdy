@@ -63,32 +63,23 @@
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Reserve A Ride` }</include-props>
     </include-html>
     <slot-markup for-component-id="ReserveARideTab" for-slot="ReserveARideTabContentSlot">
-      <div id="ReserveARideTabNewSlotContent">NEW SLOT CONTENT FOR Reserve A Ride Tab</div>
+      <include-html include-in="index.html" src="./html/components/calendar.html" component-class="Calendar" component-id="Calendar"></include-html>
     </slot-markup>
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="PhotosTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Photos` }</include-props>
     </include-html>
     <slot-markup for-component-id="PhotosTab" for-slot="PhotosTabContentSlot">
-      <div id="PhotosTabNewSlotContent">NEW SLOT CONTENT FOR Photos Tab</div>
+      <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow"></include-html>
     </slot-markup>
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="ReviewsTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Reviews` }</include-props>
     </include-html>
     <slot-markup for-component-id="ReviewsTab" for-slot="ReviewsTabContentSlot">
-      <div id="ReviewsTabNewSlotContent">NEW SLOT CONTENT FOR Reviews Tab</div>
+      <div>
+        <include-html include-in="index.html" src="./html/components/reviews/write-review-button.html" component-class="WriteReviewButton" component-id="WriteReviewButton"></include-html>
+        <div class="w100 h20px"></div>
+        <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList"></include-html>
+      </div>
     </slot-markup>
-
-
-
-    <div class="h300px margin-b-50">
-      <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow"></include-html>
-      <div class="w100 h20px"></div>
-    </div>
-    <div class="w33">
-      <include-html include-in="index.html" src="./html/components/reviews/write-review-button.html" component-class="WriteReviewButton" component-id="WriteReviewButton"></include-html>
-      <include-html include-in="index.html" src="./html/components/calendar.html" component-class="Calendar" component-id="Calendar"></include-html>
-      <div class="w100 h20px"></div>
-      <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList"></include-html>
-    </div>
   </body>
 </html>

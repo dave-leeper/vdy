@@ -12,6 +12,7 @@ class Messages {
     static COMPONENT_AFTER_DESTRUCTION = 'COMPONENT_AFTER_DESTRUCTION'
     static SHOW_TAB = 'SHOW_TAB'
     static HIDE_TAB = 'HIDE_TAB'
+    static REFRESH = 'REFRESH'
     static VALUE_CHANGED = 'VALUE_CHANGED'
     static NOTIFICATION = 'NOTIFICATION'
     static ERROR = 'ERROR'

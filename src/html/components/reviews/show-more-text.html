@@ -2,6 +2,17 @@
     <script>
         //# sourceURL=html/components/reviews/ShowMoreText.html
         class ShowMoreText extends Component {
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.REFRESH, (component) => {
+                    if (this.checkIfTextShouldBeTruncated()) { 
+                        const componentRootElement = document.querySelector(`#${this.id}`)
+                        const readMoreButtonElement = componentRootElement.querySelector(`#${this.id}ReadMoreButton`)
+
+                        readMoreButtonElement.classList.toggle(`display-none`)
+                    }
+                })
+            }
             afterMount() {
                 const componentRootElement = document.querySelector(`#${this.id}`)
 

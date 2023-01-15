@@ -55,6 +55,7 @@
                     this.vars.activeTab = loop
                     Queue.broadcast(Messages.HIDE_TAB, { tabBar: this, tab: previousActiveTabName })
                     Queue.broadcast(Messages.SHOW_TAB, { tabBar: this, tab: newActiveTabName })
+                    Queue.broadcast(Messages.REFRESH, this )
                     break
                 }
             }

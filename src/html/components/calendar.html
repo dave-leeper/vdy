@@ -115,6 +115,76 @@
     <test-script>
     </test-script>
     <style>
+        :root {
+            --calendar-card-flex: column;
+            --calendar-card-width: 220px;
+            --calendar-card-overflow: hidden ;
+            --calendar-card-shadow: 3px 3px 9px #d9d9d9, -3px -3px 9px #ffffff;
+            --calendar-card-border-radius: 15px;
+            --calendar-card-padding: 5px;
+            --calendar-card-margin: 5px;
+
+            --calendar-border-collapse: collapse;
+
+            --calendar-title-display: flex;
+            --calendar-title-flex-direction: row;
+            --calendar-title-flex-justify-content: space-between;
+            --calendar-title-flex-align-items: baseline;
+            --calendar-title-width: 210px;
+            --calendar-title-height: 30px;
+            --calendar-title-color: var(--primary-text-color);
+            --calendar-title-text-align: center;
+            --calendar-title-font-family: var(--primary-font-family);
+            --calendar-title-font-size: var(--text-2-font-size);
+            --calendar-title-font-weight: var(--text-2-font-weight);
+            --calendar-title-margin-bottom: 10px;
+            --calendar-title-cursor: default;
+
+            --calendar-header-width: 210px;
+            --calendar-header-height: 30px;
+            --calendar-header-color: var(--primary-text-color)black;
+            --calendar-header-background-color: var(--blue-50);
+            --calendar-header-text-align: center;
+            --calendar-header-font-family: var(--primary-font-family);
+            --calendar-header-font-size: var(--text-2-font-size);
+            --calendar-header-font-weight: var(--text-1-font-weight);
+            --calendar-header-cursor: default;
+
+            --calendar-header-cell-width: 30px;
+            --calendar-header-cell-height: 30px;
+            --calendar-header-cell-color: var(--primary-text-color);
+            --calendar-header-cell-background-color: white;
+            --calendar-header-cell-text-align: center;
+            --calendar-header-cell-font-family: var(--primary-font-family);
+            --calendar-header-cell-font-size: var(--text-2-font-size);
+            --calendar-header-cell-font-weight: var(--text-1-font-weight);
+            --calendar-header-cell-cursor: default;
+            --calendar-header-cell-padding: 3px;
+
+            --calendar-cell-width: 30px;
+            --calendar-cell-height: 30px;
+            --calendar-cell-color: var(--primary-text-color);
+            --calendar-cell-background-color: white;
+            --calendar-cell-text-align: center;
+            --calendar-cell-font-family: var(--primary-font-family);
+            --calendar-cell-font-size: var(--text-2-font-size);
+            --calendar-cell-font-weight: var(--text-1-font-weight);
+            --calendar-cell-cursor: pointer;
+            --calendar-cell-padding: 3px;
+            --calendar-cell-background: radial-gradient(ellipse at center,  var(--blue-50) 0%,var(--blue-50) 47%,var(--blue-50) 47%,white 47%,white 48%);
+
+            --calendar-past-cell-width: 30px;
+            --calendar-past-cell-height: 30px;
+            --calendar-past-cell-color: var(--gray-a);
+            --calendar-past-cell-background-color: white;
+            --calendar-past-cell-text-align: center;
+            --calendar-past-cell-font-family: var(--primary-font-family);
+            --calendar-past-cell-font-size: var(--text-2-font-size);
+            --calendar-past-cell-font-weight: var(--text-1-font-weight);
+            --calendar-past-cell-cursor: default;
+            --calendar-past-cell-padding: 3px;
+        }
+
         .calendar-card {
             flex: var(--calendar-card-flex);
             width: var(--calendar-card-width);

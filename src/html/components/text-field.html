@@ -2,7 +2,7 @@
 
 <custom-component>
     <script>
-        //# sourceURL=html/components/TextField.html
+        //# sourceURL=html/components/text-field.html
         class TextField extends Component {
             initialize(id) {
                 super.initialize(id)
@@ -53,42 +53,42 @@
                         let results = []
 
                         if (!this.props.required) { return results }
-                        assert(0 < this.vars.element.value?.length,                             `Field '${this.props.name}' is required.`, results, true)
+                        assert(0 < this.vars.element.value?.length,                             `Field '${this.props.label}' is required.`, results, true)
                         return results
                     }]),                    
                     await test (`Test minlength`, `Ensure field is no shorter than ${this.props.minlength}.`, [async () => {
                         let results = []
 
                         if (!this.props.minlength) { return results }
-                        assert(this.props.minlength <= this.vars.element.value?.length,         `Field '${this.props.name}' has at least ${this.props.minlength} characters.`, results, true)
+                        assert(this.props.minlength <= this.vars.element.value?.length,         `Field '${this.props.label}' has at least ${this.props.minlength} characters.`, results, true)
                         return results
                     }]),
                     await test (`Test maxlength`, `Ensure field is no longer than ${this.props.maxlength}.`, [async () => {
                         let results = []
 
                         if (!this.props.maxlength) { return results }
-                        assert(this.props.maxlength >= this.vars.element.value?.length,         `Field '${this.props.name}' has no more than ${this.props.maxlength} characters.`, results, true)
+                        assert(this.props.maxlength >= this.vars.element.value?.length,         `Field '${this.props.label}' has no more than ${this.props.maxlength} characters.`, results, true)
                         return results
                     }]),
                     await test (`Test min`, `Ensure field's value is not less than ${this.props.min}.`, [async () => {
                         let results = []
 
                         if (Number.MAX_VALUE === this.props.min) { return results }
-                        assert(this.props.min <= +this.vars.element.value,                      `Field '${this.props.name}' is not less than ${this.props.min}.`, results, true)
+                        assert(this.props.min <= +this.vars.element.value,                      `Field '${this.props.label}' is not less than ${this.props.min}.`, results, true)
                         return results
                     }]),
                     await test (`Test max`, `Ensure field's value is not more than ${this.props.max}.`, [async () => {
                         let results = []
 
                         if (Number.MIN_VALUE === this.props.max) { return results }
-                        assert(this.props.max >= +this.vars.element.value,                      `Field '${this.props.name}' is not greater than ${this.props.max}.`, results, true)
+                        assert(this.props.max >= +this.vars.element.value,                      `Field '${this.props.label}' is not greater than ${this.props.max}.`, results, true)
                         return results
                     }]),
                     await test (`Test pattern`, `Ensure field matches the pattern ${this.props.pattern}.`, [async () => {
                         let results = []
 
                         if (0 === this.props.pattern.length) { return results }
-                        assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.name}' matches the pattern ${this.props.pattern}.`, results, true)
+                        assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.label}' matches the pattern ${this.props.pattern}.`, results, true)
                         return results
                     }]),
                     await test (`Test url`, `Ensure field is a valid url.`, [async () => {
@@ -105,7 +105,7 @@
                         }
 
                         if (`url` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidUrl(this.vars.element.value),                             `Field '${this.props.name}' is a valid url.`, results, true)
+                        assert(isValidUrl(this.vars.element.value),                             `Field '${this.props.label}' is a valid url.`, results, true)
                         return results
                     }]),
                     await test (`Test email`, `Ensure field is a valid email.`, [async () => {
@@ -117,19 +117,19 @@
                         }
 
                         if (`email` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidEmail(this.vars.element.value),                           `Field '${this.props.name}' is a valid email.`, results, true)
+                        assert(isValidEmail(this.vars.element.value),                           `Field '${this.props.label}' is a valid email.`, results, true)
                         return results
                     }]),
                     await test (`Test phone`, `Ensure field is a valid phone number.`, [async () => {
                         let results = []
                         const isValidPhone = phoneString => {
-                            const phonePattern = new RegExp('^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$','i')
+                            const phonePattern = new RegExp(`^[\+]?[(]?[0-9]{3}[)]?[- \.]?[0-9]{3}[- \.]?[0-9]{4,6}$`,`i`)
 
                             return !!phonePattern.test(phoneString);
                         }
 
                         if (`tel` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidPhone(this.vars.element.value),                           `Field '${this.props.name}' is a valid phone number.`, results, true)
+                        assert(isValidPhone(this.vars.element.value),                           `Field '${this.props.label}' is a valid phone number.`, results, true)
                         return results
                     }]),
                     await test (`Test number`, `Ensure field is a valid number.`, [async () => {
@@ -141,7 +141,7 @@
                         }
 
                         if (`number` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidNumber(this.vars.element.value),                          `Field '${this.props.name}' is a valid number.`, results, true)
+                        assert(isValidNumber(this.vars.element.value),                          `Field '${this.props.label}' is a valid number.`, results, true)
                         return results
                     }]),
                 ]

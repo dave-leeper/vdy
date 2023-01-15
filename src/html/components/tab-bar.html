@@ -85,6 +85,8 @@
             --tab-cursor: pointer;
             --tab-padding: 0 3px 0 3px;
             --tab-margin: 10px;
+            --tab-text-decoration: underline;
+            --tab-active-text-decoration: none;
         }        
         .tab {
             display: var(--tab-display);
@@ -94,6 +96,7 @@
             color: var(--tab-color);
             background-color: var(--tab-background-color);
             text-align: var(--tab-text-align);
+            text-decoration: var(--tab-text-decoration);
             font-family: var(--tab-font-family);
             font-size: var(--tab-font-size);
             font-weight: var(--tab-font-weight);
@@ -103,6 +106,7 @@
         }
         .active-tab {
             background-color: var(--tab-active-background-color);
+            text-decoration: var(--tab-active-text-decoration);
         }
     </style>
     <component-markup>

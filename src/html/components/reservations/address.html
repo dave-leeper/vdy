@@ -2,6 +2,81 @@
     <script>
         //# sourceURL=html/components/reservations/address.html
         class Address extends Component {
+            afterMount() {
+                let parent = this.getParentComponent()
+                let tabIndexes = parent.getAddressTabIndexes()
+                
+                this.vars.addressTabIndex = tabIndexes.addressTabIndex
+                this.vars.address2TabIndex = tabIndexes.address2TabIndex
+                this.vars.cityTabIndex = tabIndexes.cityTabIndex
+                this.vars.stateTabIndex = tabIndexes.stateTabIndex
+                this.vars.dateTabIndex = tabIndexes.dateTabIndex
+                this.vars.timeTabIndex = tabIndexes.timeTabIndex
+                super.afterMount()
+            }
+            getData() {
+                const addressObj = Component.getObject(`${this.id}Address`)
+                const address2Obj = Component.getObject(`${this.id}Address2`)
+                const cityObj = Component.getObject(`${this.id}City`)
+                const stateObj = Component.getObject(`${this.id}State`)
+                const dateObj = Component.getObject(`${this.id}Date`)
+                const timeObj = Component.getObject(`${this.id}Time`)
+
+                if (!addressObj || !address2Obj || !cityObj || !stateObj || !dateObj || !timeObj) {
+                    this.showError(`Error getting address data.`)
+                    return null
+                }
+                if (!addressObj.vars.valid) {
+                    this.showError(`${addressObj.props.name} is invalid.`)
+                    return null
+                }
+                if (!address2Obj.vars.valid) {
+                    this.showError(`${address2Obj.props.name} is invalid.`)
+                    return null
+                }
+                if (!cityObj.vars.valid) {
+                    this.showError(`${cityObj.props.name} is invalid.`)
+                    return null
+                }
+                if (!stateObj.vars.valid) {
+                    this.showError(`${stateObj.props.name} is invalid.`)
+                    return null
+                }
+                if (!dateObj.vars.valid) {
+                    this.showError(`${dateObj.props.name} is invalid.`)
+                    return null
+                }
+                if (!timeObj.vars.valid) {
+                    this.showError(`${timeObj.props.name} is invalid.`)
+                    return null
+                }
+
+                const address = document.getElementById(`${this.id}Address`)?.value
+                const address2 = document.getElementById(`${this.id}Address2`)?.value
+                const city = document.getElementById(`${this.id}City`)?.value
+                const state = document.getElementById(`${this.id}State`)?.value
+                const date = document.getElementById(`${this.id}Date`)?.value
+                const time = document.getElementById(`${this.id}Time`)?.value
+
+                return { address, address2, city, state, date, time }
+            }
+            showError(message) {
+                let errorSnackbar = Component.getObject(`SnackbarError`)
+                        
+                errorSnackbar.vars.text = message
+                errorSnackbar.show()
+            }
+            props = {
+                firstTabIndex: 1
+            }
+            vars = {
+                addressTabIndex: 1,
+                address2TabIndex: 2,
+                cityTabIndex: 3,
+                stateTabIndex: 4,
+                dateTabIndex: 5,
+                timeTabIndex: 6
+            }
         }
     </script>
     <test-script>
@@ -12,19 +87,19 @@
         <div id="{id}">
             <div>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Address">
-                    <include-props class="display-none">{ name: `Address`, placeholder: `Address`, label: `Address`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabindex: 6 }</include-props>
+                    <include-props class="display-none">{ name: `Address`, placeholder: `Address`, label: `Address`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabindex: {addressTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Address2">
-                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: true, minlength: 1, maxlength: 75, tabindex: 7 }</include-props>
+                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: true, minlength: 1, maxlength: 75, tabindex: {address2TabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}City">
-                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: 8 }</include-props>
+                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: {cityTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}State">
-                    <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: 9 }</include-props>
+                    <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: {stateTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <datalist id="{id}state_list">
@@ -87,11 +162,11 @@
                     <option value="WY (Wyoming)"></option>
                 </datalist>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Date">
-                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 6, maxlength: 8, tabindex: 11 }</include-props>
+                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 6, maxlength: 8, tabindex: {dateTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Time">
-                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 8, maxlength: 10, tabindex: 12 }</include-props>
+                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 8, maxlength: 10, tabindex: {timeTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

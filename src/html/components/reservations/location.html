@@ -2,6 +2,13 @@
     <script>
         //# sourceURL=html/components/reservations/location.html
         class Location extends Component {
+            initialize(id) { 
+                super.initialize(id)
+                this.vars.airportRadioTabIndex = this.props.firstTabIndex
+                this.vars.addressRadioTabIndex = this.props.firstTabIndex + 1
+                this.vars.airportTabIndex = this.props.firstTabIndex + 2
+                this.vars.addressTabIndex = this.props.firstTabIndex + 6
+            }
             airport() {
                 const airport = document.getElementById(`${this.id}AirportWrapper`)
                 const address = document.getElementById(`${this.id}AddressWrapper`)
@@ -16,8 +23,44 @@
                 if (!airport.classList.contains(`display-none`)) { airport.classList.add(`display-none`) }
                 if (address.classList.contains(`display-none`)) { address.classList.remove(`display-none`) }
             }
+            getData() {
+                const airport = document.getElementById(`${this.id}AirportWrapper`)
+                const address = document.getElementById(`${this.id}AddressWrapper`)
+
+                if (!airport.classList.contains(`display-none`)) { 
+                    return Component.getObject(`${this.id}Airport`)?.getData()
+                }
+                else if (!address.classList.contains(`display-none`)) { 
+                    return Component.getObject(`${this.id}Address`)?.getData()
+                } else { return null }
+            }
+            getAirportTabIndexes() {
+                return { 
+                    airlineTabIndex:  this.vars.airportTabIndex,
+                    flightNumberTabIndex:  this.vars.airportTabIndex + 1,
+                    arrivalDateTabIndex:  this.vars.airportTabIndex + 2,
+                    estimatedArrivalTimeTabIndex:  this.vars.airportTabIndex + 3
+                }
+            }
+            getAddressTabIndexes() {
+                return {                 
+                    addressTabIndex: this.vars.addressTabIndex,
+                    address2TabIndex: this.vars.addressTabIndex + 1,
+                    cityTabIndex: this.vars.addressTabIndex + 2,
+                    stateTabIndex: this.vars.addressTabIndex + 3,
+                    dateTabIndex: this.vars.addressTabIndex + 4,
+                    timeTabIndex: this.vars.addressTabIndex + 5,
+                }
+            }
             props = {
-                title: `Pickup`
+                title: `Pickup`,
+                firstTabIndex: 1
+            }
+            vars = {
+                airportRadioTabIndex: 6,
+                addressRadioTabIndex: 7,
+                airportTabIndex: 8,
+                addressTabIndex: 12
             }
         }
     </script>
@@ -31,23 +74,25 @@
             <div id="{id}Location" class="flex-row">
                 <div id="{id}Airport" onclick="$obj.airport()">
                     <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Airport" checked="checked">
-                        <include-props class="display-none">{ label: `Airport`, name: `{title}location`, tabindex: 4 }</include-props>
+                        <include-props class="display-none">{ label: `Airport`, name: `{title}location`, tabindex: {airportRadioTabIndex} }</include-props>
                     </include-html>
                 </div>
                 <div class="margin-lr-10"></div>
                 <div id="{id}Address" onclick="$obj.address()">
                     <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Address">
-                        <include-props class="display-none">{ label: `Address`, name: `{title}location`, tabindex: 5 }</include-props>
+                        <include-props class="display-none">{ label: `Address`, name: `{title}location`, tabindex: {addressRadioTabIndex} }</include-props>
                     </include-html>
                 </div>
             </div>
             <div class="margin-10">
                 <div id="{id}AirportWrapper">
                     <include-html include-in="reservations.html" src="./html/components/reservations/airport.html" component-class="Airport" component-id="{id}AirportInfo">
+                        <include-props class="display-none">{ tabindex: {airportTabIndex} }</include-props>
                     </include-html>
                 </div>
                 <div id="{id}AddressWrapper" class="display-none">
                     <include-html include-in="reservations.html" src="./html/components/reservations/address.html" component-class="Address" component-id="{id}AddressInfo">
+                        <include-props class="display-none">{ tabindex: {addressTabIndex} }</include-props>
                     </include-html>
                 </div>
             </div>

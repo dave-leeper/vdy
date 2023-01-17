@@ -760,6 +760,85 @@ class Component {
         ComponentLifecycle.destroyComponentObject(`${this.id}`) 
         Queue.broadcast(Messages.COMPONENT_AFTER_DESTRUCTION, this)
     }
+    getParentComponent() {
+        let element = document.getElementById(this.id)
+        let walkUpTree = (element) => {
+            while (element.parentElement) {
+                if (element.parentElement.id) {
+                    let parentComponent = window?.$components?.objectRegistry?.get(element.parentElement.id)
+    
+                    if (parentComponent) { 
+                        return parentComponent.componentObject
+                    } 
+                }
+                element = element.parentElement
+            }
+            return null
+        }
+
+        if (!element) { return null }
+        return walkUpTree(element)
+    }
+    getAncestorComponents() {
+        let element = document.getElementById(this.id)
+        let ancestors = { ancestor: null, next: null }
+        let walkUpTree = (element, ancestors) => {
+            while (element.parentElement) {
+                if (element.parentElement.id) {
+                    let parentComponent = window?.$components?.objectRegistry?.get(element.parentElement.id)
+    
+                    if (parentComponent) { 
+                        ancestors.ancestor = parentComponent.componentObject
+                        ancestors.next = { ancestor: null, next: null }
+                        walkUpTree(element.parentElement, ancestors.next)
+                        break;
+                    } 
+                }
+                element = element.parentElement
+            }    
+        }
+            
+        if (!element) { return ancestors }
+        walkUpTree(element, ancestors)
+        return ancestors
+    }
+    getChildComponents() {
+        let element = document.getElementById(this.id)
+        let children = []
+        
+        if (!element) { return children }
+        for (let child of element.children) {
+            if (child.id) {
+                let childComponent = window?.$components?.objectRegistry?.get(child.id)
+
+                if (childComponent) { children.push(childComponent.componentObject) } 
+            }
+        }
+        return children
+    }
+    getDescendantComponents() {
+        let element = document.getElementById(this.id)
+        let descendants = []
+        let walkDownTree = (element, descendants) => {
+            for (let child of element.children) {
+                let descendantRecord = { descendant: null, next: [] }
+
+                if (child.id) {
+                    let childComponent = window?.$components?.objectRegistry?.get(child.id)
+    
+                    if (childComponent) { 
+                        descendantRecord.descendant = childComponent.componentObject 
+                    } 
+                }
+                descendants.push( descendantRecord )
+                walkDownTree(child, descendantRecord.next)
+            }    
+        }
+            
+        if (!element) { return descendants }
+        walkDownTree(element, descendants)
+        return descendants
+    }
 }
 
 class SlotManager {
@@ -817,6 +896,7 @@ class SlotManager {
                 console.error(`loadSlots: An error occured while moving slot content to the ${componentElement.getAttribute(`for-slot`)}] slot of ${forComponentId}.`)
                 continue
             }
+            // TODO: Notify component that slot has been loaded.
         }
     }
 }

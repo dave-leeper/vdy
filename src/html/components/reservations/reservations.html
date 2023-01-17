@@ -2,13 +2,50 @@
     <script>
         //# sourceURL=html/components/reservations/reservations.html
         class Reservations extends Component {
-            onBlur(event) { this.updateReview() }
-            onInput(event) { this.updateReview() }
-            updateReview() {
-                const textAreaId = `${this.id}ReviewText`
-                let textarea = document.getElementById(textAreaId)
+            onBlur(event) { this.updateSpecialInstructions() }
+            onInput(event) { this.updateSpecialInstructions() }
+            updateSpecialInstructions() {
+                const textAreaId = `${this.id}SpecialInstructionsText`
+                const textarea = document.getElementById(textAreaId)
 
-                this.vars.review = textarea.value
+                this.vars.specialInstructions = textarea.value
+            }
+            getData() {
+                const firstNameObj = Component.getObject(`${this.id}FirstName`)
+                const lastNameObj = Component.getObject(`${this.id}LastName`)
+                const mobileNumberObj = Component.getObject(`${this.id}MobileNumber`)
+                const pickupLocationObj = Component.getObject(`${this.id}PickupLocation`)
+                const dropoffLocationObj = Component.getObject(`${this.id}DropoffLocation`)
+                const specialInstructionsObj = Component.getObject(`${this.id}SpecialInstructionsText`)
+                const pickupLocationData = pickupLocationObj?.getData()
+                const dropoffLocationData = dropoffLocationObj?.getData()
+
+                if (!firstNameObj || !lastNameObj || !mobileNumberObj || !pickupLocationObj || !dropoffLocationObj || !specialInstructionsObj || !pickupLocationData || !dropoffLocationData) {
+                    this.showError(`Error getting reservation data.`)
+                    return null
+                }
+                if (!firstNameObj.vars.valid) {
+                    this.showError(`${firstNameObj.props.name} is invalid.`)
+                    return null
+                }
+                if (!lastNameObj.vars.valid) {
+                    this.showError(`${lastNameObj.props.name} is invalid.`)
+                    return null
+                }
+
+                if (!mobileNumberObj.vars.valid) {
+                    this.showError(`${mobileNumberObj.props.name} is invalid.`)
+                    return null
+                }
+
+                const firstName = document.getElementById(`${this.id}FirstName`)?.value
+                const lastName = document.getElementById(`${this.id}LastName`)?.value
+                const mobileNumber = document.getElementById(`${this.id}MobileNumber`)?.value
+                const pickupLocation = pickupLocationData
+                const dropoffLocation = dropoffLocationData
+                const specialInstructions = document.getElementById(`${this.id}SpecialInstructionsText`)?.value
+                
+                return { firstName, lastName, mobileNumber, pickupLocation, dropoffLocation, specialInstructions }
             }
             vars = {
                 specialInstructions: ``
@@ -40,17 +77,17 @@
             </section>
             <div id="{id}LocationWrapper" class="flex-row">
                 <include-html include-in="reservations.html" src="./html/components/reservations/location.html" component-class="Location" component-id="{id}PickupLocation">
-                    <include-props class="display-none">{ title: `Pickup` }</include-props>
+                    <include-props class="display-none">{ title: `Pickup`, firstTabIndex: 6 }</include-props>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/reservations/location.html" component-class="Location" component-id="{id}DropoffLocation">
-                    <include-props class="display-none">{ title: `Dropoff` }</include-props>
+                    <include-props class="display-none">{ title: `Dropoff`, firstTabIndex: 18 }</include-props>
                 </include-html>
             </div>
             <div id="{id}SpecialInstructions" class="flex-col margin-10 margin-b-20 shadow-white round-15px">
                 <h2 id="{id}SpecialInstructionsTitle" class="header-6 margin-l-5 margin-b-5">Special Instructions</h2>
-                <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{specialInstructions}</textarea>
+                <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="24">{specialInstructions}</textarea>
             </div>
-            <div id="{id}ButtonWrapper" class="flex-col flex-center flex-align-center margin-t-20 w100">
+            <div id="{id}ButtonWrapper" class="flex-col flex-center flex-align-center margin-t-20 w100" onclick="$obj.submit()">
                 <div id="{id}Button" class="button w100px center-text">Request a Reservation</div>
             </div>
     </div>

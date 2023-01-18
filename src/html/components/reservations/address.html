@@ -162,11 +162,11 @@
                     <option value="WY (Wyoming)"></option>
                 </datalist>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Date">
-                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 6, maxlength: 8, tabindex: {dateTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: {dateTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Time">
-                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 8, maxlength: 10, tabindex: {timeTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: {timeTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

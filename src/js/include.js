@@ -755,6 +755,8 @@ class Component {
     beforeUnmount() { Queue.broadcast(Messages.COMPONENT_BEFORE_UNMOUNT, this )}
     afterUnmount() { Queue.broadcast(Messages.COMPONENT_AFTER_UNMOUNT, this )}
     isMounted() { return window.$components.objectRegistry.get(this.id).mounted } 
+    beforeSlotLoaded(slot) { Queue.broadcast(Messages.COMPONENT_BEFORE_SLOT_LOADED, { component: this, slot })}
+    afterSlotLoaded(slot) { Queue.broadcast(Messages.COMPONENT_AFTER_SLOT_LOADED, { component: this, slot } )}
     destroy() { 
         Queue.broadcast(Messages.COMPONENT_BEFORE_DESTRUCTION, this)
         ComponentLifecycle.destroyComponentObject(`${this.id}`) 
@@ -890,13 +892,15 @@ class SlotManager {
 
             const slotName = slotContent.getAttribute(`for-slot`)
             const componentSlot = getSlot(forComponentId, slotName)
+            const component = Component.getObject(forComponentId)
 
             if (!componentSlot) { continue }
+            component?.beforeSlotLoaded(slotName)
             if (!moveSlotContentToComponent(slotContent, componentSlot)) {
                 console.error(`loadSlots: An error occured while moving slot content to the ${componentElement.getAttribute(`for-slot`)}] slot of ${forComponentId}.`)
                 continue
             }
-            // TODO: Notify component that slot has been loaded.
+            component?.afterSlotLoaded(slotName)
         }
     }
 }

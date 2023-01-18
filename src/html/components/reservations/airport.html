@@ -101,11 +101,11 @@
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}ArrivalDate">
-                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 6, maxlength: 8, tabindex: {arrivalDateTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: {arrivalDateTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EstimatedArrivalTime">
-                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 8, maxlength: 10, tabindex: {estimatedArrivalTimeTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: {estimatedArrivalTimeTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

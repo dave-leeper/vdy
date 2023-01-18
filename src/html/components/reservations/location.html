@@ -10,27 +10,43 @@
                 this.vars.addressTabIndex = this.props.firstTabIndex + 6
             }
             airport() {
-                const airport = document.getElementById(`${this.id}AirportWrapper`)
-                const address = document.getElementById(`${this.id}AddressWrapper`)
+                const airportWrapper = document.getElementById(`${this.id}AirportWrapper`)
+                const addressWrapper = document.getElementById(`${this.id}AddressWrapper`)
+                const airport = document.getElementById(`${this.id}Airport`)
+                const address = document.getElementById(`${this.id}Address`)
 
-                if (airport.classList.contains(`display-none`)) { airport.classList.remove(`display-none`) }
-                if (!address.classList.contains(`display-none`)) { address.classList.add(`display-none`) }
+                if (airportWrapper.classList.contains(`display-none`)) { 
+                    airportWrapper.classList.remove(`display-none`) 
+                    airport.checked = true
+                }
+                if (!addressWrapper.classList.contains(`display-none`)) { 
+                    addressWrapper.classList.add(`display-none`)
+                    address.checked = false
+                }
             }
             address() {
-                const airport = document.getElementById(`${this.id}AirportWrapper`)
-                const address = document.getElementById(`${this.id}AddressWrapper`)
+                const airportWrapper = document.getElementById(`${this.id}AirportWrapper`)
+                const addressWrapper = document.getElementById(`${this.id}AddressWrapper`)
+                const airport = document.getElementById(`${this.id}Airport`)
+                const address = document.getElementById(`${this.id}Address`)
 
-                if (!airport.classList.contains(`display-none`)) { airport.classList.add(`display-none`) }
-                if (address.classList.contains(`display-none`)) { address.classList.remove(`display-none`) }
+                if (!airportWrapper.classList.contains(`display-none`)) { 
+                    airportWrapper.classList.add(`display-none`)
+                    airport.checked = false
+                }
+                if (addressWrapper.classList.contains(`display-none`)) { 
+                    addressWrapper.classList.remove(`display-none`) 
+                    address.checked = true
+                }
             }
             getData() {
-                const airport = document.getElementById(`${this.id}AirportWrapper`)
-                const address = document.getElementById(`${this.id}AddressWrapper`)
+                const airportWrapper = document.getElementById(`${this.id}AirportWrapper`)
+                const addressWrapper = document.getElementById(`${this.id}AddressWrapper`)
 
-                if (!airport.classList.contains(`display-none`)) { 
+                if (!airportWrapper.classList.contains(`display-none`)) { 
                     return Component.getObject(`${this.id}Airport`)?.getData()
                 }
-                else if (!address.classList.contains(`display-none`)) { 
+                else if (!addressWrapper.classList.contains(`display-none`)) { 
                     return Component.getObject(`${this.id}Address`)?.getData()
                 } else { return null }
             }
@@ -72,14 +88,14 @@
         <div id="{id}" class="flex-col margin-10 shadow-white round-15px pad-b-10 w50">
             <h2 id="{id}Title" class="header-6 margin-l-5 margin-b-5">{title}</h2>
             <div id="{id}Location" class="flex-row">
-                <div id="{id}Airport" onclick="$obj.airport()">
-                    <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Airport" checked="checked">
+                <div id="{id}AirportRadioWrapper" onclick="$obj.airport()">
+                    <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Airport" checked="true">
                         <include-props class="display-none">{ label: `Airport`, name: `{title}location`, tabindex: {airportRadioTabIndex} }</include-props>
                     </include-html>
                 </div>
                 <div class="margin-lr-10"></div>
-                <div id="{id}Address" onclick="$obj.address()">
-                    <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Address">
+                <div id="{id}AddressRadioWrapper" onclick="$obj.address()">
+                    <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Address" checked="false">
                         <include-props class="display-none">{ label: `Address`, name: `{title}location`, tabindex: {addressRadioTabIndex} }</include-props>
                     </include-html>
                 </div>

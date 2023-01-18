@@ -96,6 +96,13 @@
             "path": "/login-attempt",
             "handler": "login.js",
             "log": "NONE"
+        },
+        {
+            "name": "Request Reservation.",
+            "verb": "POST",
+            "path": "/request-reservation",
+            "handler": "send-email.js",
+            "log": "NONE"
         }
     ]
 }

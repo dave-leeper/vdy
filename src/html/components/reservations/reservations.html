@@ -47,6 +47,23 @@
                 
                 return { firstName, lastName, mobileNumber, pickupLocation, dropoffLocation, specialInstructions }
             }
+            async sendReservationRequest () {
+                const reservationRequest = this.getData()
+                const response = await fetch('http://localhost:8080/request-reservation', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(reservationRequest)
+                })
+
+                if (200 === response.status) {                    
+                    this.showInfo(`Your reservation request has been sent.`)
+                } else {
+                    this.showError(`Error sending reservation request. Status code ${response.status}.`)
+                }
+            }
             vars = {
                 specialInstructions: ``
             }
@@ -88,7 +105,7 @@
                 <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="24">{specialInstructions}</textarea>
             </div>
             <div id="{id}ButtonWrapper" class="flex-col flex-center flex-align-center margin-t-20 w100" onclick="$obj.submit()">
-                <div id="{id}Button" class="button w100px center-text">Request a Reservation</div>
+                <div id="{id}Button" class="button w100px center-text" onclick="$obj.sendReservationRequest()">Request a Reservation</div>
             </div>
     </div>
     </component-markup>

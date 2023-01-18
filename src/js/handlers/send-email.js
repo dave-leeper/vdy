@@ -10,10 +10,11 @@ const transporter = nodemailer.createTransport({
 module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {
         const data = req.body.data
+        // TODO: Add a data formatter tothe handler args that formats the incoming JSON.
         let text = `Name: ${data.firstName} ${data.lastname}
-Phone: ${data.phone}
-Pickup: ${data.pickup}
-Dropoff: ${data.dropoff}
+Phone: ${data.mobileNumber}
+Pickup: ${data.pickupLocation}
+Dropoff: ${data.dropoffLocation}
 Special Instructions: ${data.specialInstructions}`
         const mailOptions = {
             from: `${process.env.EMAIL_USER}`,

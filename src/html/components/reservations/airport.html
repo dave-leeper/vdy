@@ -56,7 +56,7 @@
                 airlineTabIndex: 1,
                 flightNumberTabIndex: 2,
                 arrivalDateTabIndex: 3,
-                estimatedArrivalTimeTabIndex: 4
+                estimatedArrivalTimeTabIndex: 4,
             }
         }
     </script>
@@ -68,10 +68,10 @@
         <div id="{id}">
             <div>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
-                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{id}airline_list`, required: true, minlength: 2, maxlength: 30, tabindex: {airlineTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{airlineTabIndex}AirlineList`, required: true, minlength: 2, maxlength: 30, tabindex: {airlineTabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <datalist id="{id}airline_list">
+                <datalist id="{airlineTabIndex}AirlineList">
                     <option value="Advanced Air"></option>
                     <option value="Air Canada"></option>
                     <option value="Alaska Airlines"></option>

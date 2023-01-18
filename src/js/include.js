@@ -550,6 +550,8 @@ class ComponentLifecycle {
         for (let node of componentDOM) {
             ComponentLifecycle.wrapVars(node, componentObject)
             ComponentLifecycle.wrapProps(node, componentObject)
+            ComponentLifecycle.replaceNodeValue(node, componentObject, `id`)
+            ComponentLifecycle.replaceAttributeValue(node, componentObject, `id`)
         }
 
         window.$components.objectRegistry.set(componentObjectId, {componentObject: componentObject, componentClass, componentDOM, mounted: false})
@@ -862,7 +864,7 @@ class SlotManager {
     
             return componentSlot
         }
-        const moveSlotContentToComponent = (slotContentElement, componentSlotElement) => {
+        const moveSlotContentToComponent = (forComponentId, slotContentElement, componentSlotElement) => {
             if (0 === slotContentElement.children.length) {
                 console.error(`moveSlotContentToComponent: Slot content element has no children.`)
                 return false
@@ -872,9 +874,7 @@ class SlotManager {
                 return false
             }
     
-            while (0 < slotContentElement.children.length) {
-                componentSlotElement.after(slotContentElement.firstChild)
-            }
+            while (0 < slotContentElement.children.length) { componentSlotElement.after(slotContentElement.firstChild) }
             componentSlotElement.remove()
             slotContentElement.remove()
     
@@ -896,7 +896,7 @@ class SlotManager {
 
             if (!componentSlot) { continue }
             component?.beforeSlotLoaded(slotName)
-            if (!moveSlotContentToComponent(slotContent, componentSlot)) {
+            if (!moveSlotContentToComponent(forComponentId, slotContent, componentSlot)) {
                 console.error(`loadSlots: An error occured while moving slot content to the ${componentElement.getAttribute(`for-slot`)}] slot of ${forComponentId}.`)
                 continue
             }

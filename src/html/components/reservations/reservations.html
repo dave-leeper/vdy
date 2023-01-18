@@ -70,7 +70,7 @@
                         <include-vars class="display-none">{ type: `text` } </include-vars>
                     </include-html>
                     <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}MobileNumber">
-                        <include-props class="display-none">{ name: `MobileNumber`, placeholder: `Mobile Number`, label: `Mobile Number`, labelAboveField: false, required: true, tabindex: 3 }</include-props>
+                        <include-props class="display-none">{ name: `MobileNumber`, placeholder: `Mobile Number`, label: `Mobile Number`, labelAboveField: false, required: true, size: 14, minlength: 10, maxlength: 14, tabindex: 3 }</include-props>
                         <include-vars class="display-none">{ type: `tel` } </include-vars>
                     </include-html>
                 </div>

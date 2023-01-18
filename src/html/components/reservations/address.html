@@ -12,7 +12,7 @@
                 this.vars.stateTabIndex = tabIndexes.stateTabIndex
                 this.vars.dateTabIndex = tabIndexes.dateTabIndex
                 this.vars.timeTabIndex = tabIndexes.timeTabIndex
-                
+
                 Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => { 
                     const id = this.id
                     const stateFieldId = `${id}State`
@@ -111,7 +111,7 @@
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Address2">
-                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: true, minlength: 1, maxlength: 75, tabindex: {address2TabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: false, minlength: 1, maxlength: 75, tabindex: {address2TabIndex} }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}City">

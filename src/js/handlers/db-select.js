@@ -6,8 +6,8 @@ module.exports = (handlerHame, handlerArgs) => {
         let db = Registry.get(`SurrealDBConnection`)
         
         if (!db) {
-            const err = `503 Service Unavailable: Surreal DB`
-            console.error(err)
+            const err = `503 Service Unavailable`
+            console.error(err + `: Surreal DB`)
             res.status(503).send(err)
             next && next(err)
             return

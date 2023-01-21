@@ -554,7 +554,7 @@ class ComponentLifecycle {
             ComponentLifecycle.replaceAttributeValue(node, componentObject, `id`)
         }
 
-        window.$components.objectRegistry.set(componentObjectId, {componentObject: componentObject, componentClass, componentDOM, mounted: false})
+        window.$components.objectRegistry.set(componentObjectId, { componentObject, componentClass, componentDOM, mounted: false, mountedChildComponents: [], hasBroadcastChildrenMounted: false, hasBroadcastDescendantsMounted: false })
         return true
     }
     static unregisterComponentObject = (componentObjectID) => {
@@ -711,6 +711,13 @@ class Component {
         let fragment = window.$components.fragmentRegistry.get(componentClass)
         return fragment
     }
+    static isObjectRegistered = (componentObjectId) => {
+        if (!componentObjectId) { 
+            console.error(`getObject: No component object id provided.`)
+            return null 
+        }
+        return window?.$components?.objectRegistry?.has(componentObjectId)
+    }
     static getObject = (componentObjectId) => {
         if (!componentObjectId) { 
             console.error(`getObject: No component object id provided.`)
@@ -750,7 +757,62 @@ class Component {
     initialize(id) { 
         Queue.broadcast(Messages.COMPONENT_BEFORE_INITIALIZATION, this)
         this.id = id
-        Queue.broadcast(Messages.COMPONENT_AFTER_INITIALIZATION, this)
+        Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (message) => {
+            const childComponents = window.$components.childComponentRegistry.get(this.className())
+
+            if (!message.id || !childComponents ) { return }
+
+            const objectInfo = window.$components.objectRegistry.get(this.id)
+
+            if (!childComponents.length) {
+                if (!objectInfo.hasBroadcastChildrenMounted) {
+                    Queue.broadcast(Messages.COMPONENT_CHILDREN_MOUNTED, this)
+                    objectInfo.hasBroadcastChildrenMounted = true
+                    window.$components.objectRegistry.set(this.id, objectInfo)
+                }
+                if (!objectInfo.hasBroadcastDescendantsMounted) {
+                    Queue.broadcast(Messages.COMPONENT_DESCENDANTS_MOUNTED, this)
+                    objectInfo.hasBroadcastDescendantsMounted = true
+                    window.$components.objectRegistry.set(this.id, objectInfo)
+                }
+                return
+            }
+            if (objectInfo.mountedChildComponents.includes(message.id)) { return }
+
+            if (childComponents.includes(message.id) && !objectInfo.hasBroadcastChildrenMounted) {
+                objectInfo.mountedChildComponents.push(message.id)
+                if (childComponents.length === objectInfo.mountedChildComponents.length) {
+                    Queue.broadcast(Messages.COMPONENT_CHILDREN_MOUNTED, this)
+                    objectInfo.hasBroadcastChildrenMounted = true
+                }
+                window.$components.objectRegistry.set(this.id, objectInfo)
+            }
+
+            if (this.haveDescendantsMounted() && !objectInfo.hasBroadcastDescendantsMounted) {
+                Queue.broadcast(Messages.COMPONENT_DESCENDANTS_MOUNTED, this)
+                objectInfo.hasBroadcastDescendantsMounted = true
+                window.$components.objectRegistry.set(this.id, objectInfo)
+            }
+        })
+    }
+    haveChildrenMounted() {
+        const childComponents = window.$components.childComponentRegistry.get(this.className())
+        const objectInfo = window.$components.objectRegistry.get(this.id)
+
+        if (!childComponents || 0 === childComponents.length) { return true }
+        return childComponents.length === objectInfo.mountedChildComponents.length
+    }
+    haveDescendantsMounted() {
+        if (!this.haveChildrenMounted()) { return false }
+
+        const childComponents = window.$components.childComponentRegistry.get(this.className())
+
+        if (!childComponents || 0 === childComponents.length) { return true }
+        for (let childComponentId of childComponents) {
+            if (!Component.isObjectRegistered(childComponentId)) { return false }
+            if (!Component.getObject(childComponentId).haveDescendantsMounted()) { return false }
+        }
+        return true
     }
     beforeMount() { Queue.broadcast(Messages.COMPONENT_BEFORE_MOUNT, this )}
     afterMount() { Queue.broadcast(Messages.COMPONENT_AFTER_MOUNT, this )}
@@ -805,43 +867,6 @@ class Component {
         if (!element) { return ancestors }
         walkUpTree(element, ancestors)
         return ancestors
-    }
-    getChildComponents() {
-        let element = document.getElementById(this.id)
-        let children = []
-        
-        if (!element) { return children }
-        for (let child of element.children) {
-            if (child.id) {
-                let childComponent = window?.$components?.objectRegistry?.get(child.id)
-
-                if (childComponent) { children.push(childComponent.componentObject) } 
-            }
-        }
-        return children
-    }
-    getDescendantComponents() {
-        let element = document.getElementById(this.id)
-        let descendants = []
-        let walkDownTree = (element, descendants) => {
-            for (let child of element.children) {
-                let descendantRecord = { descendant: null, next: [] }
-
-                if (child.id) {
-                    let childComponent = window?.$components?.objectRegistry?.get(child.id)
-    
-                    if (childComponent) { 
-                        descendantRecord.descendant = childComponent.componentObject 
-                    } 
-                }
-                descendants.push( descendantRecord )
-                walkDownTree(child, descendantRecord.next)
-            }    
-        }
-            
-        if (!element) { return descendants }
-        walkDownTree(element, descendants)
-        return descendants
     }
 }
 
@@ -1002,6 +1027,22 @@ class Loader {
 
         return true
     }
+    static registerChildComponents = (fragment, componentClass, componentObjectId) => {
+        const componentMarkupTag = fragment.querySelector("component-markup")
+        const includeHTMLTags = componentMarkupTag?.querySelectorAll("include-html")
+
+        if (!window.$components.childComponentRegistry) { window.$components.childComponentRegistry = new Map() }
+        if (!componentMarkupTag || !includeHTMLTags || 0 === includeHTMLTags.length) { return }
+
+        let data = { component: componentClass, childComponents: []}
+
+        for (let loop = 0; loop < includeHTMLTags.length; loop++) {
+            let includeHTMLTag = includeHTMLTags[loop]
+
+            if (includeHTMLTag.hasAttribute(`component-id`)) { data.childComponents.push(includeHTMLTag.getAttribute(`component-id`).replace(`{id}`, componentObjectId)) }
+        }
+        window.$components.childComponentRegistry.set(data.component, data.childComponents)
+    }
     static loadIncludeComponent = function (text, src, includeIn, componentClass, componentObjectId, include) {
         let fragment = ComponentLifecycle.compile(text)
         let fragmentAlreadyRegistered = window?.$components?.fragmentRegistry?.has(componentClass)
@@ -1011,6 +1052,8 @@ class Loader {
             console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
             return false
         }
+
+        Loader.registerChildComponents(fragment, componentClass, componentObjectId)
 
         let componentObject = ComponentLifecycle.createComponentObject(componentClass, componentObjectId, include)
 

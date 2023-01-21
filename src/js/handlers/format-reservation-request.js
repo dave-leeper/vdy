@@ -1,4 +1,4 @@
-module.exports = (json) {
+module.exports = (json) => {
     const err = `400 Bad Request`
     let text = ``
 
@@ -6,11 +6,11 @@ module.exports = (json) {
         console.error(err + `: No json provided.`)
         return { status: 400, text: err }
     }
-    if (!json.firstName || !json.lastname) {
+    if (!json.firstName || !json.lastName) {
         console.error(err + `: Must provide firstName and lastName.`)
         return { status: 400, text: err }
     }
-    text += `Name: ${json.firstName} ${json.lastname}\n`
+    text += `Name: ${json.firstName} ${json.lastName}\n`
     if (!json.mobileNumber) {
         console.error(err + `: Must provide mobileNumber.`)
         return { status: 400, text: err }

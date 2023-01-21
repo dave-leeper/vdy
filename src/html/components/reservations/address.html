@@ -3,16 +3,6 @@
         //# sourceURL=html/components/reservations/address.html
         class Address extends Component {
             afterMount() {
-                let parent = this.getParentComponent()
-                let tabIndexes = parent.getAddressTabIndexes()
-                
-                this.vars.addressTabIndex = tabIndexes.addressTabIndex
-                this.vars.address2TabIndex = tabIndexes.address2TabIndex
-                this.vars.cityTabIndex = tabIndexes.cityTabIndex
-                this.vars.stateTabIndex = tabIndexes.stateTabIndex
-                this.vars.dateTabIndex = tabIndexes.dateTabIndex
-                this.vars.timeTabIndex = tabIndexes.timeTabIndex
-
                 Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => { 
                     const id = this.id
                     const stateFieldId = `${id}State`
@@ -34,13 +24,42 @@
 
                 super.afterMount()
             }
+            getAddressElement() { return document.getElementById(`${this.id}Address`) }
+            getAddressObject() { return Component.getObject(`${this.id}Address`) }
+            getAddress2Element() { return document.getElementById(`${this.id}Address2`) }
+            getAddress2Object() { return Component.getObject(`${this.id}Address2`) }
+            getCityElement() { return document.getElementById(`${this.id}City`) }
+            getCityObject() { return Component.getObject(`${this.id}City`) }
+            getStateElement() { return document.getElementById(`${this.id}State`) }
+            getStateObject() { return Component.getObject(`${this.id}State`) }
+            getDateElement() { return document.getElementById(`${this.id}Date`) }
+            getDateObject() { return Component.getObject(`${this.id}Date`) }
+            getTimeElement() { return document.getElementById(`${this.id}Date`) }
+            getTimeObject() { return Component.getObject(`${this.id}Time`) }
+            clearData() {
+                this.getAddressElement().value = ''
+                this.getAddress2Element().value = ''
+                this.getCityElement().value = ''
+                this.getStateElement().value = ''
+                this.getDateElement().value = ''
+                this.getTimeElement().value = ''
+            }
+            setIndexes(firstIndex) {
+                this.getAddressElement().tabindex = firstIndex
+                this.getAddress2Element().tabindex = firstIndex + 1
+                this.getCityElement().tabindex = firstIndex + 2
+                this.getStateElement().tabindex = firstIndex + 3
+                this.getDateElement().tabindex = firstIndex + 4
+                this.getTimeElement().tabindex = firstIndex + 5
+            }
+            getFieldCount() { return 6 }
             getData() {
-                const addressObj = Component.getObject(`${this.id}Address`)
-                const address2Obj = Component.getObject(`${this.id}Address2`)
-                const cityObj = Component.getObject(`${this.id}City`)
-                const stateObj = Component.getObject(`${this.id}State`)
-                const dateObj = Component.getObject(`${this.id}Date`)
-                const timeObj = Component.getObject(`${this.id}Time`)
+                const addressObj = this.getAddressObject()
+                const address2Obj = this.getAddress2Object()
+                const cityObj = this.getCityObject()
+                const stateObj = this.getStateObject()
+                const dateObj = this.getDateObject()
+                const timeObj = this.getTimeObject()
 
                 if (!addressObj || !address2Obj || !cityObj || !stateObj || !dateObj || !timeObj) {
                     this.showError(`Error getting address data.`)
@@ -71,12 +90,12 @@
                     return null
                 }
 
-                const address = document.getElementById(`${this.id}Address`)?.value
-                const address2 = document.getElementById(`${this.id}Address2`)?.value
-                const city = document.getElementById(`${this.id}City`)?.value
-                const state = document.getElementById(`${this.id}State`)?.value
-                const date = document.getElementById(`${this.id}Date`)?.value
-                const time = document.getElementById(`${this.id}Time`)?.value
+                const address = this.getAddressElement().value
+                const address2 = this.getAddress2Element().value
+                const city = this.getCityElement().value
+                const state = this.getStateElement().value
+                const date = this.getDateElement().value
+                const time = this.getTimeElement().value
 
                 return { address, address2, city, state, date, time }
             }
@@ -87,15 +106,7 @@
                 errorSnackbar.show()
             }
             props = {
-                firstTabIndex: 1
-            }
-            vars = {
-                addressTabIndex: 1,
-                address2TabIndex: 2,
-                cityTabIndex: 3,
-                stateTabIndex: 4,
-                dateTabIndex: 5,
-                timeTabIndex: 6
+                title: ``
             }
         }
     </script>
@@ -107,22 +118,22 @@
         <div id="{id}">
             <div>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Address">
-                    <include-props class="display-none">{ name: `Address`, placeholder: `Address`, label: `Address`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabindex: {addressTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Address`, placeholder: `Address`, label: `Address`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabindex: 1 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Address2">
-                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: false, minlength: 1, maxlength: 75, tabindex: {address2TabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: false, minlength: 1, maxlength: 75, tabindex: 2 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}City">
-                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: {cityTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: 3 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}State">
-                    <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, list: `{stateTabIndex}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: {stateTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{title}StateList`, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <datalist id="{stateTabIndex}state_list">
+                <datalist id="{title}StateList">
                     <option value="AL (Alabama)"></option>
                     <option value="AK (Alaska)"></option>
                     <option value="AZ (Arizona)"></option>
@@ -182,11 +193,11 @@
                     <option value="WY (Wyoming)"></option>
                 </datalist>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Date">
-                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: {dateTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 5 }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Time">
-                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: {timeTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 6 }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

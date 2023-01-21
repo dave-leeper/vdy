@@ -13,6 +13,7 @@ module.exports = function () {
   this.buildHandlers = function (handlerData, app) { 
     const build = (handlerConfigArray, app) => {
       for (const entry of handlerConfigArray) {
+        console.log(JSON.stringify(entry))
         const handlerBuilder = require(`./handlers/${entry.handler}`)
         const handler = handlerBuilder(entry.name, entry.args)
 

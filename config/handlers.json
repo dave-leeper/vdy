@@ -102,7 +102,10 @@
             "verb": "POST",
             "path": "/request-reservation",
             "handler": "send-email.js",
-            "log": "NONE"
+            "log": "NONE",
+            "args": {
+                "formatter": "./format-reservation-request.js"
+            }
         }
     ]
 }

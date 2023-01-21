@@ -2,6 +2,13 @@
     <script>
         //# sourceURL=html/components/reservations/reservations.html
         class Reservations extends Component {
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.COMPONENT_DESCENDANTS_MOUNTED, (message) => {
+                    if (!message.id || message.id !== this.id ) { return }
+                    this.resetIndexes()
+                })
+            }
             onBlur(event) { this.updateSpecialInstructions() }
             onInput(event) { this.updateSpecialInstructions() }
             updateSpecialInstructions() {
@@ -10,17 +17,32 @@
 
                 this.vars.specialInstructions = textarea.value
             }
+            getFirstNameElement() { return document.getElementById(`${this.id}FirstName`) }
+            getFirstNameObject() { return Component.getObject(`${this.id}FirstName`) }
+            getLastNameElement() { return document.getElementById(`${this.id}LastName`) }
+            getLastNameObject() { return Component.getObject(`${this.id}LastName`) }
+            getMobileNumberElement() { return document.getElementById(`${this.id}MobileNumber`) }
+            getMobileNumberObject() { return Component.getObject(`${this.id}MobileNumber`) }
+            getPickupLocationElement() { return document.getElementById(`${this.id}PickupLocation`) }
+            getPickupLocationObject() { return Component.getObject(`${this.id}PickupLocation`) }
+            getDropoffLocationElement() { return document.getElementById(`${this.id}DropoffLocation`) }
+            getDropoffLocationObject() { return Component.getObject(`${this.id}DropoffLocation`) }
+            getSpecialInstructionsTextElement() { return document.getElementById(`${this.id}SpecialInstructionsText`) }
+            resetIndexes() {
+                this.getPickupLocationObject().setIndexes(4)
+                this.getDropoffLocationObject().setIndexes(4 + this.getPickupLocationObject().getFieldCount())
+                getSpecialInstructionsTextElement().tabindex = 4 + this.getPickupLocationObject().getFieldCount() + this.getDropoffLocationObject().getFieldCount()
+            }
             getData() {
-                const firstNameObj = Component.getObject(`${this.id}FirstName`)
-                const lastNameObj = Component.getObject(`${this.id}LastName`)
-                const mobileNumberObj = Component.getObject(`${this.id}MobileNumber`)
-                const pickupLocationObj = Component.getObject(`${this.id}PickupLocation`)
-                const dropoffLocationObj = Component.getObject(`${this.id}DropoffLocation`)
-                const specialInstructionsObj = Component.getObject(`${this.id}SpecialInstructionsText`)
+                const firstNameObj = this.getFirstNameObject()
+                const lastNameObj = this.getLastNameObject()
+                const mobileNumberObj = this.getMobileNumberObject()
+                const pickupLocationObj = this.getPickupLocationObject()
+                const dropoffLocationObj = this.getDropoffLocationObject()
                 const pickupLocationData = pickupLocationObj?.getData()
                 const dropoffLocationData = dropoffLocationObj?.getData()
 
-                if (!firstNameObj || !lastNameObj || !mobileNumberObj || !pickupLocationObj || !dropoffLocationObj || !specialInstructionsObj || !pickupLocationData || !dropoffLocationData) {
+                if (!firstNameObj || !lastNameObj || !mobileNumberObj || !pickupLocationObj || !dropoffLocationObj || !pickupLocationData || !dropoffLocationData) {
                     this.showError(`Error getting reservation data.`)
                     return null
                 }
@@ -38,17 +60,18 @@
                     return null
                 }
 
-                const firstName = document.getElementById(`${this.id}FirstName`)?.value
-                const lastName = document.getElementById(`${this.id}LastName`)?.value
-                const mobileNumber = document.getElementById(`${this.id}MobileNumber`)?.value
+                const firstName = this.getFirstNameElement().value
+                const lastName = this.getLastNameElement().value
+                const mobileNumber = this.getMobileNumberElement().value
                 const pickupLocation = pickupLocationData
                 const dropoffLocation = dropoffLocationData
-                const specialInstructions = document.getElementById(`${this.id}SpecialInstructionsText`)?.value
+                const specialInstructions = this.getSpecialInstructionsTextElement().value
                 
                 return { firstName, lastName, mobileNumber, pickupLocation, dropoffLocation, specialInstructions }
             }
             async sendReservationRequest () {
                 const reservationRequest = this.getData()
+                console.log(JSON.stringify(reservationRequest))
                 const response = await fetch('http://localhost:8080/request-reservation', {
                     method: 'POST',
                     headers: {
@@ -63,6 +86,18 @@
                 } else {
                     this.showError(`Error sending reservation request. Status code ${response.status}.`)
                 }
+            }
+            showInfo(message) {
+                let infoSnackbar = Component.getObject(`SnackbarInfo`)
+                        
+                infoSnackbar.vars.text = message
+                infoSnackbar.show()
+            }
+            showError(message) {
+                let errorSnackbar = Component.getObject(`SnackbarError`)
+                        
+                errorSnackbar.vars.text = message
+                errorSnackbar.show()
             }
             vars = {
                 specialInstructions: ``
@@ -94,17 +129,17 @@
             </section>
             <div id="{id}LocationWrapper" class="flex-row">
                 <include-html include-in="reservations.html" src="./html/components/reservations/location.html" component-class="Location" component-id="{id}PickupLocation">
-                    <include-props class="display-none">{ title: `Pickup`, firstTabIndex: 6 }</include-props>
+                    <include-props class="display-none">{ title: `Pickup` }</include-props>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/reservations/location.html" component-class="Location" component-id="{id}DropoffLocation">
-                    <include-props class="display-none">{ title: `Dropoff`, firstTabIndex: 18 }</include-props>
+                    <include-props class="display-none">{ title: `Dropoff` }</include-props>
                 </include-html>
             </div>
             <div id="{id}SpecialInstructions" class="flex-col margin-10 margin-b-20 shadow-white round-15px">
                 <h2 id="{id}SpecialInstructionsTitle" class="header-6 margin-l-5 margin-b-5">Special Instructions</h2>
-                <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="24">{specialInstructions}</textarea>
+                <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="23">{specialInstructions}</textarea>
             </div>
-            <div id="{id}ButtonWrapper" class="flex-col flex-center flex-align-center margin-t-20 w100" onclick="$obj.submit()">
+            <div id="{id}ButtonWrapper" class="flex-col flex-center flex-align-center margin-t-20 w100">
                 <div id="{id}Button" class="button w100px center-text" onclick="$obj.sendReservationRequest()">Request a Reservation</div>
             </div>
     </div>

@@ -2,16 +2,8 @@
     <script>
         //# sourceURL=html/components/reservations/airport.html
         class Airport extends Component {
-            // TODO: Figure out why {airlineTabIndex}AirlineList works, but {id}AirlineList doesn't (See HTML, below).
+            // TODO: Figure out why {vars.value}AirlineList works, but {id}AirlineList doesn't (See HTML, below).
             afterMount() {
-                let parent = this.getParentComponent()
-                let tabIndexes = parent.getAirportTabIndexes()
-                
-                this.vars.airlineTabIndex = tabIndexes.airlineTabIndex
-                this.vars.flightNumberTabIndex = tabIndexes.flightNumberTabIndex
-                this.vars.arrivalDateTabIndex = tabIndexes.arrivalDateTabIndex
-                this.vars.estimatedArrivalTimeTabIndex = tabIndexes.estimatedArrivalTimeTabIndex
-
                 Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => { 
                     const id = this.id
                     const stateFieldId = `${id}Airline`
@@ -33,11 +25,32 @@
                 })
                 super.afterMount()
             }
+            getAirlineElement() { return document.getElementById(`${this.id}Airline`) }
+            getAirlineObject() { return Component.getObject(`${this.id}Airline`) }
+            getFlightNumberElement() { return document.getElementById(`${this.id}FlightNumber`) }
+            getFlightNumberObject() { return Component.getObject(`${this.id}FlightNumber`) }
+            getArrivalDateElement() { return document.getElementById(`${this.id}ArrivalDate`) }
+            getArrivalDateObject() { return Component.getObject(`${this.id}ArrivalDate`) }
+            getEstimatedArrivalTimeElement() { return document.getElementById(`${this.id}EstimatedArrivalTime`) }
+            getEstimatedArrivalTimeObject() { return Component.getObject(`${this.id}EstimatedArrivalTime`) }
+            clearData() {
+                this.getAirlineElement().value = ''
+                this.getFlightNumberElement().value = ''
+                this.getArrivalDateElement().value = ''
+                this.getEstimatedArrivalTimeElement().value = ''
+            }
+            setIndexes(firstIndex) {
+                this.getAirlineElement().tabindex = firstIndex
+                this.getFlightNumberElement().tabindex = firstIndex + 1
+                this.getArrivalDateElement().tabindex = firstIndex + 2
+                this.getEstimatedArrivalTimeElement().tabindex = firstIndex + 3
+            }
+            getFieldCount() { return 4 }
             getData() {
-                const airlineObj = Component.getObject(`${this.id}Airline`)
-                const flightNumberObj = Component.getObject(`${this.id}FlightNumber`)
-                const arrivalDateObj = Component.getObject(`${this.id}ArrivalDate`)
-                const estimatedArrivalTimeObj = Component.getObject(`${this.id}EstimatedArrivalTime`)
+                const airlineObj = this.getAirlineObject()
+                const flightNumberObj = this.getFlightNumberObject()
+                const arrivalDateObj = this.getArrivalDateObject()
+                const estimatedArrivalTimeObj = this.getEstimatedArrivalTimeObject()
 
                 if (!airlineObj || !flightNumberObj || !arrivalDateObj || !estimatedArrivalTimeObj) {
                     this.showError(`Error getting airport data.`)
@@ -60,10 +73,10 @@
                     return null
                 }
 
-                const airline = document.getElementById(`${this.id}Airline`)?.value
-                const flightNumber = document.getElementById(`${this.id}FlightNumber`)?.value
-                const arrivalDate = document.getElementById(`${this.id}ArrivalDate`)?.value
-                const estimatedArrivalTime = document.getElementById(`${this.id}EstimatedArrivalTime`)?.value
+                const airline = this.getAirlineElement().value
+                const flightNumber = this.getFlightNumberElement().value
+                const arrivalDate = this.getArrivalDateElement().value
+                const estimatedArrivalTime = this.getEstimatedArrivalTimeElement().value
 
                 return { airline, flightNumber, arrivalDate, estimatedArrivalTime }
             }
@@ -73,11 +86,8 @@
                 errorSnackbar.vars.text = message
                 errorSnackbar.show()
             }
-            vars = {
-                airlineTabIndex: 1,
-                flightNumberTabIndex: 2,
-                arrivalDateTabIndex: 3,
-                estimatedArrivalTimeTabIndex: 4,
+            props = {
+                title: ``
             }
         }
     </script>
@@ -89,10 +99,10 @@
         <div id="{id}">
             <div>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
-                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{airlineTabIndex}AirlineList`, required: true, minlength: 2, maxlength: 30, tabindex: {airlineTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{title}AirlineList`, required: true, minlength: 2, maxlength: 30, tabindex: 1 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <datalist id="{airlineTabIndex}AirlineList">
+                <datalist id="{title}AirlineList">
                     <option value="Advanced Air"></option>
                     <option value="Air Canada"></option>
                     <option value="Alaska Airlines"></option>
@@ -118,15 +128,15 @@
                     <option value="WestJet"></option>
                 </datalist>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
-                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 2, maxlength: 30, tabindex: {flightNumberTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 2, maxlength: 30, tabindex: 2 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}ArrivalDate">
-                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: {arrivalDateTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 3 }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EstimatedArrivalTime">
-                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: {estimatedArrivalTimeTabIndex} }</include-props>
+                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 4 }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

@@ -2,27 +2,20 @@
     <script>
         //# sourceURL=html/components/reservations/address.html
         class Address extends Component {
-            afterMount() {
-                Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => { 
-                    const id = this.id
-                    const stateFieldId = `${id}State`
+            onChildrenMounted() {
+                super.onChildrenMounted()
 
-                    if (stateFieldId !== component.id) { return }
+                const testState = async () => {
+                    let results = []
+                    const states = [`AL`, `AK`, `AZ`, `AR`, `AS`, `CA`, `CO`, `CT`, `DE`, `DC`, `FL`, `GA`, `GU`, `HI`, `ID`, `IL`, `IN`, `IA`,
+                        `KS`, `KY`, `LA`, `ME`, `MD`, `MA`, `MI`, `MN`, `MS`, `MO`, `MT`, `NE`, `NV`, `NH`, `NJ`, `NM`, `NY`, `NC`, `ND`, `MP`,
+                        `OH`, `OK`, `OR`, `PA`, `PR`, `RI`, `SC`, `SD`, `TN`, `TX`, `TT`, `UT`, `VT`, `VA`, `VI`, `WA`, `WV`, `WI`, `WY`]
 
-                    const testState = async () => {
-                        let results = []
-                        const states = [`AL`, `AK`, `AZ`, `AR`, `AS`, `CA`, `CO`, `CT`, `DE`, `DC`, `FL`, `GA`, `GU`, `HI`, `ID`, `IL`, `IN`, `IA`,
-                            `KS`, `KY`, `LA`, `ME`, `MD`, `MA`, `MI`, `MN`, `MS`, `MO`, `MT`, `NE`, `NV`, `NH`, `NJ`, `NM`, `NY`, `NC`, `ND`, `MP`,
-                            `OH`, `OK`, `OR`, `PA`, `PR`, `RI`, `SC`, `SD`, `TN`, `TX`, `TT`, `UT`, `VT`, `VA`, `VI`, `WA`, `WV`, `WI`, `WY`]
+                    assert(states.includes(this.State.Element.value),                        `Field '${this.State.props.label}' is a valid state code.`, results, true)
+                    return results
+                }
 
-                        assert(states.includes(component.vars.element.value),                    `Field '${component.props.label}' is a valid state code.`, results, true)
-                        return results
-                    }
-
-                    component.vars.customValidationTests.push(testState)
-                })
-
-                super.afterMount()
+                this.State.vars.customValidationTests.push(testState)
             }
             clearData() {
                 this.Address.Element.value = ''

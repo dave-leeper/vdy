@@ -785,14 +785,14 @@ class Component {
 
             if (!childComponents.length) {
                 if (!objectInfo.hasBroadcastChildrenMounted) {
-                    Queue.broadcast(Messages.COMPONENT_CHILDREN_MOUNTED, this)
                     objectInfo.hasBroadcastChildrenMounted = true
                     window.$components.objectRegistry.set(this.id, objectInfo)
+                    this.onChildrenMounted()
                 }
                 if (!objectInfo.hasBroadcastDescendantsMounted) {
-                    Queue.broadcast(Messages.COMPONENT_DESCENDANTS_MOUNTED, this)
                     objectInfo.hasBroadcastDescendantsMounted = true
                     window.$components.objectRegistry.set(this.id, objectInfo)
+                    this.onDescendantsMounted()
                 }
                 return
             }
@@ -801,16 +801,16 @@ class Component {
             if (childComponents.includes(message.id) && !objectInfo.hasBroadcastChildrenMounted) {
                 objectInfo.mountedChildComponents.push(message.id)
                 if (childComponents.length === objectInfo.mountedChildComponents.length) {
-                    Queue.broadcast(Messages.COMPONENT_CHILDREN_MOUNTED, this)
                     objectInfo.hasBroadcastChildrenMounted = true
+                    window.$components.objectRegistry.set(this.id, objectInfo)
+                    this.onChildrenMounted()
                 }
-                window.$components.objectRegistry.set(this.id, objectInfo)
             }
 
             if (this.haveDescendantsMounted() && !objectInfo.hasBroadcastDescendantsMounted) {
-                Queue.broadcast(Messages.COMPONENT_DESCENDANTS_MOUNTED, this)
                 objectInfo.hasBroadcastDescendantsMounted = true
                 window.$components.objectRegistry.set(this.id, objectInfo)
+                this.onDescendantsMounted()
             }
         })
     }
@@ -837,6 +837,8 @@ class Component {
     afterMount() { Queue.broadcast(Messages.COMPONENT_AFTER_MOUNT, this )}
     beforeUnmount() { Queue.broadcast(Messages.COMPONENT_BEFORE_UNMOUNT, this )}
     afterUnmount() { Queue.broadcast(Messages.COMPONENT_AFTER_UNMOUNT, this )}
+    onChildrenMounted() { Queue.broadcast(Messages.COMPONENT_CHILDREN_MOUNTED, this )}
+    onDescendantsMounted() { Queue.broadcast(Messages.COMPONENT_DESCENDANTS_MOUNTED, this )}
     isMounted() { return window.$components.objectRegistry.get(this.id).mounted } 
     beforeSlotLoaded(slot) { Queue.broadcast(Messages.COMPONENT_BEFORE_SLOT_LOADED, { component: this, slot })}
     afterSlotLoaded(slot) { Queue.broadcast(Messages.COMPONENT_AFTER_SLOT_LOADED, { component: this, slot } )}

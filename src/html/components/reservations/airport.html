@@ -3,27 +3,20 @@
         //# sourceURL=html/components/reservations/airport.html
         class Airport extends Component {
             // TODO: Figure out why {vars.value}AirlineList works, but {id}AirlineList doesn't (See HTML, below).
-            afterMount() {
-                Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => { 
-                    const id = this.id
-                    const stateFieldId = `${id}Airline`
+            onChildrenMounted() {
+                super.onChildrenMounted()
+                const testState = async () => {
+                    let results = []
+                    const airlines = [`Advanced Air`, `Air Canada`, `Alaska Airlines`, `Allegiant`, `American Airlines`, `Breeze Airways`, `British Airways`, `Condor Airlines`,
+                        `Contour Airlines`, `Delta Airlines`, `Denver Air Connection`, `Frontier Airlines`, `Hawaiian Airlines`, `JetBlue Airways`, 
+                        `JSX - Jackson Jet Center`, `Lynx Air`, `Southern Airways Express`, `Southwest Airlines`, `Spirit Airlines`,
+                        `Sun Country Airlines`, `United Airlines`, `Volaris`, `WestJet`]
+                
+                    assert(airlines.includes(this.Airline.Element.value),                   `Field '${this.Airline.props.label}' is a valid airline.`, results, true)
+                    return results
+                }
 
-                    if (stateFieldId !== component.id) { return }
-
-                    const testState = async () => {
-                        let results = []
-                        const airlines = [`Advanced Air`, `Air Canada`, `Alaska Airlines`, `Allegiant`, `American Airlines`, `Breeze Airways`, `British Airways`, `Condor Airlines`,
-                            `Contour Airlines`, `Delta Airlines`, `Denver Air Connection`, `Frontier Airlines`, `Hawaiian Airlines`, `JetBlue Airways`, 
-                            `JSX - Jackson Jet Center`, `Lynx Air`, `Southern Airways Express`, `Southwest Airlines`, `Spirit Airlines`,
-                            `Sun Country Airlines`, `United Airlines`, `Volaris`, `WestJet`]
-                    
-                        assert(airlines.includes(component.vars.element.value),                 `Field '${component.props.label}' is a valid airline.`, results, true)
-                        return results
-                    }
-
-                    component.vars.customValidationTests.push(testState)
-                })
-                super.afterMount()
+                this.Airline.vars.customValidationTests.push(testState)
             }
             clearData() {
                 this.Airline.Element.value = ''

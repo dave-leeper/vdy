@@ -9,6 +9,28 @@
                     this.resetIndexes()
                 })
             }
+            onDescendantsMounted() {
+                const testDropoffDateAfterPickupDate = async () => {
+                    let results = []
+                    const dropoffAirport = this.DropoffLocation.isAirportVisible()
+                    const pickupAirport = this.PickupLocation.isAirportVisible()
+                    const dropoffDateValue = (dropoffAirport)? this.DropoffLocation.AirportInfo.ArrivalDate.Element.value : this.DropoffLocation.AddressInfo.Date.Element.value
+                    const pickupDateValue = (pickupAirport)? this.PickupLocation.AirportInfo.ArrivalDate.Element.value : this.PickupLocation.AddressInfo.Date.Element.value
+                    const dropoffDateParts = dropoffDateValue.split("-")
+                    const pickupDateParts = pickupDateValue.split("-")
+                    const dropoffDate = new Date(parseInt(dropoffDateParts[0], 10), parseInt(dropoffDateParts[1], 10) - 1, parseInt(dropoffDateParts[2], 10))
+                    const pickupDate = new Date(parseInt(pickupDateParts[0], 10), parseInt(pickupDateParts[1], 10) - 1, parseInt(pickupDateParts[2], 10))
+                    const dropoffDateLabel = (dropoffAirport)? this.DropoffLocation.AirportInfo.ArrivalDate.props.label : this.DropoffLocation.AddressInfo.Date.props.label
+                    const pickupDatelabel = (pickupAirport)? this.PickupLocation.AirportInfo.ArrivalDate.props.label : this.PickupLocation.AddressInfo.Date.props.label
+
+                    assert(pickupDate < dropoffDate,                                                `Field '${dropoffDateLabel}' is after '${pickupDatelabel}'.`, results, true)
+                    return results
+                }
+
+                this.DropoffLocation.AirportInfo.ArrivalDate.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
+                this.DropoffLocation.AddressInfo.Date.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
+                super.onDescendantsMounted()
+            }
             onBlur(event) { this.updateSpecialInstructions() }
             onInput(event) { this.updateSpecialInstructions() }
             updateSpecialInstructions() {
@@ -31,20 +53,20 @@
                 const dropoffLocationData = dropoffLocationObj.getData()
 
                 if (!firstNameObj || !lastNameObj || !mobileNumberObj || !pickupLocationObj || !dropoffLocationObj || !pickupLocationData || !dropoffLocationData) {
-                    this.showError(`Error getting reservation data.`)
+                    showError(`Error getting reservation data.`)
                     return null
                 }
                 if (!firstNameObj.vars.valid) {
-                    this.showError(`${firstNameObj.props.name} is invalid.`)
+                    showError(`${firstNameObj.props.name} is invalid.`)
                     return null
                 }
                 if (!lastNameObj.vars.valid) {
-                    this.showError(`${lastNameObj.props.name} is invalid.`)
+                    showError(`${lastNameObj.props.name} is invalid.`)
                     return null
                 }
 
                 if (!mobileNumberObj.vars.valid) {
-                    this.showError(`${mobileNumberObj.props.name} is invalid.`)
+                    showError(`${mobileNumberObj.props.name} is invalid.`)
                     return null
                 }
 
@@ -70,30 +92,16 @@
                 })
 
                 if (200 === response.status) {                    
-                    this.showInfo(`Your reservation request has been sent.`)
+                    showInfo(`Your reservation request has been sent.`)
                 } else {
-                    this.showError(`Error sending reservation request. Status code ${response.status}.`)
+                    showError(`Error sending reservation request. Status code ${response.status}.`)
                 }
-            }
-            showInfo(message) {
-                let infoSnackbar = Component.getObject(`SnackbarInfo`)
-                        
-                infoSnackbar.vars.text = message
-                infoSnackbar.show()
-            }
-            showError(message) {
-                let errorSnackbar = Component.getObject(`SnackbarError`)
-                        
-                errorSnackbar.vars.text = message
-                errorSnackbar.show()
             }
             vars = {
                 specialInstructions: ``
             }
         }
     </script>
-    <test-script>
-    </test-script>
     <style>
     </style>
     <component-markup>
@@ -132,4 +140,6 @@
             </div>
     </div>
     </component-markup>
+    <test-script>
+    </test-script>
 </custom-component>

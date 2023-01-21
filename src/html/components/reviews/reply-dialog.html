@@ -38,18 +38,6 @@
             }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
-            showError(message) {
-                let errorSnackbar = Component.getObject(`SnackbarError`)
-                        
-                errorSnackbar.vars.text = message
-                errorSnackbar.show()
-            }
-            showInfo(message) {
-                let infoSnackbar = Component.getObject(`SnackbarInfo`)
-                        
-                infoSnackbar.vars.text = message
-                infoSnackbar.show()
-            }
             updateReply() {
                 const textAreaId = `${this.id}ReplyText`
                 let textarea = document.getElementById(textAreaId)
@@ -70,7 +58,7 @@
             save() {
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
-                        this.showError(`Error getting credentials.`)
+                        showError(`Error getting credentials.`)
                         return
                     }
 
@@ -98,10 +86,10 @@
                             reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
                             JavascriptWebToken.storeCredentials(content.jwt)
-                            this.showInfo(`Reply updated.`)
+                            showInfo(`Reply updated.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
-                            else { this.showError(`Error updating reply. Status code ${response.status}.`) }
+                            else { showError(`Error updating reply. Status code ${response.status}.`) }
                         }
                     } else {
                         const reviewNumber = this.props.reviewId.split(`_`)[1]
@@ -132,10 +120,10 @@
                             JavascriptWebToken.storeCredentials(content.jwt)
                             reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
-                            this.showInfo(`Reply added.`)
+                            showInfo(`Reply added.`)
                         } else {
                             if (401 === response.status) { window.location.href = `/login` }
-                            else { this.showError(`Error adding reply. Status code ${response.status}.`) }
+                            else { showError(`Error adding reply. Status code ${response.status}.`) }
                         }
                     }
                 })
@@ -159,10 +147,7 @@
             }
         }
     </script>
-    <test-script>
-    </test-script>
     <style>
-
     </style>
     <component-markup>
         <div id="{id}" class="modal display-none" onclick="$obj.hide()">
@@ -202,4 +187,6 @@
             </div>
           </div>
     </component-markup>
+    <test-script>
+    </test-script>
 </custom-component>

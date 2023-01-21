@@ -72,45 +72,33 @@
                 modal.setAttribute(`class`, `display-none modal`)
                 this.destroy()
             }
-            showError(message) {
-                let errorSnackbar = Component.getObject(`SnackbarError`)
-                        
-                errorSnackbar.vars.text = message
-                errorSnackbar.show()
-            }
-            showInfo(message) {
-                let infoSnackbar = Component.getObject(`SnackbarInfo`)
-                        
-                infoSnackbar.vars.text = message
-                infoSnackbar.show()
-            }
             async save() {
                 if (!this.firstNameField || !this.lastNameField || !this.cityField || !this.stateField || !this.avatarURLField) {
-                    this.showError(`Error getting review data.`)
+                    showError(`Error getting review data.`)
                     return
                 }
                 if (!this.firstNameField.vars.valid) {
-                    this.showError(`${this.firstNameField.props.name} is invalid.`)
+                    showError(`${this.firstNameField.props.name} is invalid.`)
                     return
                 }
                 if (!this.lastNameField.vars.valid) {
-                    this.showError(`${this.lastNameField.props.name} is invalid.`)
+                    showError(`${this.lastNameField.props.name} is invalid.`)
                     return
                 }
                 if (!this.cityField.vars.valid) {
-                    this.showError(`${this.cityField.props.name} is invalid.`)
+                    showError(`${this.cityField.props.name} is invalid.`)
                     return
                 }
                 if (!this.stateField.vars.valid) {
-                    this.showError(`${this.stateField.props.name} is invalid.`)
+                    showError(`${this.stateField.props.name} is invalid.`)
                     return
                 }
                 if (!this.avatarURLField.vars.valid) {
-                    this.showError(`${this.avatarURLField.props.name} is invalid.`)
+                    showError(`${this.avatarURLField.props.name} is invalid.`)
                     return
                 }
                 if (5 > this.vars.review.length) {
-                    this.showError(`Review text is required and must be at least 5 characters.`)
+                    showError(`Review text is required and must be at least 5 characters.`)
                     return
                 }
 
@@ -145,9 +133,9 @@
                     reviewList.destroyReviewsAndReplies()
                     reviewList.fetchReviews()
                     JavascriptWebToken.storeCredentials(content.jwt)
-                    this.showInfo(`Review added.`)
+                    showInfo(`Review added.`)
                 } else {
-                    this.showError(`Error adding review. Status code ${response.status}.`)
+                    showError(`Error adding review. Status code ${response.status}.`)
                 }
                 this.hide()
             }
@@ -163,8 +151,6 @@
             }
         }
     </script>
-    <test-script>
-    </test-script>
     <style>
 
     </style>
@@ -204,4 +190,6 @@
             </div>
           </div>
     </component-markup>
+    <test-script>
+    </test-script>
 </custom-component>

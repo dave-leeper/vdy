@@ -3,7 +3,6 @@
         //# sourceURL=html/components/reservations/airport.html
         class Airport extends Component {
             onChildrenMounted() {
-                super.onChildrenMounted()
                 const testState = async () => {
                     let results = []
                     const airlines = [`Advanced Air`, `Air Canada`, `Alaska Airlines`, `Allegiant`, `American Airlines`, `Breeze Airways`, `British Airways`, `Condor Airlines`,
@@ -14,8 +13,39 @@
                     assert(airlines.includes(this.Airline.Element.value),                   `Field '${this.Airline.props.label}' is a valid airline.`, results, true)
                     return results
                 }
+                const testDate = async () => {
+                    let results = []
+                    function isNotBeforeToday(date) {
+                        const today = new Date()
+
+                        today.setHours(0, 0, 0, 0)
+                        return date >= today
+                    }
+
+                    let parts = this.ArrivalDate.Element.value.split("-")
+                    let day = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10))
+                    assert(isNotBeforeToday(day),                                           `Field '${this.ArrivalDate.props.label}' is a not in the past.`, results, true)
+                    return results
+                }
+                const testTime = async () => {
+                    let results = []
+                    function isNotBeforeToday(date) {
+                        const today = new Date()
+
+                        return date >= today
+                    }
+
+                    let dateParts = this.ArrivalDate.Element.value.split("-")
+                    let tmeParts = this.EstimatedArrivalTime.Element.value.split(":")
+                    let day = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10), parseInt(tmeParts[0], 10), parseInt(tmeParts[1], 10))
+                    assert(isNotBeforeToday(day),                                           `Field '${this.EstimatedArrivalTime.props.label}' is a not in the past.`, results, true)
+                    return results
+                }
 
                 this.Airline.vars.customValidationTests.push(testState)
+                this.ArrivalDate.vars.customValidationTests.push(testDate)
+                this.EstimatedArrivalTime.vars.customValidationTests.push(testTime)
+                super.onChildrenMounted()
             }
             clearData() {
                 this.Airline.Element.value = ''
@@ -37,23 +67,23 @@
                 const estimatedArrivalTimeObj = this.EstimatedArrivalTime
 
                 if (!airlineObj || !flightNumberObj || !arrivalDateObj || !estimatedArrivalTimeObj) {
-                    this.showError(`Error getting airport data.`)
+                    showError(`Error getting airport data.`)
                     return null
                 }
                 if (!airlineObj.vars.valid) {
-                    this.showError(`${airlineObj.props.name} is invalid.`)
+                    showError(`${airlineObj.props.name} is invalid.`)
                     return null
                 }
                 if (!flightNumberObj.vars.valid) {
-                    this.showError(`${flightNumberObj.props.name} is invalid.`)
+                    showError(`${flightNumberObj.props.name} is invalid.`)
                     return null
                 }
                 if (!arrivalDateObj.vars.valid) {
-                    this.showError(`${arrivalDateObj.props.name} is invalid.`)
+                    showError(`${arrivalDateObj.props.name} is invalid.`)
                     return null
                 }
                 if (!estimatedArrivalTimeObj.vars.valid) {
-                    this.showError(`${estimatedArrivalTimeObj.props.name} is invalid.`)
+                    showError(`${estimatedArrivalTimeObj.props.name} is invalid.`)
                     return null
                 }
 
@@ -64,19 +94,11 @@
 
                 return { airline, flightNumber, arrivalDate, estimatedArrivalTime }
             }
-            showError(message) {
-                let errorSnackbar = Component.getObject(`SnackbarError`)
-                        
-                errorSnackbar.vars.text = message
-                errorSnackbar.show()
-            }
             props = {
                 title: ``
             }
         }
     </script>
-    <test-script>
-    </test-script>
     <style>
     </style>
     <component-markup>
@@ -126,4 +148,6 @@
             </div>
         </div>
     </component-markup>
+    <test-script>
+    </test-script>
 </custom-component>

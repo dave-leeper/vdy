@@ -800,9 +800,17 @@ class Component {
                 }
                 return
             }
-            if (objectInfo.mountedChildComponents.includes(message.id)) { return }
 
-            if (childComponents.includes(message.id) && !objectInfo.hasBroadcastChildrenMounted) {
+            const truncatedMessageId = message.id.replace(this.id, ``)
+            const rebuiltMessageId = this.id + truncatedMessageId
+
+            if (objectInfo.mountedChildComponents.includes(message.id)) { return }
+            if (rebuiltMessageId !== message.id) { return }
+
+            if (childComponents.includes(truncatedMessageId) && !objectInfo.hasBroadcastChildrenMounted) {
+                if (`Address` === this.className()) {
+                    const x = 1
+                }
                 objectInfo.mountedChildComponents.push(message.id)
                 if (childComponents.length === objectInfo.mountedChildComponents.length) {
                     objectInfo.hasBroadcastChildrenMounted = true
@@ -832,8 +840,8 @@ class Component {
 
         if (!childComponents || 0 === childComponents.length) { return true }
         for (let childComponentId of childComponents) {
-            if (!Component.isObjectRegistered(childComponentId)) { return false }
-            if (!Component.getObject(childComponentId).haveDescendantsMounted()) { return false }
+            if (!Component.isObjectRegistered(`${this.id}${childComponentId}`)) { return false }
+            if (!Component.getObject(`${this.id}${childComponentId}`).haveDescendantsMounted()) { return false }
         }
         return true
     }
@@ -869,29 +877,6 @@ class Component {
 
         if (!element) { return null }
         return walkUpTree(element)
-    }
-    getAncestorComponents() {
-        let element = document.getElementById(this.id)
-        let ancestors = { ancestor: null, next: null }
-        let walkUpTree = (element, ancestors) => {
-            while (element.parentElement) {
-                if (element.parentElement.id) {
-                    let parentComponent = window?.$components?.objectRegistry?.get(element.parentElement.id)
-    
-                    if (parentComponent) { 
-                        ancestors.ancestor = parentComponent.componentObject
-                        ancestors.next = { ancestor: null, next: null }
-                        walkUpTree(element.parentElement, ancestors.next)
-                        break;
-                    } 
-                }
-                element = element.parentElement
-            }    
-        }
-            
-        if (!element) { return ancestors }
-        walkUpTree(element, ancestors)
-        return ancestors
     }
 }
 
@@ -1064,7 +1049,7 @@ class Loader {
         for (let loop = 0; loop < includeHTMLTags.length; loop++) {
             let includeHTMLTag = includeHTMLTags[loop]
 
-            if (includeHTMLTag.hasAttribute(`component-id`)) { data.childComponents.push(includeHTMLTag.getAttribute(`component-id`).replace(`{id}`, componentObjectId)) }
+            if (includeHTMLTag.hasAttribute(`component-id`)) { data.childComponents.push(includeHTMLTag.getAttribute(`component-id`).replace(`{id}`, ``)) }
         }
         window.$components.childComponentRegistry.set(data.component, data.childComponents)
     }
@@ -1078,7 +1063,7 @@ class Loader {
 
             Object.defineProperty(componentObject, getterName, {
                 get: function() {
-                    return Component.getObject(childComponentId)
+                    return Component.getObject(`${componentObjectId}${childComponentId}`)
                 },
                 set: function(newValue) {
                     console.error(`Component: Cannot set ${getterName}.`)

@@ -3,8 +3,6 @@
         //# sourceURL=html/components/reservations/address.html
         class Address extends Component {
             onChildrenMounted() {
-                super.onChildrenMounted()
-
                 const testState = async () => {
                     let results = []
                     const states = [`AL`, `AK`, `AZ`, `AR`, `AS`, `CA`, `CO`, `CT`, `DE`, `DC`, `FL`, `GA`, `GU`, `HI`, `ID`, `IL`, `IN`, `IA`,
@@ -14,8 +12,39 @@
                     assert(states.includes(this.State.Element.value),                        `Field '${this.State.props.label}' is a valid state code.`, results, true)
                     return results
                 }
+                const testDate = async () => {
+                    let results = []
+                    function dateIsNotBeforeToday(date) {
+                        const today = new Date()
+
+                        today.setHours(0, 0, 0, 0)
+                        return date >= today
+                    }
+
+                    let parts = this.Date.Element.value.split("-")
+                    let day = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10))
+                    assert(dateIsNotBeforeToday(day),                                       `Field '${this.Date.props.label}' is a not in the past.`, results, true)
+                    return results
+                }
+                const testTime = async () => {
+                    let results = []
+                    function timeIsNotBeforeToday(date) {
+                        const today = new Date()
+
+                        return date >= today
+                    }
+
+                    let dateParts = this.Date.Element.value.split("-")
+                    let timeParts = this.Time.Element.value.split(":")
+                    let day = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10), parseInt(timeParts[0], 10), parseInt(timeParts[1], 10))
+                    assert(timeIsNotBeforeToday(day),                                       `Field '${this.Time.props.label}' is a not in the past.`, results, true)
+                    return results
+                }
 
                 this.State.vars.customValidationTests.push(testState)
+                this.Date.vars.customValidationTests.push(testDate)
+                this.EstimatedArrivalTime.vars.customValidationTests.push(testTime)
+                super.onChildrenMounted()
             }
             clearData() {
                 this.Address.Element.value = ''
@@ -43,31 +72,31 @@
                 const timeObj = this.Time
 
                 if (!addressObj || !address2Obj || !cityObj || !stateObj || !dateObj || !timeObj) {
-                    this.showError(`Error getting address data.`)
+                    showError(`Error getting address data.`)
                     return null
                 }
                 if (!addressObj.vars.valid) {
-                    this.showError(`${addressObj.props.name} is invalid.`)
+                    showError(`${addressObj.props.name} is invalid.`)
                     return null
                 }
                 if (!address2Obj.vars.valid) {
-                    this.showError(`${address2Obj.props.name} is invalid.`)
+                    showError(`${address2Obj.props.name} is invalid.`)
                     return null
                 }
                 if (!cityObj.vars.valid) {
-                    this.showError(`${cityObj.props.name} is invalid.`)
+                    showError(`${cityObj.props.name} is invalid.`)
                     return null
                 }
                 if (!stateObj.vars.valid) {
-                    this.showError(`${stateObj.props.name} is invalid.`)
+                    showError(`${stateObj.props.name} is invalid.`)
                     return null
                 }
                 if (!dateObj.vars.valid) {
-                    this.showError(`${dateObj.props.name} is invalid.`)
+                    showError(`${dateObj.props.name} is invalid.`)
                     return null
                 }
                 if (!timeObj.vars.valid) {
-                    this.showError(`${timeObj.props.name} is invalid.`)
+                    showError(`${timeObj.props.name} is invalid.`)
                     return null
                 }
 
@@ -80,19 +109,11 @@
 
                 return { address, address2, city, state, date, time }
             }
-            showError(message) {
-                let errorSnackbar = Component.getObject(`SnackbarError`)
-                        
-                errorSnackbar.vars.text = message
-                errorSnackbar.show()
-            }
             props = {
                 title: ``
             }
         }
     </script>
-    <test-script>
-    </test-script>
     <style>
     </style>
     <component-markup>
@@ -184,4 +205,6 @@
             </div>
         </div>
     </component-markup>
+    <test-script>
+    </test-script>
 </custom-component>

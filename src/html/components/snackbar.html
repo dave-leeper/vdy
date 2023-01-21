@@ -23,10 +23,56 @@
                 text: ``
             }
         }
+        const showError = (message) => {
+            let errorSnackbar = Component.getObject(`SnackbarError`)
+                    
+            errorSnackbar.vars.text = message
+            errorSnackbar.show()
+        }
+        const showInfo = (message) => {
+            let infoSnackbar = Component.getObject(`SnackbarInfo`)
+                    
+            infoSnackbar.vars.text = message
+            infoSnackbar.show()
+        }
     </script>
-    <test-script>
-    </test-script>
     <style>
+        :root {
+            --snackbar-min-width: 250px;
+            --snackbar-color: var(--primary-text-color);
+            --snackbar-background-color: var(--blue-50);
+            --snackbar-padding: none;
+            --snackbar-margin-left: -125px;
+            --snackbar-text-align: center;
+            --snackbar-font-family: var(--primary-font-family);
+            --snackbar-font-size: var(--text-2-font-size);
+            --snackbar-font-weight: var(--text-2-font-weight);
+            --snackbar-border-color: var(--blue-200);
+            --snackbar-border-width: 2px;
+            --snackbar-border-style: solid;
+            --snackbar-border-radius: 0px;
+            --snackbar-left: 50%;
+            --snackbar-top: 30px;
+            --snackbar-z-index: 10;
+
+            --snackbar-error-min-width: 250px;
+            --snackbar-error-color: var(--light-text-color);
+            --snackbar-error-background-color: var(--error-color);
+            --snackbar-error-padding: none;
+            --snackbar-error-margin-left: -125px;
+            --snackbar-error-text-align: center;
+            --snackbar-error-font-family: var(--primary-font-family);
+            --snackbar-error-font-size: var(--text-2-font-size);
+            --snackbar-error-font-weight: var(--text-2-font-weight);
+            --snackbar-error-border-color: var(--light-text-color);
+            --snackbar-error-border-width: 2px;
+            --snackbar-error-border-style: solid;
+            --snackbar-error-border-radius: 0px;
+            --snackbar-error-left: 50%;
+            --snackbar-error-top: 30px;
+            --snackbar-error-z-index: 10;
+        }
+
         .snackbar {
             visibility: hidden;
             position: fixed;
@@ -103,5 +149,7 @@
     <component-markup>
         <div id="{id}" class="snackbar">{text}</div>
     </component-markup>
+    <test-script>
+    </test-script>
 </custom-component>
 

@@ -2,38 +2,34 @@
     <script>
         //# sourceURL=html/components/reservations/location.html
         class Location extends Component {
-            getAirportElement() { return document.getElementById(`${this.id}Airport`) }
-            getAirportWrapperElement() { return document.getElementById(`${this.id}AirportWrapper`) }
             getAirportObject() { return Component.getObject(`${this.id}AirportInfo`) }
-            isAirportVisible() { return !this.getAirportWrapperElement().classList.contains(`display-none`) }
+            isAirportVisible() { return !this.AirportWrapperElement.classList.contains(`display-none`) }
             showAirport() { 
                 if (!this.isAirportVisible()) {  
-                    this.getAirportWrapperElement().classList.remove(`display-none`)
-                    this.getAirportElement().checked = true
+                    this.AirportWrapperElement.classList.remove(`display-none`)
+                    this.AirportElement.checked = true
                 }
                 if (this.isAddressVisible()) { 
-                    this.getAddressWrapperElement().classList.add(`display-none`) 
-                    this.getAddressElement().checked = false
+                    this.AddressWrapperElement.classList.add(`display-none`) 
+                    this.AddressElement.checked = false
                     this.getAddressObject().clearData()
                 }
                 this.resetIndexes()
             }
             hideAirport() {
                 if (this.isAirportVisible()) {
-                    this.getAirportWrapperElement().classList.add(`display-none`) 
-                    this.getAirportElement().checked = false
+                    this.AirportWrapperElement.classList.add(`display-none`) 
+                    this.AirportElement.checked = false
                     this.getAirportObject().clearData()
                 }
                 if (!this.isAddressVisible()) { 
-                    this.getAddressWrapperElement().classList.remove(`display-none`)
-                    this.getAddressElement().checked = true
+                    this.AddressWrapperElement.classList.remove(`display-none`)
+                    this.AddressElement.checked = true
                 }
                 this.resetIndexes()
             }
-            getAddressElement() { return document.getElementById(`${this.id}Address`) }
-            getAddressWrapperElement() { return document.getElementById(`${this.id}AddressWrapper`) }
             getAddressObject() { return Component.getObject(`${this.id}AddressInfo`) }
-            isAddressVisible() { return !this.getAddressWrapperElement().classList.contains(`display-none`) }
+            isAddressVisible() { return !this.AddressWrapperElement.classList.contains(`display-none`) }
             showAddress() { this.hideAirport() }
             hideAddress() { this.showAirport() }
             setIndexes(firstIndex) {

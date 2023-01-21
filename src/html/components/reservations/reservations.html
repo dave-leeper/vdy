@@ -12,26 +12,19 @@
             onBlur(event) { this.updateSpecialInstructions() }
             onInput(event) { this.updateSpecialInstructions() }
             updateSpecialInstructions() {
-                const textAreaId = `${this.id}SpecialInstructionsText`
-                const textarea = document.getElementById(textAreaId)
+                const textarea = this.SpecialInstructionsTextElement
 
                 this.vars.specialInstructions = textarea.value
             }
-            getFirstNameElement() { return document.getElementById(`${this.id}FirstName`) }
             getFirstNameObject() { return Component.getObject(`${this.id}FirstName`) }
-            getLastNameElement() { return document.getElementById(`${this.id}LastName`) }
             getLastNameObject() { return Component.getObject(`${this.id}LastName`) }
-            getMobileNumberElement() { return document.getElementById(`${this.id}MobileNumber`) }
             getMobileNumberObject() { return Component.getObject(`${this.id}MobileNumber`) }
-            getPickupLocationElement() { return document.getElementById(`${this.id}PickupLocation`) }
             getPickupLocationObject() { return Component.getObject(`${this.id}PickupLocation`) }
-            getDropoffLocationElement() { return document.getElementById(`${this.id}DropoffLocation`) }
             getDropoffLocationObject() { return Component.getObject(`${this.id}DropoffLocation`) }
-            getSpecialInstructionsTextElement() { return document.getElementById(`${this.id}SpecialInstructionsText`) }
             resetIndexes() {
                 this.getPickupLocationObject().setIndexes(4)
                 this.getDropoffLocationObject().setIndexes(4 + this.getPickupLocationObject().getFieldCount())
-                getSpecialInstructionsTextElement().tabindex = 4 + this.getPickupLocationObject().getFieldCount() + this.getDropoffLocationObject().getFieldCount()
+                this.SpecialInstructionsTextElement.tabindex = 4 + this.getPickupLocationObject().getFieldCount() + this.getDropoffLocationObject().getFieldCount()
             }
             getData() {
                 const firstNameObj = this.getFirstNameObject()
@@ -60,12 +53,12 @@
                     return null
                 }
 
-                const firstName = this.getFirstNameElement().value
-                const lastName = this.getLastNameElement().value
-                const mobileNumber = this.getMobileNumberElement().value
+                const firstName = this.FirstNameElement.value
+                const lastName = this.LastNameElement.value
+                const mobileNumber = this.MobileNumberElement.value
                 const pickupLocation = pickupLocationData
                 const dropoffLocation = dropoffLocationData
-                const specialInstructions = this.getSpecialInstructionsTextElement().value
+                const specialInstructions = this.SpecialInstructionsTextElement.value
                 
                 return { firstName, lastName, mobileNumber, pickupLocation, dropoffLocation, specialInstructions }
             }

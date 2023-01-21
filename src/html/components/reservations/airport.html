@@ -25,32 +25,24 @@
                 })
                 super.afterMount()
             }
-            getAirlineElement() { return document.getElementById(`${this.id}Airline`) }
-            getAirlineObject() { return Component.getObject(`${this.id}Airline`) }
-            getFlightNumberElement() { return document.getElementById(`${this.id}FlightNumber`) }
-            getFlightNumberObject() { return Component.getObject(`${this.id}FlightNumber`) }
-            getArrivalDateElement() { return document.getElementById(`${this.id}ArrivalDate`) }
-            getArrivalDateObject() { return Component.getObject(`${this.id}ArrivalDate`) }
-            getEstimatedArrivalTimeElement() { return document.getElementById(`${this.id}EstimatedArrivalTime`) }
-            getEstimatedArrivalTimeObject() { return Component.getObject(`${this.id}EstimatedArrivalTime`) }
             clearData() {
-                this.getAirlineElement().value = ''
-                this.getFlightNumberElement().value = ''
-                this.getArrivalDateElement().value = ''
-                this.getEstimatedArrivalTimeElement().value = ''
+                this.Airline.Element.value = ''
+                this.FlightNumber.Element.value = ''
+                this.ArrivalDate.Element.value = ''
+                this.EstimatedArrivalTime.Element.value = ''
             }
             setIndexes(firstIndex) {
-                this.getAirlineElement().tabindex = firstIndex
-                this.getFlightNumberElement().tabindex = firstIndex + 1
-                this.getArrivalDateElement().tabindex = firstIndex + 2
-                this.getEstimatedArrivalTimeElement().tabindex = firstIndex + 3
+                this.Airline.Element.tabindex = firstIndex
+                this.FlightNumber.Element.tabindex = firstIndex + 1
+                this.ArrivalDate.Element.tabindex = firstIndex + 2
+                this.EstimatedArrivalTime.Element.tabindex = firstIndex + 3
             }
             getFieldCount() { return 4 }
             getData() {
-                const airlineObj = this.getAirlineObject()
-                const flightNumberObj = this.getFlightNumberObject()
-                const arrivalDateObj = this.getArrivalDateObject()
-                const estimatedArrivalTimeObj = this.getEstimatedArrivalTimeObject()
+                const airlineObj = this.Airline
+                const flightNumberObj = this.FlightNumber
+                const arrivalDateObj = this.ArrivalDate
+                const estimatedArrivalTimeObj = this.EstimatedArrivalTime
 
                 if (!airlineObj || !flightNumberObj || !arrivalDateObj || !estimatedArrivalTimeObj) {
                     this.showError(`Error getting airport data.`)
@@ -73,10 +65,10 @@
                     return null
                 }
 
-                const airline = this.getAirlineElement().value
-                const flightNumber = this.getFlightNumberElement().value
-                const arrivalDate = this.getArrivalDateElement().value
-                const estimatedArrivalTime = this.getEstimatedArrivalTimeElement().value
+                const airline = this.Airline.Element.value
+                const flightNumber = this.FlightNumber.Element.value
+                const arrivalDate = this.ArrivalDate.Element.value
+                const estimatedArrivalTime = this.EstimatedArrivalTime.Element.value
 
                 return { airline, flightNumber, arrivalDate, estimatedArrivalTime }
             }

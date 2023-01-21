@@ -24,42 +24,30 @@
 
                 super.afterMount()
             }
-            getAddressElement() { return document.getElementById(`${this.id}Address`) }
-            getAddressObject() { return Component.getObject(`${this.id}Address`) }
-            getAddress2Element() { return document.getElementById(`${this.id}Address2`) }
-            getAddress2Object() { return Component.getObject(`${this.id}Address2`) }
-            getCityElement() { return document.getElementById(`${this.id}City`) }
-            getCityObject() { return Component.getObject(`${this.id}City`) }
-            getStateElement() { return document.getElementById(`${this.id}State`) }
-            getStateObject() { return Component.getObject(`${this.id}State`) }
-            getDateElement() { return document.getElementById(`${this.id}Date`) }
-            getDateObject() { return Component.getObject(`${this.id}Date`) }
-            getTimeElement() { return document.getElementById(`${this.id}Date`) }
-            getTimeObject() { return Component.getObject(`${this.id}Time`) }
             clearData() {
-                this.getAddressElement().value = ''
-                this.getAddress2Element().value = ''
-                this.getCityElement().value = ''
-                this.getStateElement().value = ''
-                this.getDateElement().value = ''
-                this.getTimeElement().value = ''
+                this.Address.Element.value = ''
+                this.Address2.Element.value = ''
+                this.City.Element.value = ''
+                this.State.Element.value = ''
+                this.Date.Element.value = ''
+                this.Time.Element.value = ''
             }
             setIndexes(firstIndex) {
-                this.getAddressElement().tabindex = firstIndex
-                this.getAddress2Element().tabindex = firstIndex + 1
-                this.getCityElement().tabindex = firstIndex + 2
-                this.getStateElement().tabindex = firstIndex + 3
-                this.getDateElement().tabindex = firstIndex + 4
-                this.getTimeElement().tabindex = firstIndex + 5
+                this.Address.Element.tabindex = firstIndex
+                this.Address2.Element.tabindex = firstIndex + 1
+                this.City.Element.tabindex = firstIndex + 2
+                this.State.Element.tabindex = firstIndex + 3
+                this.Date.Element.tabindex = firstIndex + 4
+                this.Time.Element.tabindex = firstIndex + 5
             }
             getFieldCount() { return 6 }
             getData() {
-                const addressObj = this.getAddressObject()
-                const address2Obj = this.getAddress2Object()
-                const cityObj = this.getCityObject()
-                const stateObj = this.getStateObject()
-                const dateObj = this.getDateObject()
-                const timeObj = this.getTimeObject()
+                const addressObj = this.Address
+                const address2Obj = this.Address2
+                const cityObj = this.City
+                const stateObj = this.State
+                const dateObj = this.Date
+                const timeObj = this.Time
 
                 if (!addressObj || !address2Obj || !cityObj || !stateObj || !dateObj || !timeObj) {
                     this.showError(`Error getting address data.`)
@@ -90,12 +78,12 @@
                     return null
                 }
 
-                const address = this.getAddressElement().value
-                const address2 = this.getAddress2Element().value
-                const city = this.getCityElement().value
-                const state = this.getStateElement().value
-                const date = this.getDateElement().value
-                const time = this.getTimeElement().value
+                const address = this.Address.Element.value
+                const address2 = this.Address2.Element.value
+                const city = this.City.Element.value
+                const state = this.State.Element.value
+                const date = this.Date.Element.value
+                const time = this.Time.Element.value
 
                 return { address, address2, city, state, date, time }
             }

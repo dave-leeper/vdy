@@ -2,53 +2,53 @@
     <script>
         //# sourceURL=html/components/reservations/location.html
         class Location extends Component {
-            getAirportObject() { return Component.getObject(`${this.id}AirportInfo`) }
             isAirportVisible() { return !this.AirportWrapperElement.classList.contains(`display-none`) }
             showAirport() { 
                 if (!this.isAirportVisible()) {  
                     this.AirportWrapperElement.classList.remove(`display-none`)
-                    this.AirportElement.checked = true
+                    this.Airport.Element.checked = true
                 }
                 if (this.isAddressVisible()) { 
                     this.AddressWrapperElement.classList.add(`display-none`) 
-                    this.AddressElement.checked = false
-                    this.getAddressObject().clearData()
+                    this.Address.Element.checked = false
+                    this.AddressInfo.clearData()
                 }
                 this.resetIndexes()
             }
             hideAirport() {
                 if (this.isAirportVisible()) {
-                    this.AirportWrapperElement.classList.add(`display-none`) 
-                    this.AirportElement.checked = false
-                    this.getAirportObject().clearData()
+                    this.AirportWrapperElement.classList.add(`display-none`)
+                    let x = this.Airport
+                    let y = this.Airport.Element
+                    this.Airport.Element.checked = false
+                    this.AirportInfo.clearData()
                 }
                 if (!this.isAddressVisible()) { 
                     this.AddressWrapperElement.classList.remove(`display-none`)
-                    this.AddressElement.checked = true
+                    this.Address.Element.checked = true
                 }
                 this.resetIndexes()
             }
-            getAddressObject() { return Component.getObject(`${this.id}AddressInfo`) }
             isAddressVisible() { return !this.AddressWrapperElement.classList.contains(`display-none`) }
             showAddress() { this.hideAirport() }
             hideAddress() { this.showAirport() }
             setIndexes(firstIndex) {
                 this.vars.airportRadioTabIndex = firstIndex
                 this.vars.addressRadioTabIndex = firstIndex + 1
-                if (this.isAirportVisible()) { this.getAirportObject().setIndexes(firstIndex + 2) }
-                else if (this.isAddressVisible()) { this.getAddressObject().setIndexes(firstIndex + 2) } 
+                if (this.isAirportVisible()) { this.AirportInfo.setIndexes(firstIndex + 2) }
+                else if (this.isAddressVisible()) { this.AddressInfo.setIndexes(firstIndex + 2) } 
             }
             getFieldCount() {
-                if (this.isAirportVisible()) { return this.getAirportObject().getFieldCount() + 2 }
-                else if (this.isAddressVisible()) { return this.getAddressObject().getFieldCount() + 2 } 
+                if (this.isAirportVisible()) { return this.AirportInfo.getFieldCount() + 2 }
+                else if (this.isAddressVisible()) { return this.AddressInfo.getFieldCount() + 2 } 
                 return 0
             }
             resetIndexes() {
-                getParentComponent().resetIndexes()
+                this.getParentComponent().resetIndexes()
             }
             getData() {
-                if (this.isAirportVisible()) { return this.getAirportObject().getData() }
-                else if (this.isAddressVisible()) { return this.getAddressObject().getData() } 
+                if (this.isAirportVisible()) { return this.AirportInfo.getData() }
+                else if (this.isAddressVisible()) { return this.AddressInfo.getData() } 
                 return null
             }
             props = {

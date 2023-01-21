@@ -16,24 +16,19 @@
 
                 this.vars.specialInstructions = textarea.value
             }
-            getFirstNameObject() { return Component.getObject(`${this.id}FirstName`) }
-            getLastNameObject() { return Component.getObject(`${this.id}LastName`) }
-            getMobileNumberObject() { return Component.getObject(`${this.id}MobileNumber`) }
-            getPickupLocationObject() { return Component.getObject(`${this.id}PickupLocation`) }
-            getDropoffLocationObject() { return Component.getObject(`${this.id}DropoffLocation`) }
             resetIndexes() {
-                this.getPickupLocationObject().setIndexes(4)
-                this.getDropoffLocationObject().setIndexes(4 + this.getPickupLocationObject().getFieldCount())
-                this.SpecialInstructionsTextElement.tabindex = 4 + this.getPickupLocationObject().getFieldCount() + this.getDropoffLocationObject().getFieldCount()
+                this.PickupLocation.setIndexes(4)
+                this.DropoffLocation.setIndexes(4 + this.PickupLocation.getFieldCount())
+                this.SpecialInstructionsTextElement.tabindex = 4 + this.PickupLocation.getFieldCount() + this.DropoffLocation.getFieldCount()
             }
             getData() {
-                const firstNameObj = this.getFirstNameObject()
-                const lastNameObj = this.getLastNameObject()
-                const mobileNumberObj = this.getMobileNumberObject()
-                const pickupLocationObj = this.getPickupLocationObject()
-                const dropoffLocationObj = this.getDropoffLocationObject()
-                const pickupLocationData = pickupLocationObj?.getData()
-                const dropoffLocationData = dropoffLocationObj?.getData()
+                const firstNameObj = this.FirstName
+                const lastNameObj = this.LastName
+                const mobileNumberObj = this.MobileNumber
+                const pickupLocationObj = this.PickupLocation
+                const dropoffLocationObj = this.DropoffLocation
+                const pickupLocationData = pickupLocationObj.getData()
+                const dropoffLocationData = dropoffLocationObj.getData()
 
                 if (!firstNameObj || !lastNameObj || !mobileNumberObj || !pickupLocationObj || !dropoffLocationObj || !pickupLocationData || !dropoffLocationData) {
                     this.showError(`Error getting reservation data.`)

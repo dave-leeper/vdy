@@ -473,7 +473,7 @@ class ComponentLifecycle {
                         return document.getElementById(element.id)
                     },
                     set: function(newValue) {
-                        console.error(`wrapProps: Cannot set ${member}.`)
+                        console.error(`wrapProps: Cannot set ${getterName}.`)
                     }
                 })
             }
@@ -1062,6 +1062,24 @@ class Loader {
         }
         window.$components.childComponentRegistry.set(data.component, data.childComponents)
     }
+    static addChildComponentGettersToComponentObject(componentClass, componentObjectId) {
+        const childComponents = window.$components.childComponentRegistry.get(componentClass)
+        const componentObject = Component.getObject(componentObjectId)
+
+        if (!childComponents || !componentObject) { return }
+        for (let childComponentId of childComponents) {
+            let getterName = childComponentId.replace(` `, `_`).replace(componentObject.id, ``)
+
+            Object.defineProperty(componentObject, getterName, {
+                get: function() {
+                    return Component.getObject(childComponentId)
+                },
+                set: function(newValue) {
+                    console.error(`Component: Cannot set ${getterName}.`)
+                }
+            })
+        }
+    }
     static loadIncludeComponent = function (text, src, includeIn, componentClass, componentObjectId, include) {
         let fragment = ComponentLifecycle.compile(text)
         let fragmentAlreadyRegistered = window?.$components?.fragmentRegistry?.has(componentClass)
@@ -1088,6 +1106,8 @@ class Loader {
             return false
         }
         
+        Loader.addChildComponentGettersToComponentObject(componentClass, componentObjectId)
+
         let componentMounted = ComponentLifecycle.mount(componentObjectId)
 
         if (!componentMounted) {

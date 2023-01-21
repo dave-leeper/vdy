@@ -2,7 +2,6 @@
     <script>
         //# sourceURL=html/components/reservations/airport.html
         class Airport extends Component {
-            // TODO: Figure out why {vars.value}AirlineList works, but {id}AirlineList doesn't (See HTML, below).
             onChildrenMounted() {
                 super.onChildrenMounted()
                 const testState = async () => {
@@ -84,10 +83,10 @@
         <div id="{id}">
             <div>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
-                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{title}AirlineList`, required: true, minlength: 2, maxlength: 30, tabindex: 101 }</include-props>
+                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{id}AirlineList`, required: true, minlength: 2, maxlength: 30, tabindex: 101 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <datalist id="{title}AirlineList">
+                <datalist id="{id}AirlineList">
                     <option value="Advanced Air"></option>
                     <option value="Air Canada"></option>
                     <option value="Alaska Airlines"></option>

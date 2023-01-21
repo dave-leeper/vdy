@@ -96,7 +96,10 @@ class Tree {
     Register Component Object   <--> Unregister Component Object    Object placed in registery. Has a unique ID and knows the id
                                                                     of its associated fragment.
     mount                       <--> unmount                        Component placed in DOM, rendered to screen.
-    update                                                          Set vars to replace node and attribute values.
+    children mounted                                                The child components of a component have mounted.
+    descendants mounted                                             All descendant components of a component have mounted.
+    update                                                          Not truely a lifecycle state. This is when you'll set vars to replace
+                                                                    node and attribute values.
     destroy                                                         The object is unmounted, unregistereed, and it's marker is removed
                                                                     from the DOM.
 */
@@ -346,6 +349,7 @@ class ComponentLifecycle {
         return true
     }
     static createComponentObject = (componentClass, componentObjectId, includeElement) => {
+
         if (!componentClass) { 
             console.error(`createComponentObject: No component class provided for createComponentObject.`)
             return false 
@@ -1217,3 +1221,5 @@ document.addEventListener(`DOMContentLoaded`, async () => {
 window.onload = () => { console.log(`onload`) }
 window.onbeforeunload = () => { console.log(`onbeforeunload`) }
 window.onunload = () => { console.log(`onunload`) }
+
+// TODO: two-way binding.

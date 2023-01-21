@@ -111,10 +111,10 @@
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}State">
-                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{title}StateList`, required: true, minlength: 2, maxlength: 2, tabindex: 204 }</include-props>
+                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{id}StateList`, required: true, minlength: 2, maxlength: 2, tabindex: 204 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <datalist id="{title}StateList">
+                <datalist id="{id}StateList">
                     <option value="AL (Alabama)"></option>
                     <option value="AK (Alaska)"></option>
                     <option value="AZ (Arizona)"></option>

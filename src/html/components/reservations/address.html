@@ -26,12 +26,12 @@
                 this.Time.Element.value = ''
             }
             setIndexes(firstIndex) {
-                this.Address.Element.tabindex = firstIndex
-                this.Address2.Element.tabindex = firstIndex + 1
-                this.City.Element.tabindex = firstIndex + 2
-                this.State.Element.tabindex = firstIndex + 3
-                this.Date.Element.tabindex = firstIndex + 4
-                this.Time.Element.tabindex = firstIndex + 5
+                this.Address.Element.tabIndex = firstIndex
+                this.Address2.Element.tabIndex = firstIndex + 1
+                this.City.Element.tabIndex = firstIndex + 2
+                this.State.Element.tabIndex = firstIndex + 3
+                this.Date.Element.tabIndex = firstIndex + 4
+                this.Time.Element.tabIndex = firstIndex + 5
             }
             getFieldCount() { return 6 }
             getData() {
@@ -99,19 +99,19 @@
         <div id="{id}">
             <div>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Address">
-                    <include-props class="display-none">{ name: `Address`, placeholder: `Address`, label: `Address`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabindex: 1 }</include-props>
+                    <include-props class="display-none">{ name: `Address`, placeholder: `Address`, label: `Address`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabindex: 201 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Address2">
-                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: false, minlength: 1, maxlength: 75, tabindex: 2 }</include-props>
+                    <include-props class="display-none">{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelAboveField: false, required: false, minlength: 1, maxlength: 75, tabindex: 202 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}City">
-                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: 3 }</include-props>
+                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: 203 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}State">
-                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{title}StateList`, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
+                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{title}StateList`, required: true, minlength: 2, maxlength: 2, tabindex: 204 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <datalist id="{title}StateList">
@@ -174,11 +174,11 @@
                     <option value="WY (Wyoming)"></option>
                 </datalist>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Date">
-                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 5 }</include-props>
+                    <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 205 }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Time">
-                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 6 }</include-props>
+                    <include-props class="display-none">{ name: `Time`, label: `Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 206 }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

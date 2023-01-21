@@ -33,8 +33,8 @@
             showAddress() { this.hideAirport() }
             hideAddress() { this.showAirport() }
             setIndexes(firstIndex) {
-                this.vars.airportRadioTabIndex = firstIndex
-                this.vars.addressRadioTabIndex = firstIndex + 1
+                this.Airport.Element.tabIndex = firstIndex
+                this.Address.Element.tabIndex = firstIndex + 1
                 if (this.isAirportVisible()) { this.AirportInfo.setIndexes(firstIndex + 2) }
                 else if (this.isAddressVisible()) { this.AddressInfo.setIndexes(firstIndex + 2) } 
             }
@@ -54,10 +54,6 @@
             props = {
                 title: `Pickup`,
             }
-            vars = {
-                airportRadioTabIndex: 1,
-                addressRadioTabIndex: 2,
-            }
         }
     </script>
     <test-script>
@@ -70,13 +66,13 @@
             <div id="{id}Location" class="flex-row">
                 <div id="{id}AirportRadioWrapper" onclick="$obj.showAirport()">
                     <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Airport" checked="true">
-                        <include-props class="display-none">{ label: `Airport`, name: `{title}location`, tabindex: {airportRadioTabIndex} }</include-props>
+                        <include-props class="display-none">{ label: `Airport`, name: `{title}location`, tabindex: 1 }</include-props>
                     </include-html>
                 </div>
                 <div class="margin-lr-10"></div>
                 <div id="{id}AddressRadioWrapper" onclick="$obj.showAddress()">
                     <include-html include-in="reservations.html" src="./html/components/radio-button.html" component-class="RadioButton" component-id="{id}Address" checked="false">
-                        <include-props class="display-none">{ label: `Address`, name: `{title}location`, tabindex: {addressRadioTabIndex} }</include-props>
+                        <include-props class="display-none">{ label: `Address`, name: `{title}location`, tabindex: 2 }</include-props>
                     </include-html>
                 </div>
             </div>

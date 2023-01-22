@@ -5,7 +5,7 @@
             afterMount() {
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
-                        // TODO: Display error message.
+                        showError(`Error getting credentials.`)
                         return
                     }
                     if (!credentials?.roles) { return }

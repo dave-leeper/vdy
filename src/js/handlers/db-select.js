@@ -13,8 +13,7 @@ module.exports = (handlerHame, handlerArgs) => {
             return
         }
         
-        const result = await surrealDBSelect(db, handlerArgs.table);
-        console.log(JSON.stringify(result))
+        const result = await surrealDBSelect(db, handlerArgs.table)
         res.send(JSON.stringify(result))
         next && next()
     }

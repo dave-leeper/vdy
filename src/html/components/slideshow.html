@@ -14,41 +14,86 @@
                     })
             }
             buildPhotos(data) {
-                this.vars.photoData = data
-                for (let loop = 0; loop < data.length; loop++) {
-                    const image = data[loop]
-                    const wrapperDivElement = document.createElement(`div`)
-                    const imgElement = document.createElement(`img`)
-                    const imgId = `${this.id}Img${loop}`
-                    const imgSrc = `./images/${image.file}`
-                    let varsInnerText = "{ tooltipText: `"
-                    const imgtext = `./images/`
-                    const imgHeight = `300`
-                    const photoClicked = () => {
-                        this.photoClicked(loop)
+                const buildPhotos = (buttonClass) => {
+                    for (let loop = 0; loop < data.length; loop++) {
+                        const image = data[loop]
+                        const wrapperDivElement = document.createElement(`div`)
+                        const imgElement = document.createElement(`img`)
+                        const imgId = `${this.id}Img${loop}`
+                        const imgSrc = `./images/${image.file}`
+                        let varsInnerText = "{ tooltipText: `"+ image.text + "`}"
+                        const imgtext = `./images/`
+                        const imgHeight = `300`
+                        const photoClicked = () => { this.photoClicked(loop) }
+                        const deletePhoto = () => { this.deletePhoto(loop) }
+                        const buttonDivElement = document.createElement(`div`)
+                        const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
+
+                        wrapperDivElement.id = `${this.id}PhotoWrapper${loop}`
+                        wrapperDivElement.classList.add(`tooltip`)
+                        wrapperDivElement.classList.add(`margin-5`)
+                        imgElement.id = imgId
+                        imgElement.src = imgSrc
+                        imgElement.height = imgHeight
+                        imgElement.classList.add(`photo`)
+                        imgElement.addEventListener('click',  photoClicked, false)
+                        buttonDivElement.classList.add(buttonClass)
+                        buttonDivElement.innerText = `Delete`
+                        buttonDivElement.addEventListener('click',  deletePhoto, false)
+                        wrapperDivElement.appendChild(imgElement)
+                        wrapperDivElement.appendChild(newInclude)
+                        wrapperDivElement.appendChild(buttonDivElement)
+                        this.Element.appendChild(wrapperDivElement)
                     }
-
-                    varsInnerText += image.text + "`}"
-
-                    const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
-
-                    wrapperDivElement.classList.add(`tooltip`)
-                    wrapperDivElement.addEventListener('click',  photoClicked, false);
-                    imgElement.id = imgId
-                    imgElement.src = imgSrc
-                    imgElement.height = imgHeight
-                    imgElement.classList.add(`photo`)
-                    imgElement.classList.add(`margin-5`)
-                    wrapperDivElement.appendChild(imgElement)
-                    wrapperDivElement.appendChild(newInclude)
-                    this.Element.appendChild(wrapperDivElement)
                 }
+
+                this.vars.photoData = data
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
+                    if (error) {
+                        buildPhotos(`display-none`)
+                        showError(`Error getting credentials.`)
+                        return
+                    }
+                    if (!credentials?.roles || !credentials.roles.includes("Admin")) { buildPhotos(`display-none`) }
+                    else { buildPhotos(`button`) }
+                })
             }
             photoClicked(photoIndex) {
                 this.vars.selectedPhotoURL = `./images/${this.vars.photoData[photoIndex].file}`
                 this.vars.selectedPhotoText = this.vars.photoData[photoIndex].text
                 document.getElementById(`${this.id}PhotoDialogSlotContentText`).innerText = this.vars.photoData[photoIndex].text
                 Component.getObject(`${this.id}PhotoDialog`).show()
+            }
+            deletePhoto(photoIndex) {
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
+                    if (error) {
+                        showError(`Error getting credentials.`)
+                        return
+                    }
+                    if (!confirm(`Delete this photo?`)) { return }
+                    const id = this.vars.photoData[photoIndex].id
+                    const body = { id }
+                    const response = await fetch('http://localhost:8080/delete-photo-info', {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': `'Bearer ${credentials.token}'`
+                        },
+                        body: JSON.stringify(body)
+                    })
+                    if (200 === response.status) {
+                        const content = await response.json()
+                        const photoElement = document.getElementById(`${this.id}PhotoWrapper${photoIndex}`)
+                        
+                        this.Element.removeChild(photoElement)
+                        JavascriptWebToken.storeCredentials(content.jwt)
+                        showInfo(`Photo deleted.`)
+                    } else {
+                        if (401 === response.status) { window.location.href = `/login` }
+                        else { showError(`Error deleting photo. Status code ${response.status}.`) }
+                    }
+                })
             }
             props = {
                 fetchURL: `http://localhost:8080/photo-info`

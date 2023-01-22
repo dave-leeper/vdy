@@ -47,6 +47,16 @@
             }
         },
         {
+            "name": "Delete photo information.",
+            "verb": "DELETE",
+            "path": "/delete-photo-info",
+            "handler": "db-delete.js",
+            "log": "NONE",
+            "args": {
+                "table": "photo"
+            }
+        },
+        {
             "name": "Get reviews.",
             "verb": "GET",
             "path": "/reviews",

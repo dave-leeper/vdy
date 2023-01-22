@@ -2,9 +2,9 @@
     <script>
         //# sourceURL=html/components/Slideshow.html
         class Slideshow extends Component { 
-            onChildrenMounted() {
+            initialize(id) {
+                super.initialize(id)
                 this.fetchPhotoInfo()
-                super.onChildrenMounted()
             }
             fetchPhotoInfo() {
                 fetch(this.props.fetchURL)
@@ -14,6 +14,7 @@
                     })
             }
             buildPhotos(data) {
+                this.vars.photoData = data
                 for (let loop = 0; loop < data.length; loop++) {
                     const image = data[loop]
                     const wrapperDivElement = document.createElement(`div`)
@@ -23,12 +24,16 @@
                     let varsInnerText = "{ tooltipText: `"
                     const imgtext = `./images/`
                     const imgHeight = `300`
+                    const photoClicked = () => {
+                        this.photoClicked(loop)
+                    }
 
                     varsInnerText += image.text + "`}"
 
                     const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
 
                     wrapperDivElement.classList.add(`tooltip`)
+                    wrapperDivElement.addEventListener('click',  photoClicked, false);
                     imgElement.id = imgId
                     imgElement.src = imgSrc
                     imgElement.height = imgHeight
@@ -39,24 +44,46 @@
                     this.Element.appendChild(wrapperDivElement)
                 }
             }
+            photoClicked(photoIndex) {
+                this.vars.selectedPhotoURL = `./images/${this.vars.photoData[photoIndex].file}`
+                this.vars.selectedPhotoText = this.vars.photoData[photoIndex].text
+                document.getElementById(`${this.id}PhotoDialogSlotContentText`).innerText = this.vars.photoData[photoIndex].text
+                Component.getObject(`${this.id}PhotoDialog`).show()
+            }
             props = {
                 fetchURL: `http://localhost:8080/photo-info`
+            }
+            vars = {
+                photoData: [],
+                selectedPhotoURL: ``,
+                selectedPhotoText: ``
             }
         }
     </script>
     <style>
         :root {
+            --photo-cursor: pointer;
             --photo-hover-border-radius: 15px;
         }
 
-        .photo { }
+        .photo { 
+            cursor: var(--photo-cursor);
+        }
 
         .photo:hover {
             border-radius: var(--photo-hover-border-radius);
         }
     </style>
     <component-markup>
-        <section id="{id}" class="flex-row w100 flex-wrap flex-space-around"></section>
+        <section id="{id}" class="flex-row w100 flex-wrap flex-space-around">
+            <include-html include-in="index.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}PhotoDialog"></include-html>
+            <slot-markup for-component-id="{id}PhotoDialog" for-slot="{id}PhotoDialogContentSlot">
+                <div id="{id}PhotoDialogSlotContent" class="flex-row">
+                    <img id="{id}PhotoDialogSlotContentPhoto" src="{selectedPhotoURL}" height="400">
+                    <div id="{id}PhotoDialogSlotContentText" class="pad-5">{selectedPhotoText}</div>
+                </div>
+            </slot-markup>
+        </section>
     </component-markup>
     <test-script>
     </test-script>

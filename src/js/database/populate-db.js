@@ -44,7 +44,7 @@ module.exports = {
       await surrealDBCreate(db, `photo:3`, { text: `Five lovely ladies from France with me on a 3-day tour through Arizona, Utah and Nevada.`, file: `o3.jpg` })
       await surrealDBCreate(db, `photo:4`, { text: `A new member to the service.`, file: `o4.jpg` })
       await surrealDBCreate(db, `photo:5`, { text: `More time in the red rocks.`, file: `o5.jpg` })
-      await surrealDBCreate(db, `photo:6`, { text: `Ready for action.`, file: `o6.jpg` })
+      await surrealDBCreate(db, `photo:6`, { text: `Ready for adventure.`, file: `o6.jpg` })
       await surrealDBCreate(db, `photo:7`, { text: `Presidential Service.`, file: `o7.jpg` })
       await surrealDBCreate(db, `photo:8`, { text: `Enjoy a stress free trip to the red rocks of Sedona.`, file: `o8.jpg` })
 

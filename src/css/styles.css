@@ -148,6 +148,8 @@
   .flex-space-between {justify-content: space-between;} .flex-space-evenly {justify-content: space-evenly;}   
   .flex-align-start {align-items: flex-start;}          .flex-align-end {align-items: flex-end;}              .flex-align-center {align-items: center;}     .flex-align-stretch {align-items: stretch;}
   .flex-align-baseline {align-items: baseline;}
+  .flex-align-self-auto {align-self: auto;}             .flex-align-self-start {align-self: flex-start;}      .flex-align-self-end {align-self: flex-end;}  .flex-align-self-center {align-self: center;}
+  .flex-align-self-baseline {align-self: baseline;}     .flex-align-self-stretch {align-self: stretch;}
 
   .columns-2 {columns: 2;}      .columns-3 {columns: 3;}      .columns-4 {columns: 4;}          .columns-5 {columns: 5;}          .columns-6 {columns: 6;}
   .columns-7 {columns: 7;}      .columns-8 {columns: 8;}      .columns-9 {columns: 9;}          .columns-10 {columns: 10;}        .columns-11 {columns: 11;}
@@ -1161,7 +1163,7 @@
     text-decoration: underline;
   }
 
-  .modal {
+  .modal-x {
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
     left: 0;
@@ -1173,7 +1175,7 @@
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
   }
 
-  .modal-content {
+  .modal-x-content {
       background-color: #fefefe;
       margin: 15% auto; /* 15% from the top and centered */
       z-index: 1;

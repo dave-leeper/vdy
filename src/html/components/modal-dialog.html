@@ -1,0 +1,74 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/modal-dialog.html
+        class ModalDialog extends Component {
+            show() { this.Element.setAttribute(`class`, `display-block modal`) }
+            hide() { this.Element.setAttribute(`class`, `display-none modal`) }
+        }
+    </script>
+    <style>
+        :root {
+            --modal-position: fixed;
+            --modal-background-color: rgba(0,0,0,0.4);
+            --modal-width: 100%;
+            --modal-height: 100%;
+            --modal-left: 0;
+            --modal-top: 0;
+            --modal-z-index: 1;
+            --modal-overflow: auto;
+            --modal-cursor: default;
+
+            --modal-content-background-color: var(--white);
+            --modal-content-width: 90%;
+            --modal-content-padding: 5px;
+            --modal-content-margin: 5px;
+            --modal-content-border-width: 1px;
+            --modal-content-border-style: solid;
+            --modal-content-border-color: var(--blue-200);
+
+            --modal-close-color: var(--black);
+            --modal-close-font-family: var(--primary-font-family);
+            --modal-close-font-size: 28px;
+            --modal-close-font-weight: bold;
+            --modal-close-margin-top: -10px;
+
+            --modal-close-hover-color: var(--black);
+            --modal-close-hover-text-decoration: none;
+            --modal-close-hover-font-cursor: pointer;
+        }
+
+        .modal {
+            position: var(--modal-position);
+            background-color: rgb(0,0,0);
+            background-color: var(--modal-background-color);
+            width: var(--modal-width);
+            height: var(--modal-height);
+            left: var(--modal-left);
+            top: var(--modal-top);
+            z-index: var(--modal-z-index);
+            overflow: var(--modal-overflow);
+            cursor: var(--modal-cursor);
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: var(--modal-content-background-color);
+            width: var(--modal-content-width);
+            padding: var(--modal-content-padding);
+            margin: var(--modal-content-margin);
+            border-width: var(--modal-content-border-width);
+            border-style: var(--modal-content-border-style);
+            border-color: var(--modal-content-border-color);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="modal display-none">
+            <div class="flex-col modal-content">
+                <component-slot id="{id}ContentSlot">DEFAULT CONTENT FOR {id}</component-slot>
+                <div class="button flex-align-self-end" onclick="$obj.hide()">Close</div>
+            </div>
+        </div>
+    </component-markup>
+    <test-script>
+    </test-script>
+</custom-component>

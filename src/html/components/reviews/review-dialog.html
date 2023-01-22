@@ -55,21 +55,10 @@
             }
             onBlur(event) { this.updateReview() }
             onInput(event) { this.updateReview() }
-            updateReview() {
-                const textAreaId = `${this.id}ReviewText`
-                let textarea = document.getElementById(textAreaId)
-
-                this.vars.review = textarea.value
-            }
-            show() {
-                const modal = document.getElementById(this.id)
-
-                modal.setAttribute(`class`, `display-block modal`)
-            }
-            hide() {
-                const modal = document.getElementById(this.id)
-
-                modal.setAttribute(`class`, `display-none modal`)
+            updateReview() { this.vars.review = this.ReviewText.value }
+            show() { this.Element.setAttribute(`class`, `display-block modal-x`) }
+            hide() { 
+                this.Element.setAttribute(`class`, `display-none modal-x`)
                 this.destroy()
             }
             async save() {
@@ -155,8 +144,8 @@
 
     </style>
     <component-markup>
-        <div id="{id}" class="modal display-none" onclick="$obj.hide()">
-              <div id="{id}Frame" class="modal-content h525px" onclick="event.stopPropagation()">
+        <div id="{id}" class="modal-x display-none" onclick="$obj.hide()">
+              <div id="{id}Frame" class="modal-x-content h525px" onclick="event.stopPropagation()">
                 <div class="h160px">
                     <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
                         <include-props class="display-none">{ editable: true }</include-props>

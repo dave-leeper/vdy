@@ -38,21 +38,10 @@
             }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
-            updateReply() {
-                const textAreaId = `${this.id}ReplyText`
-                let textarea = document.getElementById(textAreaId)
-
-                this.vars.reply = textarea.value
-            }
-            show() {
-                const modal = document.getElementById(this.id)
-
-                modal.setAttribute(`class`, `display-block modal`)
-            }
+            updateReply() { this.vars.reply = this.ReplyText.value }
+            show() { this.Element.setAttribute(`class`, `display-block modal-x`) }
             hide() {
-                const modal = document.getElementById(this.id)
-
-                modal.setAttribute(`class`, `display-none modal`)
+                this.Element.setAttribute(`class`, `display-none modal-x`)
                 this.destroy()
             }
             save() {
@@ -150,8 +139,8 @@
     <style>
     </style>
     <component-markup>
-        <div id="{id}" class="modal display-none" onclick="$obj.hide()">
-              <div id="{id}Frame" class="modal-content" onclick="event.stopPropagation()">
+        <div id="{id}" class="modal-x display-none" onclick="$obj.hide()">
+              <div id="{id}Frame" class="modal-x-content" onclick="event.stopPropagation()">
                 <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{id}ReviewHeader">
                     <include-props class="display-none">
                         { 

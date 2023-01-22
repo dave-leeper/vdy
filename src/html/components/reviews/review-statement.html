@@ -1,0 +1,27 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reviews/review-statement.html
+        class ReviewStatement extends Component {
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-start bg-white shadow-white round-15px margin-b-15 bg-blue-50">
+            <div id="{id}AvatarWrapper">
+                <include-html include-in="review-header.html" src="./html/components/reviews/avatar.html" component-class="Avatar" component-id="{id}Avatar">
+                    <include-props class="display-none">{ imageURL: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg` }</include-props>
+                </include-html>
+            </div>
+            <div id="{id}Statment" class="text-1 margin-l-10 pad-b-5">
+                These are all genuine reviews from real customers. I can't add to them or edit them. I can only edit my replies, because occasionally I make a mistake.<br>
+                <br>
+                We very much enjoy the feedback our customers give us. If you ride with us, feel free to let us know how we did.<br>
+                <br>
+                - Vince
+            </div>
+        </div>
+    </component-markup>
+    <test-script>
+    </test-script>
+</custom-component>

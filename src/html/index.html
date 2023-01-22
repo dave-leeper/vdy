@@ -47,9 +47,6 @@
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarInfo">
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
-
-
-
     <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
       <include-vars class="display-none">{ tabs: [`Home`, `Reserve A Ride`, `Photos`, `Reviews`], activeTab: 0 }</include-vars>
     </include-html>
@@ -76,6 +73,7 @@
     </include-html>
     <slot-markup for-component-id="ReviewsTab" for-slot="ReviewsTabContentSlot">
       <div>
+        <include-html include-in="index.html" src="./html/components/reviews/review-statement.html" component-class="ReviewStatement" component-id="ReviewStatement"></include-html>
         <include-html include-in="index.html" src="./html/components/reviews/write-review-button.html" component-class="WriteReviewButton" component-id="WriteReviewButton"></include-html>
         <div class="w100 h20px"></div>
         <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList"></include-html>

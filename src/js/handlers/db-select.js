@@ -14,6 +14,7 @@ module.exports = (handlerHame, handlerArgs) => {
         }
         
         const result = await surrealDBSelect(db, handlerArgs.table);
+        console.log(JSON.stringify(result))
         res.send(JSON.stringify(result))
         next && next()
     }

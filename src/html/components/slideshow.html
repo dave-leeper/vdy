@@ -1,28 +1,62 @@
 <custom-component>
     <script>
         //# sourceURL=html/components/Slideshow.html
-        class Slideshow extends Component { }
-        /*
-        var img = document.getElementById('imageid'); 
-//or however you get a handle to the IMG
-var width = img.clientWidth;
-var height = img.clientHeight;
-*/
+        class Slideshow extends Component { 
+            onChildrenMounted() {
+                this.fetchPhotoInfo()
+                super.onChildrenMounted()
+            }
+            fetchPhotoInfo() {
+                fetch(this.props.fetchURL)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        this.buildPhotos(data)
+                    })
+            }
+            buildPhotos(data) {
+                for (let loop = 0; loop < data.length; loop++) {
+                    const image = data[loop]
+                    const wrapperDivElement = document.createElement(`div`)
+                    const imgElement = document.createElement(`img`)
+                    const imgId = `${this.id}Img${loop}`
+                    const imgSrc = `./images/${image.file}`
+                    let varsInnerText = "{ tooltipText: `"
+                    const imgtext = `./images/`
+                    const imgHeight = `300`
+
+                    varsInnerText += image.text + "`}"
+
+                    const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
+
+                    wrapperDivElement.classList.add(`tooltip`)
+                    imgElement.id = imgId
+                    imgElement.src = imgSrc
+                    imgElement.height = imgHeight
+                    imgElement.classList.add(`photo`)
+                    imgElement.classList.add(`margin-5`)
+                    wrapperDivElement.appendChild(imgElement)
+                    wrapperDivElement.appendChild(newInclude)
+                    this.Element.appendChild(wrapperDivElement)
+                }
+            }
+            props = {
+                fetchURL: `http://localhost:8080/photo-info`
+            }
+        }
     </script>
     <style>
+        :root {
+            --photo-hover-border-radius: 15px;
+        }
+
+        .photo { }
+
+        .photo:hover {
+            border-radius: var(--photo-hover-border-radius);
+        }
     </style>
     <component-markup>
-        <section id="{id}" class="flex-row w100 overflow-auto">
-            <img id="{id}Img1" src="./images/o0.jpg" height="300">
-            <img id="{id}Img2" src="./images/o1.jpg" height="300">
-            <img id="{id}Img3" src="./images/o2.jpg" height="300">
-            <img id="{id}Img4" src="./images/o3.jpg" height="300">
-            <img id="{id}Img5" src="./images/o4.jpg" height="300">
-            <img id="{id}Img6" src="./images/o5.jpg" height="300">
-            <img id="{id}Img7" src="./images/o6.jpg" height="300">
-            <img id="{id}Img8" src="./images/o7.jpg" height="300">
-            <img id="{id}Img9" src="./images/o8.jpg" height="300">
-        </section>
+        <section id="{id}" class="flex-row w100 flex-wrap flex-space-around"></section>
     </component-markup>
     <test-script>
     </test-script>

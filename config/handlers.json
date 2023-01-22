@@ -37,6 +37,16 @@
     ],
     "database": [
         {
+            "name": "Get photo information.",
+            "verb": "GET",
+            "path": "/photo-info",
+            "handler": "db-select.js",
+            "log": "NONE",
+            "args": {
+                "table": "photo"
+            }
+        },
+        {
             "name": "Get reviews.",
             "verb": "GET",
             "path": "/reviews",

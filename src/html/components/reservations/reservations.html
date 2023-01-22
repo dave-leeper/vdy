@@ -9,13 +9,6 @@
                     this.resetIndexes()
                 })
             }
-            onBlur(event) { this.updateSpecialInstructions() }
-            onInput(event) { this.updateSpecialInstructions() }
-            updateSpecialInstructions() {
-                const textarea = this.SpecialInstructionsTextElement
-
-                this.vars.specialInstructions = textarea.value
-            }
             onDescendantsMounted() {
                 this.resetIndexes()
                 const testDropoffDateAfterPickupDate = async () => {
@@ -61,6 +54,13 @@
                 this.DropoffLocation.AddressInfo.Date.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
                 this.DropoffLocation.AirportInfo.EstimatedArrivalTime.vars.customValidationTests.push(testDropoffTimeAfterPickupTime)
                 this.DropoffLocation.AddressInfo.Time.vars.customValidationTests.push(testDropoffTimeAfterPickupTime)
+            }
+            onBlur(event) { this.updateSpecialInstructions() }
+            onInput(event) { this.updateSpecialInstructions() }
+            updateSpecialInstructions() {
+                const textarea = this.SpecialInstructionsTextElement
+
+                this.vars.specialInstructions = textarea.value
             }
             resetIndexes() {
                 this.PickupLocation.setIndexes(4)

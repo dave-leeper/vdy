@@ -37,6 +37,17 @@ module.exports = {
         roles: [`Admin`],
       })
 
+      await surrealDBDelete(db, `photo`)
+      await surrealDBCreate(db, `photo:0`, { text: `Alcantara Vineyards and Winery.`, file: `o0.jpg` })
+      await surrealDBCreate(db, `photo:1`, { text: `Girls just want to have fun and Vince Drives You helps to make that possible.`, file: `o1.jpg` })
+      await surrealDBCreate(db, `photo:2`, { text: `Feel like a trip to Carlsbad, Ca. Vince Drives You can get you there.`, file: `o2.jpg` })
+      await surrealDBCreate(db, `photo:3`, { text: `Five lovely ladies from France with me on a 3-day tour through Arizona, Utah and Nevada.`, file: `o3.jpg` })
+      await surrealDBCreate(db, `photo:4`, { text: `A new member to the service.`, file: `o4.jpg` })
+      await surrealDBCreate(db, `photo:5`, { text: `More time in the red rocks.`, file: `o5.jpg` })
+      await surrealDBCreate(db, `photo:6`, { text: `Ready for action.`, file: `o6.jpg` })
+      await surrealDBCreate(db, `photo:7`, { text: `Presidential Service.`, file: `o7.jpg` })
+      await surrealDBCreate(db, `photo:8`, { text: `Enjoy a stress free trip to the red rocks of Sedona.`, file: `o8.jpg` })
+
       await surrealDBDelete(db, `review`)
       await surrealDBCreate(db, `review:19`, {
         name: {
@@ -437,6 +448,9 @@ module.exports = {
         reply: `Thanks for your compliment, I’m glad I was able to help. It was a pleasure meeting you.`
       })
 
+      const photos = await surrealDBSelect(db, `photo`)
+      console.log(photos.length)
+      console.log(JSON.stringify(photos))
       const users = await surrealDBSelect(db, `user`)
       console.log(users.length)
       console.log(JSON.stringify(users))
@@ -445,27 +459,6 @@ module.exports = {
       console.log(JSON.stringify(reviews))
       let countResult = await surrealDBQuery(db, `SELECT * FROM type::table($tb)`, {tb: `review`, })
       console.log(countResult[0].result.length)
-
-
-      /*
-      const person = {
-        title: `Founder & CEO`,
-        name: {
-          first: `Tobie`,
-          last: `Morgan Hitchcock`,
-        },
-        marketing: true,
-        identifier: Math.random().toString(36).substr(2, 10),
-      }
-      const created = await surrealDBCreate(db, `person`, person)
-      const updated = await surrealDBChange(db, `person:jaime`, { marketing: true, })
-      const people = await surrealDBSelect(db, `person`);
-      const groups = await surrealDBQuery(db, `SELECT marketing, count() FROM type::table($tb) GROUP BY marketing`, {tb: `person`, });
-      console.log(`created: ${JSON.stringify(created)}`)
-      console.log(`updated: ${JSON.stringify(updated)}`)
-      console.log(`people: ${JSON.stringify(people)}`)
-      console.log(`groups: ${JSON.stringify(groups)}`)
-      */
   
       } catch (e) {
           console.error(`ERROR`, e);

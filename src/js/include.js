@@ -265,10 +265,10 @@ class ComponentLifecycle {
             return true 
         }
 
-        let scripts = componentFragment.querySelectorAll('script')
-        let tests = componentFragment.querySelectorAll('test-script')
-        let styles = componentFragment.querySelectorAll('style')
-        let markup = componentFragment.querySelectorAll('component-markup')
+        let scripts = componentFragment.querySelectorAll(`script`)
+        let tests = componentFragment.querySelectorAll(`test-script`)
+        let styles = componentFragment.querySelectorAll(`style`)
+        let markup = componentFragment.querySelectorAll(`component-markup`)
 
         if (0 === scripts.length) {
             console.error(`registerDOMFragment: Fragment must contain at least one component script tag.`)
@@ -288,9 +288,9 @@ class ComponentLifecycle {
                 return false
             }   
         }
-        let scriptTag = document.createElement('script')
+        let scriptTag = document.createElement(`script`)
 
-        scriptTag.type = 'text/javascript'
+        scriptTag.type = `text/javascript`
         scriptTag.id = `ScriptTag${componentClass}`
         scripts[0].remove()
         try {
@@ -302,7 +302,7 @@ class ComponentLifecycle {
         document.head.appendChild(scriptTag);
 
         if (styles.length) {
-            let styleTag = document.createElement('style')
+            let styleTag = document.createElement(`style`)
 
             styleTag.id = `StyleTag${componentClass}`
             styleTag.appendChild(document.createTextNode(styles[0].innerText))
@@ -311,8 +311,8 @@ class ComponentLifecycle {
         }
         if (tests.length) {
             if (includeTest) {
-                let tests = componentFragment.querySelectorAll('test-script')
-                let testTag = document.createElement('test-script')
+                let tests = componentFragment.querySelectorAll(`test-script`)
+                let testTag = document.createElement(`test-script`)
 
                 testTag.type = 'text/javascript'
                 testTag.id = `TestTag${componentClass}`
@@ -363,22 +363,22 @@ class ComponentLifecycle {
             return false 
         }
 
-        let componentObject = eval(` new ${componentClass}()`)
+        let componentObject = eval(`new ${componentClass}()`)
         let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
         let componentFragment =  window.$components.fragmentRegistry.get(componentClass)
 
         if (!marker) {
-            let marker = document.createElement('script')
+            let marker = document.createElement(`script`)
 
             marker.id = markerId
-            marker.type = 'text/javascript'
+            marker.type = `text/javascript`
             // TODO: Do not replace child until repeat is done.
             includeElement.parentNode.replaceChild(marker, includeElement);
         }
 
-        let propsElements = includeElement.getElementsByTagName('include-props')
-        let varsElements = includeElement.getElementsByTagName('include-vars')
+        let propsElements = includeElement.getElementsByTagName(`include-props`)
+        let varsElements = includeElement.getElementsByTagName(`include-vars`)
 
         if (propsElements.length) {
             if (1 < propsElements.length) { 

@@ -134,7 +134,7 @@
                     <option value="WestJet"></option>
                 </datalist>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
-                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 2, maxlength: 30, tabindex: 102 }</include-props>
+                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabindex: 102 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}ArrivalDate">

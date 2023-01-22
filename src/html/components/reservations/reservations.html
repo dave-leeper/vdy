@@ -9,7 +9,15 @@
                     this.resetIndexes()
                 })
             }
-            onDescendantsMounted() {
+            onBlur(event) { this.updateSpecialInstructions() }
+            onInput(event) { this.updateSpecialInstructions() }
+            updateSpecialInstructions() {
+                const textarea = this.SpecialInstructionsTextElement
+
+                this.vars.specialInstructions = textarea.value
+            }
+            addDropoffDateTest(title) {
+                if (`Dropoff` !== title) { return }
                 const testDropoffDateAfterPickupDate = async () => {
                     let results = []
                     const dropoffAirport = this.DropoffLocation.isAirportVisible()
@@ -29,14 +37,6 @@
 
                 this.DropoffLocation.AirportInfo.ArrivalDate.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
                 this.DropoffLocation.AddressInfo.Date.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
-                super.onDescendantsMounted()
-            }
-            onBlur(event) { this.updateSpecialInstructions() }
-            onInput(event) { this.updateSpecialInstructions() }
-            updateSpecialInstructions() {
-                const textarea = this.SpecialInstructionsTextElement
-
-                this.vars.specialInstructions = textarea.value
             }
             resetIndexes() {
                 this.PickupLocation.setIndexes(4)
@@ -70,9 +70,9 @@
                     return null
                 }
 
-                const firstName = this.FirstNameElement.value
-                const lastName = this.LastNameElement.value
-                const mobileNumber = this.MobileNumberElement.value
+                const firstName = this.FirstName.Element.value
+                const lastName = this.LastName.Element.value
+                const mobileNumber = this.MobileNumber.Element.value
                 const pickupLocation = pickupLocationData
                 const dropoffLocation = dropoffLocationData
                 const specialInstructions = this.SpecialInstructionsTextElement.value
@@ -81,7 +81,7 @@
             }
             async sendReservationRequest () {
                 const reservationRequest = this.getData()
-                console.log(JSON.stringify(reservationRequest))
+                console.log(`Reservation request: ${JSON.stringify(reservationRequest)}`)
                 const response = await fetch('http://localhost:8080/request-reservation', {
                     method: 'POST',
                     headers: {

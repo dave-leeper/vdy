@@ -787,6 +787,17 @@ class Component {
 
             const objectInfo = window.$components.objectRegistry.get(this.id)
 
+            if (this.haveChildrenMounted() && !objectInfo.hasBroadcastChildrenMounted) {
+                objectInfo.hasBroadcastChildrenMounted = true
+                window.$components.objectRegistry.set(this.id, objectInfo)
+                this.onChildrenMounted()
+            }
+            if (this.haveDescendantsMounted() && !objectInfo.hasBroadcastDescendantsMounted) {
+                objectInfo.hasBroadcastDescendantsMounted = true
+                window.$components.objectRegistry.set(this.id, objectInfo)
+                this.onDescendantsMounted()
+            }
+
             if (!childComponents.length) {
                 if (!objectInfo.hasBroadcastChildrenMounted) {
                     objectInfo.hasBroadcastChildrenMounted = true
@@ -808,9 +819,6 @@ class Component {
             if (rebuiltMessageId !== message.id) { return }
 
             if (childComponents.includes(truncatedMessageId) && !objectInfo.hasBroadcastChildrenMounted) {
-                if (`Address` === this.className()) {
-                    const x = 1
-                }
                 objectInfo.mountedChildComponents.push(message.id)
                 if (childComponents.length === objectInfo.mountedChildComponents.length) {
                     objectInfo.hasBroadcastChildrenMounted = true
@@ -839,9 +847,12 @@ class Component {
         const childComponents = window.$components.childComponentRegistry.get(this.className())
 
         if (!childComponents || 0 === childComponents.length) { return true }
+
         for (let childComponentId of childComponents) {
             if (!Component.isObjectRegistered(`${this.id}${childComponentId}`)) { return false }
-            if (!Component.getObject(`${this.id}${childComponentId}`).haveDescendantsMounted()) { return false }
+            if (!Component.getObject(`${this.id}${childComponentId}`).haveDescendantsMounted()) { 
+                return false 
+            }
         }
         return true
     }
@@ -859,7 +870,7 @@ class Component {
         ComponentLifecycle.destroyComponentObject(`${this.id}`) 
         Queue.broadcast(Messages.COMPONENT_AFTER_DESTRUCTION, this)
     }
-    getParentComponent() {
+    getParent() {
         let element = document.getElementById(this.id)
         let walkUpTree = (element) => {
             while (element.parentElement) {
@@ -1042,7 +1053,6 @@ class Loader {
         const includeHTMLTags = componentMarkupTag?.querySelectorAll("include-html")
 
         if (!window.$components.childComponentRegistry) { window.$components.childComponentRegistry = new Map() }
-        if (!componentMarkupTag || !includeHTMLTags || 0 === includeHTMLTags.length) { return }
 
         let data = { component: componentClass, childComponents: []}
 

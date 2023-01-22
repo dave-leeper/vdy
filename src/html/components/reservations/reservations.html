@@ -16,8 +16,8 @@
 
                 this.vars.specialInstructions = textarea.value
             }
-            addDropoffDateTest(title) {
-                if (`Dropoff` !== title) { return }
+            onDescendantsMounted() {
+                this.resetIndexes()
                 const testDropoffDateAfterPickupDate = async () => {
                     let results = []
                     const dropoffAirport = this.DropoffLocation.isAirportVisible()
@@ -31,12 +31,36 @@
                     const dropoffDateLabel = (dropoffAirport)? this.DropoffLocation.AirportInfo.ArrivalDate.props.label : this.DropoffLocation.AddressInfo.Date.props.label
                     const pickupDatelabel = (pickupAirport)? this.PickupLocation.AirportInfo.ArrivalDate.props.label : this.PickupLocation.AddressInfo.Date.props.label
 
-                    assert(pickupDate < dropoffDate,                                                `Field '${dropoffDateLabel}' is after '${pickupDatelabel}'.`, results, true)
+                    assert(pickupDate <= dropoffDate,                                                `Field '${dropoffDateLabel}' is not before pickup '${pickupDatelabel}'.`, results, true)
+                    return results
+                }
+                const testDropoffTimeAfterPickupTime = async () => {
+                    let results = []
+                    const dropoffAirport = this.DropoffLocation.isAirportVisible()
+                    const pickupAirport = this.PickupLocation.isAirportVisible()
+                    const dropoffDateValue = (dropoffAirport)? this.DropoffLocation.AirportInfo.ArrivalDate.Element.value : this.DropoffLocation.AddressInfo.Date.Element.value
+                    const pickupDateValue = (pickupAirport)? this.PickupLocation.AirportInfo.ArrivalDate.Element.value : this.PickupLocation.AddressInfo.Date.Element.value
+                    const dropoffTimeValue = (dropoffAirport)? this.DropoffLocation.AirportInfo.EstimatedArrivalTime.Element.value : this.DropoffLocation.AddressInfo.Time.Element.value
+                    const pickupTimeValue = (pickupAirport)? this.PickupLocation.AirportInfo.EstimatedArrivalTime.Element.value : this.PickupLocation.AddressInfo.Time.Element.value
+                    const dropoffDateParts = dropoffDateValue.split("-")
+                    const pickupDateParts = pickupDateValue.split("-")
+                    const dropoffTimeParts = dropoffTimeValue.split(":")
+                    const pickupTimeParts = pickupTimeValue.split(":")
+                    const dropoffDate = new Date(parseInt(dropoffDateParts[0], 10), parseInt(dropoffDateParts[1], 10) - 1, parseInt(dropoffDateParts[2], 10), parseInt(dropoffTimeParts[0], 10), parseInt(dropoffTimeParts[1], 10))
+                    const pickupDate = new Date(parseInt(pickupDateParts[0], 10), parseInt(pickupDateParts[1], 10) - 1, parseInt(pickupDateParts[2], 10), parseInt(pickupTimeParts[0], 10), parseInt(pickupTimeParts[1], 10))
+                    const dropoffTimeLabel = (dropoffAirport)? this.DropoffLocation.AirportInfo.EstimatedArrivalTime.props.label : this.DropoffLocation.AddressInfo.Time.props.label
+                    const pickupTimelabel = (pickupAirport)? this.PickupLocation.AirportInfo.EstimatedArrivalTime.props.label : this.PickupLocation.AddressInfo.Time.props.label
+
+                    if (dropoffDateValue === pickupDateValue) {
+                        assert(pickupDate <= dropoffDate,                                                `Field '${dropoffTimeLabel}' is not before pickup '${pickupTimelabel}'.`, results, true)
+                    }
                     return results
                 }
 
                 this.DropoffLocation.AirportInfo.ArrivalDate.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
                 this.DropoffLocation.AddressInfo.Date.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
+                this.DropoffLocation.AirportInfo.EstimatedArrivalTime.vars.customValidationTests.push(testDropoffTimeAfterPickupTime)
+                this.DropoffLocation.AddressInfo.Time.vars.customValidationTests.push(testDropoffTimeAfterPickupTime)
             }
             resetIndexes() {
                 this.PickupLocation.setIndexes(4)
@@ -81,7 +105,6 @@
             }
             async sendReservationRequest () {
                 const reservationRequest = this.getData()
-                console.log(`Reservation request: ${JSON.stringify(reservationRequest)}`)
                 const response = await fetch('http://localhost:8080/request-reservation', {
                     method: 'POST',
                     headers: {

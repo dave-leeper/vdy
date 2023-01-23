@@ -47,9 +47,22 @@
             }
         },
         {
+            "name": "Add photo information.",
+            "verb": "POST",
+            "path": "/photo-info",
+            "handler": "add-photo.js",
+            "log": "NONE",
+            "args": {
+                "table": "photo",
+                "preprocessor": "./photo-preprocessor.js",
+                "validator": "./photo-validation.js",
+                "postprocessor": "./photo-postprocessor.js"
+            }
+        },
+        {
             "name": "Delete photo information.",
             "verb": "DELETE",
-            "path": "/delete-photo-info",
+            "path": "/photo-info",
             "handler": "db-delete.js",
             "log": "NONE",
             "args": {

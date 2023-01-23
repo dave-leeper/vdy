@@ -5,6 +5,15 @@
             initialize(id) {
                 super.initialize(id)
                 this.fetchPhotoInfo()
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
+                    if (error) {
+                        buildPhotos(`display-none`)
+                        showError(`Error getting credentials.`)
+                        return
+                    }
+                    if (!credentials?.roles || !credentials.roles.includes("Admin")) { /*buildPhotos(`display-none`)*/ }
+                    else { /*buildPhotos(`button`)*/ }
+                })
             }
             fetchPhotoInfo() {
                 fetch(this.props.fetchURL)
@@ -16,37 +25,9 @@
             buildPhotos(data) {
                 const buildPhotos = (buttonClass) => {
                     for (let loop = 0; loop < data.length; loop++) {
-                        const image = data[loop]
-                        const wrapperDivElement = document.createElement(`div`)
-                        const imgElement = document.createElement(`img`)
-                        const imgId = `${this.id}Img${loop}`
-                        const imgSrc = `./images/${image.file}`
-                        let varsInnerText = "{ tooltipText: `"+ image.text + "`}"
-                        const imgtext = `./images/`
-                        const imgHeight = `300`
-                        const photoClicked = () => { this.photoClicked(loop) }
-                        const deletePhoto = () => { this.deletePhoto(loop) }
-                        const buttonDivElement = document.createElement(`div`)
-                        const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
-
-                        wrapperDivElement.id = `${this.id}PhotoWrapper${loop}`
-                        wrapperDivElement.classList.add(`tooltip`)
-                        wrapperDivElement.classList.add(`margin-5`)
-                        imgElement.id = imgId
-                        imgElement.src = imgSrc
-                        imgElement.height = imgHeight
-                        imgElement.classList.add(`photo`)
-                        imgElement.addEventListener('click',  photoClicked, false)
-                        buttonDivElement.classList.add(buttonClass)
-                        buttonDivElement.innerText = `Delete`
-                        buttonDivElement.addEventListener('click',  deletePhoto, false)
-                        wrapperDivElement.appendChild(imgElement)
-                        wrapperDivElement.appendChild(newInclude)
-                        wrapperDivElement.appendChild(buttonDivElement)
-                        this.Element.appendChild(wrapperDivElement)
+                        this.buildPhoto(loop, buttonClass)
                     }
                 }
-
                 this.vars.photoData = data
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
@@ -57,6 +38,37 @@
                     if (!credentials?.roles || !credentials.roles.includes("Admin")) { buildPhotos(`display-none`) }
                     else { buildPhotos(`button`) }
                 })
+            }
+            buildPhoto = (index, buttonClass, prependToList) => {
+                const image = this.vars.photoData[index]
+                const wrapperDivElement = document.createElement(`div`)
+                const imgElement = document.createElement(`img`)
+                const imgId = `${this.id}Img${index}`
+                const imgSrc = `./images/${image.file}`
+                let varsInnerText = "{ tooltipText: `"+ image.text + "`}"
+                const imgtext = `./images/`
+                const imgHeight = `300`
+                const photoClicked = () => { this.photoClicked(index) }
+                const deletePhoto = () => { this.deletePhoto(index) }
+                const buttonDivElement = document.createElement(`div`)
+                const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${index}`, null, varsInnerText)
+
+                wrapperDivElement.id = `${this.id}PhotoWrapper${index}`
+                wrapperDivElement.classList.add(`tooltip`)
+                wrapperDivElement.classList.add(`margin-5`)
+                imgElement.id = imgId
+                imgElement.src = imgSrc
+                imgElement.height = imgHeight
+                imgElement.classList.add(`photo`)
+                imgElement.addEventListener('click',  photoClicked, false)
+                buttonDivElement.classList.add(buttonClass)
+                buttonDivElement.innerText = `Delete`
+                buttonDivElement.addEventListener('click',  deletePhoto, false)
+                wrapperDivElement.appendChild(imgElement)
+                wrapperDivElement.appendChild(newInclude)
+                wrapperDivElement.appendChild(buttonDivElement)
+                if (prependToList) { this.Element.prepend(wrapperDivElement) } 
+                else { this.Element.appendChild(wrapperDivElement) }
             }
             photoClicked(photoIndex) {
                 this.vars.selectedPhotoURL = `./images/${this.vars.photoData[photoIndex].file}`
@@ -73,7 +85,7 @@
                     if (!confirm(`Delete this photo?`)) { return }
                     const id = this.vars.photoData[photoIndex].id
                     const body = { id }
-                    const response = await fetch('http://localhost:8080/delete-photo-info', {
+                    const response = await fetch('http://localhost:8080/photo-info', {
                         method: 'DELETE',
                         headers: {
                             'Accept': 'application/json',
@@ -95,13 +107,52 @@
                     }
                 })
             }
+            addPhoto() {
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
+                    if (error) {
+                        showError(`Error getting credentials.`)
+                        return
+                    }
+                    const filename = this.FileSelector.vars.selectedFile
+                    const formData = new FormData()
+
+                    formData.append("filename", filename)
+                    formData.append("text", this.vars.photoDescription)
+                    console.log(formData.toString())
+                    const response = await fetch('http://localhost:8080/photo-info', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `'Bearer ${credentials.token}'`
+                        },
+                        body: formData
+                    })
+                    if (200 === response.status) {
+                        const content = await response.json()
+                        const newId = content.payload.newRecord.id
+                        const newIndex = newId.split(`:`)[1]
+
+                        this.vars.photoData.push(content.payload.newRecord)
+                        this.buildPhoto(newIndex, `button`, true)
+                        await Loader.loadIncludes()
+                        JavascriptWebToken.storeCredentials(content.jwt)
+                        showInfo(`Photo added.`)
+                    } else {
+                        if (401 === response.status) { window.location.href = `/login` }
+                        else { showError(`Error adding photo. Status code ${response.status}.`) }
+                    }
+                })
+            }
+            onBlur(event) { this.updatePhotoDescription() }
+            onInput(event) { this.updatePhotoDescription() }
+            updatePhotoDescription() { this.vars.photoDescription = document.getElementById(`${this.id}PhotoDescription`).value }
             props = {
                 fetchURL: `http://localhost:8080/photo-info`
             }
             vars = {
                 photoData: [],
                 selectedPhotoURL: ``,
-                selectedPhotoText: ``
+                selectedPhotoText: ``,
+                photoDescription: ``
             }
         }
     </script>
@@ -121,6 +172,13 @@
     </style>
     <component-markup>
         <section id="{id}" class="flex-row w100 flex-wrap flex-space-around">
+            <div id="{id}AddFileWrapper">
+                <div id="{id}Label" class="header-6">Add Photo</div>
+                <include-html include-in="index.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
+                <div id="{id}PhotoDescriptionLabel" class="subtitle-2">Description</div>
+                <textarea id="{id}PhotoDescription" name="PhotoDescription" class="w100 h100px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="1">{photoDescription}</textarea>
+                <div id="{id}PhotoDescriptionAddButton" class="button w100px" onclick="$obj.addPhoto()">Add Photo</div>
+            </div>
             <include-html include-in="index.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}PhotoDialog"></include-html>
             <slot-markup for-component-id="{id}PhotoDialog" for-slot="{id}PhotoDialogContentSlot">
                 <div id="{id}PhotoDialogSlotContent" class="flex-row">

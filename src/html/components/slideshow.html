@@ -5,15 +5,16 @@
             initialize(id) {
                 super.initialize(id)
                 this.fetchPhotoInfo()
+            }
+            afterMount() {
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
-                        buildPhotos(`display-none`)
                         showError(`Error getting credentials.`)
                         return
                     }
-                    if (!credentials?.roles || !credentials.roles.includes("Admin")) { /*buildPhotos(`display-none`)*/ }
-                    else { /*buildPhotos(`button`)*/ }
+                    this.AddFileWrapperElement.classList.toggle(`display-none`)
                 })
+                super.afterMount()
             }
             fetchPhotoInfo() {
                 fetch(this.props.fetchURL)
@@ -24,7 +25,7 @@
             }
             buildPhotos(data) {
                 const buildPhotos = (buttonClass) => {
-                    for (let loop = 0; loop < data.length; loop++) {
+                    for (let loop = data.length - 1; loop >= 0; loop--) {
                         this.buildPhoto(loop, buttonClass)
                     }
                 }
@@ -67,7 +68,7 @@
                 wrapperDivElement.appendChild(imgElement)
                 wrapperDivElement.appendChild(newInclude)
                 wrapperDivElement.appendChild(buttonDivElement)
-                if (prependToList) { this.Element.prepend(wrapperDivElement) } 
+                if (prependToList) { this.Element.firstChild.nextSibling.after(wrapperDivElement) } 
                 else { this.Element.appendChild(wrapperDivElement) }
             }
             photoClicked(photoIndex) {
@@ -118,7 +119,7 @@
 
                     formData.append("filename", filename)
                     formData.append("text", this.vars.photoDescription)
-                    console.log(formData.toString())
+
                     const response = await fetch('http://localhost:8080/photo-info', {
                         method: 'POST',
                         headers: {
@@ -172,7 +173,7 @@
     </style>
     <component-markup>
         <section id="{id}" class="flex-row w100 flex-wrap flex-space-around">
-            <div id="{id}AddFileWrapper">
+            <div id="{id}AddFileWrapper" class="display-none">
                 <div id="{id}Label" class="header-6">Add Photo</div>
                 <include-html include-in="index.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
                 <div id="{id}PhotoDescriptionLabel" class="subtitle-2">Description</div>

@@ -118,7 +118,7 @@ module.exports = (handlerHame, handlerArgs) => {
             const recordCount = countResult[0].result.length
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
             const newRecordId = `${handlerArgs.table}:${recordCount}`
-            const newFileName = `o${recordCount}${newFileExtension}`
+            const newFileName = `photo${recordCount}${newFileExtension}`
             const newPhotoRecord = { text: parseFields.text, file: newFileName }
             const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
     

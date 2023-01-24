@@ -1,8 +1,5 @@
 const nodemailer = require('nodemailer')
-const transporter = nodemailer.createTransport({
-    streamTransport: true,
-    newline: `windows`
-})
+
 
 module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {
@@ -11,28 +8,43 @@ module.exports = (handlerName, handlerArgs) => {
         const formattedData = formatter(data)
 
         if (200 !== formattedData.status) {
-            console.log(formattedData.text)
             res.status(formattedData.status).send(formattedData.text)
             next && next(formattedData.text)
             return
         }
-            
+        
         const mailOptions = {
             from: `${process.env.EMAIL_USER}`,
             to: `${process.env.EMAIL_USER}`,
             subject: `Reservation request`,
             text: formattedData.text
         }
+        const transporter = nodemailer.createTransport({
+            host: `smtp.gmail.com`,
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD
+            },
+        })
 
-        transporter.sendMail(mailOptions, function(error, info){
+        transporter.verify((error, success) => {
             if (error) {
-                console.log(error)
                 res.status(500).send(`Failed to send email.`)
                 next && next(error)
+                return
             } else {
-                console.log(info)
-                res.status(200).send(`Email sent.`)
-                next && next()
+                transporter.sendMail(mailOptions, function(error, info){
+                    if (error) {
+                        res.status(500).send(`Failed to send email.`)
+                        next && next(error)
+                        return
+                    } else {
+                        res.status(200).send(`Email sent.`)
+                        next && next()
+                    }
+                })
             }
         })
     }

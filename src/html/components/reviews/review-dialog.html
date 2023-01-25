@@ -141,7 +141,30 @@
         }
     </script>
     <style>
+        :root {
+            --photo-cursor: pointer;
 
+            --photo-hover-border-radius: 15px;
+
+            --review-text-width: 100%;
+            --review-text-height: 100px;
+            --review-text-color: var(--blue-gray-900);
+            --review-text-text-align: left;
+            --review-text-white-space: pre-wrap;
+            --review-text-font-family: var(--secondary-font-family);
+            --review-text-font-size: var(--caption-1-font-size);
+            --review-text-font-weight: font-weight: var(--caption-1-font-weight)
+        }
+        .review-text {
+            width: var(--review-text-width);
+            height: var(--review-text-height);
+            color: var(--review-text-color);
+            text-align: var(--review-text-text-align);
+            white-space: var(--review-text-white-space);
+            font-family: var(--review-text-font-family);
+            font-size: var(--review-text-font-size);
+            font-weight: var(--review-text-font-weight);
+        }
     </style>
     <component-markup>
         <div id="{id}" class="modal-x display-none" onclick="$obj.hide()">
@@ -166,7 +189,7 @@
                 </div>
                 <div class="flex-col margin-b-5 margin-t-20">
                     <h3 id="{id}ReviewTitle" class="subtitle-2">Review</h3>
-                    <textarea id="{id}ReviewText" name="review" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{review}</textarea>
+                    <textarea id="{id}ReviewText" name="review" class="review-text" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="6">{review}</textarea>
                 </div>
                 <div id="{id}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
                     <div id="{id}CancelButton" class="button" onclick="$obj.hide()">

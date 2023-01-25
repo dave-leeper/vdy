@@ -137,11 +137,31 @@
         }
     </script>
     <style>
+        :root {
+            --reply-text-width: 100%;
+            --reply-text-height: 100px;
+            --reply-text-color: var(--blue-gray-900);
+            --reply-text-text-align: left;
+            --reply-text-white-space: pre-wrap;
+            --reply-text-font-family: var(--secondary-font-family);
+            --reply-text-font-size: var(--caption-1-font-size);
+            --reply-text-font-weight: font-weight: var(--caption-1-font-weight)
+        }
+        .reply-text {
+            width: var(--reply-text-width);
+            height: var(--reply-text-height);
+            color: var(--reply-text-color);
+            text-align: var(--reply-text-text-align);
+            white-space: var(--reply-text-white-space);
+            font-family: var(--reply-text-font-family);
+            font-size: var(--reply-text-font-size);
+            font-weight: var(--reply-text-font-weight);
+        }
     </style>
     <component-markup>
         <div id="{id}" class="modal-x display-none" onclick="$obj.hide()">
               <div id="{id}Frame" class="modal-x-content" onclick="event.stopPropagation()">
-                <include-html include-in="review-dialog.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{id}ReviewHeader">
+                <include-html include-in="reply-dialog.html" src="./html/components/reviews/review-header.html" component-class="ReviewHeader" component-id="{id}ReviewHeader">
                     <include-props class="display-none">
                         { 
                             imageURL: `{reviewImageURL}`,
@@ -153,7 +173,7 @@
                         }          
                     </include-props>
                 </include-html>
-                <include-html include-in="review-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
+                <include-html include-in="reply-dialog.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
                     <include-props class="display-none">{ editable: false }</include-props>
                     <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
                 </include-html>
@@ -163,7 +183,7 @@
                 </div>
                 <div class="flex-col margin-b-5">
                     <h3 id="{id}ReplyTitle" class="subtitle-2">Reply</h3>
-                    <textarea id="{id}ReplyText" name="reply" class="w100 h200px left-align-text whitespace-pre-wrap caption-1" autofocus onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)">{reply}</textarea>
+                    <textarea id="{id}ReplyText" name="reply" class="reply-text" autofocus onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)">{reply}</textarea>
                 </div>
                 <div id="{id}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
                     <div id="{id}CancelButton" class="button" onclick="$obj.hide()">

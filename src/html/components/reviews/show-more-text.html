@@ -55,15 +55,43 @@
         }
     </script>
     <style>
+        :root {
+            --reply-text-height: 4em;
+            --reply-text-white-space: pre-wrap;
+            --reply-text-overflow-wrap: break-word;
+            --reply-text-pad: 5px;
+            --reply-text-margin: 5px;
+            --reply-text-border-style: solid;
+            --reply-text-border-width: 2px 0;
+            --reply-text-border-color: var(--primary-text-color);
+            --reply-text-font-family: var(--secondary-font-family);
+            --reply-text-font-size: var(--text-2-font-size);
+            --reply-text-font-weight: font-weight: var(--text-2-font-weight)
+        }
+
         .line-clamp-4 {
             overflow:       hidden;
             display:        -webkit-box;
             -line-clamp:    4;  /* truncate to 4 lines */
         }
+
+        .reply-text {
+            height: var(--reply-text-height);
+            white-space: var(--reply-text-white-space);
+            overflow-wrap: var(--reply-text-overflow-wrap);
+            padding: var(--reply-text-pad);
+            margin: var(--reply-text-margin);
+            border-style: var(--reply-text-border-style);
+            border-width: var(--reply-text-border-width);
+            border-color: var(--reply-text-border-color);
+            font-family: var(--reply-text-font-family);
+            font-size: var(--reply-text-font-size);
+            font-weight: var(--reply-text-font-weight);
+        }
     </style>
     <component-markup>
         <div id="{id}" class="flex-col margin-b-20 cursor-default">
-            <div id="{id}Text" class="line-clamp-4 h4-0em whitespace-pre-wrap overflow-wrap-break border-tb-solid border-2 border-blue-50 pad-5 text-2">{text}</div>
+            <div id="{id}Text" class="line-clamp-4 reply-text">{text}</div>
             <div id="{id}ReadMoreButton" class="text-button" onclick="$obj.readMore()">{readMore}</div>
         </div>
     </component-markup>

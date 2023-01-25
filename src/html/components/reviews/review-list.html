@@ -201,9 +201,29 @@
         }
     </script>
     <style>
+        :root {
+            --review-list-card-display: flex;
+            --review-list-card-flex-direction: column;
+            --review-list-card-pad: 5px;
+            --review-list-card-margin: 5px;
+            --review-list-card-border-style: solid;
+            --review-list-card-border-width: 2px;
+            --review-list-card-border-color: var(--secondary-color);
+        }
+
+        .review-list-card {
+            display: var(--review-list-card-display);
+            flex-direction: var(--review-list-card-flex-direction);
+            padding: var(--review-list-card-pad);
+            margin: var(--review-list-card-margin);
+            border-style: var(--review-list-card-border-style);
+            border-width: var(--review-list-card-border-width);
+            border-color: var(--review-list-card-border-color);
+        }
+
     </style>
     <component-markup>
-        <article id="{id}" class="flex-col bg-white round-15px pad-5">
+        <article id="{id}" class="review-list-card">
             <div id="{id}LoadingWrapper" class="{loadingClass}">
                 <div id="{id}LoadingText">Loading reviews...</div>
                 <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{id}Loading"></include-html>

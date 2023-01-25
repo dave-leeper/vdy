@@ -111,18 +111,18 @@
 
     --default-border-color: var(--primary-color); --default-border-width: 2px; --default-border-style: solid;
 
-    --button-border-color: var(--default-border-color);
-    --button-border-width: var(--default-border-width);
-    --button-border-style: var(--default-border-style);
-    --button-border-radius: 5px;
-    --button-padding: 3px;
-    --button-margin: 2px;
+    --button-color: var(--background-color);
+    --button-background-color: var(--secondary-color);
     --button-cursor: pointer;
     --button-font-family: var(--primary-font-family);
     --button-font-size: var(--caption-2-font-size);
     --button-font-weight: var(--caption-2-font-weight);
-    --button-color: var(--light-text-color);
-    --button-background-color: var(--primary-color);
+    --button-padding: 3px;
+    --button-margin: 2px;
+    --button-border-color: var(--secondary-color);
+    --button-border-width: var(--default-border-width);
+    --button-border-style: var(--default-border-style);
+    --button-border-radius: 5px;
   }
 
   body {
@@ -1128,7 +1128,6 @@
     justify-content: center;
     text-align: center;
     background-position: center;
-    transition: background 0.4s;
     border-color: var(--button-border-color);
     border-width: var(--button-border-width);
     border-style: var(--button-border-style);
@@ -1144,13 +1143,9 @@
   }
   .button:hover {
     filter: brightness(95%);
-    background: #47a7f5 radial-gradient(circle, transparent 1%, #47a7f5 1%) center/15000%;
   }
   .button:active {
     filter: brightness(105%);
-    background: none;
-    transition: filter 0.4s;
-    transition: background 0s;
   }
   .text-button {
     padding: var(--button-padding);
@@ -1159,10 +1154,9 @@
     font-family: var(--button-font-family);
     font-size: var(--button-font-size);
     font-weight: var(--button-font-weight);
-    color: var(--button-color);
+    color: var(--blue-gray-50);
     text-decoration: underline;
   }
-
   .modal-x {
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
@@ -1174,9 +1168,8 @@
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
   }
-
   .modal-x-content {
-      background-color: #fefefe;
+      background-color: var(--blue-gray-900);
       margin: 15% auto; /* 15% from the top and centered */
       z-index: 1;
       padding: 20px;

@@ -74,8 +74,7 @@
             --tab-align-items: center;
             --tab-height: 20px;
             --tab-color: var(--primary-text-color);
-            --tab-background-color: white;
-            --tab-active-background-color: var(--blue-50);
+            --tab-background-color: var(--background-color);
             --tab-text-align: center;
             --tab-font-family: var(--primary-font-family);
             --tab-font-size: var(--text-2-font-size);
@@ -84,6 +83,9 @@
             --tab-padding: 0 3px 0 3px;
             --tab-margin: 10px;
             --tab-text-decoration: underline;
+
+            --tab-active-color: var(--background-color);
+            --tab-active-background-color: var(--secondary-color);
             --tab-active-text-decoration: none;
         }        
         .tab {
@@ -103,6 +105,7 @@
             margin: var(--tab-margin);
         }
         .active-tab {
+            color: var(--tab-active-color);
             background-color: var(--tab-active-background-color);
             text-decoration: var(--tab-active-text-decoration);
         }

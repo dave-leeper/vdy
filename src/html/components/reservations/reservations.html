@@ -126,11 +126,50 @@
         }
     </script>
     <style>
+        :root {
+            --reservation-card-display: flex;
+            --reservation-card-flex-direction: column;
+            --reservation-card-pad: 5px;
+            --reservation-card-margin: 5px;
+            --reservation-card-border-style: solid;
+            --reservation-card-border-width: 2px;
+            --reservation-card-border-color: var(--secondary-color);
+
+            --special-instructions-width: 100%;
+            --special-instructions-height: 100px;
+            --special-instructions-color: var(--blue-gray-900);
+            --special-instructions-text-align: left;
+            --special-instructions-white-space: pre-wrap;
+            --special-instructions-family: var(--secondary-font-family);
+            --special-instructions-font-size: var(--caption-1-font-size);
+            --special-instructions-font-weight: font-weight: var(--caption-1-font-weight)
+
+        }
+
+        .reservation-card {
+            display: var(--reservation-card-display);
+            flex-direction: var(--reservation-card-flex-direction);
+            padding: var(--reservation-card-pad);
+            margin: var(--reservation-card-margin);
+            border-style: var(--reservation-card-border-style);
+            border-width: var(--reservation-card-border-width);
+            border-color: var(--reservation-card-border-color);
+        }
+        .special-instructions {
+            width: var(--special-instructions-width);
+            height: var(--special-instructions-height);
+            color: var(--special-instructions-color);
+            text-align: var(--special-instructions-text-align);
+            white-space: var(--special-instructions-white-space);
+            font-family: var(--special-instructions-font-family);
+            font-size: var(--special-instructions-font-size);
+            font-weight: var(--special-instructions-font-weight);
+        }
     </style>
     <component-markup>
         <div id="{id}" class="margin-10">
-            <section id="{id}PersonalInfo" class="flex-col margin-10 margin-b-20 shadow-white round-15px">
-                <h2 id="{id}AboutYouTitle" class="header-6 margin-l-5 margin-b-5">About You</h2>
+            <section id="{id}PersonalInfo" class="reservation-card">
+                <h2 id="{id}AboutYouTitle" class="header-6">About You</h2>
                 <div id="{id}FirstNameLastNamePhoneNumber" class="flex-row pad-b-10">
                     <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FirstName">
                         <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1 }</include-props>
@@ -154,9 +193,9 @@
                     <include-props class="display-none">{ title: `Dropoff` }</include-props>
                 </include-html>
             </div>
-            <div id="{id}SpecialInstructions" class="flex-col margin-10 margin-b-20 shadow-white round-15px">
+            <div id="{id}SpecialInstructions" class="reservation-card">
                 <h2 id="{id}SpecialInstructionsTitle" class="header-6 margin-l-5 margin-b-5">Special Instructions</h2>
-                <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="w100 h240px left-align-text whitespace-pre-wrap caption-1" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="23">{specialInstructions}</textarea>
+                <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="special-instructions" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="23">{specialInstructions}</textarea>
             </div>
             <div id="{id}ButtonWrapper" class="flex-col flex-center flex-align-center margin-t-20 w100">
                 <div id="{id}Button" class="button w100px center-text" onclick="$obj.sendReservationRequest()">Request a Reservation</div>

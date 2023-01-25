@@ -12,6 +12,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
     <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <meta property="og:image:width" content="500" />
+    <meta property="og:image:height" content="161" />    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:description" content="Vince Drives You is a locally-owned-and-operated luxury transportation company serving clients all over Phoenix, AZ. Schedule our service!" />
+    <meta property="og:site_name" content="Vince Drives You" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:label1" content="Est. reading time" />
+    <meta name="twitter:data1" content="1 minute" />
     <script type="text/javascript" src="./js/messages.js"></script>
     <script type="text/javascript" src="./js/queue.js"></script>
     <script type="text/javascript" src="./js/include.js"></script>
@@ -27,13 +35,24 @@
         JavascriptWebToken.storeCredentials(JSON.parse(token))
       }
       function setCSSDefaults() {
-        const r = document.querySelector(':root')
+        const r = document.querySelector(`:root`)
         var rs = getComputedStyle(r);
-        const blue50 = rs.getPropertyValue('--blue-50')
-        const black = rs.getPropertyValue('--black')
-        r.style.setProperty('--button-color', black);
-        r.style.setProperty('--button-background-color', blue50);
-        r.style.setProperty('--button-border-color', blue50);
+        const blue50 = rs.getPropertyValue(`--blue-50`)
+        const black = rs.getPropertyValue(`--black`)
+        r.style.setProperty(`--button-color`, black);
+        r.style.setProperty(`--button-background-color`, blue50);
+        r.style.setProperty(`--button-border-color`, blue50);
+
+        const blueGray900 = rs.getPropertyValue(`--blue-gray-900`)
+        const blueGray50 = rs.getPropertyValue(`--blue-gray-50`)
+        const amber900 = rs.getPropertyValue(`--amber-500`)
+        r.style.setProperty(`--background-color`, blueGray900)
+        r.style.setProperty(`--primary-text-color`, blueGray50)
+        r.style.setProperty(`--secondary-color`, amber900)
+
+        r.style.setProperty(`--button-color`, blueGray900)
+        r.style.setProperty(`--button-background-color`, amber900)
+ 
       }
       initializeApp()
       setCSSDefaults()
@@ -74,8 +93,9 @@
     <slot-markup for-component-id="ReviewsTab" for-slot="ReviewsTabContentSlot">
       <div>
         <include-html include-in="index.html" src="./html/components/reviews/review-statement.html" component-class="ReviewStatement" component-id="ReviewStatement"></include-html>
+        <div class="w100 h15px"></div>
         <include-html include-in="index.html" src="./html/components/reviews/write-review-button.html" component-class="WriteReviewButton" component-id="WriteReviewButton"></include-html>
-        <div class="w100 h20px"></div>
+        <div class="w100 h15px"></div>
         <include-html include-in="index.html" src="./html/components/reviews/review-list.html" component-class="ReviewList" component-id="ReviewList"></include-html>
       </div>
     </slot-markup>

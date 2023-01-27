@@ -66,6 +66,14 @@
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarInfo">
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
+    <div class="flex-col w600px border-b-solid border-amber-500 border-2">
+      <h1 id="Title" class="amber-500 font-size-4-0em letter-spacing5">Vince Drives You</h1>
+      <div class="flex-row flex-space-between">
+        <h1 id="Slogan" class="amber-500 font-size-1-0em letter-spacing9">Luxury For Less</h1>
+        <h1 id="Slogan" class="amber-500 font-size-1-0em letter-spacing9">●</h1>
+        <div id="Phone" class="amber-500 font-size-1-0em letter-spacing9 margin-b-10">(602) 545-8557</div>
+      </div>
+    </div>
     <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
       <include-vars class="display-none">{ tabs: [`Home`, `Reserve A Ride`, `Photos`, `Reviews`], activeTab: 0 }</include-vars>
     </include-html>
@@ -73,7 +81,9 @@
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Home` }</include-props>
     </include-html>
     <slot-markup for-component-id="HomeTab" for-slot="HomeTabContentSlot">
-      <div id="HomeTabNewSlotContent">NEW SLOT CONTENT FOR Home Tab</div>
+      <div class="w100 h100">
+        <img src="../images/photo2.jpg" style="width: 100%; height: auto;">
+      </div>
     </slot-markup>
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="ReserveARideTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Reserve A Ride` }</include-props>

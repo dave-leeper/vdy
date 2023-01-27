@@ -201,7 +201,10 @@
   .center-text {text-align: center;}            .left-align-text {text-align: left;}          .right-align-text {text-align: right;}  .justify-text {text-align: justify;}
   .whitespace-normal {white-space: normal;}     .whitespace-nowrap {white-space: nowrap;}     .whitespace-pre {white-space: pre;}     .whitespace-pre-line {white-space: pre-line;} 
   .whitespace-pre-wrap {white-space: pre-wrap;}
-  .hyphens {hyphens : auto;}                    .hyphens-none {hyphens : none;}               .hyphens-manual {hyphens : manual;}
+  .hyphens {hyphens: auto;}                     .hyphens-none {hyphens: none;}                .hyphens-manual {hyphens: manual;}
+  .letter-spacing1 {letter-spacing: 1px;}       .letter-spacing2 {letter-spacing: 2px;}       .letter-spacing3 {letter-spacing: 3px;}
+  .letter-spacing4 {letter-spacing: 4px;}       .letter-spacing5 {letter-spacing: 5px;}       .letter-spacing6 {letter-spacing: 6px;}
+  .letter-spacing7 {letter-spacing: 7px;}       .letter-spacing8 {letter-spacing: 8px;}       .letter-spacing9 {letter-spacing: 9px;}
 
   .underline {text-decoration: underline;}
 
@@ -267,7 +270,8 @@
   .w95px {width: 95px;}     .w100px {width: 100px;}   .w120px {width: 120px;}   .w140px {width: 140px;}
   .w150px {width: 150px;}   .w160px {width: 160px;}   .w180px {width: 180px;}   .w200px {width: 200px;}
   .w250px {width: 250px;}   .w300px {width: 300px;}   .w350px {width: 350px;}   .w400px {width: 400px;}
-  .w450px {width: 450px;}   .w500px {width: 500px;}
+  .w450px {width: 450px;}   .w500px {width: 500px;}   .w550px {width: 550px;}   .w600px {width: 600px;}
+  .w650px {width: 650px;}   .w700px {width: 700px;}   .w750px {width: 750px;}   .w800px {width: 800px;}
   .w0-5em {width: 0.5em}    .w1-0em {width: 1.0em}    .w1-5em {width: 1.5em}    .w2-0em {width: 2.0em}
   .w2-5em {width: 2.5em}    .w3-0em {width: 3.0em}    .w3-5em {width: 3.5em}    .w4-0em {width: 4.0em}
   .w4-5em {width: 4.5em}    .w5-0em {width: 5.0em}    .w5-5em {width: 5.5em}    .w6-0em {width: 6.0em}

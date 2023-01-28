@@ -30,6 +30,7 @@
     <script type="text/javascript" src="./js/slot-manager.js"></script>
     <script type="text/javascript" src="./js/loader.js"></script>
     <script type="text/javascript" src="./js/registry-client-side.js"></script>
+    <script type="text/javascript" src="./js/snackbar.js"></script>
     <script type="text/javascript" src="./js/test.js"></script>
     <script type="text/javascript" src="./js/purify.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
@@ -44,6 +45,7 @@
           Loader.registerCustomTags()
           await Loader.loadIncludes()
           SlotManager.loadSlots()
+          Queue.broadcast(Messages.SITE_LOADED, null)
         })
       }
       function setCSSDefaults() {
@@ -94,8 +96,9 @@
     </include-html>
     <slot-markup for-component-id="HomeTab" for-slot="HomeTabContentSlot">
       <div class="w100 h100">
-        <img src="../images/photo2.jpg" style="width: 100%; height: auto;">
+        <img src="../images/photo2.jpg" class="relative" style="width: 100%; height: auto;">
       </div>
+      <include-html include-in="index.html" src="./html/components/news/news.html" component-class="News" component-id="News"></include-html>
     </slot-markup>
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="ReserveARideTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Reserve A Ride` }</include-props>
@@ -113,7 +116,7 @@
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Reviews` }</include-props>
     </include-html>
     <slot-markup for-component-id="ReviewsTab" for-slot="ReviewsTabContentSlot">
-      <div>
+      <div id="ReviewWrapper" class="display-none">
         <include-html include-in="index.html" src="./html/components/reviews/review-statement.html" component-class="ReviewStatement" component-id="ReviewStatement"></include-html>
         <div class="w100 h15px"></div>
         <include-html include-in="index.html" src="./html/components/reviews/write-review-button.html" component-class="WriteReviewButton" component-id="WriteReviewButton"></include-html>

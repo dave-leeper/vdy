@@ -1,9 +1,14 @@
 <custom-component>
     <script>
-        //# sourceURL=html/components/Slideshow.html
+        //# sourceURL=html/components/slideshow.html
         class Slideshow extends Component { 
             initialize(id) {
                 super.initialize(id)
+                Queue.register(this, Messages.SHOW_TAB, (message) => {
+                    if (message.tabBar.id !== `TabBar`) { return }
+                    if (message.tab !== `Photos`) { return }
+                    this.Element.classList.remove(`display-none`)
+                })
                 this.fetchPhotoInfo()
             }
             afterMount() {
@@ -191,7 +196,7 @@
         }
     </style>
     <component-markup>
-        <section id="{id}" class="flex-row w100 flex-wrap flex-space-around">
+        <section id="{id}" class="flex-row w100 flex-wrap flex-space-around display-none">
             <div id="{id}AddFileWrapper" class="display-none border-solid border-amber-900 border-2 pad-10 margin-10 round-15px">
                 <div id="{id}Label" class="header-6">Add Photo</div>
                 <include-html include-in="index.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>

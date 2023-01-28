@@ -8,6 +8,11 @@
                     if (!message.id || message.id !== this.id ) { return }
                     this.resetIndexes()
                 })
+                Queue.register(this, Messages.SHOW_TAB, (message) => {
+                    if (message.tabBar.id !== `TabBar`) { return }
+                    if (message.tab !== `Reserve A Ride`) { return }
+                    this.Element.classList.remove(`display-none`)
+                })
             }
             onDescendantsMounted() {
                 this.resetIndexes()
@@ -167,7 +172,7 @@
         }
     </style>
     <component-markup>
-        <div id="{id}" class="margin-10">
+        <div id="{id}" class="margin-10 display-none">
             <section id="{id}PersonalInfo" class="reservation-card">
                 <h2 id="{id}AboutYouTitle" class="header-6">About You</h2>
                 <div id="{id}FirstNameLastNamePhoneNumber" class="flex-row pad-b-10">

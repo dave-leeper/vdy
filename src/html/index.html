@@ -22,17 +22,29 @@
     <meta name="twitter:data1" content="1 minute" />
     <script type="text/javascript" src="./js/messages.js"></script>
     <script type="text/javascript" src="./js/queue.js"></script>
-    <script type="text/javascript" src="./js/include.js"></script>
+    <script type="text/javascript" src="./js/tree-node.js"></script>
+    <script type="text/javascript" src="./js/tree.js"></script>
+    <script type="text/javascript" src="./js/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/component.js"></script>
+    <script type="text/javascript" src="./js/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/loader.js"></script>
     <script type="text/javascript" src="./js/registry-client-side.js"></script>
     <script type="text/javascript" src="./js/test.js"></script>
     <script type="text/javascript" src="./js/purify.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script>
       function initializeApp() {
         const params = new URLSearchParams(window.location.search)
         const token = params.get(`token`)
 
         JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+        })
       }
       function setCSSDefaults() {
         const r = document.querySelector(`:root`)
@@ -58,7 +70,7 @@
       setCSSDefaults()
     </script>
   </head>
-  <body class="margin-5 bg-grey-e" onload="initializeApp()">
+  <body class="margin-5 bg-grey-e"">
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarError">
       <include-props class="display-none">{ isError: true }</include-props>
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
@@ -66,7 +78,7 @@
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarInfo">
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
-    <div class="flex-col w600px border-b-solid border-amber-500 border-2">
+    <div class="flex-col w600px border-b-solid border-amber-500 border-2 animate__animated animate__backInDown">
       <h1 id="Title" class="amber-500 font-size-4-0em letter-spacing5">Vince Drives You</h1>
       <div class="flex-row flex-space-between">
         <h1 id="Slogan" class="amber-500 font-size-1-0em letter-spacing9">Luxury For Less</h1>

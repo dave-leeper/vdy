@@ -3,28 +3,15 @@
         //# sourceURL=html/components/reviews/Reply.html
         class Reply extends Component {
             afterMount() { 
+                super.afterMount()
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) { return }
-                    
-                    const replyElement = document.getElementById(`${this.id}EditButton`)
-
                     if (!credentials?.roles) { return }
                     if (!credentials.roles.includes("Admin")) { return }
-                    if (!replyElement) { return }
+                    if (!this.EditButton) { return }
 
-                    replyElement.setAttribute(`class`, `text-button`)
+                    this.EditButton.setAttribute(`class`, `text-button`)
                 })
-                super.afterMount()
-            }
-            beforeUnmount() {
-                super.beforeUnmount()
-                ComponentLifecycle.unmount(`${this.id}ReplyHeader`)
-            }
-            destroy() {
-                const replyHeaderObj = Component.getObject(`${this.id}ReplyHeader`)
-
-                replyHeaderObj.destroy()
-                super.destroy()
             }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)

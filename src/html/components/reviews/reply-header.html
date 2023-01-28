@@ -2,16 +2,6 @@
     <script>
         //# sourceURL=html/components/reviews/reply-header.html
         class ReplyHeader extends Component{
-            beforeUnmount() {
-                super.beforeUnmount()
-                ComponentLifecycle.unmount(`${this.id}Avatar`)
-            }
-            destroy() {
-                const avatarObj = Component.getObject(`${this.id}Avatar`)
-
-                avatarObj.destroy()
-                super.destroy()
-            }
             props = {
                 imageURL: ``,
                 firstName: ``,

@@ -10,46 +10,6 @@
                     this.fetchReviews()
                 })
             }
-            beforeUnmount() {
-                super.beforeUnmount()
-                ComponentLifecycle.unmount(`${this.id}Loading`)
-                this.unmountReviewsAndReplies()
-            }
-            unmountReviewsAndReplies() {
-                for (const reviewAndReply of this.vars.reviews) {
-                    if (reviewAndReply.reply) {
-                        const replyObj = Component.getObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
-
-                        if (replyObj) { ComponentLifecycle.unmount(`${replyObj.id}`) }
-                    }
-                    if (reviewAndReply.review) {
-                        const reviewObj = Component.getObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
-
-                        if (reviewObj) { ComponentLifecycle.unmount(`${reviewObj.id}`) }
-                    }
-                }
-            }
-            destroy() {
-                const loadingObj = Component.getObject(`${this.id}Loading`)
-
-                this.destroyReviewsAndReplies()
-                loadingObj.destroy()
-                super.destroy()
-            }
-            destroyReviewsAndReplies() {
-                for (const reviewAndReply of this.vars.reviews) {
-                    if (reviewAndReply.reply) {
-                        const replyObj = Component.getObject(`Reply${this.getCleanId(reviewAndReply.reply.id)}`)
-
-                        if (replyObj) { replyObj.destroy() }
-                    }
-                    if (reviewAndReply.review) {
-                        const reviewObj = Component.getObject(`Review${this.getCleanId(reviewAndReply.review.id)}`)
-
-                        if (reviewObj) { reviewObj.destroy() }
-                    }
-                }
-            }
             fetchReviews() {
                 fetch(this.props.fetchURL)
                     .then((response) => response.json())
@@ -167,6 +127,28 @@
                     listRootElement.appendChild(element)
                     await Loader.loadIncludes()
                 }
+            }
+            async addNewReview(review) {
+                let propsInnerText = "{ "
+
+                if (!review.image) { review.image = `./images/generic-avatar.png` }
+                propsInnerText += "reviewId: `" + this.getCleanId(review.id) + "`, "
+                propsInnerText += "imageURL: `" + review.image + "`, "
+                propsInnerText += "firstName: `" + review.name.first + "`, "
+                propsInnerText += "lastName: `" + review.name.last + "`, "
+                propsInnerText += "date: `" + review.date + "`, "
+                propsInnerText += "city: `" + review.city + "`, "
+                propsInnerText += "state: `" + review.state + "`, "
+                propsInnerText += "rating: " + review.stars + ", "
+                propsInnerText += "review: `" + review.review.replace(/\n/g, "\\n") + "`, "
+                propsInnerText += "usefulCount: " + review.usefulCount + ", "
+                propsInnerText += "funnyCount: " + review.funnyCount + ", "
+                propsInnerText += "coolCount: " + review.coolCount + " }"
+
+                let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsInnerText, null)
+            
+                this.SummaryElement.after(newInclude)
+                await Loader.loadIncludes()
             }
             setReviewCountAndAverage() {
                 if (!this.vars.reviews || 0 === this.vars.reviews.length) {

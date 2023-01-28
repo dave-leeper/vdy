@@ -3,6 +3,7 @@
         //# sourceURL=html/components/reviews/useful-funny-cool.html
         class UsefulFunnyCool extends Component {
             afterMount() {
+                super.afterMount()
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
                         showError(`Error getting credentials.`)
@@ -12,16 +13,14 @@
                     if (!credentials.roles.includes("Admin")) { return }
 
                     const replyElement = document.getElementById(this.getReviewComponentObjectId())
-                    const replyButton = document.getElementById(`${this.id}ReplyButton`)
                     const reviewElementId = this.getReviewComponentObjectId()
-                    const reviewObject = Component.getObject(`${reviewElementId}`)
+                    const reviewObject = Component.getObject(reviewElementId)
 
                     if (!replyElement) { return }
                     if (reviewObject.hasReply()) { return }
 
-                    replyButton.setAttribute(`class`, `ufc-text-button`)
+                    this.ReplyButtonElement.setAttribute(`class`, `ufc-text-button`)
                 })
-                super.afterMount()
             }
             getReviewComponentObjectId() { return this.id.slice(0, -3) }
             incrimentUseful() { 
@@ -38,7 +37,7 @@
             }
             incriment(which) {
                 const reviewElementId = this.getReviewComponentObjectId()
-                const reviewObject = Component.getObject(`${reviewElementId}`)
+                const reviewObject = Component.getObject(reviewElementId)
                 const reviewId = reviewObject.props.reviewId.replace(`_`, `:`)
                 const payload = {
                     id: reviewId,

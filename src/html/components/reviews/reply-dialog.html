@@ -24,18 +24,6 @@
                     this.vars.editingExistingReply = true
                 }
             }
-            beforeUnmount() {
-                super.beforeUnmount()
-                ComponentLifecycle.unmount(`${this.id}ReviewHeaderAvatar`)
-                ComponentLifecycle.unmount(`${this.id}ReviewHeader`)
-                ComponentLifecycle.unmount(`${this.id}Stars`)
-            }
-            destroy() { 
-                ComponentLifecycle.destroyComponentObject(`${this.id}ReviewHeaderAvatar`)
-                ComponentLifecycle.destroyComponentObject(`${this.id}ReviewHeader`)
-                ComponentLifecycle.destroyComponentObject(`${this.id}Stars`)
-                ComponentLifecycle.destroyComponentObject(this.id)
-            }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
             updateReply() { this.vars.reply = this.ReplyText.value }
@@ -107,7 +95,6 @@
                             const reviewList = Component.getObject(`ReviewList`)
 
                             JavascriptWebToken.storeCredentials(content.jwt)
-                            reviewList.destroyReviewsAndReplies()
                             await reviewList.fetchReviews()
                             showInfo(`Reply added.`)
                         } else {

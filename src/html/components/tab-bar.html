@@ -18,8 +18,7 @@
                 })
             }
             afterMount() {
-                let tabWrapper = document.getElementById(this.id)
-
+                super.afterMount()
                 for (let tab of this.vars.tabs) {
                     let tabId = `${this.id}Tab${tab.replace(' ', '_')}`
                     let tabHTML = `<div id="${tabId}" class="tab" onclick="Component.getObject('${this.id}').setActiveTab('${tab}')">${tab}</div>`
@@ -27,7 +26,7 @@
                     const message = { tabBar: this, tab }
 
                     temp.innerHTML = tabHTML
-                    tabWrapper.appendChild(temp.firstChild)
+                    this.Element.appendChild(temp.firstChild)
                     if (tab ===  this.vars.tabs[0]) { Queue.broadcast(Messages.SHOW_TAB, message )}
                     else { Queue.broadcast(Messages.HIDE_TAB, message )}
                 }
@@ -37,7 +36,6 @@
 
                 activeTabElement?.classList.toggle(`active-tab`)
 
-                super.afterMount()
             }
             setActiveTab(tabName) {
                 for (let loop = 0; loop < this.vars.tabs.length; loop++) {

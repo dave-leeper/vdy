@@ -3,14 +3,14 @@
         //# sourceURL=html/components/reviews/review-header-editable.html
         class ReviewHeaderEditable extends Component {
             afterMount() { 
-                const element = document.getElementById(this.id)
+                super.afterMount()
 
-                element.addEventListener(`newTextData`, (e) => { 
+                this.Element.addEventListener(`newTextData`, (e) => { 
                     if (`AvatarURL` === e.detail.component.props.name) {
                         this.vars.imageURL = e.detail.text()
                     }
                 })
-                element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
+                this.Element.addEventListener(`newRating`, (e) => { this.vars.reviewRating = e.detail.rating })
 
                 Queue.register(this, Messages.COMPONENT_AFTER_MOUNT, (component) => { 
                     const id = this.id
@@ -30,32 +30,6 @@
 
                     component.vars.customValidationTests.push(testState)
                 })
-                super.afterMount()
-            }
-            beforeUnmount() {
-                super.beforeUnmount()
-                ComponentLifecycle.unmount(`${this.id}EditableFirstName`)
-                ComponentLifecycle.unmount(`${this.id}EditableLastName`)
-                ComponentLifecycle.unmount(`${this.id}EditableCity`)
-                ComponentLifecycle.unmount(`${this.id}EditableState`)
-                ComponentLifecycle.unmount(`${this.id}Avatar`)
-                ComponentLifecycle.unmount(`${this.id}AvatarURL`)
-            }
-            destroy() {
-                const firstNameObj = Component.getObject(`${this.id}EditableFirstName`)
-                const lastNameObj = Component.getObject(`${this.id}EditableLastName`)
-                const cityObj = Component.getObject(`${this.id}EditableCity`)
-                const stateObj = Component.getObject(`${this.id}EditableState`)
-                const avatarObj = Component.getObject(`${this.id}Avatar`)
-                const avatarURLObj = Component.getObject(`${this.id}AvatarURL`)
-
-                firstNameObj.destroy()
-                lastNameObj.destroy()
-                cityObj.destroy()
-                stateObj.destroy()
-                avatarObj.destroy()
-                avatarURLObj.destroy()
-                super.destroy()
             }
             props = {
                 date: ``,
@@ -92,7 +66,7 @@
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableState">
-                    <include-props class="display-none">{ name: `State`, placeholder: `AZ`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
+                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: 4 }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <datalist id="{id}state_list">

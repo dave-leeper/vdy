@@ -7,6 +7,7 @@
                 this.fetchPhotoInfo()
             }
             afterMount() {
+                super.afterMount()
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
                         showError(`Error getting credentials.`)
@@ -14,7 +15,6 @@
                     }
                     this.AddFileWrapperElement.classList.toggle(`display-none`)
                 })
-                super.afterMount()
             }
             fetchPhotoInfo() {
                 fetch(this.props.fetchURL)

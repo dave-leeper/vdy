@@ -3,18 +3,12 @@
         //# sourceURL=html/components/Snackbar.html
         class Snackbar extends Component {
             afterMount() { 
-                if (this.props.isError) { 
-                    const snackbar = document.getElementById(this.id)
-
-                    snackbar.classList.toggle(`snackbar-error`) 
-                }
                 super.afterMount()
+                if (this.props.isError) { this.Element.classList.toggle(`snackbar-error`) }
             }
             show() {
-                const snackbar = document.getElementById(this.id)
-
-                snackbar.classList.toggle(`show`)
-                setTimeout(() => { snackbar.classList.toggle(`show`) }, 3000)
+                this.Element.classList.toggle(`show`)
+                setTimeout(() => { this.Element.classList.toggle(`show`) }, 3000)
             }
             props = {
                 isError: false
@@ -40,14 +34,14 @@
         :root {
             --snackbar-min-width: 250px;
             --snackbar-color: var(--primary-text-color);
-            --snackbar-background-color: var(--blue-50);
+            --snackbar-background-color: var(--background-color);
             --snackbar-padding: none;
             --snackbar-margin-left: -125px;
             --snackbar-text-align: center;
             --snackbar-font-family: var(--primary-font-family);
             --snackbar-font-size: var(--text-2-font-size);
             --snackbar-font-weight: var(--text-2-font-weight);
-            --snackbar-border-color: var(--blue-200);
+            --snackbar-border-color: var(--amber-500);
             --snackbar-border-width: 2px;
             --snackbar-border-style: solid;
             --snackbar-border-radius: 0px;

@@ -3,10 +3,10 @@
         //# sourceURL=html/components/time.html
         class Time extends Component {
             afterMount() {
+                super.afterMount()
                 this.HourElement.value = (this.vars.hour).toString().padStart(2, '0')
                 this.MinuteElement.value = this.vars.minute.toString().padStart(2, '0')
                 this.MeridiemElement.value = this.vars.meridiem
-                super.afterMount()
             }
             roundToFive(minutes) {
                 if (3 > minutes) { return 0 }

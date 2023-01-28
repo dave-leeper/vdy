@@ -3,27 +3,22 @@
         //# sourceURL=html/components/reviews/stars.html
         class Stars extends Component {
             afterMount() { 
-                this.star1 = document.getElementById(`${this.id}Star1`)
-                this.star2 = document.getElementById(`${this.id}Star2`)
-                this.star3 = document.getElementById(`${this.id}Star3`)
-                this.star4 = document.getElementById(`${this.id}Star4`)
-                this.star5 = document.getElementById(`${this.id}Star5`)
+                super.afterMount()
                 this.setStars(this.vars.rating)
 
                 if (this.props.editable) {
-                    this.star1.classList.toggle(`cursor-pointer`)
-                    this.star2.classList.toggle(`cursor-pointer`)
-                    this.star3.classList.toggle(`cursor-pointer`)
-                    this.star4.classList.toggle(`cursor-pointer`)
-                    this.star5.classList.toggle(`cursor-pointer`)
+                    this.Star1Element.classList.toggle(`cursor-pointer`)
+                    this.Star2Element.classList.toggle(`cursor-pointer`)
+                    this.Star3Element.classList.toggle(`cursor-pointer`)
+                    this.Star4Element.classList.toggle(`cursor-pointer`)
+                    this.Star5Element.classList.toggle(`cursor-pointer`)
                 } else {
-                    this.star1.classList.toggle(`cursor-default`)
-                    this.star2.classList.toggle(`cursor-default`)
-                    this.star3.classList.toggle(`cursor-default`)
-                    this.star4.classList.toggle(`cursor-default`)
-                    this.star5.classList.toggle(`cursor-default`)
+                    this.Star1Element.classList.toggle(`cursor-default`)
+                    this.Star2Element.classList.toggle(`cursor-default`)
+                    this.Star3Element.classList.toggle(`cursor-default`)
+                    this.Star4Element.classList.toggle(`cursor-default`)
+                    this.Star5Element.classList.toggle(`cursor-default`)
                 }
-                super.afterMount()
             }
             setStars(rating) {
                 if (1 === this.vars.rating && 1 === rating) {
@@ -32,11 +27,11 @@
                     this.vars.rating = rating
                 }
 
-                this.star1.innerText = (0 < this.vars.rating)? `★` : `☆`
-                this.star2.innerText = (1 < this.vars.rating)? `★` : `☆`
-                this.star3.innerText = (2 < this.vars.rating)? `★` : `☆`
-                this.star4.innerText = (3 < this.vars.rating)? `★` : `☆`
-                this.star5.innerText = (4 < this.vars.rating)? `★` : `☆`
+                this.Star1Element.innerText = (0 < this.vars.rating)? `★` : `☆`
+                this.Star2Element.innerText = (1 < this.vars.rating)? `★` : `☆`
+                this.Star3Element.innerText = (2 < this.vars.rating)? `★` : `☆`
+                this.Star4Element.innerText = (3 < this.vars.rating)? `★` : `☆`
+                this.Star5Element.innerText = (4 < this.vars.rating)? `★` : `☆`
 
                 const newRatingEvent = new CustomEvent(
                     `newRating`,

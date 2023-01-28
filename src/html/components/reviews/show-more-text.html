@@ -14,6 +14,7 @@
                 })
             }
             afterMount() {
+                super.afterMount()
                 const componentRootElement = document.querySelector(`#${this.id}`)
 
                 if (!this.checkIfTextShouldBeTruncated()) { 
@@ -22,7 +23,6 @@
                     readMoreButtonElement.classList.toggle(`display-none`)
                     return 
                 }
-                super.afterMount()
             }
             checkIfTextShouldBeTruncated() {
                 const componentRootElement = document.querySelector(`#${this.id}`)

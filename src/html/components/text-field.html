@@ -11,9 +11,7 @@
                 this.vars.valid = false
             }
             afterMount() { 
-                let wrapper = document.getElementById(`${this.id}Wrapper`)
-                let eyeField = document.getElementById(`${this.id}Eye`)
-
+                super.afterMount()
                 this.vars.element = document.getElementById(this.id)
                 this.vars.errorElement = document.getElementById(`${this.id}Error`)
 
@@ -25,9 +23,8 @@
                 if (this.props.list) { this.vars.element.setAttribute('list', this.props.list) } else { this.vars.element.removeAttribute('list') }
                 if (this.props.min != Number.MAX_VALUE) { this.vars.element.setAttribute(`min`, this.props.min) }
                 if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
-                if (this.props.labelAboveField) { wrapper.setAttribute('class', `flex-col`) } else { wrapper.setAttribute('class', `flex-row`) }
-                if (this.props.isPassword) { eyeField.setAttribute('class', `button`) } else { eyeField.setAttribute('class', `display-none`) }
-                super.afterMount()
+                if (this.props.labelAboveField) { this.WrapperElement.setAttribute('class', `flex-col`) } else { this.WrapperElement.setAttribute('class', `flex-row`) }
+                if (this.props.isPassword) { this.EyeElement.setAttribute('class', `button`) } else { this.EyeElement.setAttribute('class', `display-none`) }
             }
             async onFocus(event) {
                 this.validate()
@@ -275,7 +272,7 @@
             --text-field-font-size: var(--text-2-font-size);
             --text-field-font-weight: var(--text-2-font-weight);
             --text-field-background-color: var(--background-color);
-            --text-field-border-color: var(--blue-200);
+            --text-field-border-color: var(--amber-500);
             --text-field-border-width: 2px;
             --text-field-border-style: solid;
             --text-field-border-radius: 0px;
@@ -292,6 +289,10 @@
             --text-field-label-border-width: 0;
             --text-field-label-border-style: none;
             --text-field-label-border-radius: 0px;
+        }
+        @keyframes example {
+            from {background-color: red;}
+            to {background-color: yellow;}
         }
         .text-field {
             color: var(--text-field-color);

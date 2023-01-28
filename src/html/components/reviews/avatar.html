@@ -3,12 +3,12 @@
         //# sourceURL=html/components/reviews/Avatar.html
         class Avatar extends Component {
             afterMount() {
+                super.afterMount()
                 if (`medium` === this.props.avatarSize.toLowerCase()) { 
                     if (this.Element.classList.contains(`avatar`)) { this.Element.classList.remove(`avatar`) }
                     this.Element.classList.add(`avatar-medium`)
                     this.ImgElement.width = 60
                 }
-                super.afterMount()
             }
             props = { 
                 imageURL: ``,

@@ -53,10 +53,7 @@
             "handler": "add-photo.js",
             "log": "NONE",
             "args": {
-                "table": "photo",
-                "preprocessor": "./photo-preprocessor.js",
-                "validator": "./photo-validation.js",
-                "postprocessor": "./photo-postprocessor.js"
+                "table": "photo"
             }
         },
         {
@@ -67,6 +64,36 @@
             "log": "NONE",
             "args": {
                 "table": "photo"
+            }
+        },
+        {
+            "name": "Get news information.",
+            "verb": "GET",
+            "path": "/news-info",
+            "handler": "db-select.js",
+            "log": "NONE",
+            "args": {
+                "table": "news"
+            }
+        },
+        {
+            "name": "Add news information.",
+            "verb": "POST",
+            "path": "/news-info",
+            "handler": "add-news.js",
+            "log": "NONE",
+            "args": {
+                "table": "news"
+            }
+        },
+        {
+            "name": "Delete news information.",
+            "verb": "DELETE",
+            "path": "/news-info",
+            "handler": "db-delete.js",
+            "log": "NONE",
+            "args": {
+                "table": "news"
             }
         },
         {

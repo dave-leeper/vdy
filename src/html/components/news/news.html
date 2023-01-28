@@ -30,7 +30,7 @@
             setNewsTimer() {
                 const newsTimer = () => { this.nextNews() }
                 
-                this.vars.newsTimer = setInterval(newsTimer, 6000)
+                this.vars.newsTimer = setInterval(newsTimer, 10000)
             }
             clearNewsTimer() { if (this.vars.newsTimer) { clearInterval(this.vars.newsTimer) }}
             showNews() {
@@ -65,14 +65,14 @@
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="absolute flex-row flex-align-center w400px bg-blue-gray-900 border-solid border-amber-500 border-2 z1" style="right: 50; bottom: 200" onclick="$obj.clearNewsTimer()">
-            <span id="{id}PreviousButton" class="button font-weight-700" onclick="$obj.previousNews()">&lt</span>
+        <span id="{id}" class="absolute flex-row flex-align-center w400px bg-blue-gray-900 border-solid border-amber-500 border-2 z1" style="left: 50; top: 200" onclick="$obj.clearNewsTimer()">
+            <span id="{id}PreviousButton" class="button font-weight-700" onclick="$obj.previousNews()">◀</span>
             <img id="{id}NewsPhoto" src="{newsPhotoURL}" height="130">
             <span id="{id}TextWrapper" class="flex-col bg-blue-gray-50 w350px h130px">
                 <div id="{id}NewsTitle" class="pad-5 blue-gray-900 subtitle-2 h50px"></div>
                 <div id="{id}NewsText" class="pad-5 blue-gray-900 caption-1 h80px"></div>
             </span>
-            <span id="{id}NextButton" class="button font-weight-700" onclick="$obj.nextNews()">&gt</span>
+            <span id="{id}NextButton" class="button font-weight-700" onclick="$obj.nextNews()">▶</span>
         </span>
     </component-markup>
     <test-script>

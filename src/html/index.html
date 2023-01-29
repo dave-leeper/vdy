@@ -80,6 +80,7 @@
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarInfo">
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
+    
     <div class="flex-col w600px border-b-solid border-amber-500 border-2 animate__animated animate__backInDown">
       <h1 id="Title" class="amber-500 font-size-4-0em letter-spacing5">Vince Drives You</h1>
       <div class="flex-row flex-space-between">
@@ -88,9 +89,11 @@
         <div id="Phone" class="amber-500 font-size-1-0em letter-spacing9 margin-b-10">(602) 545-8557</div>
       </div>
     </div>
+
     <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
       <include-vars class="display-none">{ tabs: [`Home`, `Reserve A Ride`, `Photos`, `Reviews`], activeTab: 0 }</include-vars>
     </include-html>
+
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="HomeTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Home` }</include-props>
     </include-html>
@@ -100,18 +103,21 @@
       </div>
       <include-html include-in="index.html" src="./html/components/news/news.html" component-class="News" component-id="News"></include-html>
     </slot-markup>
+
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="ReserveARideTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Reserve A Ride` }</include-props>
     </include-html>
     <slot-markup for-component-id="ReserveARideTab" for-slot="ReserveARideTabContentSlot">
       <include-html include-in="index.html" src="./html/components/reservations/reservations.html" component-class="Reservations" component-id="Reservations"></include-html>
     </slot-markup>
+
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="PhotosTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Photos` }</include-props>
     </include-html>
     <slot-markup for-component-id="PhotosTab" for-slot="PhotosTabContentSlot">
       <include-html include-in="index.html" src="./html/components/slideshow.html" component-class="Slideshow" component-id="Slideshow"></include-html>
     </slot-markup>
+
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="ReviewsTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Reviews` }</include-props>
     </include-html>

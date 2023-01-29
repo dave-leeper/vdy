@@ -2,8 +2,21 @@
     <script>
         //# sourceURL=html/components/modal-dialog.html
         class ModalDialog extends Component {
-            show() { this.Element.setAttribute(`class`, `display-block modal`) }
-            hide() { this.Element.setAttribute(`class`, `display-none modal`) }
+            afterMount() {
+                super.afterMount()
+                if (this.props.okVisible) { this.CancelElement.classList.remove(`display-none`) }
+                if (this.props.cancelVisible) { this.CancelElement.classList.remove(`display-none`) }
+            }
+            show() { document.getElementById(this.id).setAttribute(`class`, `display-block modal`) }
+            hide() { document.getElementById(this.id).setAttribute(`class`, `display-none modal`) }
+            onCancel() { Queue.broadcast(Messages.MODAL_CANCEL, this) }
+            onOk() { Queue.broadcast(Messages.MODAL_OK, this) }
+            props = {
+                okLabel: `Ok`,
+                cancelLabel: `Cancel`,
+                okVisible: true,
+                cancelVisible: false
+            }
         }
     </script>
     <style>
@@ -14,11 +27,11 @@
             --modal-height: 100%;
             --modal-left: 0;
             --modal-top: 0;
-            --modal-z-index: 1;
+            --modal-z-index: 10;
             --modal-overflow: auto;
             --modal-cursor: default;
 
-            --modal-content-background-color: var(--white);
+            --modal-content-background-color: var(--blue-gray-900);
             --modal-content-width: 90%;
             --modal-content-padding: 5px;
             --modal-content-margin: 5px;
@@ -26,13 +39,13 @@
             --modal-content-border-style: solid;
             --modal-content-border-color: var(--amber-500);
 
-            --modal-close-color: var(--black);
+            --modal-close-color: var(--blue-50);
             --modal-close-font-family: var(--primary-font-family);
             --modal-close-font-size: 28px;
             --modal-close-font-weight: bold;
             --modal-close-margin-top: -10px;
 
-            --modal-close-hover-color: var(--black);
+            --modal-close-hover-color: var(--blue-50);
             --modal-close-hover-text-decoration: none;
             --modal-close-hover-font-cursor: pointer;
         }
@@ -65,7 +78,10 @@
         <div id="{id}" class="modal display-none">
             <div class="flex-col modal-content">
                 <component-slot id="{id}ContentSlot">DEFAULT CONTENT FOR {id}</component-slot>
-                <div class="button flex-align-self-end" onclick="$obj.hide()">Close</div>
+                <div id="{id}Buttons" class="flex-row flex-end">
+                    <div id="{id}Cancel" class="button flex-align-self-end display-none" onclick="$obj.onCancel()">{cancelLabel}</div>
+                    <div id="{id}Ok" class="button flex-align-self-end display-none" onclick="$obj.onOk()">{okLabel}</div>
+                </div>
             </div>
         </div>
     </component-markup>

@@ -2,6 +2,13 @@ const Registry = require(`../registry`)
 var atob = require('atob');
 
 module.exports.jwtValidation = async (authorizationHeader) => {
+    if (!authorizationHeader) {
+        const err = `401 Unauthorized`
+
+        console.error(err + `: No authorization header provided.`)
+        return { status: 401, err }
+    }
+
     const jwt = Registry.get(`JWT`)
     const jwtToken = authorizationHeader.substring(7, authorizationHeader.length - 1).trim()
     const jwtRegistryInfo = Registry.get(jwtToken)

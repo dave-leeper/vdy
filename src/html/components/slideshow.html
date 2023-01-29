@@ -14,10 +14,7 @@
             afterMount() {
                 super.afterMount()
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) {
-                        showError(`Error getting credentials.`)
-                        return
-                    }
+                    if (error) { return }
                     this.AddFileWrapperElement.classList.toggle(`display-none`)
                 })
             }
@@ -38,7 +35,6 @@
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
                     if (error) {
                         buildPhotos(`display-none`)
-                        showError(`Error getting credentials.`)
                         return
                     }
                     if (!credentials?.roles || !credentials.roles.includes("Admin")) { buildPhotos(`display-none`) }
@@ -199,12 +195,12 @@
         <section id="{id}" class="flex-row w100 flex-wrap flex-space-around display-none">
             <div id="{id}AddFileWrapper" class="display-none border-solid border-amber-900 border-2 pad-10 margin-10 round-15px">
                 <div id="{id}Label" class="header-6">Add Photo</div>
-                <include-html include-in="index.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
+                <include-html include-in="slideshow.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
                 <div id="{id}PhotoDescriptionLabel" class="subtitle-2">Description</div>
                 <textarea id="{id}PhotoDescription" name="PhotoDescription" class="photo-description" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="1">{photoDescription}</textarea>
                 <div id="{id}PhotoDescriptionAddButton" class="button w100px" onclick="$obj.addPhoto()">Add Photo</div>
             </div>
-            <include-html include-in="index.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}PhotoDialog"></include-html>
+            <include-html include-in="slideshow.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}PhotoDialog"></include-html>
             <slot-markup for-component-id="{id}PhotoDialog" for-slot="{id}PhotoDialogContentSlot">
                 <div id="{id}PhotoDialogSlotContent" class="flex-row">
                     <img id="{id}PhotoDialogSlotContentPhoto" src="{selectedPhotoURL}" height="400">

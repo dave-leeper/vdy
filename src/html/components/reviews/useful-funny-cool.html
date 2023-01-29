@@ -5,10 +5,7 @@
             afterMount() {
                 super.afterMount()
                 JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) {
-                        showError(`Error getting credentials.`)
-                        return
-                    }
+                    if (error) { return }
                     if (!credentials?.roles) { return }
                     if (!credentials.roles.includes("Admin")) { return }
 

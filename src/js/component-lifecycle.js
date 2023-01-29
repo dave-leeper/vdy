@@ -219,7 +219,7 @@ class ComponentLifecycle {
         }
         document.head.appendChild(scriptTag);
 
-        if (styles.length) {
+        if (styles.length && !document.getElementById(`StyleTag${componentClass}`)) {
             let styleTag = document.createElement(`style`)
 
             styleTag.id = `StyleTag${componentClass}`

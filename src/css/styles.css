@@ -216,6 +216,8 @@
     margin-right: auto;
   }
 
+  .fill {object-fit: fill;}   .contain {object-fit: contain;}   .cover {object-fit: cover;}   .scale-down {object-fit: scale-down;
+  }
   .background-image {
     width: 100%;
     height: 100%;

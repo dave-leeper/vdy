@@ -18,6 +18,8 @@ class Messages {
     static FILE_SELECTED = `FILE_SELECTED`
     static SHOW_TAB = `SHOW_TAB`
     static HIDE_TAB = `HIDE_TAB`
+    static MODAL_OK = `MODAL_OK`
+    static MODAL_CANCEL = `MODAL_CANCEL`
     static REFRESH = `REFRESH`
     static VALUE_CHANGED = `VALUE_CHANGED`
     static NOTIFICATION = `NOTIFICATION`

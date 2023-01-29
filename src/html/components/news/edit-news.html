@@ -1,0 +1,93 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/news/edit-news.html
+        class EditNews extends Component {
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.MODAL_OK, (message) => {
+                    this.save()
+                })
+            }
+            onDescendantsMounted() { 
+                super.onDescendantsMounted()
+                this.fileSelectorField = document.getElementById(`${this.id}FileSelector`)
+                this.titleField = document.getElementById(`${this.id}Title`)
+                this.textField = document.getElementById(`${this.id}Text`)
+                this.fileSelectorObj = Component.getObject(`${this.id}FileSelector`)
+                this.titleObj = Component.getObject(`${this.id}Title`)
+                this.textObj = Component.getObject(`${this.id}Text`)
+            }
+            async save() {
+                JavascriptWebToken.getCredentials(async (error, credentials) => {
+                    if (error) {
+                        showError(`Error getting credentials.`)
+                        return
+                    }
+                    if (!this.fileSelectorField || !this.titleField || !this.textField || !this.fileSelectorObj || !this.titleObj || !this.textObj) {
+                        showError(`Error getting news data.`)
+                        return
+                    }
+                    if (!this.fileSelectorObj.vars.selectedFile) {
+                        showError(`${this.imageURLObj.props.name} is invalid.`)
+                        return
+                    }
+                    if (!this.titleObj.vars.valid) {
+                        showError(`${this.titleObj.props.name} is invalid.`)
+                        return
+                    }
+                    if (!this.textObj.vars.valid) {
+                        showError(`${this.textObj.props.name} is invalid.`)
+                        return
+                    }
+
+                    const filename = this.fileSelectorObj.vars.selectedFile
+                    const formData = new FormData()
+
+                    formData.append("filename", filename)
+                    formData.append("title", this.titleField.value)
+                    formData.append("text", this.textField.value)
+                    
+                    const response = await fetch('http://localhost:8080/news-info', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `'Bearer ${credentials.token}'`
+                        },
+                        body: formData
+                    })
+
+                    if (200 === response.status) {
+                        const content = await response.json()
+                        const newsObj = Component.getObject(`News`)
+                        let news = {title: this.titleField.value, text: this.textField.value }
+
+                        news.file = content.payload.newRecord.file
+                        news.id = content.payload.newRecord.id
+                        newsObj.prependNews(news)
+                        JavascriptWebToken.storeCredentials(content.jwt)
+                        showInfo(`News added.`)
+                        Component.getObject(`NewsEditDialog`)?.hide()
+                    } else {
+                        showError(`Error adding news. Status code ${response.status}.`)
+                    }
+                })
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <span id="{id}" class="flex-col">
+            <include-html include-in="edit-news.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
+            <include-html include-in="edit-news.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Title">
+                <include-props class="display-none">{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabIndex: 2 }</include-props>
+                <include-vars class="display-none">{ type: `text` } </include-vars>
+            </include-html>
+            <include-html include-in="edit-news.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">
+                <include-props class="display-none">{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 400, cols: 50, tabIndex: 3 }</include-props>
+                <include-vars class="display-none">{ type: `text` } </include-vars>
+            </include-html>
+        </span>
+    </component-markup>
+    <test-script>
+    </test-script>
+</custom-component>

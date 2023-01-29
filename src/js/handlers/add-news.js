@@ -33,6 +33,18 @@ function move(oldPath, newPath, callback) {
         readStream.pipe(writeStream)
     }
 }
+async function getNewId(db, table) {
+    let queryResults = await db.query('SELECT id FROM type::table($tb)', { tb: table })
+    let largestId = 0
+
+    for (let result of queryResults[0].result) {
+        const id = parseInt(result.id.split(`:`)[1])
+
+        if (id > largestId) { largestId = id }
+    }
+    return largestId + 1
+}
+
 
 module.exports = (handlerHame, handlerArgs) => {
     return async (req, res, next) => {
@@ -61,14 +73,7 @@ module.exports = (handlerHame, handlerArgs) => {
             return
         }
 
-        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-
-        if (200 !== jwtReplaceTokenResult.status) {
-            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-            next && next(jwtReplaceTokenResult.err)
-            return
-        }
-
+getNewId(db, handlerArgs.table)
         const tempDir = `./src/images/temp`
         const finalDir = `./src/images`
         const formidableOptions = { uploadDir: tempDir }
@@ -84,25 +89,25 @@ module.exports = (handlerHame, handlerArgs) => {
             if (!parseFields.text) {
                 const err = `400 Bad Request`
 
-                console.error(err + `: Photo text not provided.`)
+                console.error(err + `: News text not provided.`)
                 return { status: 400, err }
             }
             if (!parseFields.title) {
                 const err = `400 Bad Request`
 
-                console.error(err + `: Photo title not provided.`)
+                console.error(err + `: News text not provided.`)
                 return { status: 400, err }
             }
             if (!parseFiles.filename) {
                 const err = `400 Bad Request`
 
-                console.error(err + `: Photo filename not provided.`)
+                console.error(err + `: News filename not provided.`)
                 return { status: 400, err }
             }
             if (!parseFiles.filename.filepath) {
                 const err = `400 Bad Request`
 
-                console.error(err + `: Photo filename.filepath not provided.`)
+                console.error(err + `: News filename.filepath not provided.`)
                 return { status: 400, err }
             }
             try {
@@ -120,12 +125,19 @@ module.exports = (handlerHame, handlerArgs) => {
                 return { status: 400, err }
             }
 
-            const countResult = await surrealDBQuery(db, `SELECT * FROM type::table($tb)`, { tb: handlerArgs.table })
-            const recordCount = countResult[0].result.length
+            const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+
+            if (200 !== jwtReplaceTokenResult.status) {
+                res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+                next && next(jwtReplaceTokenResult.err)
+                return
+            }
+    
+            const newId = await getNewId(db, handlerArgs.table)
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-            const newRecordId = `${handlerArgs.table}:${recordCount}`
-            const newFileName = `news${recordCount}${newFileExtension}`
-            const newPhotoRecord = { text: parseFields.text, file: newFileName }
+            const newRecordId = `${handlerArgs.table}:${newId}`
+            const newFileName = `news${newId}${newFileExtension}`
+            const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
             const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
     
             move(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {

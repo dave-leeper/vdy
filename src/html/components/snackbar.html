@@ -7,6 +7,7 @@
                 if (this.props.isError) { this.Element.classList.toggle(`snackbar-error`) }
             }
             show() {
+                this.Element.innerText = this.vars.text
                 this.Element.classList.toggle(`show`)
                 setTimeout(() => { this.Element.classList.toggle(`show`) }, 3000)
             }
@@ -129,7 +130,7 @@
         }
     </style>
     <component-markup>
-        <div id="{id}" class="snackbar">{text}</div>
+        <div id="{id}" class="snackbar"></div>
     </component-markup>
     <test-script>
     </test-script>

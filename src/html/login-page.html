@@ -12,14 +12,33 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
     <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
-    <script type="text/javascript" src="./js/include.js"></script>
     <script type="text/javascript" src="./js/messages.js"></script>
     <script type="text/javascript" src="./js/queue.js"></script>
+    <script type="text/javascript" src="./js/tree-node.js"></script>
+    <script type="text/javascript" src="./js/tree.js"></script>
+    <script type="text/javascript" src="./js/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/component.js"></script>
+    <script type="text/javascript" src="./js/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/loader.js"></script>
     <script type="text/javascript" src="./js/registry-client-side.js"></script>
     <script type="text/javascript" src="./js/test.js"></script>
     <script type="text/javascript" src="./js/purify.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
     <script>
+      function initializeApp() {
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          Queue.broadcast(Messages.SITE_LOADED, null)
+        })
+      }
+
       function setCSSDefaults() {
         const r = document.querySelector(':root')
         var rs = getComputedStyle(r);
@@ -30,6 +49,7 @@
         r.style.setProperty('--button-border-color', blue50);
       }
       setCSSDefaults()
+      initializeApp()
     </script>
   </head>
   <body class="margin-5 bg-grey-e">

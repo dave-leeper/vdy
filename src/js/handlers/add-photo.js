@@ -33,6 +33,17 @@ function move(oldPath, newPath, callback) {
         readStream.pipe(writeStream)
     }
 }
+async function getNewId(db, table) {
+    let queryResults = await db.query('SELECT id FROM type::table($tb)', { tb: table })
+    let largestId = 0
+
+    for (let result of queryResults[0].result) {
+        const id = parseInt(result.id.split(`:`)[1])
+
+        if (id > largestId) { largestId = id }
+    }
+    return largestId + 1
+}
 
 module.exports = (handlerHame, handlerArgs) => {
     return async (req, res, next) => {
@@ -114,11 +125,10 @@ module.exports = (handlerHame, handlerArgs) => {
                 return { status: 400, err }
             }
 
-            const countResult = await surrealDBQuery(db, `SELECT * FROM type::table($tb)`, { tb: handlerArgs.table })
-            const recordCount = countResult[0].result.length
+            const newId = getNewId(db, handlerArgs.table)
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-            const newRecordId = `${handlerArgs.table}:${recordCount}`
-            const newFileName = `photo${recordCount}${newFileExtension}`
+            const newRecordId = `${handlerArgs.table}:${newId}`
+            const newFileName = `photo${newId}${newFileExtension}`
             const newPhotoRecord = { text: parseFields.text, file: newFileName }
             const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
     

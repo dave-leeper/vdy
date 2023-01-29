@@ -1,4 +1,4 @@
-const Registry = require(`../registry`)
+const Registry = require(`./registry`)
 
 module.exports.jwtCreate = async (name) => {
     const db = Registry.get(`SurrealDBConnection`)
@@ -42,6 +42,5 @@ module.exports.jwtCreate = async (name) => {
     const clientResponse = { token, roles, image, name: queryResult[0].result[0].name, title: queryResult[0].result[0].title }
 
     Registry.register(registryEntry, token)
-    // console.log(`LOGIN. ${token} ${JSON.stringify(registryEntry)}`)
     return { status: 200, clientResponse }
 }

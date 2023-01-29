@@ -87,6 +87,16 @@
             }
         },
         {
+            "name": "Update news information.",
+            "verb": "PUT",
+            "path": "/news-info",
+            "handler": "update-news.js",
+            "log": "NONE",
+            "args": {
+                "table": "news"
+            }
+        },
+        {
             "name": "Delete news information.",
             "verb": "DELETE",
             "path": "/news-info",
@@ -164,7 +174,7 @@
             "handler": "send-email.js",
             "log": "NONE",
             "args": {
-                "formatter": "./format-reservation-request.js"
+                "formatter": "./server/utility/format-reservation-request.js"
             }
         }
     ]

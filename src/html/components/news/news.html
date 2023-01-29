@@ -7,25 +7,23 @@
                 Queue.register(this, Messages.SITE_LOADED, () => {
                     this.loadNews()
                 })
+                Queue.register(this, Messages.DELETE_NEWS, (newsItem) => { this.completeDeleteNews(newsItem) })
+                Queue.register(this, Messages.EDIT_NEWS, (newsItem) => { this.showEditNewsDialog(newsItem) })
             }
             async loadNews () {
-                const response = await fetch('http://localhost:8080/news-info', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    }
-                })
+                const response = await SINews.get()
 
-                if (200 === response.status) { 
-                    let news = await response.json()          
-                    this.vars.news = news.reverse()
-                    this.vars.newsIndex = 0
-                    this.showNews()
-                    this.setNewsTimer()
-                } else {
+                if (200 !== response.status) { 
                     showError(`Error retrieving news. Status code ${response.status}.`)
+                    return
                 }
+
+                let news = await response.json() 
+
+                this.vars.news = news.reverse()
+                this.vars.newsIndex = 0
+                this.showNews()
+                this.setNewsTimer()
             }
             setNewsTimer() {
                 const newsTimer = () => { this.nextNews() }
@@ -52,16 +50,58 @@
                 if (this.vars.newsIndex >= this.vars.news.length) { this.vars.newsIndex = 0 }
                 this.showNews()
             }
-            addNews() {
-                Component.getObject(`${this.id}EditDialog`).show()
+            beginAddNews() { Component.getObject(`${this.id}EditDialog`).show() }
+            completeAddNews(news) { this.vars.news.unshift(news) }
+            async beginEditNews() {
+                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
+                const newsListRootObj = Component.getObject(`${this.id}NewsList`)
+
+                await newsListRootObj.loadNews()
+                newsListRootObj.setTitle(`Edit A News Item`)
+                newsListRootObj.setMessage(Messages.EDIT_NEWS)
+                newsListRootElement.classList.toggle(`display-none`)
             }
-            editNews() {
+            showEditNewsDialog(news) { 
+                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
+                const editDialogObj = Component.getObject(`${this.id}EditDialog`)
+                const editObj = Component.getObject(`${this.id}Edit`)
+
+                newsListRootElement.classList.toggle(`display-none`)
+                editObj.setNewsItem(news)
+                editDialogObj.show()
+             }
+            async beginDeleteNews() {
+                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
+                const newsListRootObj = Component.getObject(`${this.id}NewsList`)
+
+                await newsListRootObj.loadNews()
+                newsListRootObj.setTitle(`Delete A News Item`)
+                newsListRootObj.setMessage(Messages.DELETE_NEWS)
+                newsListRootElement.classList.toggle(`display-none`)
+            }
+            async completeDeleteNews(news) {
+                if (!confirm(`Delete news item ${news.title}?`)) { return }
                 
+                const response = await SINews.remove(news.id)
+
+                if (200 !== response.status) {
+                    showError(`Error deleting news. Status code ${response.status}.`)
+                    return
+                }
+
+                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
+
+                newsListRootElement.classList.toggle(`display-none`)
+                for (let loop = 0; loop < this.vars.news.length; loop++) {
+                    const newsItem = this.vars.news[loop]
+
+                    if (newsItem.id !== news.id) { continue }
+                    this.vars.news.splice(loop, 1)
+                    showInfo(`News item deleted.`)
+                    return
+                }
+                showError(`Error deleting news.`)                
             }
-            deleteNews() {
-                
-            }
-            prependNews(news) { this.vars.news.unshift(news) }
             vars = {
                 newsIndex: 0,
                 news: [],
@@ -84,14 +124,15 @@
             </span>
             <span id="{id}NextButton" class="button font-weight-700" onclick="$obj.nextNews()">▶</span>
             <span id="{id}Editing" class="flex-col z1">
-                <span id="{id}AddButton" class="button" onclick="$obj.addNews()">Add</span>
-                <span id="{id}EditButton" class="button" onclick="$obj.editNews()">Edit</span>
-                <span id="{id}DeleteButton" class="button" onclick="$obj.deleteNews()">Delete</span>
+                <span id="{id}AddButton" class="button" onclick="$obj.beginAddNews()">Add</span>
+                <span id="{id}EditButton" class="button" onclick="$obj.beginEditNews()">Edit</span>
+                <span id="{id}DeleteButton" class="button" onclick="$obj.beginDeleteNews()">Delete</span>
             </span>
             <include-html include-in="index.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}EditDialog"></include-html>
             <slot-markup for-component-id="{id}EditDialog" for-slot="{id}EditDialogContentSlot">
                 <include-html include-in="index.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}Edit"></include-html>
             </slot-markup>
+            <include-html include-in="index.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsList"></include-html>
         </span>
     </component-markup>
     <test-script>

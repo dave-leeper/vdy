@@ -1,5 +1,5 @@
-const Registry = require(`../registry`)
-const {jwtCreate} = require(`./jwt-create`)
+const Registry = require(`../utility/registry`)
+const {jwtCreate} = require(`../utility/jwt-create`)
 
 module.exports = (handlerName, handlerArgs) => {
     return async (req, res, next) => {

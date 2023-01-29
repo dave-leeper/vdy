@@ -1,0 +1,73 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/news/news-list.html
+        class NewsList extends Component {
+            async loadNews () {
+                const response = await fetch('http://localhost:8080/news-info', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    }
+                })
+
+                if (200 === response.status) { 
+                    let news = await response.json()          
+                    this.vars.news = news.reverse()
+                    this.vars.newsIndex = 0
+                    this.showNews()
+                } else {
+                    showError(`Error retrieving news. Status code ${response.status}.`)
+                }
+            }
+            showNews() {
+                const root = document.getElementById(`${this.id}ListItemWrapper`)
+
+                while (root.firstChild) {
+                    root.removeChild(root.firstChild)
+                }
+                for (let news of this.vars.news) {
+                    const wrapperDiv = document.createElement(`div`)
+                    const newsImage = document.createElement(`img`)
+                    const titleDiv = document.createElement(`div`)
+                    const itemClicked = () => { Queue.broadcast(this.vars.message, news) }
+                    
+                    wrapperDiv.classList.add(`flex-col`)
+                    wrapperDiv.classList.add(`w50px`)
+                    wrapperDiv.classList.add(`cursor-pointer`)
+                    wrapperDiv.classList.add(`margin-3`)
+                    wrapperDiv.addEventListener("click", itemClicked)
+                    newsImage.src = `./images/${news.file}`
+                    newsImage.width = 50
+                    titleDiv.classList.add(`caption-2`)
+                    titleDiv.classList.add(`center-text`)
+                    titleDiv.innerText = news.title
+                    wrapperDiv.appendChild(newsImage)
+                    wrapperDiv.appendChild(titleDiv)
+                    root.appendChild(wrapperDiv)
+                }
+            }
+            setTitle(title) { document.getElementById(`${this.id}Title`).innerText = title }
+            setMessage(message) { this.vars.message = message }
+            cancel() { document.getElementById(this.id).classList.add(`display-none`) }
+            vars = {
+                message: Messages.DELETE_NEWS,
+                news: [],
+                newsIndex: 0
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <span id="{id}" class="absolute flex-col bg-blue-gray-900 border-solid border-amber-500 border-2 w66 z1 display-none" style="left: 30; top: 180">
+            <span id="{id}Title" class="subtitle-2 center-text">Delete A News Item</span>
+            <span id="{id}ListItemWrapper" class="flex-row flex-wrap flex-space-around "></span>
+            <span id="{id}cancel" class="flex-row flex-wrap flex-space-around button" onclick="$obj.cancel()">Cancel</span>
+        </span>
+    </component-markup>
+    <test-script>
+    </test-script>
+</custom-component>
+
+

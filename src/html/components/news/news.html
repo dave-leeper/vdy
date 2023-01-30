@@ -11,6 +11,12 @@
                 Queue.register(this, Messages.EDIT_NEWS, (newsItem) => { this.showEditNewsDialog(newsItem) })
             }
             async loadNews () {
+                let credentials = JavascriptWebToken.getCredentials()
+
+                if (!JavascriptWebToken.areCredentialsValid(credentials) || !credentials?.roles || !credentials.roles.includes("Admin")) {
+                    this.EditingElement.classList.add(`display-none`)
+                }
+
                 const response = await SINews.get()
 
                 if (200 !== response.status) { 

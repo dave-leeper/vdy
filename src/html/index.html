@@ -84,12 +84,16 @@
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
     
-    <div class="flex-col w600px border-b-solid border-amber-500 border-2 animate__animated animate__backInDown">
-      <h1 id="Title" class="amber-500 font-size-4-0em letter-spacing5">Vince Drives You</h1>
-      <div class="flex-row flex-space-around">
-        <div id="Phone" class="amber-500 font-size-1-0em letter-spacing9 margin-b-10">(602) 545-8557</div>
+    <div class="flex-row flex-space-between w100">
+      <div class="flex-col w600px border-b-solid border-amber-500 border-2 animate__animated animate__backInDown">
+        <h1 id="Title" class="amber-500 font-size-4-0em letter-spacing5">Vince Drives You</h1>
+        <div class="flex-row flex-space-around">
+          <div id="Phone" class="amber-500 font-size-1-0em letter-spacing9 margin-b-10">(602) 545-8557</div>
+        </div>
       </div>
+      <include-html include-in="index.html" src="./html/components/about.html" component-class="About" component-id="About"></include-html>
     </div>
+
 
     <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
       <include-vars class="display-none">{ tabs: [`Home`, `Reserve A Ride`, `Photos`, `Reviews`], activeTab: 0 }</include-vars>
@@ -134,3 +138,13 @@
   </body>
 </html>
 
+<!--
+
+Meet the Business Owner
+Business owner information
+Vince S.
+
+Business Owner
+
+I’ve been providing reliable, safe luxury transportation service in the Valley for several years.
+-->

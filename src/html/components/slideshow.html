@@ -14,9 +14,7 @@
             afterMount() {
                 super.afterMount()
                 let credentials = JavascriptWebToken.getCredentials()
-                if (!JavascriptWebToken.areCredentialsValid(credentials)) {
-                    if (error) { return }
-                }
+                if (!JavascriptWebToken.areCredentialsValid(credentials) || !credentials?.roles || !credentials.roles.includes("Admin")) { return }
                 this.AddFileWrapperElement.classList.toggle(`display-none`)
             }
             fetchPhotoInfo() {

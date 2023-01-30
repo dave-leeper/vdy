@@ -17,17 +17,40 @@ class SlotManager {
     
             return componentSlot
         }
-        const moveSlotContentToComponent = (forComponentId, slotContentElement, componentSlotElement) => {
+        const moveSlotContentToComponent = (component, slotContentElement, componentSlotElement) => {
+            const addElementGettersToComponentObject = (element, componentObject) => {
+                if (element.children) {
+                    for (let child of element.children) {
+                        addElementGettersToComponentObject(child, componentObject)
+                    }
+                }
+                if (!element.id || -1 !== element.tagName.indexOf(`-`)) { return }
+                let getterName = element.id.replace(` `, `_`).replace(componentObject.id, ``)
+    
+                getterName += `Element`
+                Object.defineProperty(componentObject, getterName, {
+                    get: function() {
+                        return document.getElementById(element.id)
+                    },
+                    set: function(newValue) {
+                        console.error(`wrapProps: Cannot set ${getterName}.`)
+                    }
+                })
+            }
+
             if (0 === slotContentElement.children.length) {
                 console.error(`moveSlotContentToComponent: Slot content element has no children.`)
                 return false
             }
             if (0 !== componentSlotElement.children.length) {
-                console.error(`moveSlotContentToComponent: Component slot ${componentElement.getAttribute(`for-slot`)} was not found.`)
+                console.error(`moveSlotContentToComponent: Component slot ${componentSlotElement.getAttribute(`for-slot`)} was not found.`)
                 return false
             }
     
-            while (0 < slotContentElement.children.length) { componentSlotElement.after(slotContentElement.firstChild) }
+            while (0 < slotContentElement.children.length) {
+                componentSlotElement.after(slotContentElement.firstChild)
+                addElementGettersToComponentObject(slotContentElement.firstChild, component)
+            }
             componentSlotElement.remove()
             slotContentElement.remove()
     
@@ -49,7 +72,7 @@ class SlotManager {
 
             if (!componentSlot) { continue }
             component?.beforeSlotLoaded(slotName)
-            if (!moveSlotContentToComponent(forComponentId, slotContent, componentSlot)) {
+            if (!moveSlotContentToComponent(component, slotContent, componentSlot)) {
                 console.error(`loadSlots: An error occured while moving slot content to the ${componentElement.getAttribute(`for-slot`)}] slot of ${forComponentId}.`)
                 continue
             }

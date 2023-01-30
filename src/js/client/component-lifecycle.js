@@ -382,6 +382,23 @@ class ComponentLifecycle {
         for (let loop = clonedMarkup.children.length - 1; loop >= 0; loop--) {
             let originalChild = markup.children[loop]
             let clonedChild = clonedMarkup.children[loop]
+            const addElementGettersToComponentObject = (element, componentObject) => {
+                for (let child of element.children) {
+                    addElementGettersToComponentObject(child, componentObject)
+                }
+                if (!element.id || -1 !== element.tagName.indexOf(`-`)) { return }
+                let getterName = element.id.replace(` `, `_`).replace(componentObject.id, ``)
+    
+                getterName += `Element`
+                Object.defineProperty(componentObject, getterName, {
+                    get: function() {
+                        return document.getElementById(element.id)
+                    },
+                    set: function(newValue) {
+                        console.error(`wrapProps: Cannot set ${getterName}.`)
+                    }
+                })
+            }
             const setEventHandler = (node, event) => {
                 let eventHandlerText = node.getAttribute(event)
 
@@ -466,6 +483,7 @@ class ComponentLifecycle {
             setEventHandler(clonedChild, `onvolumechange`)
             setEventHandler(clonedChild, `onwaiting`)
             setEventHandler(clonedChild, `ontoggle`)
+            addElementGettersToComponentObject(clonedChild, componentObject)
             ComponentLifecycle.copyOriginalNodeValues(originalChild, clonedChild)
             ComponentLifecycle.copyOriginalNodeAttributes(originalChild, clonedChild)
         }

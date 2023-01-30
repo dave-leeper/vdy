@@ -138,33 +138,7 @@ class Component {
     }
     mount() { ComponentLifecycle.mount(this.id) }
     beforeMount() { Queue.broadcast(Messages.COMPONENT_BEFORE_MOUNT, this )}
-    afterMount() {
-        const addElementGettersToComponentObject = (element, componentObject) => {
-            for (let child of element.children) {
-                addElementGettersToComponentObject(child, componentObject)
-            }
-            if (!element.id || -1 !== element.tagName.indexOf(`-`)) { return }
-            let getterName = element.id.replace(` `, `_`).replace(componentObject.id, ``)
-
-            getterName += `Element`
-            Object.defineProperty(componentObject, getterName, {
-                get: function() {
-                    return document.getElementById(element.id)
-                },
-                set: function(newValue) {
-                    console.error(`wrapProps: Cannot set ${getterName}.`)
-                }
-            })
-        }
-        const fragment = Component.getFragment(this.className())
-
-        for (let loop = fragment.children.length - 1; loop >= 0; loop--) {
-            let child = fragment.children[loop]
-            addElementGettersToComponentObject(child, this)
-        }
-
-        Queue.broadcast(Messages.COMPONENT_AFTER_MOUNT, this )
-    }
+    afterMount() { Queue.broadcast(Messages.COMPONENT_AFTER_MOUNT, this )}
     unmount() { ComponentLifecycle.unmount(this.id) }
     beforeUnmount() { 
         Queue.broadcast(Messages.COMPONENT_BEFORE_UNMOUNT, this )

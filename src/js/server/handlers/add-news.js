@@ -2,11 +2,11 @@ const {surrealDBCreate} = require(`../database/surrealdb`)
 const Registry = require(`../utility/registry`)
 const {jwtValidation} = require(`../utility/jwt-validation`)
 const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
-const {fileUpload} = require(`../utility/file-upload`)
-const {moveFile} = require(`../utility/move-file`)
+const {fileMove: fileMove} = require(`../utility/file-move`)
 const {getNewId} = require(`../utility/new-id`)
+const {formidable} = require('formidable')
 const fs = require('fs')
-const path = require('path')
+const path = require('path');
 
 module.exports = (handlerHame, handlerArgs) => {
     return async (req, res, next) => {
@@ -36,85 +36,90 @@ module.exports = (handlerHame, handlerArgs) => {
         }
 
         const tempDir = `./src/images/temp`
-        let validationResult
-        
-        try { validationResult = await fileUpload(req, tempDir) }
-        catch (e) {
-            res.status(e.status).send(e.err)
-            next && next(e.err)
-            return
-        }
-        if (!validationResult.parseFields.text) {
-            const err = `400 Bad Request`
-
-            console.error(err + `: News text not provided.`)
-            res.status(validationResult.status).send(err)
-            next && next(err)
-            return
-        }
-        if (!validationResult.parseFiles.filename) {
-            const err = `400 Bad Request`
-
-            console.error(err + `: News filename not provided.`)
-            res.status(validationResult.status).send(err)
-            next && next(err)
-            return
-        }
-        if (!validationResult.parseFiles.filename.filepath) {
-            const err = `400 Bad Request`
-
-            console.error(err + `: News filename.filepath not provided.`)
-            res.status(validationResult.status).send(err)
-            next && next(err)
-            return
-        }
-        try {
-            fs.existsSync(validationResult.parseFiles.filename.filepath)
-        } catch(e) {
-            const err = `500 Internal Server Error`
-
-            console.error(err + `: News ${validationResult.parseFiles.filename.filepath} not uploaded.`)
-            res.status(validationResult.status).send(err)
-            next && next(err)
-            return
-        }
-        if (!validationResult.parseFiles.filename.originalFilename) {
-            const err = `400 Bad Request`
-
-            console.error(err + `: News filename.originalFilename not provided.`)
-            res.status(validationResult.status).send(err)
-            next && next(err)
-            return
-        }
-        if (!validationResult.parseFields.title) {
-            const err = `400 Bad Request`
-
-            console.error(err + `: Title not provided.`)
-            res.status(validationResult.status).send(err)
-            next && next(err)
-            return
-        }
-
-        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-
-        if (200 !== jwtReplaceTokenResult.status) {
-            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-            next && next(jwtReplaceTokenResult.err)
-            return
-        }
-
-        const newId = await getNewId(db, handlerArgs.table)
-        const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-        const newRecordId = `${handlerArgs.table}:${newId}`
-        const newFileName = `news${newId}${newFileExtension}`
-        const newPhotoRecord = { text: parseFields.text, file: newFileName }
-        const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
         const finalDir = `./src/images`
+        const formidableOptions = { uploadDir: tempDir }
+        const form = formidable(formidableOptions)
 
-        moveFile(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {
-            let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
+        form.parse(req, async (parseError, parseFields, parseFiles) => {
+            if (parseError) {
+                const err = `400 Bad Request`
 
-            res.status(200).send(JSON.stringify(response))
+                console.error(err + `: Could not parse request.`)
+                res.status(validationResult.status).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.text) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: Photo text not provided.`)
+                res.status(validationResult.status).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFiles.filename) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: Photo filename not provided.`)
+                res.status(validationResult.status).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFiles.filename.filepath) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: Photo filename.filepath not provided.`)
+                res.status(validationResult.status).send(err)
+                next && next(err)
+                return
+            }
+            try {
+                fs.existsSync(parseFiles.filename.filepath)
+            } catch(e) {
+                const err = `500 Internal Server Error`
+
+                console.error(err + `: Photo ${parseFiles.filename.filepath} not uploaded.`)
+                res.status(validationResult.status).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFiles.filename.originalFilename) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: Photo filename.originalFilename not provided.`)
+                res.status(validationResult.status).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.title) {
+                const err = `400 Bad Request`
+    
+                console.error(err + `: Title not provided.`)
+                res.status(validationResult.status).send(err)
+                next && next(err)
+                return
+            }
+    
+            const newId = await getNewId(db, handlerArgs.table)
+            const newFileExtension = path.extname(parseFiles.filename.originalFilename)
+            const newRecordId = `${handlerArgs.table}:${newId}`
+            const newFileName = `news${newId}${newFileExtension}`
+            const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
+            const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
+
+            const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+    
+            if (200 !== jwtReplaceTokenResult.status) {
+                res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+                next && next(jwtReplaceTokenResult.err)
+                return
+            }
+    
+            fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {
+                let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
+
+                res.status(200).send(JSON.stringify(response))
+            })
         })
     }
 }

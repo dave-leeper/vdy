@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-module.exports.moveFile = (oldPath, newPath, callback) => {
+module.exports.fileMove = (oldPath, newPath, callback) => {
     fs.rename(oldPath, newPath, function (err) {
         if (err) {
             if (err.code === 'EXDEV') {

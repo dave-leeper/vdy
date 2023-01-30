@@ -24,29 +24,25 @@
             }
             setNewsItem(newsItem) {
                 this.vars.newsItem = newsItem
-                this.fileSelectorField.value = ``
+                this.FileSelector.vars.selectedFile = ``
                 this.titleField.value = newsItem.title
                 this.textField.value = newsItem.text
             }
             async save() {
-                    if (!this.fileSelectorField || !this.titleField || !this.textField || !this.fileSelectorObj || !this.titleObj || !this.textObj) {
-                        showError(`Error getting news data.`)
+                    if (!this.FileSelector.vars.selectedFile) {
+                        showError(`File name is invalid.`)
                         return
                     }
-                    if (!this.fileSelectorObj.vars.selectedFile) {
-                        showError(`${this.imageURLObj.props.name} is invalid.`)
-                        return
-                    }
-                    if (!this.titleObj.vars.valid) {
+                    if (!this.Title.vars.valid) {
                         showError(`${this.titleObj.props.name} is invalid.`)
                         return
                     }
-                    if (!this.textObj.vars.valid) {
+                    if (!this.Text.vars.valid) {
                         showError(`${this.textObj.props.name} is invalid.`)
                         return
                     }
                     
-                    const response = await SINews.add(this.fileSelectorObj.vars.selectedFile, this.titleField.value, this.textField.value)
+                    const response = await SINews.add(this.FileSelector.vars.selectedFile, this.titleField.value, this.textField.value)
 
                     if (200 !== response.status) {
                         showError(`Error adding news. Status code ${response.status}.`)
@@ -65,9 +61,31 @@
                     Component.getObject(`NewsEditDialog`)?.hide()
             }
             async update() {
-                alert(JSON.stringify(this.vars.newsItem))
+                if (!this.FileSelector.vars.selectedFile) {
+                    showError(`${this.FileSelector.props.name} is invalid.`)
+                    return
+                }
+                if (!this.Title.vars.valid) {
+                    showError(`${this.Title.props.name} is invalid.`)
+                    return
+                }
+                
+                const response = await SINews.update(this.FileSelector.vars.selectedFile, this.titleField.value, this.textField.value, this.vars.newsItem.id)
+
+                if (200 !== response.status) {
+                    showError(`Error updating news. Status code ${response.status}.`)
+                    return
+                }
+
+                const content = await response.json()
+                const newsObj = Component.getObject(`News`)
+                let news = content.newRecord
+
+                newsObj.completeEditNews(content.payload.newRecord)
+                JavascriptWebToken.storeCredentials(content.jwt)
+                showInfo(`News updated.`)
+                Component.getObject(`NewsEditDialog`)?.hide()
                 this.vars.newsItem = null
-                // PUT
             }
             vars = {
                 newsItem: null
@@ -80,7 +98,7 @@
         <span id="{id}" class="flex-col">
             <include-html include-in="edit-news.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
             <include-html include-in="edit-news.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Title">
-                <include-props class="display-none">{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabIndex: 2 }</include-props>
+                <include-props class="display-none">{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, required: true, size: 100, minlength: 2, maxlength: 150, tabIndex: 2 }</include-props>
                 <include-vars class="display-none">{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-news.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">

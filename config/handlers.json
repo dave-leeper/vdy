@@ -88,8 +88,8 @@
         },
         {
             "name": "Update news information.",
-            "verb": "PUT",
-            "path": "/news-info",
+            "verb": "POST",
+            "path": "/news-info-update",
             "handler": "update-news.js",
             "log": "NONE",
             "args": {

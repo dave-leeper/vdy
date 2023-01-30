@@ -69,7 +69,16 @@
                 newsListRootElement.classList.toggle(`display-none`)
                 editObj.setNewsItem(news)
                 editDialogObj.show()
-             }
+            }
+            completeEditNews(news) { 
+                for (let loop = 0; loop < this.vars.news.length; loop++) {
+                    const newsItem = this.vars.news[loop]
+
+                    if (newsItem.id !== news.id) { continue }
+                    this.vars.news[loop] = news
+                    break
+                }
+            }
             async beginDeleteNews() {
                 const newsListRootElement = document.getElementById(`${this.id}NewsList`)
                 const newsListRootObj = Component.getObject(`${this.id}NewsList`)

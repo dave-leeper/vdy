@@ -7,16 +7,17 @@
                 Queue.register(this, Messages.SHOW_TAB, (message) => {
                     if (message.tabBar.id !== `TabBar`) { return }
                     if (message.tab !== `Photos`) { return }
-                    this.Element.classList.remove(`display-none`)
+                    document.getElementById(this.id).classList.remove(`display-none`)
                 })
                 this.fetchPhotoInfo()
             }
             afterMount() {
                 super.afterMount()
-                JavascriptWebToken.getCredentials(async (error, credentials) => {
+                let credentials = JavascriptWebToken.getCredentials()
+                if (!JavascriptWebToken.areCredentialsValid(credentials)) {
                     if (error) { return }
-                    this.AddFileWrapperElement.classList.toggle(`display-none`)
-                })
+                }
+                this.AddFileWrapperElement.classList.toggle(`display-none`)
             }
             fetchPhotoInfo() {
                 fetch(this.props.fetchURL)
@@ -32,14 +33,14 @@
                     }
                 }
                 this.vars.photoData = data
-                JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) {
-                        buildPhotos(`display-none`)
-                        return
-                    }
-                    if (!credentials?.roles || !credentials.roles.includes("Admin")) { buildPhotos(`display-none`) }
-                    else { buildPhotos(`button`) }
-                })
+                let credentials = JavascriptWebToken.getCredentials()
+
+                if (!JavascriptWebToken.areCredentialsValid(credentials)) {
+                    buildPhotos(`display-none`)
+                    return
+                }
+                if (!credentials?.roles || !credentials.roles.includes("Admin")) { buildPhotos(`display-none`) }
+                else { buildPhotos(`button`) }
             }
             buildPhoto = (index, buttonClass, prependToList) => {
                 const image = this.vars.photoData[index]
@@ -78,71 +79,70 @@
                 document.getElementById(`${this.id}PhotoDialogSlotContentText`).innerText = this.vars.photoData[photoIndex].text
                 Component.getObject(`${this.id}PhotoDialog`).show()
             }
-            deletePhoto(photoIndex) {
-                JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) {
-                        showError(`Error getting credentials.`)
-                        return
-                    }
-                    if (!confirm(`Delete this photo?`)) { return }
-                    const id = this.vars.photoData[photoIndex].id
-                    const body = { id }
-                    const response = await fetch('http://localhost:8080/photo-info', {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': `'Bearer ${credentials.token}'`
-                        },
-                        body: JSON.stringify(body)
-                    })
-                    if (200 === response.status) {
-                        const content = await response.json()
-                        const photoElement = document.getElementById(`${this.id}PhotoWrapper${photoIndex}`)
-                        
-                        this.Element.removeChild(photoElement)
-                        JavascriptWebToken.storeCredentials(content.jwt)
-                        showInfo(`Photo deleted.`)
-                    } else {
-                        if (401 === response.status) { window.location.href = `/login` }
-                        else { showError(`Error deleting photo. Status code ${response.status}.`) }
-                    }
+            async deletePhoto(photoIndex) {
+                let credentials = JavascriptWebToken.getCredentials()
+
+                if (!JavascriptWebToken.areCredentialsValid(credentials)) {
+                    showError(`Error getting credentials.`)
+                    return
+                }
+                if (!confirm(`Delete this photo?`)) { return }
+                const id = this.vars.photoData[photoIndex].id
+                const body = { id }
+                const response = await fetch('http://localhost:8080/photo-info', {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': `'Bearer ${credentials.token}'`
+                    },
+                    body: JSON.stringify(body)
                 })
+                if (200 === response.status) {
+                    const content = await response.json()
+                    const photoElement = document.getElementById(`${this.id}PhotoWrapper${photoIndex}`)
+                    
+                    this.Element.removeChild(photoElement)
+                    JavascriptWebToken.storeCredentials(content.jwt)
+                    showInfo(`Photo deleted.`)
+                } else {
+                    if (401 === response.status) { window.location.href = `/login` }
+                    else { showError(`Error deleting photo. Status code ${response.status}.`) }
+                }
             }
-            addPhoto() {
-                JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) {
-                        showError(`Error getting credentials.`)
-                        return
-                    }
-                    const filename = this.FileSelector.vars.selectedFile
-                    const formData = new FormData()
+            async addPhoto() {
+                let credentials = JavascriptWebToken.getCredentials()
+                if (!JavascriptWebToken.areCredentialsValid(credentials)) {
+                    showError(`Error getting credentials.`)
+                    return
+                }
+                const filename = this.FileSelector.vars.selectedFile
+                const formData = new FormData()
 
-                    formData.append("filename", filename)
-                    formData.append("text", this.vars.photoDescription)
+                formData.append("filename", filename)
+                formData.append("text", this.vars.photoDescription)
 
-                    const response = await fetch('http://localhost:8080/photo-info', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `'Bearer ${credentials.token}'`
-                        },
-                        body: formData
-                    })
-                    if (200 === response.status) {
-                        const content = await response.json()
-                        const newId = content.payload.newRecord.id
-                        const newIndex = newId.split(`:`)[1]
-
-                        this.vars.photoData.push(content.payload.newRecord)
-                        this.buildPhoto(newIndex, `button`, true)
-                        await Loader.loadIncludes()
-                        JavascriptWebToken.storeCredentials(content.jwt)
-                        showInfo(`Photo added.`)
-                    } else {
-                        if (401 === response.status) { window.location.href = `/login` }
-                        else { showError(`Error adding photo. Status code ${response.status}.`) }
-                    }
+                const response = await fetch('http://localhost:8080/photo-info', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `'Bearer ${credentials.token}'`
+                    },
+                    body: formData
                 })
+                if (200 === response.status) {
+                    const content = await response.json()
+                    const newId = content.payload.newRecord.id
+                    const newIndex = newId.split(`:`)[1]
+
+                    this.vars.photoData.push(content.payload.newRecord)
+                    this.buildPhoto(newIndex, `button`, true)
+                    await Loader.loadIncludes()
+                    JavascriptWebToken.storeCredentials(content.jwt)
+                    showInfo(`Photo added.`)
+                } else {
+                    if (401 === response.status) { window.location.href = `/login` }
+                    else { showError(`Error adding photo. Status code ${response.status}.`) }
+                }
             }
             onBlur(event) { this.updatePhotoDescription() }
             onInput(event) { this.updatePhotoDescription() }

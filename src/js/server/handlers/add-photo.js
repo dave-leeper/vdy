@@ -1,8 +1,8 @@
-const {surrealDBQuery, surrealDBCreate} = require(`../database/surrealdb`)
+const {surrealDBCreate} = require(`../database/surrealdb`)
 const Registry = require(`../utility/registry`)
 const {jwtValidation} = require(`../utility/jwt-validation`)
 const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
-const {moveFile} = require(`../utility/move-file`)
+const {fileMove: fileMove} = require(`../utility/file-move`)
 const {getNewId} = require(`../utility/new-id`)
 const {formidable} = require('formidable')
 const fs = require('fs')
@@ -46,7 +46,7 @@ module.exports = (handlerHame, handlerArgs) => {
         const tempDir = `./src/images/temp`
         const finalDir = `./src/images`
         const formidableOptions = { uploadDir: tempDir }
-        const form = formidable(formidableOptions);
+        const form = formidable(formidableOptions)
 
         form.parse(req, async (parseError, parseFields, parseFiles) => {
             if (parseError) {
@@ -95,7 +95,7 @@ module.exports = (handlerHame, handlerArgs) => {
             const newPhotoRecord = { text: parseFields.text, file: newFileName }
             const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
     
-            moveFile(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {
+            fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {
                 let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
 
                 res.status(200).send(JSON.stringify(response))

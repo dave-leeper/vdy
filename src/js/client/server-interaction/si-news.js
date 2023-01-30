@@ -33,7 +33,7 @@ class SINews {
             return { status: 401 }
         }
     }
-    static async update(file, title, text) {
+    static async update(file, title, text, id) {
         const credentials = JavascriptWebToken.getCredentials()
 
         if (!JavascriptWebToken.areCredentialsValid(credentials)) { return { status: 401 }}
@@ -43,9 +43,10 @@ class SINews {
         formData.append("filename", file)
         formData.append("title", title)
         formData.append("text", text)
+        formData.append("id", id)
         
         try {
-            const response = await fetch('http://localhost:8080/news-info', {
+            const response = await fetch('http://localhost:8080/news-info-update', {
                 method: 'POST',
                 headers: { 'Authorization': `'Bearer ${credentials.token}'` },
                 body: formData

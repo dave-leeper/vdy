@@ -1,3 +1,4 @@
+// node server.js
 const express = require("express")
 const HandlerManager = require('./src/js/server/load-handlers')
 const Surreal = require(`surrealdb.js`)

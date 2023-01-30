@@ -84,7 +84,7 @@
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
     
-    <div class="flex-row flex-space-between w100">
+    <div class="flex-row-m-col flex-space-around w100">
       <div class="flex-col w600px border-b-solid border-amber-500 border-2 animate__animated animate__backInDown">
         <h1 id="Title" class="amber-500 font-size-4-0em letter-spacing5">Vince Drives You</h1>
         <div class="flex-row flex-space-around">
@@ -103,10 +103,10 @@
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Home` }</include-props>
     </include-html>
     <slot-markup for-component-id="HomeTab" for-slot="HomeTabContentSlot">
-      <div class="w100 h100">
-        <img src="../images/photo2.jpg" class="relative" style="width: 100%; height: auto;">
+      <div class="w100 h100 relative-m-static">
+        <img src="../images/photo2.jpg" style="width: 100%; height: auto;">
+        <include-html include-in="index.html" src="./html/components/news/news.html" component-class="News" component-id="News"></include-html>
       </div>
-      <include-html include-in="index.html" src="./html/components/news/news.html" component-class="News" component-id="News"></include-html>
     </slot-markup>
 
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="ReserveARideTab">

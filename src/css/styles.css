@@ -1,3 +1,11 @@
+/*
+320px — 480px: Mobile devices
+481px — 768px: iPads, Tablets
+769px — 1024px: Small screens, laptops
+1025px — 1200px: Desktops, large screens
+1201px and more —  Extra large screens, TV
+*/
+
 *, ::before, ::after {
     margin: 0;
     padding: 0;
@@ -135,6 +143,7 @@
 
   .flex-row {display: flex; flex-direction: row;}         .flex-col {display: flex; flex-direction: column;}  .flex-row-reverse {display: flex; flex-direction: row-reverse;}         
   .flex-col-reverse {display: flex; flex-direction: column-reverse;}
+  .flex-row-m-col {display: flex; flex-direction: row;}
 
   .flex-wrap {flex-wrap: wrap;}       .flex-wrap-reverse {flex-wrap: wrap-reverse;}                           .flex-wrap-none {flex-wrap: nowrap;};
   .flex-grow-1 {flex-grow: 1;}        .flex-grow-2 {flex-grow: 2;}        .flex-grow-3 {flex-grow: 3;}        .flex-grow-4 {flex-grow: 4;}
@@ -190,6 +199,7 @@
   .caption-2 {font-family: var(--primary-font-family);        font-size: var(--caption-2-font-size);    font-weight: var(--caption-2-font-weight);    color: var(--caption-2-text-color);}
 
   .relative {position: relative;}     .absolute {position: absolute;}     .static {position: static;}     .fixed {position: fixed;}     .sticky {position: sticky;}
+  .relative-m-static {position: relative;}     .absolute-m-static {position: absolute;}
 
   .display-none {display: none;}    .display-inline {display: inline;}    .display-block {display: block;}    .display-inline-block {display: inline-block;}
 
@@ -284,6 +294,7 @@
   .w4-5rem {width: 4.5rem}  .w5-0rem {width: 5.0rem}  .w5-5rem {width: 5.5rem}  .w6-0rem {width: 6.0rem}
   .w6-5rem {width: 6.5rem}  .w7-0rem {width: 7.0rem}  .w7-5rem {width: 7.5rem}  .w8-0rem {width: 8.0rem}
   .w8-5rem {width: 8.5rem}  .w9-0rem {width: 9.0rem}  .w9-5rem {width: 9.5rem}  .w10-0rem {width: 10.0rem}
+  .w45-m-100 {width: 45%;}
 
   .h-auto {height: auto;}
   .h5 {height: 15%;}        .h10 {height: 10%;}       .h20 {height: 20%;}       .h25 {height: 25%;}
@@ -1182,4 +1193,33 @@
       padding: 20px;
       border: 1px solid #888;
       width: 80%; /* Could be more or less, depending on screen size */
+  }
+
+  
+  /* xs- */
+  @media screen and (max-width: 320px) {
+    .flex-row-m-col {display: flex; flex-direction: column;}
+    .relative-m-static {position: static;}
+    .absolute-m-static {position: static;}
+    .w45-m-100 {width: 100%;}
+  }
+  /* s- */
+  @media screen and (max-width: 481px) {
+    .flex-row-m-col {display: flex; flex-direction: column;}
+    .relative-m-static {position: static;}
+    .absolute-m-static {position: static;}
+    .w45-m-100 {width: 100%;}
+  }
+  /* m- */
+  @media screen and (max-width: 769px) {
+    .flex-row-m-col {display: flex; flex-direction: column;}
+    .relative-m-static {position: static;}
+    .absolute-m-static {position: static;}
+    .w45-m-100 {width: 100%;}
+  }
+  /* l- */
+  @media screen and (max-width: 1025px) {
+  }
+  /* xl- */
+  @media screen and (max-width: 2101px) {
   }

@@ -1,7 +1,19 @@
 <custom-component>
     <script>
         //# sourceURL=html/components/about.html
-        class About extends Component { }
+        class About extends Component { 
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.SHOW_TAB, (message) => {
+                    if (message.tabBar.id !== `TabBar`) { return }
+                    if (message.tab !== `Home`) {
+                        this.Element.classList.add(`display-none`)
+                        return 
+                    }
+                    this.Element.classList.remove(`display-none`)
+                })
+            }
+        }
     </script>
     <style>
     </style>

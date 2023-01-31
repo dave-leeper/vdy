@@ -118,6 +118,7 @@ class Loader {
         for (let childComponentId of childComponents) {
             let getterName = childComponentId.replace(` `, `_`).replace(componentObject.id, ``)
 
+            if (Object.getOwnPropertyDescriptor(componentObject, getterName)) { continue }
             Object.defineProperty(componentObject, getterName, {
                 get: function() {
                     return Component.getObject(`${componentObjectId}${childComponentId}`)

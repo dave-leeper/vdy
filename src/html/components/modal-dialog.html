@@ -7,8 +7,8 @@
                 if (this.props.okVisible) { this.CancelElement.classList.remove(`display-none`) }
                 if (this.props.cancelVisible) { this.CancelElement.classList.remove(`display-none`) }
             }
-            show() { document.getElementById(this.id).setAttribute(`class`, `display-block modal`) }
-            hide() { document.getElementById(this.id).setAttribute(`class`, `display-none modal`) }
+            show() { this.Element.show() }
+            hide() { this.Element.hide() }
             onCancel() { Queue.broadcast(Messages.MODAL_CANCEL, this) }
             onOk() { Queue.broadcast(Messages.MODAL_OK, this) }
             props = {
@@ -34,7 +34,7 @@
             --modal-content-background-color: var(--blue-gray-900);
             --modal-content-width: 90%;
             --modal-content-padding: 5px;
-            --modal-content-margin: 5px;
+            --modal-content-margin: 20px;
             --modal-content-border-width: 1px;
             --modal-content-border-style: solid;
             --modal-content-border-color: var(--amber-500);
@@ -75,8 +75,8 @@
         }
     </style>
     <component-markup>
-        <div id="{id}" class="modal display-none">
-            <div class="flex-col modal-content">
+        <div id="{id}" class="flex-col flex-align-center modal t0 l0 r0 b0 w100 h100 display-none">
+            <div class="flex-col flex-align-center modal-content">
                 <component-slot id="{id}ContentSlot">DEFAULT CONTENT FOR {id}</component-slot>
                 <div id="{id}Buttons" class="flex-row flex-end">
                     <div id="{id}Cancel" class="button flex-align-self-end display-none" onclick="$obj.onCancel()">{cancelLabel}</div>

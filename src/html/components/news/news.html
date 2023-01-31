@@ -4,9 +4,10 @@
         class News extends Component {
             initialize(id) { 
                 super.initialize(id)
-                Queue.register(this, Messages.SITE_LOADED, () => {
-                    this.loadNews()
-                })
+                Queue.register(this, Messages.SITE_LOADED, () => { this.loadNews() })
+                Queue.register(this, `ADD_NEWS_ITEM`, (newsItem) => { this.beginAddNews() })
+                Queue.register(this, `EDIT_NEWS_ITEM`, (newsItem) => { this.beginEditNews() })
+                Queue.register(this, `DELETE_NEWS_ITEM`, (newsItem) => { this.beginDeleteNews() })
                 Queue.register(this, Messages.DELETE_NEWS, (newsItem) => { this.completeDeleteNews(newsItem) })
                 Queue.register(this, Messages.EDIT_NEWS, (newsItem) => { this.showEditNewsDialog(newsItem) })
             }
@@ -14,7 +15,7 @@
                 let credentials = JavascriptWebToken.getCredentials()
 
                 if (!JavascriptWebToken.areCredentialsValid(credentials) || !credentials?.roles || !credentials.roles.includes("Admin")) {
-                    this.EditingElement.classList.add(`display-none`)
+                    this.AdminElement.classList.add(`display-none`)
                 }
 
                 const response = await SINews.get()
@@ -56,25 +57,18 @@
                 if (this.vars.newsIndex >= this.vars.news.length) { this.vars.newsIndex = 0 }
                 this.showNews()
             }
-            beginAddNews() { Component.getObject(`${this.id}EditDialog`).show() }
+            beginAddNews() { this.EditDialog.show() }
             completeAddNews(news) { this.vars.news.unshift(news) }
             async beginEditNews() {
-                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
-                const newsListRootObj = Component.getObject(`${this.id}NewsList`)
-
-                await newsListRootObj.loadNews()
-                newsListRootObj.setTitle(`Edit A News Item`)
-                newsListRootObj.setMessage(Messages.EDIT_NEWS)
-                newsListRootElement.classList.toggle(`display-none`)
+                await this.List.loadNews()
+                this.List.setTitle(`Edit A News Item`)
+                this.List.setMessage(Messages.EDIT_NEWS)
+                this.List.Element.classList.toggle(`display-none`)
             }
             showEditNewsDialog(news) { 
-                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
-                const editDialogObj = Component.getObject(`${this.id}EditDialog`)
-                const editObj = Component.getObject(`${this.id}Edit`)
-
-                newsListRootElement.classList.toggle(`display-none`)
-                editObj.setNewsItem(news)
-                editDialogObj.show()
+                this.List.Element.classList.toggle(`display-none`)
+                this.Edit.setNewsItem(news)
+                this.EditDialog.show()
             }
             completeEditNews(news) { 
                 for (let loop = 0; loop < this.vars.news.length; loop++) {
@@ -86,13 +80,10 @@
                 }
             }
             async beginDeleteNews() {
-                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
-                const newsListRootObj = Component.getObject(`${this.id}NewsList`)
-
-                await newsListRootObj.loadNews()
-                newsListRootObj.setTitle(`Delete A News Item`)
-                newsListRootObj.setMessage(Messages.DELETE_NEWS)
-                newsListRootElement.classList.toggle(`display-none`)
+                await this.List.loadNews()
+                this.List.setTitle(`Delete A News Item`)
+                this.List.setMessage(Messages.DELETE_NEWS)
+                this.List.Element.classList.toggle(`display-none`)
             }
             async completeDeleteNews(news) {
                 if (!confirm(`Delete news item ${news.title}?`)) { return }
@@ -104,9 +95,7 @@
                     return
                 }
 
-                const newsListRootElement = document.getElementById(`${this.id}NewsList`)
-
-                newsListRootElement.classList.toggle(`display-none`)
+                this.List.Element.classList.toggle(`display-none`)
                 for (let loop = 0; loop < this.vars.news.length; loop++) {
                     const newsItem = this.vars.news[loop]
 
@@ -130,31 +119,33 @@
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="absolute-m-static flex-row flex-align-center w450px bg-blue-gray-900 border-solid border-amber-500 border-2 z1" style="left: 30px; top: 30px">
-            <span id="{id}PreviousButton" class="button font-weight-700" onclick="$obj.previousNews()">◀</span>
-            <img id="{id}NewsPhoto" src="{newsPhotoURL}" height="130" onclick="$obj.clearNewsTimer()">
-            <span id="{id}TextWrapper" class="flex-col bg-blue-gray-50 w350px h130px" onclick="$obj.clearNewsTimer()">
-                <div id="{id}NewsTitle" class="pad-5 blue-gray-900 subtitle-2 h50px"></div>
-                <div id="{id}NewsText" class="pad-5 blue-gray-900 caption-1 h80px"></div>
-            </span>
-            <include-html include-in="news.html" src="./html/components/dropdown-menu.html" component-class="DropdownMenu" component-id="{id}DropdownMenu">
-                <include-props class="display-none">{ menuItems: [{title: `Menu Item 1`, message: `MENU_ITEM_1`}, {title: `Menu Item 2`, message: `MENU_ITEM_2`}, {title: `Menu Item 3`, message: `MENU_ITEM_3`}]}</include-props>
-            </include-html>
-            <slot-markup for-component-id="{id}DropdownMenu" for-slot="{id}DropdownMenuContentSlot">
-                <div id="{id}DropdownMenuRoot" class="dropdown border-amber-500 border-solid border-1 round-50 w20px h20px center-text">+</div>
-            </slot-markup>
+        <span id="{id}" class="absolute-m-static flex-col flex-align-center w450px bg-blue-gray-900 z1" style="left: 30px; top: 30px">
+            <span id="" class="flex-row">
+                <span id="{id}PreviousButton" class="button font-weight-700" onclick="$obj.previousNews()">◀</span>
 
-            <span id="{id}NextButton" class="button font-weight-700" onclick="$obj.nextNews()">▶</span>
-            <span id="{id}Editing" class="flex-col z1">
-                <span id="{id}AddButton" class="button" onclick="$obj.beginAddNews()">Add</span>
-                <span id="{id}EditButton" class="button" onclick="$obj.beginEditNews()">Edit</span>
-                <span id="{id}DeleteButton" class="button" onclick="$obj.beginDeleteNews()">Delete</span>
+                <img id="{id}NewsPhoto" src="{newsPhotoURL}" height="130" onclick="$obj.clearNewsTimer()">
+
+                <span id="{id}TextWrapper" class="flex-col bg-blue-gray-50 w300px h130px" onclick="$obj.clearNewsTimer()">
+                    <div id="{id}NewsTitle" class="pad-5 blue-gray-900 subtitle-2 h50px"></div>
+                    <div id="{id}NewsText" class="pad-5 blue-gray-900 caption-1 h80px"></div>
+                </span>
+
+                <span id="{id}NextButton" class="button font-weight-700" onclick="$obj.nextNews()">▶</span>
+
+                <include-html include-in="news.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}EditDialog"></include-html>
+                <slot-markup for-component-id="{id}EditDialog" for-slot="{id}EditDialogContentSlot">
+                    <include-html include-in="news.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}Edit"></include-html>
+                </slot-markup>
+                <include-html include-in="news.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsList"></include-html>
             </span>
-            <include-html include-in="news.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}EditDialog"></include-html>
-            <slot-markup for-component-id="{id}EditDialog" for-slot="{id}EditDialogContentSlot">
-                <include-html include-in="news.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}Edit"></include-html>
-            </slot-markup>
-            <include-html include-in="news.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsList"></include-html>
+            <span id="{id}Admin">
+                <include-html include-in="news.html" src="./html/components/dropdown-menu.html" component-class="DropdownMenu" component-id="{id}DropdownMenu">
+                    <include-props class="display-none">{ menuItems: [{title: `Add News Item`, message: `ADD_NEWS_ITEM`}, {title: `Edit News Item`, message: `EDIT_NEWS_ITEM`}, {title: `Delete News Item`, message: `DELETE_NEWS_ITEM`}]}</include-props>
+                </include-html>
+                <slot-markup for-component-id="{id}DropdownMenu" for-slot="{id}DropdownMenuContentSlot">
+                    <div id="{id}DropdownMenuRoot" class="dropdown blue-gray-900 bg-amber-500 border-amber-500 border-solid border-1 round-50 w20px h20px center-text">+</div>
+                </slot-markup>
+            </span>
         </span>
     </component-markup>
     <test-script>

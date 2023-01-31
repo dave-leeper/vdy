@@ -160,7 +160,10 @@ class Component {
         if (!window.$components?.objectRegistry?.has(this.id)) { return false }
         return window.$components.objectRegistry.get(this.id).mounted
     }
-    onChildrenMounted() { Queue.broadcast(Messages.COMPONENT_CHILDREN_MOUNTED, this )}
+    onChildrenMounted() {
+        Loader.addChildComponentGettersToComponentObject(this.className(), this.id)
+        Queue.broadcast(Messages.COMPONENT_CHILDREN_MOUNTED, this )
+    }
     onDescendantsMounted() { Queue.broadcast(Messages.COMPONENT_DESCENDANTS_MOUNTED, this )}
     isMounted() { return window.$components.objectRegistry.get(this.id).mounted } 
     beforeSlotLoaded(slot) { Queue.broadcast(Messages.COMPONENT_BEFORE_SLOT_LOADED, { component: this, slot })}
@@ -182,7 +185,7 @@ class Component {
         if (!window.$components?.objectRegistry?.has(this.id)) { ComponentLifecycle.destroyComponentObject(`${this.id}`) }
         Queue.broadcast(Messages.COMPONENT_AFTER_DESTRUCTION, this)
     }
-    getParent() {
+    get Parent() {
         let element = document.getElementById(this.id)
         let walkUpTree = (element) => {
             while (element.parentElement) {

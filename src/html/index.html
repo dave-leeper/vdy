@@ -75,7 +75,7 @@
       setCSSDefaults()
     </script>
   </head>
-  <body class="margin-5 bg-grey-e" onclick="Queue.broadcast(Messages.ON_CLICK, event)">
+  <body id="Body" class="margin-5 bg-grey-e" onclick="Queue.broadcast(Messages.ON_CLICK, event)">
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarError">
       <include-props class="display-none">{ isError: true }</include-props>
       <include-vars class="display-none">{ text: `Message.` }</include-vars>

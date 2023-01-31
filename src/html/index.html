@@ -95,9 +95,11 @@
     </div>
 
 
-    <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
-      <include-vars class="display-none">{ tabs: [`Home`, `Reserve A Ride`, `Photos`, `Reviews`], activeTab: 0 }</include-vars>
-    </include-html>
+    <div id="TabBarWrapper" class="flex-col flex-align-center w100">
+      <include-html include-in="index.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="TabBar">
+        <include-vars class="display-none">{ tabs: [`Home`, `Reserve A Ride`, `Photos`, `Reviews`], activeTab: 0 }</include-vars>
+      </include-html>
+    </div>
 
     <include-html include-in="index.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="HomeTab">
       <include-props class="display-none">{ tabBarId: `TabBar`, tab: `Home` }</include-props>

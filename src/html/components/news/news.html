@@ -137,17 +137,24 @@
                 <div id="{id}NewsTitle" class="pad-5 blue-gray-900 subtitle-2 h50px"></div>
                 <div id="{id}NewsText" class="pad-5 blue-gray-900 caption-1 h80px"></div>
             </span>
+            <include-html include-in="news.html" src="./html/components/dropdown-menu.html" component-class="DropdownMenu" component-id="{id}DropdownMenu">
+                <include-props class="display-none">{ menuItems: [{title: `Menu Item 1`, message: `MENU_ITEM_1`}, {title: `Menu Item 2`, message: `MENU_ITEM_2`}, {title: `Menu Item 3`, message: `MENU_ITEM_3`}]}</include-props>
+            </include-html>
+            <slot-markup for-component-id="{id}DropdownMenu" for-slot="{id}DropdownMenuContentSlot">
+                <div id="{id}DropdownMenuRoot" class="dropdown border-amber-500 border-solid border-1 round-50 w20px h20px center-text">+</div>
+            </slot-markup>
+
             <span id="{id}NextButton" class="button font-weight-700" onclick="$obj.nextNews()">▶</span>
             <span id="{id}Editing" class="flex-col z1">
                 <span id="{id}AddButton" class="button" onclick="$obj.beginAddNews()">Add</span>
                 <span id="{id}EditButton" class="button" onclick="$obj.beginEditNews()">Edit</span>
                 <span id="{id}DeleteButton" class="button" onclick="$obj.beginDeleteNews()">Delete</span>
             </span>
-            <include-html include-in="index.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}EditDialog"></include-html>
+            <include-html include-in="news.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}EditDialog"></include-html>
             <slot-markup for-component-id="{id}EditDialog" for-slot="{id}EditDialogContentSlot">
-                <include-html include-in="index.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}Edit"></include-html>
+                <include-html include-in="news.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}Edit"></include-html>
             </slot-markup>
-            <include-html include-in="index.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsList"></include-html>
+            <include-html include-in="news.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsList"></include-html>
         </span>
     </component-markup>
     <test-script>

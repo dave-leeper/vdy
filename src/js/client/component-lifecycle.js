@@ -399,6 +399,22 @@ class ComponentLifecycle {
                     }
                 })
             }
+            const addConvenienceMethodsToElement = (element) => {
+                const show = () => { if (element.classList.contains(`display-none`)) { element.classList.remove(`display-none`) }}
+                const hide = () => { if (!element.classList.contains(`display-none`)) { element.classList.add(`display-none`) }}
+                const isVisible = () => { return !element.classList.contains(`display-none`) }
+                const toggleVisibility = () => { if (element.isVisible()) { element.hide() } else {element.show() }}
+                const removeChildren = () => { while (element.firstChild) { element.removeChild(element.firstChild) }}
+
+                element.show = show
+                element.hide = hide
+                element.isVisible = isVisible
+                element.toggleVisibility = toggleVisibility
+                element.removeChildren = removeChildren
+                for (const elementChild of element.children) {
+                    addConvenienceMethodsToElement(elementChild)
+                }
+            }
             const setEventHandler = (node, event) => {
                 let eventHandlerText = node.getAttribute(event)
 
@@ -484,6 +500,7 @@ class ComponentLifecycle {
             setEventHandler(clonedChild, `onwaiting`)
             setEventHandler(clonedChild, `ontoggle`)
             addElementGettersToComponentObject(clonedChild, componentObject)
+            addConvenienceMethodsToElement(clonedChild)
             ComponentLifecycle.copyOriginalNodeValues(originalChild, clonedChild)
             ComponentLifecycle.copyOriginalNodeAttributes(originalChild, clonedChild)
         }

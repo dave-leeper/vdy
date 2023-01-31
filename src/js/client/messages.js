@@ -22,6 +22,7 @@ class Messages {
     static MODAL_CANCEL = `MODAL_CANCEL`
     static DELETE_NEWS = `DELETE_NEWS`
     static EDIT_NEWS = `EDIT_NEWS`
+    static ON_CLICK = `ON_CLICK`
     static REFRESH = `REFRESH`
     static VALUE_CHANGED = `VALUE_CHANGED`
     static NOTIFICATION = `NOTIFICATION`

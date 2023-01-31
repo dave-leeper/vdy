@@ -37,6 +37,19 @@ class SlotManager {
                     }
                 })
             }
+            const addConvenienceMethodsToElement = (element) => {
+                const show = () => { if (element.classList.contains(`display-none`)) { element.classList.remove(`display-none`) }}
+                const hide = () => { if (!element.classList.contains(`display-none`)) { element.classList.add(`display-none`) }}
+                const isVisible = () => { return !element.classList.contains(`display-none`) }
+                const toggleVisibility = () => { if (element.isVisible()) { element.hide() } else {element.show() }}
+                const removeChildren = () => { while (element.firstChild) { element.removeChild(element.firstChild) }}
+
+                element.show = show
+                element.hide = hide
+                element.isVisible = isVisible
+                element.toggleVisibility = toggleVisibility
+                element.removeChildren = removeChildren
+            }
 
             if (0 === slotContentElement.children.length) {
                 console.error(`moveSlotContentToComponent: Slot content element has no children.`)
@@ -50,6 +63,7 @@ class SlotManager {
             while (0 < slotContentElement.children.length) {
                 componentSlotElement.after(slotContentElement.firstChild)
                 addElementGettersToComponentObject(slotContentElement.firstChild, component)
+                addConvenienceMethodsToElement(slotContentElement.firstChild)
             }
             componentSlotElement.remove()
             slotContentElement.remove()

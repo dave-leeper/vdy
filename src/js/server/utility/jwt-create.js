@@ -41,6 +41,6 @@ module.exports.jwtCreate = async (name) => {
     const registryEntry = { expires: new Date().addHours(1), name, roles, image }
     const clientResponse = { token, roles, image, name: queryResult[0].result[0].name, title: queryResult[0].result[0].title }
 
-    Registry.register(registryEntry, token)
+    Registry.register(token, registryEntry)
     return { status: 200, clientResponse }
 }

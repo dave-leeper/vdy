@@ -1,7 +1,7 @@
 module.exports = class Registry {
     static registry = [];
 
-    static register(object, name) {
+    static register(name, object) {
         Registry.registry.unshift({object: object, name: name})
     }
 

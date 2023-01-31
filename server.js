@@ -26,7 +26,7 @@ const initializeServer = async () => {
         return this;
     }
 
-    Registry.register(jwt, `JWT`)
+    Registry.register(`JWT`, jwt)
 
     // Load config
     handlerManager.buildHandlers(data, app)
@@ -37,7 +37,7 @@ const initializeServer = async () => {
 
     await surrealDBSignIn(db, `root`, `root`)
     await surrealDBUse(db, `test`, `test`)
-    Registry.register(db, `SurrealDBConnection`)
+    Registry.register(`SurrealDBConnection`, db)
     await populateDatabase(db)
 
     // Start server

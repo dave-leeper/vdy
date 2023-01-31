@@ -1,6 +1,6 @@
-# fly.toml file generated for vdynode on 2022-12-24T13:08:49-07:00
+# fly.toml file generated for vdytesting on 2023-01-30T20:57:56-07:00
 
-app = "vdynode"
+app = "vdytesting"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []

@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const a = {}
             const b = {}
 
-            Registry.register(a, "A")
-            Registry.register(b, "B")
+            Registry.register("A", a)
+            Registry.register("B", b)
 
             assert(Registry.get("A") === a,                                     `One object properly placed in registry.`, results)
             assert(Registry.get("B") === b,                                     `Two objects properly placed in registry.`, results)

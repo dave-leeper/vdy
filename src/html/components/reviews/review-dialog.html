@@ -93,7 +93,8 @@
                     funnyCount: 0,
                     coolCount: 0
                 }
-                const response = await fetch('http://localhost:8080/add-review', {
+                const server = Registry.get(`Server`)
+                const response = await fetch(`${server}add-review`, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',

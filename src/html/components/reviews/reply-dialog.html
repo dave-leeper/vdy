@@ -46,7 +46,8 @@
                             id: `review:${replyNumber}`,
                             reply: DOMPurify.sanitize(replyText)
                         }
-                        const response = await fetch('http://localhost:8080/update-reply', {
+                        const server = Registry.get(`Server`)
+                        const response = await fetch(`${server}update-reply`, {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
@@ -80,7 +81,8 @@
                             title: `Business Owner`,
                             reply: this.vars.reply
                         }
-                        const response = await fetch('http://localhost:8080/add-reply', {
+                        const server = Registry.get(`Server`)
+                        const response = await fetch(`$server}add-reply`, {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/json',

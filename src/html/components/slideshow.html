@@ -18,7 +18,8 @@
                 this.AddFileWrapperElement.classList.toggle(`display-none`)
             }
             fetchPhotoInfo() {
-                fetch(this.props.fetchURL)
+                const server = Registry.get(`Server`)
+                fetch(`${server}${this.props.fetchURL}`)
                     .then((response) => response.json())
                     .then((data) => {
                         this.buildPhotos(data)
@@ -87,7 +88,8 @@
                 if (!confirm(`Delete this photo?`)) { return }
                 const id = this.vars.photoData[photoIndex].id
                 const body = { id }
-                const response = await fetch('http://localhost:8080/photo-info', {
+                const server = Registry.get(`Server`)
+                const response = await fetch(`${server}photo-info`, {
                     method: 'DELETE',
                     headers: {
                         'Accept': 'application/json',
@@ -120,7 +122,8 @@
                 formData.append("filename", filename)
                 formData.append("text", this.vars.photoDescription)
 
-                const response = await fetch('http://localhost:8080/photo-info', {
+                const server = Registry.get(`Server`)
+                const response = await fetch(`${server}photo-info`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `'Bearer ${credentials.token}'`
@@ -146,7 +149,7 @@
             onInput(event) { this.updatePhotoDescription() }
             updatePhotoDescription() { this.vars.photoDescription = document.getElementById(`${this.id}PhotoDescription`).value }
             props = {
-                fetchURL: `http://localhost:8080/photo-info`
+                fetchURL: `photo-info`
             }
             vars = {
                 photoData: [],

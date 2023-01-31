@@ -110,7 +110,8 @@
             }
             async sendReservationRequest () {
                 const reservationRequest = this.getData()
-                const response = await fetch('http://localhost:8080/request-reservation', {
+                const server = Registry.get(`Server`)
+                const response = await fetch(`${server}request-reservation`, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',

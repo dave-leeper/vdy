@@ -14,7 +14,8 @@
                 login.name = user.vars.value
                 login.password = password.vars.value
 
-                const response = await fetch(`http://localhost:8080/login-attempt`, {
+                const server = Registry.get(`Server`)
+                const response = await fetch(`${server}login-attempt`, {
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(login)

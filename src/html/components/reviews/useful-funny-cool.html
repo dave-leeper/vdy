@@ -39,7 +39,8 @@
                 const payload = {
                     id: reviewId,
                 }
-                const response = fetch(`http://localhost:8080/increment-${which}`, {
+                const server = Registry.get(`Server`)
+                const response = fetch(`${server}increment-${which}`, {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',

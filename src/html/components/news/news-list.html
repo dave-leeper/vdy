@@ -3,7 +3,8 @@
         //# sourceURL=html/components/news/news-list.html
         class NewsList extends Component {
             async loadNews () {
-                const response = await fetch('http://localhost:8080/news-info', {
+                const server = Registry.get(`Server`)
+                const response = await fetch(`${server}news-info`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',

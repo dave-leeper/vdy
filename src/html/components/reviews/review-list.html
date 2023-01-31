@@ -16,7 +16,9 @@
                 })
             }
             fetchReviews() {
-                fetch(this.props.fetchURL)
+                const server = Registry.get(`Server`)
+
+                fetch(`${server}${this.props.fetchURL}`)
                     .then((response) => response.json())
                     .then((data) => {
                         let reviews = this.sortReviews(data)
@@ -174,10 +176,8 @@
                 if (!starsObject) { return }
                 starsObject.setStars(this.vars.reviewAverage)
             }
-            // fetchURL: `http://127.0.0.1:8080/reviews`
-            // fetchURL: `https://vdynode.fly.dev/reviews`
             props = {
-                fetchURL: `http://localhost:8080/reviews`
+                fetchURL: `reviews`
             }
             vars = {
                 reviews: null,

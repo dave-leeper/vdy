@@ -1,6 +1,7 @@
 class SINews {
     static async get() {
-        const response = await fetch('http://localhost:8080/news-info', {
+        const server = Registry.get(`Server`)
+        const response = await fetch(`${server}news-info`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -16,13 +17,14 @@ class SINews {
         if (!JavascriptWebToken.areCredentialsValid(credentials)) { return { status: 401 }}
 
         const formData = new FormData()
+        const server = Registry.get(`Server`)
 
         formData.append("filename", file)
         formData.append("title", title)
         formData.append("text", text)
         
         try {
-            const response = await fetch('http://localhost:8080/news-info', {
+            const response = await fetch(`${server}news-info`, {
                 method: 'POST',
                 headers: { 'Authorization': `'Bearer ${credentials.token}'` },
                 body: formData
@@ -46,7 +48,8 @@ class SINews {
         formData.append("id", id)
         
         try {
-            const response = await fetch('http://localhost:8080/news-info-update', {
+            const server = Registry.get(`Server`)
+            const response = await fetch(`${server}news-info-update`, {
                 method: 'POST',
                 headers: { 'Authorization': `'Bearer ${credentials.token}'` },
                 body: formData
@@ -73,7 +76,8 @@ class SINews {
         }
 
         try {
-            const response = await fetch('http://localhost:8080/news-info', args)
+            const server = Registry.get(`Server`)
+            const response = await fetch(`${server}news-info`, args)
 
             return response
         } catch (e) {

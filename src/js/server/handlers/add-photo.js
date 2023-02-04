@@ -30,19 +30,12 @@ module.exports = (entry) => {
             next && next(err)
             return
         }
+
         const jwtValidationResult = await jwtValidation(authorizationHeader)
 
         if (200 !== jwtValidationResult.status) {
             res.status(jwtValidationResult.status).send(jwtValidationResult.err)
             next && next(jwtValidationResult.err)
-            return
-        }
-
-        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-
-        if (200 !== jwtReplaceTokenResult.status) {
-            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-            next && next(jwtReplaceTokenResult.err)
             return
         }
 
@@ -89,6 +82,15 @@ module.exports = (entry) => {
 
                 console.error(err + `: Photo filename.originalFilename not provided.`)
                 return { status: 400, err }
+            }
+
+
+            const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+    
+            if (200 !== jwtReplaceTokenResult.status) {
+                res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+                next && next(jwtReplaceTokenResult.err)
+                return
             }
 
             const newId = await getNewId(db, entry.args.table)

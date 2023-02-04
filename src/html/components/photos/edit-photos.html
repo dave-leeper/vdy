@@ -2,10 +2,10 @@
     <script>
         //# sourceURL=html/components/photos/edit-photos.html
         class EditPhotos extends Component {
-            setPhotoItem(newsItem) {
+            setPhoto(photo) {
                 this.FileSelector.Element.value = ``
-                this.Text.vars.value = newsItem.text
-                this.Text.Element.value = newsItem.text
+                this.Text.vars.value = photo.text
+                this.Text.Element.value = photo.text
             }
             async validatePhoto() {
                 if (!this.FileSelector.vars.selectedFile) {

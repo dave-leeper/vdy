@@ -18,7 +18,7 @@
                 this.loadNews() 
             }
             async loadNews () {
-                const response = SINews.get()
+                const response = await SINews.get()
 
                 if (200 === response.status) { 
                     let news = await response.json()          

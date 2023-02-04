@@ -30,6 +30,8 @@ class SIPhotos {
                 },
                 body: formData
             })
+
+            return response    
         } catch (e) {
             return { status: 401 }
         }

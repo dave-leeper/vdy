@@ -2,23 +2,35 @@
     <script>
         //# sourceURL=html/components/admin/admin-photos-tab-bar.html
         class AdminPhotosTabBar extends Component { 
-          async savePhoto() {
-            const filename = this.FileSelector.vars.selectedFile
-            const text = this.vars.photoDescription
-            const formData = new FormData()
+          initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.PHOTO_EDITED, async (message) => { 
+                  if (this.PhotosAddComponent.id === message.id) { await this.savePhoto()}
+                  else if (this.PhotosEditComponent.id === message.id) { await this.updatePhoto()}
+                })
+                Queue.register(this, Messages.PHOTO_SELECTED, (message) => { 
+                  if (this.PhotosEditList.id !== message.component.id) { return }
 
-            formData.append("filename", filename)
-            formData.append("text", this.vars.photoDescription)
+                  const news = this.PhotosEditList.getSelectedPhoto()
+
+                  this.PhotosEditComponent.setPhoto(news)
+                })
+                Queue.register(this, Messages.SHOW_TAB, async (message) => {
+                  if (message.tabBar.id === `AdminTabBar`) {
+                    if (message.tab === `Photos`) { this.Element.show() }
+                    else { this.Element.hide() }
+                  }
+                })
+          }        
+          async savePhoto() {
+            const filename = this.PhotosAddComponent.FileSelector.vars.selectedFile
+            const text = this.PhotosAddComponent.Text.Element.value
+
             const response = await SIPhotos.add(filename, text)
 
             if (200 === response.status) {
                 const content = await response.json()
-                const newId = content.payload.newRecord.id
-                const newIndex = newId.split(`:`)[1]
 
-                this.vars.photoData.push(content.payload.newRecord)
-                this.buildPhoto(newIndex, `button`, true)
-                await Loader.loadIncludes()
                 JavascriptWebToken.storeCredentials(content.jwt)
                 showInfo(`Photo added.`)
             } else {
@@ -27,11 +39,10 @@
             }
           }          
           async updatePhoto() {
-            if (!this.NewsEditComponent.validatePhoto()) { return }
+            if (!this.PhotosEditComponent.validatePhoto()) { return }
 
-            const photoId = this.PhotosEditComponent.getSelectedNewsItem().id
-            const photo = this.PhotosEditComponent.getPhoto()
-            const response = await SIPhotos.update(photo.file, photo.text, photoId)
+            const photo = this.PhotosEditComponent.getSelectedPhoto()
+            const response = await SIPhotos.update(photo.file, photo.text, photo.id)
 
             if (200 !== response.status) {
                 showError(`Error updating news. Status code ${response.status}.`)
@@ -43,17 +54,17 @@
             JavascriptWebToken.storeCredentials(content.jwt)
             showInfo(`News updated.`)
           }
-          async deletePhoto(photoIndex) {
+          async deletePhoto() {
             if (!confirm(`Delete this photo?`)) { return }
 
-            const id = this.vars.photoData[photoIndex].id
+            const photoIndex = this.PhotosDeleteList.vars.photoIndex
+            const id = this.PhotosDeleteList.vars.photoData[photoIndex].id
             const response = await SIPhotos.remove(id)
 
             if (200 === response.status) {
               const content = await response.json()
-              const photoElement = document.getElementById(`${this.id}PhotoWrapper${photoIndex}`)
 
-              this.Element.removeChild(photoElement)
+              await this.PhotosDeleteList.loadPhotos()
               JavascriptWebToken.storeCredentials(content.jwt)
               showInfo(`Photo deleted.`)
             } else {
@@ -73,7 +84,7 @@
                   <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Add` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}PhotosAddTabContent" for-slot="{id}PhotosAddTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/news/edit-news.html" component-class="EditPhotos" component-id="{id}PhotosAddComponent"></include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/photos/edit-photos.html" component-class="EditPhotos" component-id="{id}PhotosAddComponent"></include-html>
                 </slot-markup>
               </div>
     
@@ -82,11 +93,11 @@
                   <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Edit` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}PhotosEditTabContent" for-slot="{id}PhotosEditTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/news/photos-list.html" component-class="PhotosList" component-id="{id}PhotosEditList">
-                    <include-vars class="display-none">{ message: Messages.EDIT_PHOTOS, size: `small` }</include-vars>
+                  <include-html include-in="admin-page.html" src="./html/components/photos/photos-list.html" component-class="PhotosList" component-id="{id}PhotosEditList">
+                    <include-props class="display-none">{ size: `small` }</include-props>
                   </include-html>
                   <div class="h10px"></div>
-                  <include-html include-in="admin-page.html" src="./html/components/news/edit-photos.html" component-class="EditPhotos" component-id="{id}PhotosEditComponent"></include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/photos/edit-photos.html" component-class="EditPhotos" component-id="{id}PhotosEditComponent"></include-html>
                 </slot-markup>
               </div>
     
@@ -95,9 +106,10 @@
                   <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Delete` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}PhotosDeleteTabContent" for-slot="{id}PhotosDeleteTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/news/photos-list.html" component-class="PhotosList" component-id="{id}PhotosDeleteList">
-                    <include-vars class="display-none">{ message: Messages.DELETE_PHOTOS, size: `small` }</include-vars>
+                  <include-html include-in="admin-page.html" src="./html/components/photos/photos-list.html" component-class="PhotosList" component-id="{id}PhotosDeleteList">
+                    <include-props class="display-none">{ size: `small` }</include-props>
                   </include-html>
+                  <div id="{id}PhotoDeleteButton" class="button w100" onclick="$obj.deletePhoto()">Delete</div>
                 </slot-markup>
               </div>
             </div>

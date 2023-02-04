@@ -5,15 +5,16 @@
             initialize(id) {
                 super.initialize(id)
                 Queue.register(this, Messages.PHOTO_SELECTED, (message) => { this.photoClicked(message.index) })
-                Queue.register(this, Messages.SHOW_TAB, (message) => {
+                Queue.register(this, Messages.SHOW_TAB, async (message) => {
                     if ((message.tabBar.id === `AdminPhotosTabBar`)
                     && (message.tab === `Edit` && message.tab !== `Delete`)) { 
-                        this.loadPhotos()
+                        this.Element.classList.remove(`display-none`)
+                        await this.loadPhotos()
                     }
                     if ((message.tabBar.id === `TabBar`)
                     && (message.tab === `Photos`)) {
                         this.Element.classList.remove(`display-none`)
-                        this.loadPhotos()
+                        await this.loadPhotos()
                     }
                 })
                 Queue.register(this, Messages.MODAL_OK, (message) => { this.PhotoDialog.hide() })
@@ -58,13 +59,14 @@
                     wrapperDivElement.appendChild(imgElement)
                     wrapperDivElement.appendChild(newInclude)
                     this.Element.appendChild(wrapperDivElement)
-                    Loader.loadInclude(newInclude)
+                    await Loader.loadInclude(newInclude)
                 }
             }
             clearPhotos() { 
                 for (let loop = 0; loop < this.Element.children; loop++) {
                     const tooltipId = `${this.id}ToolTip${loop}`
 
+                    // AdminPhotosTabBarContentPhotosEditListToolTip0
                     if (Component.isObjectRegistered(tooltipId)) {
                         ComponentLifecycle.unmount(tooltipId)
                         ComponentLifecycle.unregisterComponentObject(tooltipId)

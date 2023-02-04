@@ -5,8 +5,8 @@
           initialize(id) {
             super.initialize(id)
             Queue.register(this, Messages.NEWS_EDITED, (message) => { 
-              if (`${this.id}NewsAddComponent` === message.id) { this.saveNews()}
-              else if (`${this.id}NewsEditComponent` === message.id) { this.updateNews()}
+              if (this.NewsAddComponent.id === message.id) { this.saveNews()}
+              else if (this.NewsEditComponent.id === message.id) { this.updateNews()}
             })
             Queue.register(this, Messages.NEWS_SELECTED, (message) => { 
               if (this.NewsEditList.id !== message.component.id) { return }
@@ -14,6 +14,12 @@
               const news = this.NewsEditList.getSelectedNewsItem()
 
               this.NewsEditComponent.setNewsItem(news)
+            })
+            Queue.register(this, Messages.SHOW_TAB, async (message) => {
+              if (message.tabBar.id === `AdminTabBar`) {
+                if (message.tab === `News`) { this.Element.show() }
+                else { this.Element.hide() }
+              }
             })
           }
           async saveNews() {

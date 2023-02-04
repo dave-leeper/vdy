@@ -2,15 +2,23 @@
     <script>
         //# sourceURL=html/components/news/news-list.html
         class NewsList extends Component {
-            async loadNews () {
-                const server = Registry.get(`Server`)
-                const response = await fetch(`${server}news-info`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.NEWS_SELECTED, (message) => { this.newsClicked(message.index) })
+                Queue.register(this, Messages.SHOW_TAB, (message) => {
+                    if ((message.tabBar.id === `AdminNewsTabBar`)
+                    && (message.tab === `Edit` && message.tab !== `Delete`)) { 
+                        this.loadNews()
                     }
                 })
+                this.loadNews() 
+            }
+            afterMount() {
+                super.afterMount()
+                this.loadNews() 
+            }
+            async loadNews () {
+                const response = SINews.get()
 
                 if (200 === response.status) { 
                     let news = await response.json()          
@@ -22,37 +30,56 @@
                 }
             }
             showNews() {
-                const root = document.getElementById(`${this.id}ListItemWrapper`)
-
-                while (root.firstChild) {
-                    root.removeChild(root.firstChild)
-                }
-                for (let news of this.vars.news) {
+                this.clearNews()
+                for (let loop = 0; loop < this.vars.news.length; loop++) {
+                    const news = this.vars.news[loop]
                     const wrapperDiv = document.createElement(`div`)
                     const newsImage = document.createElement(`img`)
                     const titleDiv = document.createElement(`div`)
-                    const itemClicked = () => { Queue.broadcast(this.vars.message, news) }
+                    const itemClicked = () => { 
+                        this.vars.newsIndex = loop
+                        Queue.broadcast(Messages.NEWS_SELECTED, { index: loop, element: wrapperDiv, component: this })
+                    }
                     
                     wrapperDiv.classList.add(`flex-col`)
                     wrapperDiv.classList.add(`w50px`)
                     wrapperDiv.classList.add(`cursor-pointer`)
-                    wrapperDiv.classList.add(`margin-3`)
+                    wrapperDiv.classList.add(`m-3`)
                     wrapperDiv.addEventListener("click", itemClicked)
                     newsImage.src = `./images/${news.file}`
-                    newsImage.width = 50
+                    newsImage.width = 46
                     titleDiv.classList.add(`caption-2`)
                     titleDiv.classList.add(`center-text`)
                     titleDiv.innerText = news.title
                     wrapperDiv.appendChild(newsImage)
                     wrapperDiv.appendChild(titleDiv)
-                    root.appendChild(wrapperDiv)
+                    this.ListItemWrapperElement.appendChild(wrapperDiv)
+                }
+                this.selectNewsItem()
+            }
+            clearNews() { this.ListItemWrapperElement.removeChildren() }
+            clearSelection() {
+                for (let newsElement of this.ListItemWrapperElement.children) {
+                    newsElement.classList.remove(`border-amber-500`)
+                    newsElement.classList.remove(`border-solid`)
+                    newsElement.classList.remove(`border-2`)
                 }
             }
-            setTitle(title) { document.getElementById(`${this.id}Title`).innerText = title }
-            setMessage(message) { this.vars.message = message }
-            cancel() { document.getElementById(this.id).classList.add(`display-none`) }
+            selectNewsItem() {
+                const newsElement = this.ListItemWrapperElement.children[this.vars.newsIndex]
+
+                newsElement.classList.add(`border-amber-500`)
+                newsElement.classList.add(`border-solid`)
+                newsElement.classList.add(`border-2`)
+            }
+            getSelectedNewsItem() { return this.vars.news[this.vars.newsIndex] }
+            getSelectedNewsItemElement() { return this.ListItemWrapperElement.children[this.vars.newsIndex] }
+            newsClicked(index) {
+                this.clearSelection()
+                this.vars.newsIndex = index
+                this.selectNewsItem()
+            }
             vars = {
-                message: Messages.DELETE_NEWS,
                 news: [],
                 newsIndex: 0
             }
@@ -61,10 +88,9 @@
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="absolute flex-col bg-blue-gray-900 border-solid border-amber-500 border-2 w66 z1 display-none" style="left: 30; top: 180">
-            <span id="{id}Title" class="subtitle-2 center-text">Delete A News Item</span>
+        <span id="{id}" class="flex-col bg-blue-gray-900 w100">
+            <span id="{id}Title" class="amber-500">Select A News Item</span>
             <span id="{id}ListItemWrapper" class="flex-row flex-wrap flex-space-around "></span>
-            <span id="{id}cancel" class="flex-row flex-wrap flex-space-around button" onclick="$obj.cancel()">Cancel</span>
         </span>
     </component-markup>
     <test-script>

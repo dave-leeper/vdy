@@ -45,7 +45,7 @@ module.exports = (handlerHame, handlerArgs) => {
                 const err = `400 Bad Request`
 
                 console.error(err + `: Could not parse request.`)
-                res.status(validationResult.status).send(err)
+                res.status(400).send(err)
                 next && next(err)
                 return
             }
@@ -53,7 +53,7 @@ module.exports = (handlerHame, handlerArgs) => {
                 const err = `400 Bad Request`
 
                 console.error(err + `: Photo text not provided.`)
-                res.status(validationResult.status).send(err)
+                res.status(400).send(err)
                 next && next(err)
                 return
             }
@@ -61,7 +61,7 @@ module.exports = (handlerHame, handlerArgs) => {
                 const err = `400 Bad Request`
 
                 console.error(err + `: Photo filename not provided.`)
-                res.status(validationResult.status).send(err)
+                res.status(400).send(err)
                 next && next(err)
                 return
             }
@@ -69,7 +69,7 @@ module.exports = (handlerHame, handlerArgs) => {
                 const err = `400 Bad Request`
 
                 console.error(err + `: Photo filename.filepath not provided.`)
-                res.status(validationResult.status).send(err)
+                res.status(400).send(err)
                 next && next(err)
                 return
             }
@@ -79,7 +79,7 @@ module.exports = (handlerHame, handlerArgs) => {
                 const err = `500 Internal Server Error`
 
                 console.error(err + `: Photo ${parseFiles.filename.filepath} not uploaded.`)
-                res.status(validationResult.status).send(err)
+                res.status(500).send(err)
                 next && next(err)
                 return
             }
@@ -87,7 +87,7 @@ module.exports = (handlerHame, handlerArgs) => {
                 const err = `400 Bad Request`
 
                 console.error(err + `: Photo filename.originalFilename not provided.`)
-                res.status(validationResult.status).send(err)
+                res.status(400).send(err)
                 next && next(err)
                 return
             }
@@ -95,7 +95,7 @@ module.exports = (handlerHame, handlerArgs) => {
                 const err = `400 Bad Request`
     
                 console.error(err + `: Title not provided.`)
-                res.status(validationResult.status).send(err)
+                res.status(400).send(err)
                 next && next(err)
                 return
             }

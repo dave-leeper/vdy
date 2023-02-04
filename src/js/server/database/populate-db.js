@@ -1,5 +1,6 @@
-// ONLY USED ONCE TO SET UP A FRESH DATABASE. KEEP AROUND JUST IN CASE IT'S EVER NEEDED AGAIN.
+// ONLY USED TO SET UP A FRESH DATABASE.
 // surreal start --log debug --user root --pass root memory
+// fly apps restart vdydb
 module.exports = {
   populateDatabase: async function() {
     const Surreal = require(`surrealdb.js`)

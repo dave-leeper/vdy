@@ -20,12 +20,14 @@ class Messages {
     static HIDE_TAB = `HIDE_TAB`
     static MODAL_OK = `MODAL_OK`
     static MODAL_CANCEL = `MODAL_CANCEL`
-    static DELETE_NEWS = `DELETE_NEWS`
-    static EDIT_NEWS = `EDIT_NEWS`
     static ON_CLICK = `ON_CLICK`
     static REFRESH = `REFRESH`
     static VALUE_CHANGED = `VALUE_CHANGED`
     static NOTIFICATION = `NOTIFICATION`
     static ERROR = `ERROR`
     static ERROR_USER_MUST_LOG_IN = `ERROR_USER_MUST_LOG_IN`
+    static NEWS_SELECTED = `NEWS_SELECTED`
+    static NEWS_EDITED = `NEWS_EDITED`
+    static PHOTO_SELECTED = `PHOTO_SELECTED`
+    static PHOTO_EDITED = `PHOTO_EDITED`
 }

@@ -133,7 +133,7 @@ const _createTextSuiteDiv = (rootElement, passed, name, description) => {
   let suiteText = `Suite Detail: ${name} ${description}`
   let suiteTextColor = passed? `success` : `error`
   suiteDiv.id = `TextSuite${name}`
-  suiteDiv.className = `flex-col caption-1 margin-5 pad-5 ${suiteTextColor}`
+  suiteDiv.className = `flex-col caption-1 margin-5 p-5 ${suiteTextColor}`
   suiteDiv.innerText = suiteText
   rootElement.appendChild(suiteDiv)
   return suiteDiv
@@ -181,7 +181,7 @@ const _createCardSuiteDiv = (rootElement, passed, name, description) => {
   let suiteTextColor = passed? `success` : `error`
   let emoji = passed? `👍` : `👎`
   suiteDiv.id = `CardSuite${name}`
-  suiteDiv.className = `flex-col flex-space-around w95 margin-lr-5 margin-b-5 pad-5 border-3 border-solid border-black ${suiteTextColor}`
+  suiteDiv.className = `flex-col flex-space-around w95 margin-lr-5 margin-b-5 p-5 border-3 border-solid border-black ${suiteTextColor}`
   suiteDivName.id = `CardSuiteName${name}`
   suiteDivName.className = `heading-6 ${suiteTextColor}`
   suiteDivName.innerText = `Suite Summary: ${name} ${emoji}`

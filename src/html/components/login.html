@@ -30,7 +30,7 @@
 
                 JavascriptWebToken.storeCredentials(JSON.parse(token))
                 params.append(`token`, token)
-                window.location.href = `/index?${params.toString()}`
+                window.location.href = `/admin?${params.toString()}`
             }
         }
     </script>
@@ -39,7 +39,7 @@
     <component-markup>
         <span id="{id}">
             <section id="{id}LoginPage" class="flex-row flex-center margin-5 bg-grey-e w100">
-                <span id="{id}LoginPageBorder" class="flex-col round-5px border-solid border-2 border-blue-50 w400px h100 pad-10">
+                <span id="{id}LoginPageBorder" class="flex-col round-5px border-solid border-2 border-blue-50 w400px h100 p-10">
                     <h1 id="{id}LoginPageTitle" class="header-6 margin-5 w100 center-text">Login To Vince Drives You</h1>
                     <span id="{id}LoginPageForm" class="flex-row flex-space-between">
                         <span id="{id}LoginPageFields" class="flex-col">

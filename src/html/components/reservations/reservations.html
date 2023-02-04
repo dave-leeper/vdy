@@ -176,7 +176,7 @@
         <div id="{id}" class="margin-10 display-none">
             <section id="{id}PersonalInfo" class="reservation-card">
                 <h2 id="{id}AboutYouTitle" class="header-6">About You</h2>
-                <div id="{id}FirstNameLastNamePhoneNumber" class="flex-row pad-b-10">
+                <div id="{id}FirstNameLastNamePhoneNumber" class="flex-row-m-col p-b-10">
                     <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FirstName">
                         <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1 }</include-props>
                         <include-vars class="display-none">{ type: `text` } </include-vars>
@@ -191,7 +191,7 @@
                     </include-html>
                 </div>
             </section>
-            <div id="{id}LocationWrapper" class="flex-row">
+            <div id="{id}LocationWrapper" class="flex-row-m-col">
                 <include-html include-in="reservations.html" src="./html/components/reservations/location.html" component-class="Location" component-id="{id}PickupLocation">
                     <include-props class="display-none">{ title: `Pickup` }</include-props>
                 </include-html>

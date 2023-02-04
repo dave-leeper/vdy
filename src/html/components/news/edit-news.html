@@ -2,109 +2,58 @@
     <script>
         //# sourceURL=html/components/news/edit-news.html
         class EditNews extends Component {
-            initialize(id) {
-                super.initialize(id)
-                Queue.register(this, Messages.MODAL_OK, async (modal) => {
-                    if (!this.vars.newsItem) { await this.save() }
-                    else { await this.update() }
-                    modal.hide()
-                })
-                Queue.register(this, Messages.MODAL_CANCEL, (modal) => {
-                    modal.hide()
-                })
-            }
-            onDescendantsMounted() { 
-                super.onDescendantsMounted()
-                this.fileSelectorField = document.getElementById(`${this.id}FileSelector`)
-                this.titleField = document.getElementById(`${this.id}Title`)
-                this.textField = document.getElementById(`${this.id}Text`)
-                this.fileSelectorObj = Component.getObject(`${this.id}FileSelector`)
-                this.titleObj = Component.getObject(`${this.id}Title`)
-                this.textObj = Component.getObject(`${this.id}Text`)
-            }
             setNewsItem(newsItem) {
-                this.vars.newsItem = newsItem
-                this.FileSelector.vars.selectedFile = ``
-                this.titleField.value = newsItem.title
-                this.textField.value = newsItem.text
+                this.FileSelector.Element.value = ``
+                this.Title.vars.value = newsItem.title
+                this.Text.vars.value = newsItem.text
+                this.Title.Element.value = newsItem.title
+                this.Text.Element.value = newsItem.text
             }
-            async save() {
-                    if (!this.FileSelector.vars.selectedFile) {
-                        showError(`File name is invalid.`)
-                        return
-                    }
-                    if (!this.Title.vars.valid) {
-                        showError(`${this.titleObj.props.name} is invalid.`)
-                        return
-                    }
-                    if (!this.Text.vars.valid) {
-                        showError(`${this.textObj.props.name} is invalid.`)
-                        return
-                    }
-                    
-                    const response = await SINews.add(this.FileSelector.vars.selectedFile, this.titleField.value, this.textField.value)
-
-                    if (200 !== response.status) {
-                        showError(`Error adding news. Status code ${response.status}.`)
-                        return
-                    }
-
-                    const content = await response.json()
-                    const newsObj = Component.getObject(`News`)
-                    let news = {title: this.titleField.value, text: this.textField.value }
-
-                    news.file = content.payload.newRecord.file
-                    news.id = content.payload.newRecord.id
-                    newsObj.completeAddNews(news)
-                    JavascriptWebToken.storeCredentials(content.jwt)
-                    showInfo(`News added.`)
-                    Component.getObject(`NewsEditDialog`)?.hide()
-            }
-            async update() {
+            async validateNews() {
                 if (!this.FileSelector.vars.selectedFile) {
-                    showError(`${this.FileSelector.props.name} is invalid.`)
-                    return
-                }
-                if (!this.Title.vars.valid) {
-                    showError(`${this.Title.props.name} is invalid.`)
-                    return
+                        showError(`File name is invalid.`)
+                        return false
+                    }
+                    await this.Title.validate()
+                    if (!this.Title.vars.valid) {
+                        showError(`${this.Title.props.name} is invalid.`)
+                        return false
+                    }
+                    await this.Text.validate()
+                    if (!this.Text.vars.valid) {
+                        showError(`${this.Text.props.name} is invalid.`)
+                        return false
+                    }
+                    return true
+            }
+            getNews() {
+                const news = {
+                    file: this.FileSelector.vars.selectedFile,
+                    title: this.Title.Element.value,
+                    text: this.Text.Element.value
                 }
                 
-                const response = await SINews.update(this.FileSelector.vars.selectedFile, this.titleField.value, this.textField.value, this.vars.newsItem.id)
-
-                if (200 !== response.status) {
-                    showError(`Error updating news. Status code ${response.status}.`)
-                    return
-                }
-
-                const content = await response.json()
-                const newsObj = Component.getObject(`News`)
-                let news = content.newRecord
-
-                newsObj.completeEditNews(content.payload.newRecord)
-                JavascriptWebToken.storeCredentials(content.jwt)
-                showInfo(`News updated.`)
-                Component.getObject(`NewsEditDialog`)?.hide()
-                this.vars.newsItem = null
+                return news 
             }
-            vars = {
-                newsItem: null
-            }
+            onSubmit() { Queue.broadcast(Messages.NEWS_EDITED, this) }
         }
     </script>
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="flex-col">
+        <span id="{id}" class="flex-col w100 m-5">
             <include-html include-in="edit-news.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
             <include-html include-in="edit-news.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Title">
-                <include-props class="display-none">{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, required: true, size: 100, minlength: 2, maxlength: 150, tabIndex: 2 }</include-props>
-                <include-vars class="display-none">{ type: `text` } </include-vars>
+                <include-props>{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, required: true, size: 100, minlength: 2, maxlength: 150, tabIndex: 2 }</include-props>
+                <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-news.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">
-                <include-props class="display-none">{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 400, cols: 50, rows: 9, tabIndex: 3 }</include-props>
-                <include-vars class="display-none">{ type: `text` } </include-vars>
+                <include-props>{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 400, cols: 35, rows: 12, tabIndex: 3 }</include-props>
+                <include-vars>{ type: `text` } </include-vars>
             </include-html>
+            <div id="{id}ButtonWrapper" class="flex-col w100 m-5">
+                <div id="{id}Button" class="button" onclick="$obj.onSubmit()">Submit</div>
+            </div>
         </span>
     </component-markup>
     <test-script>

@@ -1,0 +1,94 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-photos-tab-bar.html
+        class AdminPhotosTabBar extends Component { 
+          async savePhoto() {
+            const filename = this.FileSelector.vars.selectedFile
+            const text = this.vars.photoDescription
+            const formData = new FormData()
+
+            formData.append("filename", filename)
+            formData.append("text", this.vars.photoDescription)
+            const response = await SIPhotos.add(filename, text)
+
+            if (200 === response.status) {
+                const content = await response.json()
+                const newId = content.payload.newRecord.id
+                const newIndex = newId.split(`:`)[1]
+
+                this.vars.photoData.push(content.payload.newRecord)
+                this.buildPhoto(newIndex, `button`, true)
+                await Loader.loadIncludes()
+                JavascriptWebToken.storeCredentials(content.jwt)
+                showInfo(`Photo added.`)
+            } else {
+                if (401 === response.status) { window.location.href = `/login` }
+                else { showError(`Error adding photo. Status code ${response.status}.`) }
+            }
+          }          
+          async deletePhoto(photoIndex) {
+            if (!confirm(`Delete this photo?`)) { return }
+
+            const id = this.vars.photoData[photoIndex].id
+            const response = await SIPhotos.remove(id)
+
+            if (200 === response.status) {
+              const content = await response.json()
+              const photoElement = document.getElementById(`${this.id}PhotoWrapper${photoIndex}`)
+
+              this.Element.removeChild(photoElement)
+              JavascriptWebToken.storeCredentials(content.jwt)
+              showInfo(`Photo deleted.`)
+            } else {
+              if (401 === response.status) { window.location.href = `/login` }
+              else { showError(`Error getting photos. Status code ${response.status}.`) }
+            }
+          }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="w100 display-none">
+            <div id="{id}Photos" class="w100">
+              <div id="{id}PhotosAdd" class="w100">
+                <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}PhotosAddTabContent">
+                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Add` }</include-props>
+                </include-html>
+                <slot-markup for-component-id="{id}PhotosAddTabContent" for-slot="{id}PhotosAddTabContentSlot">
+                  <include-html include-in="admin-page.html" src="./html/components/news/edit-news.html" component-class="EditPhotos" component-id="{id}PhotosAddComponent"></include-html>
+                </slot-markup>
+              </div>
+    
+              <div id="{id}PhotosEdit" class="w100">
+                <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}PhotosEditTabContent">
+                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Edit` }</include-props>
+                </include-html>
+                <slot-markup for-component-id="{id}PhotosEditTabContent" for-slot="{id}PhotosEditTabContentSlot">
+                  <include-html include-in="admin-page.html" src="./html/components/news/photos-list.html" component-class="PhotosList" component-id="{id}PhotosEditList">
+                    <include-vars class="display-none">{ message: Messages.EDIT_PHOTOS, size: `small` }</include-vars>
+                  </include-html>
+                  <div class="h10px"></div>
+                  <include-html include-in="admin-page.html" src="./html/components/news/edit-photos.html" component-class="EditPhotos" component-id="{id}PhotosEditComponent"></include-html>
+                </slot-markup>
+              </div>
+    
+              <div id="{id}PhotosDelete" class="w100">
+                <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}PhotosDeleteTabContent">
+                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Delete` }</include-props>
+                </include-html>
+                <slot-markup for-component-id="{id}PhotosDeleteTabContent" for-slot="{id}PhotosDeleteTabContentSlot">
+                  <include-html include-in="admin-page.html" src="./html/components/news/photos-list.html" component-class="PhotosList" component-id="{id}PhotosDeleteList">
+                    <include-vars class="display-none">{ message: Messages.DELETE_PHOTOS, size: `small` }</include-vars>
+                  </include-html>
+                </slot-markup>
+              </div>
+            </div>
+          </div>
+        </div>
+    </component-markup>
+    <test-script>
+    </test-script>
+</custom-component>
+
+

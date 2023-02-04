@@ -5,18 +5,9 @@
             initialize(id) { 
                 super.initialize(id)
                 Queue.register(this, Messages.SITE_LOADED, () => { this.loadNews() })
-                Queue.register(this, `ADD_NEWS_ITEM`, (newsItem) => { this.beginAddNews() })
-                Queue.register(this, `EDIT_NEWS_ITEM`, (newsItem) => { this.beginEditNews() })
-                Queue.register(this, `DELETE_NEWS_ITEM`, (newsItem) => { this.beginDeleteNews() })
-                Queue.register(this, Messages.DELETE_NEWS, (newsItem) => { this.completeDeleteNews(newsItem) })
-                Queue.register(this, Messages.EDIT_NEWS, (newsItem) => { this.showEditNewsDialog(newsItem) })
             }
             async loadNews () {
                 let credentials = JavascriptWebToken.getCredentials()
-
-                if (!JavascriptWebToken.areCredentialsValid(credentials) || !credentials?.roles || !credentials.roles.includes("Admin")) {
-                    this.AdminElement.classList.add(`display-none`)
-                }
 
                 const response = await SINews.get()
 
@@ -57,55 +48,6 @@
                 if (this.vars.newsIndex >= this.vars.news.length) { this.vars.newsIndex = 0 }
                 this.showNews()
             }
-            beginAddNews() { this.EditDialog.show() }
-            completeAddNews(news) { this.vars.news.unshift(news) }
-            async beginEditNews() {
-                await this.List.loadNews()
-                this.List.setTitle(`Edit A News Item`)
-                this.List.setMessage(Messages.EDIT_NEWS)
-                this.List.Element.classList.toggle(`display-none`)
-            }
-            showEditNewsDialog(news) { 
-                this.List.Element.classList.toggle(`display-none`)
-                this.Edit.setNewsItem(news)
-                this.EditDialog.show()
-            }
-            completeEditNews(news) { 
-                for (let loop = 0; loop < this.vars.news.length; loop++) {
-                    const newsItem = this.vars.news[loop]
-
-                    if (newsItem.id !== news.id) { continue }
-                    this.vars.news[loop] = news
-                    break
-                }
-            }
-            async beginDeleteNews() {
-                await this.List.loadNews()
-                this.List.setTitle(`Delete A News Item`)
-                this.List.setMessage(Messages.DELETE_NEWS)
-                this.List.Element.classList.toggle(`display-none`)
-            }
-            async completeDeleteNews(news) {
-                if (!confirm(`Delete news item ${news.title}?`)) { return }
-                
-                const response = await SINews.remove(news.id)
-
-                if (200 !== response.status) {
-                    showError(`Error deleting news. Status code ${response.status}.`)
-                    return
-                }
-
-                this.List.Element.classList.toggle(`display-none`)
-                for (let loop = 0; loop < this.vars.news.length; loop++) {
-                    const newsItem = this.vars.news[loop]
-
-                    if (newsItem.id !== news.id) { continue }
-                    this.vars.news.splice(loop, 1)
-                    showInfo(`News item deleted.`)
-                    return
-                }
-                showError(`Error deleting news.`)                
-            }
             vars = {
                 newsIndex: 0,
                 news: [],
@@ -126,25 +68,11 @@
                 <img id="{id}NewsPhoto" src="{newsPhotoURL}" height="130" onclick="$obj.clearNewsTimer()">
 
                 <span id="{id}TextWrapper" class="flex-col bg-blue-gray-50 w300px h130px" onclick="$obj.clearNewsTimer()">
-                    <div id="{id}NewsTitle" class="pad-5 blue-gray-900 subtitle-2 h50px"></div>
-                    <div id="{id}NewsText" class="pad-5 blue-gray-900 caption-1 h80px"></div>
+                    <div id="{id}NewsTitle" class="p-5 blue-gray-900 subtitle-2 h50px"></div>
+                    <div id="{id}NewsText" class="p-5 blue-gray-900 caption-1 h80px"></div>
                 </span>
 
                 <span id="{id}NextButton" class="button font-weight-700" onclick="$obj.nextNews()">▶</span>
-
-                <include-html include-in="news.html" src="./html/components/modal-dialog.html" component-class="ModalDialog" component-id="{id}EditDialog"></include-html>
-                <slot-markup for-component-id="{id}EditDialog" for-slot="{id}EditDialogContentSlot">
-                    <include-html include-in="news.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}Edit"></include-html>
-                </slot-markup>
-                <include-html include-in="news.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsList"></include-html>
-            </span>
-            <span id="{id}Admin">
-                <include-html include-in="news.html" src="./html/components/dropdown-menu.html" component-class="DropdownMenu" component-id="{id}DropdownMenu">
-                    <include-props class="display-none">{ menuItems: [{title: `Add News Item`, message: `ADD_NEWS_ITEM`}, {title: `Edit News Item`, message: `EDIT_NEWS_ITEM`}, {title: `Delete News Item`, message: `DELETE_NEWS_ITEM`}]}</include-props>
-                </include-html>
-                <slot-markup for-component-id="{id}DropdownMenu" for-slot="{id}DropdownMenuContentSlot">
-                    <div id="{id}DropdownMenuRoot" class="dropdown blue-gray-900 bg-amber-500 border-amber-500 border-solid border-1 round-50 w20px h20px center-text">+</div>
-                </slot-markup>
             </span>
         </span>
     </component-markup>

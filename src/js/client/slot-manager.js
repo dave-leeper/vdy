@@ -61,16 +61,17 @@ class SlotManager {
             }
     
             while (0 < slotContentElement.children.length) {
-                componentSlotElement.after(slotContentElement.firstChild)
-                addElementGettersToComponentObject(slotContentElement.firstChild, component)
-                addConvenienceMethodsToElement(slotContentElement.firstChild)
+                componentSlotElement.after(slotContentElement.lastChild)
+                addElementGettersToComponentObject(slotContentElement.lastChild, component)
+                addConvenienceMethodsToElement(slotContentElement.lastChild)
             }
             componentSlotElement.remove()
             slotContentElement.remove()
     
             return true
         }
-        const slotMarkupElements = document.querySelectorAll('slot-markup')
+
+        let slotMarkupElements = document.querySelectorAll('slot-markup')
 
         for (let slotContent of slotMarkupElements) {
             const forComponentId = slotContent.getAttribute(`for-component-id`)

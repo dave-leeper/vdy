@@ -5,7 +5,7 @@
             initialize(id) {
                 super.initialize(id)
                 Queue.register(this, Messages.ON_CLICK, (message) => {
-                    if (this.MenuElement && !this.MenuElement.contains(message.target) && !this.ContentSlotWarpperElement.contains(message.target) && this.MenuElement.isVisible()) {
+                    if (this.MenuElement && !this.MenuElement.contains(message.target) && !this.SlotWarpperElement.contains(message.target) && this.MenuElement.isVisible()) {
                         this.MenuElement.hide()
                     }
                 })
@@ -84,8 +84,8 @@
     </style>
     <component-markup>
         <div id="{id}">
-            <span id="{id}ContentSlotWarpper" onclick="$obj.toggleMenu()">
-                <component-slot id="{id}ContentSlot">DEFAULT ROOT FOR {id}</component-slot>
+            <span id="{id}SlotWarpper" onclick="$obj.toggleMenu()">
+                <component-slot id="{id}Slot">DEFAULT ROOT FOR {id}</component-slot>
             </span>
             <div id="{id}Menu" class="flex-col dropdown-menu display-none"></div>
         </div>

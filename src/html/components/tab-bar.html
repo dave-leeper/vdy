@@ -35,7 +35,8 @@
                 let activeTabElement = document.getElementById(activeTabId)
 
                 activeTabElement?.classList.toggle(`active-tab`)
-
+                if (!this.vars.tabsInRow) { this.Element.classList.replace(`flex-row`, `flex-col`)}
+                if (!this.vars.tabsCentered) { this.Element.classList.replace(`flex-align-center`, `flex-align-start`)}
             }
             setActiveTab(tabName) {
                 for (let loop = 0; loop < this.vars.tabs.length; loop++) {
@@ -61,7 +62,9 @@
                 tabs: [],
                 activeTab: 0,
                 mountedTabCount: 0, 
-                initialTabMounted: false       
+                initialTabMounted: false,
+                tabsInRow: true,
+                tabsCentered: true
             }
         }
     </script>

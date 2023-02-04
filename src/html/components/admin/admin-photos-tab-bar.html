@@ -26,6 +26,23 @@
                 else { showError(`Error adding photo. Status code ${response.status}.`) }
             }
           }          
+          async updatePhoto() {
+            if (!this.NewsEditComponent.validatePhoto()) { return }
+
+            const photoId = this.PhotosEditComponent.getSelectedNewsItem().id
+            const photo = this.PhotosEditComponent.getPhoto()
+            const response = await SIPhotos.update(photo.file, photo.text, photoId)
+
+            if (200 !== response.status) {
+                showError(`Error updating news. Status code ${response.status}.`)
+                return
+            }
+
+            const content = await response.json()
+
+            JavascriptWebToken.storeCredentials(content.jwt)
+            showInfo(`News updated.`)
+          }
           async deletePhoto(photoIndex) {
             if (!confirm(`Delete this photo?`)) { return }
 

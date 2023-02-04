@@ -7,9 +7,12 @@ const {getNewId} = require(`../utility/new-id`)
 const {formidable} = require('formidable')
 const fs = require('fs')
 const path = require('path');
+const {log} = require('../utility/log');
 
-module.exports = (handlerHame, handlerArgs) => {
+module.exports = (entry) => {
     return async (req, res, next) => {
+        log(entry)
+
         const db = Registry.get(`SurrealDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
 
@@ -20,9 +23,9 @@ module.exports = (handlerHame, handlerArgs) => {
             next && next(err)
             return
         }
-        if (!handlerArgs || !handlerArgs.table) {
+        if (!entry?.args?.table) {
             const err = `503 Service Unavailable`
-            console.error(err + `: Missing handlerArgs.table.`)
+            console.error(err + `: Missing entry.args.table.`)
             res.status(503).send(err)
             next && next(err)
             return
@@ -100,9 +103,9 @@ module.exports = (handlerHame, handlerArgs) => {
                 return
             }
     
-            const newId = await getNewId(db, handlerArgs.table)
+            const newId = await getNewId(db, entry.args.table)
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-            const newRecordId = `${handlerArgs.table}:${newId}`
+            const newRecordId = `${entry.args.table}:${newId}`
             const newFileName = `news${newId}${newFileExtension}`
             const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
             const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)

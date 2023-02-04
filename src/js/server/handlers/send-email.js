@@ -1,8 +1,11 @@
 const nodemailer = require('nodemailer')
+const {log} = require('../utility/log');
 
-module.exports = (handlerName, handlerArgs) => {
+module.exports = (entry) => {
     return async (req, res, next) => {
-        const formatter = require(handlerArgs.formatter)
+        log(entry)
+
+        const formatter = require(entry.args.formatter)
         const data = req.body
         const formattedData = formatter(data)
 

@@ -2,9 +2,12 @@ const {surrealDBCreate} = require(`../database/surrealdb`)
 const Registry = require(`../utility/registry`)
 const {jwtValidation} = require(`../utility/jwt-validation`)
 const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
+const {log} = require('../utility/log');
 
-module.exports = (handlerHame, handlerArgs) => {
+module.exports = (entry) => {
     return async (req, res, next) => {
+        log(entry)
+
         const db = Registry.get(`SurrealDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
         let originalRequest = req.body
@@ -17,9 +20,9 @@ module.exports = (handlerHame, handlerArgs) => {
             next && next(err)
             return
         }
-        if (!handlerArgs || !handlerArgs.table) {
+        if (!entry?.args?.table) {
             const err = `503 Service Unavailable`
-            console.error(err + `: Missing handlerArgs.table.`)
+            console.error(err + `: Missing entry.args.table.`)
             res.status(503).send(err)
             next && next(err)
             return
@@ -74,9 +77,9 @@ module.exports = (handlerHame, handlerArgs) => {
             return
         }
 
-        const countResult = await surrealDBQuery(db, `SELECT * FROM type::table($tb)`, { tb: handlerArgs.table })
+        const countResult = await surrealDBQuery(db, `SELECT * FROM type::table($tb)`, { tb: entry.args.table })
         const recordCount = countResult[0].result.length
-        const newRecordId = `${handlerArgs.table}:${recordCount + 1}`
+        const newRecordId = `${entry.args.table}:${recordCount + 1}`
         
         await surrealDBCreate(db, newRecordId, processedRequest)
 

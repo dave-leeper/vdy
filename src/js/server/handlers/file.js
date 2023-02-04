@@ -1,8 +1,12 @@
 var path = require('path');
+const {log} = require('../utility/log');
 
-module.exports = (handlerName, handlerArgs) => {
+module.exports = (entry) => {
     return async (req, res, next) => {
-        var options = { root: path.join(`.`, '/src') }
-        res.sendFile(`${handlerArgs.file}`, options, (err) => { if (err) { next && next(err) } else { next && next() } })
+        log(entry)
+
+        const options = { root: path.join(`.`, '/src') }
+
+        res.sendFile(`${entry.args.file}`, options, (err) => { if (err) { next && next(err) } else { next && next() } })
     }
 }

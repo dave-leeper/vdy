@@ -15,7 +15,7 @@ module.exports = function () {
       for (const entry of handlerConfigArray) {
         console.log(JSON.stringify(entry))
         const handlerBuilder = require(`./handlers/${entry.handler}`)
-        const handler = handlerBuilder(entry.name, entry.args)
+        const handler = handlerBuilder(entry)
 
         if (`GET` === entry.verb.toUpperCase()) { app.get(entry.path, handler) }
         else if (`POST` === entry.verb.toUpperCase()) { app.post(entry.path, handler) }

@@ -1,8 +1,11 @@
 const Registry = require(`../utility/registry`)
 const {jwtCreate} = require(`../utility/jwt-create`)
+const {log} = require('../utility/log');
 
-module.exports = (handlerName, handlerArgs) => {
+module.exports = (entry) => {
     return async (req, res, next) => {
+        log(entry)
+
         const db = Registry.get(`SurrealDBConnection`)
         const name = req.body.name
         const password = req.body.password

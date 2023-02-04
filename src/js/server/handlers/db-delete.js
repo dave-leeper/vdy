@@ -2,10 +2,13 @@ const {surrealDBDelete} = require(`../database/surrealdb`)
 const Registry = require(`../utility/registry`)
 const {jwtValidation} = require(`../utility/jwt-validation`)
 const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
+const {log} = require('../utility/log');
 
-module.exports = (handlerHame, handlerArgs) => {
+module.exports = (entry) => {
     return async (req, res, next) => {
-        let db = Registry.get(`SurrealDBConnection`)
+        log(entry)
+
+        const db = Registry.get(`SurrealDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
         const request = req.body
 

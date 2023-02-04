@@ -7,7 +7,7 @@
             "verb": "GET",
             "path": "/ping",
             "handler": "text.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "text": "The server is running."
             }
@@ -19,7 +19,7 @@
             "verb": "GET",
             "path": "/index",
             "handler": "file.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "file": "./html/index.html"
             }
@@ -29,7 +29,7 @@
             "verb": "GET",
             "path": "/login",
             "handler": "file.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "file": "./html/login-page.html"
             }
@@ -39,7 +39,7 @@
             "verb": "GET",
             "path": "/admin",
             "handler": "file.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "file": "./html/admin-page.html"
             }
@@ -51,7 +51,7 @@
             "verb": "GET",
             "path": "/photo-info",
             "handler": "db-select.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "table": "photo"
             }
@@ -61,7 +61,17 @@
             "verb": "POST",
             "path": "/photo-info",
             "handler": "add-photo.js",
-            "log": "NONE",
+            "log": "INFO",
+            "args": {
+                "table": "photo"
+            }
+        },
+        {
+            "name": "Update photo information.",
+            "verb": "POST",
+            "path": "/photo-info-update",
+            "handler": "update-photo.js",
+            "log": "INFO",
             "args": {
                 "table": "photo"
             }
@@ -71,7 +81,7 @@
             "verb": "DELETE",
             "path": "/photo-info",
             "handler": "db-delete.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "table": "photo"
             }
@@ -81,7 +91,7 @@
             "verb": "GET",
             "path": "/news-info",
             "handler": "db-select.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "table": "news"
             }
@@ -91,7 +101,7 @@
             "verb": "POST",
             "path": "/news-info",
             "handler": "add-news.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "table": "news"
             }
@@ -101,7 +111,7 @@
             "verb": "POST",
             "path": "/news-info-update",
             "handler": "update-news.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "table": "news"
             }
@@ -111,7 +121,7 @@
             "verb": "DELETE",
             "path": "/news-info",
             "handler": "db-delete.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "table": "news"
             }
@@ -121,7 +131,7 @@
             "verb": "GET",
             "path": "/reviews",
             "handler": "db-select.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "table": "review"
             }
@@ -131,42 +141,42 @@
             "verb": "POST",
             "path": "/add-review",
             "handler": "add-review.js",
-            "log": "NONE"
+            "log": "INFO"
         },
         {
             "name": "Add reply.",
             "verb": "POST",
             "path": "/add-reply",
             "handler": "add-reply.js",
-            "log": "NONE"
+            "log": "INFO"
         },
         {
             "name": "Update reply.",
             "verb": "POST",
             "path": "/update-reply",
             "handler": "update-reply.js",
-            "log": "NONE"
+            "log": "INFO"
         },
         {
             "name": "Increment useful count.",
             "verb": "POST",
             "path": "/increment-useful",
             "handler": "increment-useful.js",
-            "log": "NONE"
+            "log": "INFO"
         },
         {
             "name": "Increment funny count.",
             "verb": "POST",
             "path": "/increment-funny",
             "handler": "increment-funny.js",
-            "log": "NONE"
+            "log": "INFO"
         },
         {
             "name": "Increment cool count.",
             "verb": "POST",
             "path": "/increment-cool",
             "handler": "increment-cool.js",
-            "log": "NONE"
+            "log": "INFO"
         }
     ],
     "function": [
@@ -175,14 +185,14 @@
             "verb": "POST",
             "path": "/login-attempt",
             "handler": "login.js",
-            "log": "NONE"
+            "log": "INFO"
         },
         {
             "name": "Request Reservation.",
             "verb": "POST",
             "path": "/request-reservation",
             "handler": "send-email.js",
-            "log": "NONE",
+            "log": "INFO",
             "args": {
                 "formatter": "./server/utility/format-reservation-request.js"
             }

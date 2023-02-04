@@ -115,14 +115,6 @@ module.exports = (entry) => {
                 next && next(err)
                 return
             }
-            if (!parseFields.title) {
-                const err = `400 Bad Request`
-    
-                console.error(err + `: Title not provided.`)
-                res.status(400).send(err)
-                next && next(err)
-                return
-            }
     
             let oldRecord = await surrealDBSelect(db, parseFields.id)
             const finalDir = `./src/images`
@@ -156,7 +148,7 @@ module.exports = (entry) => {
     
             const fileNumber = parseInt(parseFields.id.split(`:`)[1])
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-            const newFileName = `news${fileNumber}${newFileExtension}`
+            const newFileName = `photo${fileNumber}${newFileExtension}`
             const updateData = { title: parseFields.title, text: parseFields.text, file: newFileName, id: parseFields.id }
             const createResult = await surrealDBChange(db, parseFields.id, updateData)
     

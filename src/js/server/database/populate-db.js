@@ -472,9 +472,9 @@ module.exports = {
       console.log(JSON.stringify(reviews))
       let countResult = await surrealDBQuery(db, `SELECT * FROM type::table($tb)`, {tb: `review`, })
       console.log(countResult[0].result.length)
-  
-      } catch (e) {
-          console.error(`ERROR`, e);
-      }
+
+    } catch (e) {
+        console.error(`ERROR POPULATING DATABASE.`, e);
+    }
   }
 }

@@ -1,9 +1,12 @@
 const {surrealDBQuery, surrealDBCreate} = require(`../database/surrealdb`)
 const Registry = require(`../utility/registry`)
+const {log} = require('../utility/log');
 
-module.exports = (handlerName, handlerArgs) => {
+module.exports = (entry) => {
     return async (req, res, next) => {
-        let db = Registry.get(`SurrealDBConnection`)
+        log(entry)
+
+        const db = Registry.get(`SurrealDBConnection`)
         const review = req.body
         
         if (!db) {

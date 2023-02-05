@@ -1,7 +1,79 @@
 <custom-component>
     <script>
         //# sourceURL=html/components/admin/admin-users-tab-bar.html
-        class AdminUsersTabBar extends Component { }
+        class AdminUsersTabBar extends Component {
+          initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.USER_EDITED, async (message) => { 
+                  if (this.UsersAddComponent.id === message.id) { await this.saveUser()}
+                  else if (this.UsersEditComponent.id === message.id) { await this.updateUser()}
+                })
+                Queue.register(this, Messages.USER_SELECTED, (message) => { 
+                  if (this.UsersEditList.id !== message.component.id) { return }
+
+                  const user = this.UsersEditList.getSelectedUser()
+
+                  this.UsersEditComponent.setUser(user)
+                })
+                Queue.register(this, Messages.SHOW_TAB, async (message) => {
+                  if (message.tabBar.id === `AdminTabBar`) {
+                    if (message.tab === `Users`) { this.Element.show() }
+                    else { this.Element.hide() }
+                  }
+                })
+          }        
+          async saveUser() {
+            const user = this.UsersAddComponent.getUser()
+            const response = await SIPhotos.add(user.file, user.username, user.password, user.firstName, user.lastName, user.roles, user.title)
+
+            if (200 === response.status) {
+                const content = await response.json()
+
+                JavascriptWebToken.storeCredentials(content.jwt)
+                showInfo(`User added.`)
+            } else {
+                if (401 === response.status) { window.location.href = `/login` }
+                else { showError(`Error adding user. Status code ${response.status}.`) }
+            }
+          }          
+          async updatePhoto() {
+            if (!this.UserEditComponent.validateUser()) { return }
+
+            const userId = this.UsersEditList.getSelectedUser().id
+            const user = this.UserEditComponent.getPhoto()
+            const response = await SIPhotos.update(user.file, user.username, user.password, user.firstName, user.lastName, user.roles, user.title, userId)
+
+            if (200 !== response.status) {
+              if (401 === response.status) { window.location.href = `/login` }
+              else { showError(`Error updating user. Status code ${response.status}.`)}
+              return
+            }
+            this.PhotosEditList.loadPhotos()
+
+            const content = await response.json()
+
+            JavascriptWebToken.storeCredentials(content.jwt)
+            showInfo(`User updated.`)
+          }
+          async deletePhoto() {
+            if (!confirm(`Delete this user?`)) { return }
+
+            const photoIndex = this.PhotosDeleteList.vars.photoIndex
+            const id = this.PhotosDeleteList.vars.photos[photoIndex].id
+            const response = await SIPhotos.remove(id)
+
+            if (200 === response.status) {
+              const content = await response.json()
+
+              await this.PhotosDeleteList.loadPhotos()
+              JavascriptWebToken.storeCredentials(content.jwt)
+              showInfo(`User deleted.`)
+            } else {
+              if (401 === response.status) { window.location.href = `/login` }
+              else { showError(`Error getting users. Status code ${response.status}.`) }
+            }
+          }
+        }
     </script>
     <style>
     </style>
@@ -22,9 +94,7 @@
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Edit` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersEditTabContent" for-slot="{id}UsersEditTabContent">
-                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersEditList">
-                    <include-vars class="display-none">{ message: Messages.EDIT_NEWS }</include-vars>
-                  </include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersEditList"></include-html>
                   <div class="h10px"></div>
                   <include-html include-in="admin-page.html" src="./html/components/news/edit-user.html" component-class="EditUser" component-id="{id}UsersEditComponent"></include-html>
                 </slot-markup>
@@ -35,9 +105,7 @@
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Delete` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersDeleteTabContent" for-slot="{id}UsersDeleteTabContent">
-                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList">
-                    <include-vars class="display-none">{ message: Messages.DELETE_NEWS }</include-vars>
-                  </include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList"></include-html>
                 </slot-markup>
               </div>
             </div>

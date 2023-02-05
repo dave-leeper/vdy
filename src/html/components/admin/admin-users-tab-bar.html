@@ -13,7 +13,7 @@
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Add` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersAddTabContent" for-slot="{id}UsersAddTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/news/edit-news.html" component-class="EditUsers" component-id="{id}UsersAddComponent"></include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/news/edit-user.html" component-class="EditUsers" component-id="{id}UsersAddComponent"></include-html>
                 </slot-markup>
               </div>
     
@@ -22,11 +22,11 @@
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Edit` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersEditTabContent" for-slot="{id}UsersEditTabContent">
-                  <include-html include-in="admin-page.html" src="./html/components/news/news-list.html" component-class="UsersList" component-id="{id}UsersEditList">
+                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersEditList">
                     <include-vars class="display-none">{ message: Messages.EDIT_NEWS }</include-vars>
                   </include-html>
                   <div class="h10px"></div>
-                  <include-html include-in="admin-page.html" src="./html/components/news/edit-news.html" component-class="EditUsers" component-id="{id}UsersEditComponent"></include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/news/edit-user.html" component-class="EditUser" component-id="{id}UsersEditComponent"></include-html>
                 </slot-markup>
               </div>
     
@@ -35,7 +35,7 @@
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Delete` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersDeleteTabContent" for-slot="{id}UsersDeleteTabContent">
-                  <include-html include-in="admin-page.html" src="./html/components/news/news-list.html" component-class="UsersList" component-id="{id}UsersDeleteList">
+                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList">
                     <include-vars class="display-none">{ message: Messages.DELETE_NEWS }</include-vars>
                   </include-html>
                 </slot-markup>

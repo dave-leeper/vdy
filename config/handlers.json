@@ -47,6 +47,46 @@
     ],
     "database": [
         {
+            "name": "Get user information.",
+            "verb": "GET",
+            "path": "/user-info",
+            "handler": "db-select.js",
+            "log": "INFO",
+            "args": {
+                "table": "user"
+            }
+        },
+        {
+            "name": "Add user information.",
+            "verb": "POST",
+            "path": "/user-info",
+            "handler": "add-user.js",
+            "log": "INFO",
+            "args": {
+                "table": "user"
+            }
+        },
+        {
+            "name": "Update user information.",
+            "verb": "POST",
+            "path": "/user-info-update",
+            "handler": "update-user.js",
+            "log": "INFO",
+            "args": {
+                "table": "user"
+            }
+        },
+        {
+            "name": "Delete user information.",
+            "verb": "DELETE",
+            "path": "/user-info",
+            "handler": "db-delete.js",
+            "log": "INFO",
+            "args": {
+                "table": "user"
+            }
+        },
+        {
             "name": "Get photo information.",
             "verb": "GET",
             "path": "/photo-info",

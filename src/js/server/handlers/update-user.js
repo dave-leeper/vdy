@@ -65,10 +65,50 @@ module.exports = (entry) => {
                 next && next(err)
                 return
             }
-            if (!parseFields.text) {
+            if (!parseFields.userName) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News text not provided.`)
+                console.error(err + `: User userName not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.password) {
+                const err = `400 Bad Request`
+    
+                console.error(err + `: User password not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.roles) {
+                const err = `400 Bad Request`
+    
+                console.error(err + `: User roles not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.title) {
+                const err = `400 Bad Request`
+    
+                console.error(err + `: User title not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.firstName) {
+                const err = `400 Bad Request`
+    
+                console.error(err + `: User firstName not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.lastName) {
+                const err = `400 Bad Request`
+    
+                console.error(err + `: User lastName not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -76,7 +116,7 @@ module.exports = (entry) => {
             if (!parseFiles.filename) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News filename not provided.`)
+                console.error(err + `: User filename not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -84,7 +124,7 @@ module.exports = (entry) => {
             if (!parseFiles.filename.filepath) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News filename.filepath not provided.`)
+                console.error(err + `: User filename.filepath not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -94,7 +134,7 @@ module.exports = (entry) => {
             } catch(e) {
                 const err = `500 Internal Server Error`
     
-                console.error(err + `: News ${parseFiles.filename.filepath} not uploaded.`)
+                console.error(err + `: User ${parseFiles.filename.filepath} not uploaded.`)
                 res.status(500).send(err)
                 next && next(err)
                 return
@@ -102,7 +142,7 @@ module.exports = (entry) => {
             if (!parseFiles.filename.originalFilename) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News filename.originalFilename not provided.`)
+                console.error(err + `: User filename.originalFilename not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -110,15 +150,7 @@ module.exports = (entry) => {
             if (!parseFields.id) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News text not provided.`)
-                res.status(400).send(err)
-                next && next(err)
-                return
-            }
-            if (!parseFields.title) {
-                const err = `400 Bad Request`
-    
-                console.error(err + `: News title not provided.`)
+                console.error(err + `: User id not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -130,7 +162,7 @@ module.exports = (entry) => {
             if (1 !== oldRecord.length) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: No existing news record found for update.`)
+                console.error(err + `: No existing user record found for update.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -156,7 +188,7 @@ module.exports = (entry) => {
     
             const fileNumber = parseInt(parseFields.id.split(`:`)[1])
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-            const newFileName = `news${fileNumber}${newFileExtension}`
+            const newFileName = `user${fileNumber}${newFileExtension}`
             const updateData = { title: parseFields.title, text: parseFields.text, file: newFileName, id: parseFields.id }
             const createResult = await surrealDBChange(db, parseFields.id, updateData)
     

@@ -68,7 +68,7 @@ module.exports = (entry) => {
             if (!parseFields.text) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News text not provided.`)
+                console.error(err + `: Photo text not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -76,7 +76,7 @@ module.exports = (entry) => {
             if (!parseFiles.filename) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News filename not provided.`)
+                console.error(err + `: Photo filename not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -84,7 +84,7 @@ module.exports = (entry) => {
             if (!parseFiles.filename.filepath) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News filename.filepath not provided.`)
+                console.error(err + `: Photo filename.filepath not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -94,7 +94,7 @@ module.exports = (entry) => {
             } catch(e) {
                 const err = `500 Internal Server Error`
     
-                console.error(err + `: News ${parseFiles.filename.filepath} not uploaded.`)
+                console.error(err + `: Photo ${parseFiles.filename.filepath} not uploaded.`)
                 res.status(500).send(err)
                 next && next(err)
                 return
@@ -102,7 +102,7 @@ module.exports = (entry) => {
             if (!parseFiles.filename.originalFilename) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News filename.originalFilename not provided.`)
+                console.error(err + `: Photo filename.originalFilename not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -110,7 +110,7 @@ module.exports = (entry) => {
             if (!parseFields.id) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: News text not provided.`)
+                console.error(err + `: Photo id not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -122,7 +122,7 @@ module.exports = (entry) => {
             if (1 !== oldRecord.length) {
                 const err = `400 Bad Request`
     
-                console.error(err + `: No existing news record found for update.`)
+                console.error(err + `: No existing photo record found for update.`)
                 res.status(400).send(err)
                 next && next(err)
                 return

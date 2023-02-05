@@ -1,8 +1,9 @@
-const {surrealDBChange, surrealDBSelect} = require(`../database/surrealdb`)
+const {surrealDBCreate} = require(`../database/surrealdb`)
 const Registry = require(`../utility/registry`)
 const {jwtValidation} = require(`../utility/jwt-validation`)
 const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
-const {fileMove} = require(`../utility/file-move`)
+const {fileMove: fileMove} = require(`../utility/file-move`)
+const {getNewId} = require(`../utility/new-id`)
 const {formidable} = require('formidable')
 const fs = require('fs')
 const path = require('path');
@@ -14,36 +15,21 @@ module.exports = (entry) => {
 
         const db = Registry.get(`SurrealDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
-        const reply = req.body
-        
+
         if (!db) {
             const err = `503 Service Unavailable`
-            const result = { status: 503, err }
-
-            console.error(err + `: Database not available.`)
-            res.status(result.status).send(JSON.stringify(result))
+            console.error(err + `: Surreal DB`)
+            res.status(503).send(err)
             next && next(err)
             return
         }
-        if (!authorizationHeader) {
-            const err = `401 Unauthorized`
-            const result = { status: 401, err }
-
-            console.error(err + `: Authorization header not sent with request.`)
-            res.status(result.status).send(err)
+        if (!entry?.args?.table) {
+            const err = `503 Service Unavailable`
+            console.error(err + `: Missing entry.args.table.`)
+            res.status(503).send(err)
             next && next(err)
             return
         }
-        if (!reply) {
-            const err = `400 Bad Request`
-            const result = { status: 400, err }
-
-            console.error(err + `: No reply found in request body.`)
-            res.status(result.status).send(err)
-            next && next(err)
-            return
-        }
-
         const jwtValidationResult = await jwtValidation(authorizationHeader)
 
         if (200 !== jwtValidationResult.status) {
@@ -53,6 +39,7 @@ module.exports = (entry) => {
         }
 
         const tempDir = `./src/images/temp`
+        const finalDir = `./src/images`
         const formidableOptions = { uploadDir: tempDir }
         const form = formidable(formidableOptions)
 
@@ -65,26 +52,66 @@ module.exports = (entry) => {
                 next && next(err)
                 return
             }
-            if (!parseFields.text) {
+            if (!parseFields.userName) {
                 const err = `400 Bad Request`
-    
-                console.error(err + `: News text not provided.`)
+
+                console.error(err + `: User userName not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.password) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: User password not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.roles) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: User roles not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.title) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: User title not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.firstName) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: User firstName not provided.`)
+                res.status(400).send(err)
+                next && next(err)
+                return
+            }
+            if (!parseFields.lastName) {
+                const err = `400 Bad Request`
+
+                console.error(err + `: User lastName not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
             }
             if (!parseFiles.filename) {
                 const err = `400 Bad Request`
-    
-                console.error(err + `: News filename not provided.`)
+
+                console.error(err + `: User filename not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
             }
             if (!parseFiles.filename.filepath) {
                 const err = `400 Bad Request`
-    
-                console.error(err + `: News filename.filepath not provided.`)
+
+                console.error(err + `: User filename.filepath not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
@@ -93,59 +120,28 @@ module.exports = (entry) => {
                 fs.existsSync(parseFiles.filename.filepath)
             } catch(e) {
                 const err = `500 Internal Server Error`
-    
-                console.error(err + `: News ${parseFiles.filename.filepath} not uploaded.`)
+
+                console.error(err + `: User ${parseFiles.filename.filepath} not uploaded.`)
                 res.status(500).send(err)
                 next && next(err)
                 return
             }
             if (!parseFiles.filename.originalFilename) {
                 const err = `400 Bad Request`
-    
-                console.error(err + `: News filename.originalFilename not provided.`)
-                res.status(400).send(err)
-                next && next(err)
-                return
-            }
-            if (!parseFields.id) {
-                const err = `400 Bad Request`
-    
-                console.error(err + `: News text not provided.`)
-                res.status(400).send(err)
-                next && next(err)
-                return
-            }
-            if (!parseFields.title) {
-                const err = `400 Bad Request`
-    
-                console.error(err + `: News title not provided.`)
+
+                console.error(err + `: User filename.originalFilename not provided.`)
                 res.status(400).send(err)
                 next && next(err)
                 return
             }
     
-            let oldRecord = await surrealDBSelect(db, parseFields.id)
-            const finalDir = `./src/images`
-    
-            if (1 !== oldRecord.length) {
-                const err = `400 Bad Request`
-    
-                console.error(err + `: No existing news record found for update.`)
-                res.status(400).send(err)
-                next && next(err)
-                return
-            }
-            oldRecord = oldRecord[0]
-            try { if (fs.existsSync(`${finalDir}/${oldRecord.file}`)) { fs.unlinkSync(`${finalDir}/${oldRecord.file}`) } }
-            catch(e) {
-                const err = `500 Internal Server Error`
-    
-                console.error(err + `: Could not delete ${finalDir}/${oldRecord.file}.`)
-                res.status(500).send(err)
-                next && next(err)
-                return
-            }
-    
+            const newId = await getNewId(db, entry.args.table)
+            const newFileExtension = path.extname(parseFiles.filename.originalFilename)
+            const newRecordId = `${entry.args.table}:${newId}`
+            const newFileName = `user${newId}${newFileExtension}`
+            const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
+            const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
+
             const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
     
             if (200 !== jwtReplaceTokenResult.status) {
@@ -154,18 +150,10 @@ module.exports = (entry) => {
                 return
             }
     
-            const fileNumber = parseInt(parseFields.id.split(`:`)[1])
-            const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-            const newFileName = `news${fileNumber}${newFileExtension}`
-            const updateData = { title: parseFields.title, text: parseFields.text, file: newFileName, id: parseFields.id }
-            const createResult = await surrealDBChange(db, parseFields.id, updateData)
-    
-
             fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {
-                let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: updateData }}
-    
+                let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
+
                 res.status(200).send(JSON.stringify(response))
-                next && next()
             })
         })
     }

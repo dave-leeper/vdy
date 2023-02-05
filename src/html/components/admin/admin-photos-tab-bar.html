@@ -58,7 +58,7 @@
             if (!confirm(`Delete this photo?`)) { return }
 
             const photoIndex = this.PhotosDeleteList.vars.photoIndex
-            const id = this.PhotosDeleteList.vars.photoData[photoIndex].id
+            const id = this.PhotosDeleteList.vars.photos[photoIndex].id
             const response = await SIPhotos.remove(id)
 
             if (200 === response.status) {

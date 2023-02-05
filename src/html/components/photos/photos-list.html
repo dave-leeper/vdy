@@ -7,7 +7,7 @@
                 Queue.register(this, Messages.PHOTO_SELECTED, (message) => { this.photoClicked(message.index) })
                 Queue.register(this, Messages.SHOW_TAB, async (message) => {
                     if ((message.tabBar.id === `AdminPhotosTabBar`)
-                    && (message.tab === `Edit` && message.tab !== `Delete`)) { 
+                    && (message.tab === `Edit` || message.tab === `Delete`)) { 
                         this.Element.classList.remove(`display-none`)
                         await this.loadPhotos()
                     }

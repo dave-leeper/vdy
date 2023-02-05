@@ -41,13 +41,15 @@
           async updatePhoto() {
             if (!this.PhotosEditComponent.validatePhoto()) { return }
 
-            const photo = this.PhotosEditComponent.getSelectedPhoto()
-            const response = await SIPhotos.update(photo.file, photo.text, photo.id)
+            const photoId = this.PhotosEditList.getSelectedPhoto().id
+            const photo = this.PhotosEditComponent.getPhoto()
+            const response = await SIPhotos.update(photo.file, photo.text, photoId)
 
             if (200 !== response.status) {
                 showError(`Error updating news. Status code ${response.status}.`)
                 return
             }
+            this.PhotosEditList.loadPhotos()
 
             const content = await response.json()
 

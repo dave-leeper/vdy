@@ -51,6 +51,7 @@
                 showError(`Error updating news. Status code ${response.status}.`)
                 return
             }
+            this.NewsEditList.loadNews()
 
             const content = await response.json()
 

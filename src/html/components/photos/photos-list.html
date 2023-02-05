@@ -44,7 +44,10 @@
                     const imgtext = `./images/`
                     const imgHeight = `300`
                     const imgWidth = `46`
-                    const photoClicked = () => { this.photoClicked(loop) }
+                    const photoClicked = () => { 
+                        this.photoClicked(loop)
+                        Queue.broadcast(Messages.PHOTO_SELECTED, { index: loop, element: wrapperDivElement, component: this })
+                    }
                     const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
 
                     wrapperDivElement.id = `${this.id}PhotoWrapper${loop}`
@@ -88,7 +91,9 @@
                 photoElement.classList.add(`border-solid`)
                 photoElement.classList.add(`border-2`)
             }
-            getSelectedPhoto() { return this.vars.photos[this.vars.photoIndex] }
+            getSelectedPhoto() { 
+                return this.vars.photos[this.vars.photoIndex] 
+            }
             getSelectedPhotoElement() { return this.Element.children[this.vars.photoIndex] }
             photoClicked(index) {
                 const photo = this.vars.photos[index]

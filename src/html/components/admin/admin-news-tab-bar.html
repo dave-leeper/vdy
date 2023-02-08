@@ -37,6 +37,8 @@
 
             const content = await response.json()
 
+            await this.NewsEditList.loadNews()
+            await this.NewsDeleteList.loadNews()
             JavascriptWebToken.storeCredentials(content.jwt)
             showInfo(`News added.`)
           }      
@@ -52,7 +54,8 @@
               else { showError(`Error updating news. Status code ${response.status}.`) }
               return
             }
-            this.NewsEditList.loadNews()
+            await this.NewsEditList.loadNews()
+            await this.NewsDeleteList.loadNews()
 
             const content = await response.json()
 
@@ -71,7 +74,8 @@
                 return
             }
 
-            this.NewsDeleteList.loadNews()
+            await this.NewsEditList.loadNews()
+            await this.NewsDeleteList.loadNews()
             showInfo(`News item deleted.`)
           }
       }

@@ -31,6 +31,8 @@
             if (200 === response.status) {
                 const content = await response.json()
 
+                await this.PhotosEditList.loadNews()
+                await this.PhotosDeleteList.loadNews()
                 JavascriptWebToken.storeCredentials(content.jwt)
                 showInfo(`Photo added.`)
             } else {
@@ -50,7 +52,8 @@
               else { showError(`Error updating photo. Status code ${response.status}.`) }
               return
             }
-            this.PhotosEditList.loadPhotos()
+            await this.PhotosEditList.loadNews()
+            await this.PhotosDeleteList.loadNews()
 
             const content = await response.json()
 
@@ -67,7 +70,8 @@
             if (200 === response.status) {
               const content = await response.json()
 
-              await this.PhotosDeleteList.loadPhotos()
+              await this.PhotosEditList.loadNews()
+              await this.PhotosDeleteList.loadNews()
               JavascriptWebToken.storeCredentials(content.jwt)
               showInfo(`Photo deleted.`)
             } else {

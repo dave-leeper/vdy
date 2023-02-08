@@ -48,8 +48,10 @@
         }
     </style>
     <component-markup>
-        <input id="{id}" class="checkbox" type="checkbox" name="{name}" value="{value}" tabindex="{tabindex}">
-        <label for="{id}" class="checkbox-label" >{label}</label>
+        <div id="{id}Wrapper" class="flex-row">
+            <input id="{id}" class="checkbox" type="checkbox" name="{name}" value="{value}" tabindex="{tabindex}">
+            <label for="{id}" class="checkbox-label" >{label}</label>
+        </div>
     </component-markup>
     <test-script>
     </test-script>

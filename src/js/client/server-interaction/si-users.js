@@ -52,7 +52,7 @@ class SIUsers {
             return { status: 401 }
         }
     }
-    static async update(userName, title, firstName, lastName, password, roles, file, id) {
+    static async update(userName, password, roles, title, firstName, lastName, file, id) {
         const credentials = JavascriptWebToken.getCredentials()
 
         if (!JavascriptWebToken.areCredentialsValid(credentials)) { return { status: 401 }}

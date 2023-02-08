@@ -139,8 +139,8 @@ module.exports = (entry) => {
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
             const newRecordId = `${entry.args.table}:${newId}`
             const newFileName = `user${newId}${newFileExtension}`
-            const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
-            const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
+            const newUserRecord = { userName: parseFields.userName, password: parseFields.password, roles: parseFields.roles, title: parseFields.title, name: { first: parseFields.firstName, last: parseFields.lastName }, image: newFileName }
+            const createResult = await surrealDBCreate(db, newRecordId, newUserRecord)
 
             const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
     

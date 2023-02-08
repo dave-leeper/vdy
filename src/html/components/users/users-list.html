@@ -36,6 +36,7 @@
                     const wrapperDiv = document.createElement(`div`)
                     const userImage = document.createElement(`img`)
                     const usernameDiv = document.createElement(`div`)
+                    const imageURLPrefix = user.image?.startsWith(`http`)? `` : `./images/`
                     const itemClicked = () => { 
                         this.vars.userIndex = loop
                         Queue.broadcast(Messages.USER_SELECTED, { index: loop, element: wrapperDiv, component: this })
@@ -46,11 +47,11 @@
                     wrapperDiv.classList.add(`cursor-pointer`)
                     wrapperDiv.classList.add(`m-3`)
                     wrapperDiv.addEventListener("click", itemClicked)
-                    userImage.src = `./images/${user.file}`
+                    userImage.src = user.image? `${imageURLPrefix}${user.image}` : `${imageURLPrefix}generic-avatar.png`
                     userImage.width = 46
                     usernameDiv.classList.add(`caption-2`)
                     usernameDiv.classList.add(`center-text`)
-                    usernameDiv.innerText = user.username
+                    usernameDiv.innerText = user.userName
                     wrapperDiv.appendChild(userImage)
                     wrapperDiv.appendChild(usernameDiv)
                     this.ListItemWrapperElement.appendChild(wrapperDiv)

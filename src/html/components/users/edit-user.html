@@ -2,54 +2,60 @@
     <script>
         //# sourceURL=html/components/users/edit-user.html
         class EditUser extends Component {
-            setUserItem(user) {
+            setUser(user) {
                 this.FileSelector.Element.value = ``
-                this.Username.vars.value = user.username
+                this.Username.vars.value = user.userName
                 this.Password.vars.value = user.password
                 this.IsAdmin.Element.checked = user.roles.includes(`Admin`)
-                this.FirstName.Element.value = user.firstName
-                this.LastName.Element.value = user.lastName
+                this.FirstName.Element.value = user.name.first
+                this.LastName.Element.value = user.name.last
                 this.Title.Element.value = user.title
             }
             async validateUser() {
                 if (!this.FileSelector.vars.selectedFile) {
-                        showError(`File name is invalid.`)
-                        return false
-                    }
-                    await this.Username.validate()
-                    if (!this.Username.vars.valid) {
-                        showError(`${this.Username.props.name} is invalid.`)
-                        return false
-                    }
-                    await this.Password.validate()
-                    if (!this.Password.vars.valid) {
-                        showError(`${this.Password.props.name} is invalid.`)
-                        return false
-                    }
-                    await this.FirstName.validate()
-                    if (!this.FirstName.vars.valid) {
-                        showError(`${this.FirstName.props.name} is invalid.`)
-                        return false
-                    }
-                    await this.LastName.validate()
-                    if (!this.LastName.vars.valid) {
-                        showError(`${this.LastName.props.name} is invalid.`)
-                        return false
-                    }
-                    await this.Title.validate()
-                    if (!this.Title.vars.valid) {
-                        showError(`${this.Title.props.name} is invalid.`)
-                        return false
-                    }
-                    return true
+                    showError(`File name is invalid.`)
+                    return false
+                }
+                await this.Username.validate()
+                if (!this.Username.vars.valid) {
+                    showError(`${this.Username.props.name} is invalid.`)
+                    return false
+                }
+                await this.Password.validate()
+                if (!this.Password.vars.valid) {
+                    showError(`${this.Password.props.name} is invalid.`)
+                    return false
+                }
+                if (this.Password.Element.value !== this.PasswordAgain.Element.value) {
+                    showError(`${this.Password.props.name} is invalid.`)
+                    return false
+                }
+                await this.FirstName.validate()
+                if (!this.FirstName.vars.valid) {
+                    showError(`${this.FirstName.props.name} is invalid.`)
+                    return false
+                }
+                await this.LastName.validate()
+                if (!this.LastName.vars.valid) {
+                    showError(`${this.LastName.props.name} is invalid.`)
+                    return false
+                }
+                await this.Title.validate()
+                if (!this.Title.vars.valid) {
+                    showError(`${this.Title.props.name} is invalid.`)
+                    return false
+                }
+                return true
             }
             getUser() {
                 const news = {
                     file: this.FileSelector.vars.selectedFile,
-                    username: this.Username.Element.value,
+                    userName: this.Username.Element.value,
                     password: this.Password.Element.value,
-                    firstName: this.FirstName.Element.value,
-                    lastName: this.LastName.Element.value,
+                    name: {
+                        first: this.FirstName.Element.value,
+                        last: this.LastName.Element.value,
+                    },
                     roles: (this.IsAdmin.Element.checked)? [`Admin`] : [],
                     title: this.Title.Element.value,
                 }

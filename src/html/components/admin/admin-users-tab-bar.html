@@ -24,11 +24,13 @@
           }        
           async saveUser() {
             const user = this.UsersAddComponent.getUser()
-            const response = await SIPhotos.add(user.file, user.username, user.password, user.firstName, user.lastName, user.roles, user.title)
+            const response = await SIUsers.add(user.userName, user.password, user.roles, user.title, user.name.first, user.name.last, user.file)
 
             if (200 === response.status) {
                 const content = await response.json()
 
+                await this.UsersEditList.loadUsers()
+                await this.UsersDeleteList.loadUsers()
                 JavascriptWebToken.storeCredentials(content.jwt)
                 showInfo(`User added.`)
             } else {
@@ -36,36 +38,37 @@
                 else { showError(`Error adding user. Status code ${response.status}.`) }
             }
           }          
-          async updatePhoto() {
+          async updateUser() {
             if (!this.UserEditComponent.validateUser()) { return }
 
             const userId = this.UsersEditList.getSelectedUser().id
-            const user = this.UserEditComponent.getPhoto()
-            const response = await SIPhotos.update(user.file, user.username, user.password, user.firstName, user.lastName, user.roles, user.title, userId)
-
+            const user = this.UserEditComponent.getUser()
+            const response = await SIUserss.update(user.userName, user.password, user.roles, user.title, user.name.first, user.name.last, user.file, userId)
             if (200 !== response.status) {
               if (401 === response.status) { window.location.href = `/login` }
               else { showError(`Error updating user. Status code ${response.status}.`)}
               return
             }
-            this.PhotosEditList.loadPhotos()
+            await this.UsersEditList.loadUsers()
+            await this.UsersDeleteList.loadUsers()
 
             const content = await response.json()
 
             JavascriptWebToken.storeCredentials(content.jwt)
             showInfo(`User updated.`)
           }
-          async deletePhoto() {
+          async deleteUser() {
             if (!confirm(`Delete this user?`)) { return }
 
-            const photoIndex = this.PhotosDeleteList.vars.photoIndex
-            const id = this.PhotosDeleteList.vars.photos[photoIndex].id
-            const response = await SIPhotos.remove(id)
+            const userIndex = this.UsersDeleteList.vars.userIndex
+            const id = this.UsersDeleteList.vars.users[userIndex].id
+            const response = await SIUsers.remove(id)
 
             if (200 === response.status) {
               const content = await response.json()
 
-              await this.PhotosDeleteList.loadPhotos()
+              await this.UsersEditList.loadUsers()
+              await this.UsersDeleteList.loadUsers()
               JavascriptWebToken.storeCredentials(content.jwt)
               showInfo(`User deleted.`)
             } else {
@@ -79,13 +82,13 @@
     </style>
     <component-markup>
         <div id="{id}" class="w100 display-none">
-            <div id="{id}Photos" class="w100">
+            <div id="{id}Users" class="w100">
               <div id="{id}UsersAdd" class="w100">
                 <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersAddTabContent">
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Add` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersAddTabContent" for-slot="{id}UsersAddTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/news/edit-user.html" component-class="EditUsers" component-id="{id}UsersAddComponent"></include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/users/edit-user.html" component-class="EditUser" component-id="{id}UsersAddComponent"></include-html>
                 </slot-markup>
               </div>
     
@@ -93,10 +96,10 @@
                 <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersEditTabContent">
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Edit` }</include-props>
                 </include-html>
-                <slot-markup for-component-id="{id}UsersEditTabContent" for-slot="{id}UsersEditTabContent">
-                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersEditList"></include-html>
+                <slot-markup for-component-id="{id}UsersEditTabContent" for-slot="{id}UsersEditTabContentSlot">
+                  <include-html include-in="admin-page.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersEditList"></include-html>
                   <div class="h10px"></div>
-                  <include-html include-in="admin-page.html" src="./html/components/news/edit-user.html" component-class="EditUser" component-id="{id}UsersEditComponent"></include-html>
+                  <include-html include-in="admin-page.html" src="./html/components/users/edit-user.html" component-class="EditUser" component-id="{id}UsersEditComponent"></include-html>
                 </slot-markup>
               </div>
     
@@ -104,8 +107,9 @@
                 <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersDeleteTabContent">
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Delete` }</include-props>
                 </include-html>
-                <slot-markup for-component-id="{id}UsersDeleteTabContent" for-slot="{id}UsersDeleteTabContent">
-                  <include-html include-in="admin-page.html" src="./html/components/news/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList"></include-html>
+                <slot-markup for-component-id="{id}UsersDeleteTabContent" for-slot="{id}UsersDeleteTabContentSlot">
+                  <include-html include-in="admin-page.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList"></include-html>
+                  <div id="{id}UserDeleteButton" class="button w100" onclick="$obj.deleteUser()">Delete</div>
                 </slot-markup>
               </div>
             </div>

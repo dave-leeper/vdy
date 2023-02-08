@@ -14,7 +14,7 @@
                 login.name = user.vars.value
                 login.password = password.vars.value
 
-                const response = SIUsers.login(login.name, login.password)
+                const response = await SIUsers.login(login.name, login.password)
 
                 if (200 !== response.status) { 
                     if (500 >= response.status) { alert(`Login not accepted.`) }

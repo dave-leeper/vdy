@@ -147,8 +147,9 @@
             --special-instructions-text-align: left;
             --special-instructions-white-space: pre-wrap;
             --special-instructions-family: var(--secondary-font-family);
-            --special-instructions-font-size: var(--caption-1-font-size);
-            --special-instructions-font-weight: font-weight: var(--caption-1-font-weight)
+            --special-instructions-font-size: var(--text-1-font-size);
+            --special-instructions-font-weight: font-weight: var(--text-1-font-weight);
+            --special-instructions-pad: 5px;
 
         }
 
@@ -170,6 +171,7 @@
             font-family: var(--special-instructions-font-family);
             font-size: var(--special-instructions-font-size);
             font-weight: var(--special-instructions-font-weight);
+            padding: var(--special-instructions-pad)
         }
     </style>
     <component-markup>
@@ -178,15 +180,15 @@
                 <h2 id="{id}AboutYouTitle" class="header-6">About You</h2>
                 <div id="{id}FirstNameLastNamePhoneNumber" class="flex-row-m-col p-b-10">
                     <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FirstName">
-                        <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1 }</include-props>
+                        <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1, showValidationErrors: false }</include-props>
                         <include-vars class="display-none">{ type: `text` } </include-vars>
                     </include-html>
                     <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}LastName">
-                        <include-props class="display-none">{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, tabindex: 2 }</include-props>
+                        <include-props class="display-none">{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, tabindex: 2, showValidationErrors: false }</include-props>
                         <include-vars class="display-none">{ type: `text` } </include-vars>
                     </include-html>
                     <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}MobileNumber">
-                        <include-props class="display-none">{ name: `MobileNumber`, placeholder: `Mobile Number`, label: `Mobile Number`, labelAboveField: false, required: true, size: 14, minlength: 10, maxlength: 14, tabindex: 3 }</include-props>
+                        <include-props class="display-none">{ name: `MobileNumber`, placeholder: `Mobile Number`, label: `Mobile Number`, labelAboveField: false, required: true, size: 14, minlength: 10, maxlength: 14, tabindex: 3, showValidationErrors: false }</include-props>
                         <include-vars class="display-none">{ type: `tel` } </include-vars>
                     </include-html>
                 </div>

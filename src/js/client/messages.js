@@ -20,6 +20,7 @@ class Messages {
     static HIDE_TAB = `HIDE_TAB`
     static MODAL_OK = `MODAL_OK`
     static MODAL_CANCEL = `MODAL_CANCEL`
+    static OPTION_SELECTED = `OPTION_SELECTED`
     static ON_CLICK = `ON_CLICK`
     static REFRESH = `REFRESH`
     static VALUE_CHANGED = `VALUE_CHANGED`

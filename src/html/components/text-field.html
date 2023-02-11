@@ -12,27 +12,25 @@
             }
             afterMount() { 
                 super.afterMount()
-                this.vars.element = document.getElementById(this.id)
-                this.vars.errorElement = document.getElementById(`${this.id}Error`)
 
-                if (this.props.required) { this.vars.element.setAttribute('required', true) } else { this.vars.element.removeAttribute('required') }
-                if (this.props.readonly) { this.vars.element.setAttribute('readonly', true) } else { this.vars.element.removeAttribute('readonly') }
-                if (this.props.disabled) { this.vars.element.setAttribute('disabled', true) } else { this.vars.element.removeAttribute('disabled') }
-                if (this.props.autofocus) { this.vars.element.setAttribute('autofocus', true) } else { this.vars.element.removeAttribute('autofocus') }
-                if (this.props.autocomplete) { this.vars.element.setAttribute('autocomplete', true) } else { this.vars.element.removeAttribute('autocomplete') }
-                if (this.props.list) { this.vars.element.setAttribute('list', this.props.list) } else { this.vars.element.removeAttribute('list') }
-                if (this.props.min != Number.MAX_VALUE) { this.vars.element.setAttribute(`min`, this.props.min) }
-                if (this.props.max != Number.MIN_VALUE) { this.vars.element.setAttribute(`max`, this.props.max) }
-                if (this.props.labelAboveField) { this.WrapperElement.setAttribute('class', `flex-col`) } else { this.WrapperElement.setAttribute('class', `flex-row`) }
-                if (this.props.isPassword) { this.EyeElement.setAttribute('class', `button`) } else { this.EyeElement.setAttribute('class', `display-none`) }
+                if (this.props.required) { this.Element.setAttribute(`required`, true) } else { this.Element.removeAttribute(`required`) }
+                if (this.props.readonly) { this.Element.setAttribute(`readonly`, true) } else { this.Element.removeAttribute(`readonly`) }
+                if (this.props.disabled) { this.Element.setAttribute(`disabled`, true) } else { this.Element.removeAttribute(`disabled`) }
+                if (this.props.autofocus) { this.Element.setAttribute(`autofocus`, true) } else { this.Element.removeAttribute(`autofocus`) }
+                if (this.props.autocomplete) { this.Element.setAttribute(`autocomplete`, true) } else { this.Element.removeAttribute(`autocomplete`) }
+                if (this.props.list) { this.Element.setAttribute(`list`, this.props.list) } else { this.Element.removeAttribute(`list`) }
+                if (this.props.min != Number.MAX_VALUE) { this.Element.setAttribute(`min`, this.props.min) }
+                if (this.props.max != Number.MIN_VALUE) { this.Element.setAttribute(`max`, this.props.max) }
+                if (this.props.labelAboveField) { this.WrapperElement.setAttribute(`class`, `flex-col`) } else { this.WrapperElement.setAttribute(`class`, `flex-row`) }
+                if (this.props.isPassword) { this.EyeElement.setAttribute(`class`, `button`) } else { this.EyeElement.setAttribute(`class`, `display-none`) }
             }
             async onFocus(event) {
                 this.validate()
                 if (this.props.onFocusCallback) { this.props.onFocusCallback(this) }
             }
             async onBlur(event) { 
-                while (this.vars.errorElement.firstChild) {
-                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild);
+                while (this.ErrorElement.firstChild) {
+                    this.ErrorElement.removeChild(this.ErrorElement.firstChild);
                 }
                 if (this.props.onBlurCallback) { this.props.onBlurCallback(this) }
             }
@@ -42,50 +40,48 @@
             }
             async validate() {
                 this.vars.valid = false
-                while (this.vars.errorElement.firstChild) {
-                    this.vars.errorElement.removeChild(this.vars.errorElement.firstChild)
-                }
+                this.ErrorElement.removeChildren()
                 let testArray = [
                     await test (`Test required`, `Ensure required field has a value.`, [async () => {
                         let results = []
 
                         if (!this.props.required) { return results }
-                        assert(0 < this.vars.element.value?.length,                             `Field '${this.props.label}' is required.`, results, true)
+                        assert(0 < this.Element.value?.length,                             `Field '${this.props.label}' is required.`, results, true)
                         return results
                     }]),                    
                     await test (`Test minlength`, `Ensure field is no shorter than ${this.props.minlength}.`, [async () => {
                         let results = []
 
                         if (!this.props.minlength) { return results }
-                        assert(this.props.minlength <= this.vars.element.value?.length,         `Field '${this.props.label}' has at least ${this.props.minlength} characters.`, results, true)
+                        assert(this.props.minlength <= this.Element.value?.length,         `Field '${this.props.label}' has at least ${this.props.minlength} characters.`, results, true)
                         return results
                     }]),
                     await test (`Test maxlength`, `Ensure field is no longer than ${this.props.maxlength}.`, [async () => {
                         let results = []
 
                         if (!this.props.maxlength) { return results }
-                        assert(this.props.maxlength >= this.vars.element.value?.length,         `Field '${this.props.label}' has no more than ${this.props.maxlength} characters.`, results, true)
+                        assert(this.props.maxlength >= this.Element.value?.length,         `Field '${this.props.label}' has no more than ${this.props.maxlength} characters.`, results, true)
                         return results
                     }]),
                     await test (`Test min`, `Ensure field's value is not less than ${this.props.min}.`, [async () => {
                         let results = []
 
                         if (Number.MAX_VALUE === this.props.min) { return results }
-                        assert(this.props.min <= +this.vars.element.value,                      `Field '${this.props.label}' is not less than ${this.props.min}.`, results, true)
+                        assert(this.props.min <= +this.Element.value,                      `Field '${this.props.label}' is not less than ${this.props.min}.`, results, true)
                         return results
                     }]),
                     await test (`Test max`, `Ensure field's value is not more than ${this.props.max}.`, [async () => {
                         let results = []
 
                         if (Number.MIN_VALUE === this.props.max) { return results }
-                        assert(this.props.max >= +this.vars.element.value,                      `Field '${this.props.label}' is not greater than ${this.props.max}.`, results, true)
+                        assert(this.props.max >= +this.Element.value,                      `Field '${this.props.label}' is not greater than ${this.props.max}.`, results, true)
                         return results
                     }]),
                     await test (`Test pattern`, `Ensure field matches the pattern ${this.props.pattern}.`, [async () => {
                         let results = []
 
                         if (0 === this.props.pattern.length) { return results }
-                        assert(new RegExp(this.props.pattern).test(this.vars.element.value),    `Field '${this.props.label}' matches the pattern ${this.props.pattern}.`, results, true)
+                        assert(new RegExp(this.props.pattern).test(this.Element.value),    `Field '${this.props.label}' matches the pattern ${this.props.pattern}.`, results, true)
                         return results
                     }]),
                     await test (`Test url`, `Ensure field is a valid url.`, [async () => {
@@ -102,7 +98,7 @@
                         }
 
                         if (`url` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidUrl(this.vars.element.value),                             `Field '${this.props.label}' is a valid url.`, results, true)
+                        assert(isValidUrl(this.Element.value),                             `Field '${this.props.label}' is a valid url.`, results, true)
                         return results
                     }]),
                     await test (`Test email`, `Ensure field is a valid email.`, [async () => {
@@ -114,7 +110,7 @@
                         }
 
                         if (`email` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidEmail(this.vars.element.value),                           `Field '${this.props.label}' is a valid email.`, results, true)
+                        assert(isValidEmail(this.Element.value),                           `Field '${this.props.label}' is a valid email.`, results, true)
                         return results
                     }]),
                     await test (`Test phone`, `Ensure field is a valid phone number.`, [async () => {
@@ -126,7 +122,7 @@
                         }
 
                         if (`tel` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidPhone(this.vars.element.value),                           `Field '${this.props.label}' is a valid phone number.`, results, true)
+                        assert(isValidPhone(this.Element.value),                           `Field '${this.props.label}' is a valid phone number.`, results, true)
                         return results
                     }]),
                     await test (`Test number`, `Ensure field is a valid number.`, [async () => {
@@ -138,7 +134,7 @@
                         }
 
                         if (`number` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidNumber(this.vars.element.value),                          `Field '${this.props.label}' is a valid number.`, results, true)
+                        assert(isValidNumber(this.Element.value),                          `Field '${this.props.label}' is a valid number.`, results, true)
                         return results
                     }]),
                     await test (`Test date`, `Ensure field is a valid date.`, [async () => {
@@ -169,7 +165,7 @@
                         }
 
                         if (`date` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidDate(this.vars.element.value),                            `Field '${this.props.label}' is a valid date.`, results, true)
+                        assert(isValidDate(this.Element.value),                            `Field '${this.props.label}' is a valid date.`, results, true)
                         return results
                     }]),
                     await test (`Test time`, `Ensure field is a valid time.`, [async () => {
@@ -181,7 +177,7 @@
                         }
 
                         if (`time` !== this.vars.type.toLowerCase()) { return results }
-                        assert(isValidTime(this.vars.element.value),                            `Field '${this.props.label}' is a valid time.`, results, true)
+                        assert(isValidTime(this.Element.value),                            `Field '${this.props.label}' is a valid time.`, results, true)
                         return results
                     }]),
                 ]
@@ -205,10 +201,10 @@
                             }
                         }
                     )
-                    this.vars.value = this.vars.element.value 
-                    this.vars.element.dispatchEvent(newTextDataEvent)
+                    this.vars.value = this.Element.value 
+                    this.Element.dispatchEvent(newTextDataEvent)
                 }
-                this.showErrors(results)
+                if (this.props.showValidationErrors) { this.showErrors(results) }
             }
             showErrors(suiteResultsTree) {
                 for (const test of suiteResultsTree.nodes) {
@@ -219,7 +215,7 @@
                         errorDiv.innerText = `${mark} ${assertion.description}`
                         if (assertion.passed) { errorDiv.setAttribute(`class`, `caption-2 success`) }
                         else { errorDiv.setAttribute(`class`, `caption-2 error`) }
-                        this.vars.errorElement.appendChild(errorDiv);
+                        this.ErrorElement.appendChild(errorDiv);
                     }
                 }
             }
@@ -251,12 +247,12 @@
                 labelAboveField: false,
                 isPassword: false,
                 tabindex: 0,
+                showValidationErrors: true
             }
             vars = {
                 type: `text`, // date, datetime-local, email, month, number, password, tel, text, time, url, week
                 imageURL: `../images/eye-closed.png`,
                 value: ``,
-                element: null,
                 customValidationTests: [],
                 valid: false
             }
@@ -330,8 +326,8 @@
     <component-markup>
         <div id="{id}Wrapper">
             <label id="{id}Label" for="{name}" class="text-field-label">{label}</label>
-            <div>
-                <div class="flex-row">
+            <div id="{id}InputAndErrorWrapper">
+                <div id="{id}InputWrapper" class="flex-row">
                     <input 
                         id="{id}" 
                         class="text-field"

@@ -76,7 +76,7 @@
     </style>
     <component-markup>
         <div id="{id}" class="flex-col flex-align-center modal t0 l0 r0 b0 w100 h100 display-none">
-            <div class="flex-col flex-align-center modal-content">
+            <div id="{id}ContentWrapper" class="flex-col flex-align-center modal-content">
                 <component-slot id="{id}Slot">DEFAULT CONTENT FOR {id}</component-slot>
                 <div id="{id}Buttons" class="flex-row flex-end">
                     <div id="{id}Cancel" class="button flex-align-self-end" onclick="$obj.onCancel()">{cancelLabel}</div>

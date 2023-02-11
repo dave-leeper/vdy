@@ -84,31 +84,31 @@
         <div id="{id}" class="w100 display-none">
             <div id="{id}Users" class="w100">
               <div id="{id}UsersAdd" class="w100">
-                <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersAddTabContent">
+                <include-html include-in="admin-users-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersAddTabContent">
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Add` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersAddTabContent" for-slot="{id}UsersAddTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/users/edit-user.html" component-class="EditUser" component-id="{id}UsersAddComponent"></include-html>
+                  <include-html include-in="admin-users-tab-bar.html" src="./html/components/users/edit-user.html" component-class="EditUser" component-id="{id}UsersAddComponent"></include-html>
                 </slot-markup>
               </div>
     
               <div id="{id}UsersEdit" class="w100">
-                <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersEditTabContent">
+                <include-html include-in="admin-users-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersEditTabContent">
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Edit` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersEditTabContent" for-slot="{id}UsersEditTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersEditList"></include-html>
-                  <div class="h10px"></div>
-                  <include-html include-in="admin-page.html" src="./html/components/users/edit-user.html" component-class="EditUser" component-id="{id}UsersEditComponent"></include-html>
+                  <include-html include-in="admin-users-tab-bar.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersEditList"></include-html>
+                  <div id="{id}Spacer" class="h10px"></div>
+                  <include-html include-in="admin-users-tab-bar.html" src="./html/components/users/edit-user.html" component-class="EditUser" component-id="{id}UsersEditComponent"></include-html>
                 </slot-markup>
               </div>
     
               <div id="{id}UsersDelete" class="w100">
-                <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersDeleteTabContent">
+                <include-html include-in="admin-users-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersDeleteTabContent">
                   <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Delete` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersDeleteTabContent" for-slot="{id}UsersDeleteTabContentSlot">
-                  <include-html include-in="admin-page.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList"></include-html>
+                  <include-html include-in="admin-users-tab-bar.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList"></include-html>
                   <div id="{id}UserDeleteButton" class="button w100" onclick="$obj.deleteUser()">Delete</div>
                 </slot-markup>
               </div>

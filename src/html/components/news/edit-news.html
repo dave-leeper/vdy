@@ -44,7 +44,7 @@
         <span id="{id}" class="flex-col w100 m-5">
             <include-html include-in="edit-news.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
             <include-html include-in="edit-news.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Title">
-                <include-props>{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, required: true, size: 100, minlength: 2, maxlength: 150, tabIndex: 2 }</include-props>
+                <include-props>{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, required: true, size: 100, minlength: 2, maxlength: 150, tabIndex: 2, showValidationErrors: false }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-news.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">

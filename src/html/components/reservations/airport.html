@@ -104,45 +104,29 @@
     <component-markup>
         <div id="{id}">
             <div>
-                <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
-                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{id}AirlineList`, required: true, minlength: 2, maxlength: 30, tabindex: 101 }</include-props>
+                <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
+                    <include-props class="display-none">{ name: `Airport`, placeholder: `Airport`, label: `Airport`, labelAboveField: false, list: `{id}AirportList`, required: true, minlength: 2, maxlength: 30, tabindex: 101, showValidationErrors: false }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <datalist id="{id}AirlineList">
-                    <option value="Advanced Air"></option>
-                    <option value="Air Canada"></option>
-                    <option value="Alaska Airlines"></option>
-                    <option value="Allegiant"></option>
-                    <option value="American Airlines"></option>
-                    <option value="Breeze Airways"></option>
-                    <option value="British Airways"></option>
-                    <option value="Condor Airlines"></option>
-                    <option value="Contour Airlines"></option>
-                    <option value="Delta Airlines"></option>
-                    <option value="Denver Air Connection"></option>
-                    <option value="Frontier Airlines"></option>
-                    <option value="Hawaiian Airlines"></option>
-                    <option value="JetBlue Airways"></option>
-                    <option value="JSX - Jackson Jet Center"></option>
-                    <option value="Lynx Air"></option>
-                    <option value="Southern Airways Express"></option>
-                    <option value="Southwest Airlines"></option>
-                    <option value="Spirit Airlines"></option>
-                    <option value="Sun Country Airlines"></option>
-                    <option value="United Airlines"></option>
-                    <option value="Volaris"></option>
-                    <option value="WestJet"></option>
+                <datalist id="{id}AirportList">
+                    <option value="Chandler Municipal Airport"></option>
+                    <option value="Dalhart Airport Terminal 4"></option>
+                    <option value="Deer Valley Airport"></option>
+                    <option value="Glendale Municipal Airport"></option>
+                    <option value="Phoenix-Mesa Gateway Airport"></option>
+                    <option value="Scottsdale Airport"></option>
+                    <option value="??? Terminal 3"></option>
                 </datalist>
-                <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
-                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabindex: 102 }</include-props>
+                <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
+                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabindex: 102, showValidationErrors: false }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}ArrivalDate">
-                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 103 }</include-props>
+                <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}ArrivalDate">
+                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 103, showValidationErrors: false }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
-                <include-html include-in="reservations.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EstimatedArrivalTime">
-                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 104 }</include-props>
+                <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EstimatedArrivalTime">
+                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 104, showValidationErrors: false }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

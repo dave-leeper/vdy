@@ -88,7 +88,7 @@ class ComponentLifecycle {
                 
                     node.nodeValue = value.replaceAll(formattedMember, memberData)
                 } catch (e) {
-                    console.warn(`Unable to replace node value containing ${member}. It's replacement value is ${data[member]}.`)
+                    console.warn(`Unable to replace node value containing ${member}. It's replacement value is ${data[member]}. Node id is ${node.id}`)
                 }
             }
         }
@@ -111,7 +111,7 @@ class ComponentLifecycle {
                     
                         attr.value = value.replaceAll(`{${member}}`, memberData)
                     } catch (e) {
-                        console.warn(`Unable to replace attribute containing ${member}. It's replacement value is ${data[member]}.`)
+                        console.warn(`Unable to replace attribute containing ${member}. It's replacement value is ${data[member]}. Node id is ${node.id}`)
                     }
                 }
             }

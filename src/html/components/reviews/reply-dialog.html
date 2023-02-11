@@ -166,11 +166,11 @@
                     <include-props class="display-none">{ editable: false }</include-props>
                     <include-vars class="display-none">{ rating: {reviewRating} }</include-vars>
                 </include-html>
-                <div class="flex-col margin-b-10 cursor-default">
+                <div id="{id}ReviewWrapper" class="flex-col margin-b-10 cursor-default">
                     <h3 id="{id}ReviewTitle" class="subtitle-2">Review</h3>
                     <p id="{id}Review" class="caption-1 whitespace-pre-wrap">{review}</p>
                 </div>
-                <div class="flex-col margin-b-5">
+                <div id="{id}ReplyWrapper" class="flex-col margin-b-5">
                     <h3 id="{id}ReplyTitle" class="subtitle-2">Reply</h3>
                     <textarea id="{id}ReplyText" name="reply" class="reply-text" autofocus onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)">{reply}</textarea>
                 </div>

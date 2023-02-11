@@ -71,30 +71,30 @@
         <span id="{id}" class="flex-col w100 m-5">
             <include-html include-in="edit-user.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Username">
-                <include-props>{ name: `Username`, placeholder: `Username`, label: `Username`, labelAboveField: false, required: true, size: 25, minlength: 2, maxlength: 25, tabIndex: 2 }</include-props>
+                <include-props>{ name: `Username`, placeholder: `Username`, label: `Username`, labelAboveField: false, required: true, size: 25, minlength: 2, maxlength: 25, tabIndex: 2, showValidationErrors: false }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Password">
-                <include-props>{ name: `Password`, label: `Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 3 }</include-props>
+                <include-props>{ name: `Password`, label: `Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 3, showValidationErrors: false }</include-props>
                 <include-vars>{ type: `password` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}PasswordAgain">
-                <include-props>{ name: `ReenterPassword`, label: `Re-enter Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 4 }</include-props>
+                <include-props>{ name: `ReenterPassword`, label: `Re-enter Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 4, showValidationErrors: false }</include-props>
                 <include-vars>{ type: `password` } </include-vars>
             </include-html>
             <include-html include-in="reservations.html" src="./html/components/checkbox.html" component-class="Checkbox" component-id="{id}IsAdmin" checked="false">
                 <include-props class="display-none">{ label: `Is Admin?`, name: `IsAdmin`, tabindex: 5 }</include-props>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FirstName">
-                <include-props>{ name: `FirstName`, label: `First Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 5 }</include-props>
+                <include-props>{ name: `FirstName`, label: `First Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 5, showValidationErrors: false }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}LastName">
-                <include-props>{ name: `LastName`, label: `Last Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 6 }</include-props>
+                <include-props>{ name: `LastName`, label: `Last Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 6, showValidationErrors: false }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Title">
-                <include-props>{ name: `Title`, label: `Title`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 7 }</include-props>
+                <include-props>{ name: `Title`, label: `Title`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 7, showValidationErrors: false }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <div id="{id}ButtonWrapper" class="flex-col w100 m-5">

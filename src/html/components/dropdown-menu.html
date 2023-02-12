@@ -16,13 +16,16 @@
             }
             setMenu() {
                 this.MenuElement.removeChildren()
-                for (let menuItem of this.props.menuItems) {
+                for (let loop = 0; loop < this.props.menuItems.length; loop++) {
+                    const menuItem = this.props.menuItems[loop]
+                    const menuItemId = `${this.id}MenuItem${loop}`
                     const menuItemElement = document.createElement(`span`)
                     const menuItemClicked = () => {
                         Queue.broadcast(menuItem.message, menuItem )
                         this.toggleMenu()
                     }
 
+                    menuItemElement.id = menuItemId
                     menuItemElement.innerText = menuItem.title
                     menuItemElement.classList.add(`dropdown-menu-item`)
                     menuItemElement.addEventListener(`click`, menuItemClicked)

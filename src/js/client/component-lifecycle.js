@@ -390,14 +390,16 @@ class ComponentLifecycle {
                 let getterName = element.id.replace(` `, `_`).replace(componentObject.id, ``)
     
                 getterName += `Element`
-                Object.defineProperty(componentObject, getterName, {
-                    get: function() {
-                        return document.getElementById(element.id)
-                    },
-                    set: function(newValue) {
-                        console.error(`wrapProps: Cannot set ${getterName}.`)
-                    }
-                })
+                if (!componentObject.hasOwnProperty(getterName)) {
+                    Object.defineProperty(componentObject, getterName, {
+                        get: function() {
+                            return document.getElementById(element.id)
+                        },
+                        set: function(newValue) {
+                            console.error(`wrapProps: Cannot set ${getterName}.`)
+                        }
+                    })
+                }
             }
             const addConvenienceMethodsToElement = (element) => {
                 const show = () => { if (element.classList.contains(`display-none`)) { element.classList.remove(`display-none`) }}
@@ -428,14 +430,14 @@ class ComponentLifecycle {
             }
             const copyAttributes = (includeElementSrc, clonedChildDest) => {
                 for (let attributeLoop = 0; attributeLoop < includeElementSrc.attributes.length; attributeLoop++) {
-                    const attribute = includeElementSrc.attributes[attributeLoop]
+                    let attribute = includeElementSrc.attributes[attributeLoop]
                     if (`include-in` === attribute.name) { continue }
                     if (`src` === attribute.name) { continue }
                     if (`component-class` === attribute.name) { continue }
                     if (`component-id` === attribute.name) { continue }
                     if (`repeat` === attribute.name) { continue }
 
-                    const attributeValue = ``
+                    let attributeValue = ``
 
                     if (clonedChildDest.hasAttribute(attribute.name)) { attributeValue = clonedChildDest.getAttribute(attribute.name) }
                     clonedChildDest.setAttribute(attribute.name, attributeValue + attribute.value)

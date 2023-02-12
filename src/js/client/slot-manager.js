@@ -28,14 +28,16 @@ class SlotManager {
                 let getterName = element.id.replace(` `, `_`).replace(componentObject.id, ``)
     
                 getterName += `Element`
-                Object.defineProperty(componentObject, getterName, {
-                    get: function() {
-                        return document.getElementById(element.id)
-                    },
-                    set: function(newValue) {
-                        console.error(`wrapProps: Cannot set ${getterName}.`)
-                    }
-                })
+                if (!componentObject.hasOwnProperty(getterName)) {
+                    Object.defineProperty(componentObject, getterName, {
+                        get: function() {
+                            return document.getElementById(element.id)
+                        },
+                        set: function(newValue) {
+                            console.error(`wrapProps: Cannot set ${getterName}.`)
+                        }
+                    })
+                }
             }
             const addConvenienceMethodsToElement = (element) => {
                 const show = () => { if (element.classList.contains(`display-none`)) { element.classList.remove(`display-none`) }}

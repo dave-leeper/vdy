@@ -34,21 +34,27 @@
                 for (let loop = 0; loop < this.vars.users.length; loop++) {
                     const user = this.vars.users[loop]
                     const wrapperDiv = document.createElement(`div`)
+                    const wrapperId = `${this.id}UserWrapper${loop}`
                     const userImage = document.createElement(`img`)
+                    const userImageId = `${this.id}UserImage${loop}`
                     const usernameDiv = document.createElement(`div`)
+                    const userNameId = `${this.id}UserName${loop}`
                     const imageURLPrefix = user.image?.startsWith(`http`)? `` : `./images/`
                     const itemClicked = () => { 
                         this.vars.userIndex = loop
                         Queue.broadcast(Messages.USER_SELECTED, { index: loop, element: wrapperDiv, component: this })
                     }
                     
+                    wrapperDiv.id = wrapperId
                     wrapperDiv.classList.add(`flex-col`)
                     wrapperDiv.classList.add(`w50px`)
                     wrapperDiv.classList.add(`cursor-pointer`)
                     wrapperDiv.classList.add(`m-3`)
                     wrapperDiv.addEventListener("click", itemClicked)
+                    userImage.id = userImageId
                     userImage.src = user.image? `${imageURLPrefix}${user.image}` : `${imageURLPrefix}generic-avatar.png`
                     userImage.width = 46
+                    usernameDiv.id = userNameId
                     usernameDiv.classList.add(`caption-2`)
                     usernameDiv.classList.add(`center-text`)
                     usernameDiv.innerText = user.userName

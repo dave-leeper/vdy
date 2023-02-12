@@ -87,8 +87,6 @@
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarInfo">
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
-    
-    <div id="IndexPageButton" class="button" onclick="goToIndexPage()">Go To Main Page</div>
 
     <div id="AdminTabBarWrapper" class="w95 border-amber-500 border-b-solid border-2 m-10">
       <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminTabBar">
@@ -134,5 +132,9 @@
         <include-html include-in="admin-page.html" src="./html/components/admin/admin-users-tab-bar.html" component-class="AdminUsersTabBar" component-id="AdminUsersTabBarContent"></include-html>
       </div>
     </div>
+    
+    <include-html include-in="admin-page.html" src="./html/components/action-button.html" component-class="ActionButton" component-id="MainPageActionButton" onclick="goToIndexPage()">
+      <include-vars class="display-none">{ title: `Main Page` }</include-vars>
+    </include-html>
   </body>
 </html>

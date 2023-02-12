@@ -34,20 +34,26 @@
                 for (let loop = 0; loop < this.vars.news.length; loop++) {
                     const news = this.vars.news[loop]
                     const wrapperDiv = document.createElement(`div`)
+                    const wrapperDivId = `${this.id}NewsItemWrapper${loop}`
                     const newsImage = document.createElement(`img`)
+                    const newsImageId = `${this.id}NewsItemImage${loop}`
                     const titleDiv = document.createElement(`div`)
+                    const titleId = `${this.id}NewsItemImage${loop}`
                     const itemClicked = () => { 
                         this.vars.newsIndex = loop
                         Queue.broadcast(Messages.NEWS_SELECTED, { index: loop, element: wrapperDiv, component: this })
                     }
                     
+                    wrapperDiv.id = wrapperDivId
                     wrapperDiv.classList.add(`flex-col`)
                     wrapperDiv.classList.add(`w50px`)
                     wrapperDiv.classList.add(`cursor-pointer`)
                     wrapperDiv.classList.add(`m-3`)
                     wrapperDiv.addEventListener("click", itemClicked)
+                    newsImage.id = newsImageId
                     newsImage.src = `./images/${news.file}`
                     newsImage.width = 46
+                    titleDiv.id = titleId
                     titleDiv.classList.add(`caption-2`)
                     titleDiv.classList.add(`center-text`)
                     titleDiv.innerText = news.title

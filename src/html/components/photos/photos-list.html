@@ -37,6 +37,7 @@
                 for (let loop = 0; loop < this.vars.photos.length; loop++) {
                     const photo = this.vars.photos[loop]
                     const wrapperDivElement = document.createElement(`div`)
+                    const wrapperDivId = `${this.id}PhotoWrapper${loop}`
                     const imgElement = document.createElement(`img`)
                     const imgId = `${this.id}Img${loop}`
                     const imgSrc = `./images/${photo.file}`
@@ -50,7 +51,7 @@
                     }
                     const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
 
-                    wrapperDivElement.id = `${this.id}PhotoWrapper${loop}`
+                    wrapperDivElement.id = wrapperDivId
                     wrapperDivElement.classList.add(`tooltip`)
                     wrapperDivElement.classList.add(`margin-5`)
                     imgElement.id = imgId

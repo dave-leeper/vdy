@@ -5,12 +5,10 @@
             onChildrenMounted() {
                 const testState = async () => {
                     let results = []
-                    const airlines = [`Advanced Air`, `Air Canada`, `Alaska Airlines`, `Allegiant`, `American Airlines`, `Breeze Airways`, `British Airways`, `Condor Airlines`,
-                        `Contour Airlines`, `Delta Airlines`, `Denver Air Connection`, `Frontier Airlines`, `Hawaiian Airlines`, `JetBlue Airways`, 
-                        `JSX - Jackson Jet Center`, `Lynx Air`, `Southern Airways Express`, `Southwest Airlines`, `Spirit Airlines`,
-                        `Sun Country Airlines`, `United Airlines`, `Volaris`, `WestJet`]
-                
-                    assert(airlines.includes(this.Airline.Element.value),                   `Field '${this.Airline.props.label}' is a valid airline.`, results, true)
+                    const airports = [`Chandler Municipal Airport`, `Dalhart Airport Terminal 4`, `Deer Valley Airport`, `Glendale Municipal Airport`,
+                        `Phoenix-Mesa Gateway Airport`, `Scottsdale Airport`, `??? Terminal 3`]
+
+                    assert(airports.includes(this.Airport.Element.value),                   `Field '${this.Airport.props.label}' is a valid airport.`, results, true)
                     return results
                 }
                 const testDate = async () => {
@@ -42,36 +40,36 @@
                     return results
                 }
 
-                this.Airline.vars.customValidationTests.push(testState)
+                this.Airport.vars.customValidationTests.push(testState)
                 this.ArrivalDate.vars.customValidationTests.push(testDate)
                 this.EstimatedArrivalTime.vars.customValidationTests.push(testTime)
                 super.onChildrenMounted()
             }
             clearData() {
-                this.Airline.Element.value = ''
+                this.Airport.Element.value = ''
                 this.FlightNumber.Element.value = ''
                 this.ArrivalDate.Element.value = ''
                 this.EstimatedArrivalTime.Element.value = ''
             }
             setIndexes(firstIndex) {
-                this.Airline.Element.tabIndex = firstIndex
+                this.Airport.Element.tabIndex = firstIndex
                 this.FlightNumber.Element.tabIndex = firstIndex + 1
                 this.ArrivalDate.Element.tabIndex = firstIndex + 2
                 this.EstimatedArrivalTime.Element.tabIndex = firstIndex + 3
             }
             getFieldCount() { return 4 }
             getData() {
-                const airlineObj = this.Airline
+                const airportObj = this.Airport
                 const flightNumberObj = this.FlightNumber
                 const arrivalDateObj = this.ArrivalDate
                 const estimatedArrivalTimeObj = this.EstimatedArrivalTime
 
-                if (!airlineObj || !flightNumberObj || !arrivalDateObj || !estimatedArrivalTimeObj) {
+                if (!airportObj || !flightNumberObj || !arrivalDateObj || !estimatedArrivalTimeObj) {
                     showError(`Error getting airport data.`)
                     return null
                 }
-                if (!airlineObj.vars.valid) {
-                    showError(`${airlineObj.props.name} is invalid.`)
+                if (!airportObj.vars.valid) {
+                    showError(`${airportObj.props.name} is invalid.`)
                     return null
                 }
                 if (!flightNumberObj.vars.valid) {
@@ -87,12 +85,12 @@
                     return null
                 }
 
-                const airline = this.Airline.Element.value
+                const airport = this.Airport.Element.value
                 const flightNumber = this.FlightNumber.Element.value
                 const arrivalDate = this.ArrivalDate.Element.value
                 const estimatedArrivalTime = this.EstimatedArrivalTime.Element.value
 
-                return { airline, flightNumber, arrivalDate, estimatedArrivalTime }
+                return { airport, flightNumber, arrivalDate, estimatedArrivalTime }
             }
             props = {
                 title: ``
@@ -104,7 +102,7 @@
     <component-markup>
         <div id="{id}">
             <div>
-                <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
+                <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airport">
                     <include-props class="display-none">{ name: `Airport`, placeholder: `Airport`, label: `Airport`, labelAboveField: false, list: `{id}AirportList`, required: true, minlength: 2, maxlength: 30, tabindex: 101, showValidationErrors: false }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>

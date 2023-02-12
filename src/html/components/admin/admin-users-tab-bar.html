@@ -85,7 +85,7 @@
             <div id="{id}Users" class="w100">
               <div id="{id}UsersAdd" class="w100">
                 <include-html include-in="admin-users-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersAddTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Add` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Add Users` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersAddTabContent" for-slot="{id}UsersAddTabContentSlot">
                   <include-html include-in="admin-users-tab-bar.html" src="./html/components/users/edit-user.html" component-class="EditUser" component-id="{id}UsersAddComponent"></include-html>
@@ -94,7 +94,7 @@
     
               <div id="{id}UsersEdit" class="w100">
                 <include-html include-in="admin-users-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersEditTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Edit` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Edit Users` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersEditTabContent" for-slot="{id}UsersEditTabContentSlot">
                   <include-html include-in="admin-users-tab-bar.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersEditList"></include-html>
@@ -105,7 +105,7 @@
     
               <div id="{id}UsersDelete" class="w100">
                 <include-html include-in="admin-users-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}UsersDeleteTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Delete` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminUsersTabBar`, tab: `Delete Users` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}UsersDeleteTabContent" for-slot="{id}UsersDeleteTabContentSlot">
                   <include-html include-in="admin-users-tab-bar.html" src="./html/components/users/users-list.html" component-class="UsersList" component-id="{id}UsersDeleteList"></include-html>

@@ -95,13 +95,13 @@
     </div>
 
     <div id="AdminBody" class="flex-row">
-      <div id="AdminTabBars" class="w25">
+      <div id="AdminTabBars" class=" w125px border-amber-500 border-r-solid border-2 m-r-5">
         <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="AdminNewsTab">
           <include-props class="display-none">{ tabBarId: `AdminTabBar`, tab: `News` }</include-props>
         </include-html>
         <slot-markup for-component-id="AdminNewsTab" for-slot="AdminNewsTabSlot">
           <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminNewsTabBar">
-            <include-vars class="display-none">{ tabs: [`Add`, `Edit`, `Delete`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
+            <include-vars class="display-none">{ tabs: [`Add News`, `Edit News`, `Delete News`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
           </include-html>
         </slot-markup>
 
@@ -110,7 +110,7 @@
         </include-html>
         <slot-markup for-component-id="AdminPhotosTab" for-slot="AdminPhotosTabSlot">
           <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminPhotosTabBar">
-            <include-vars class="display-none">{ tabs: [`Add`, `Edit`, `Delete`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
+            <include-vars class="display-none">{ tabs: [`Add Photos`, `Edit Photos`, `Delete Photos`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
           </include-html>
         </slot-markup>
 
@@ -119,7 +119,7 @@
         </include-html>
         <slot-markup for-component-id="AdminUsersTab" for-slot="AdminUsersTabSlot">
           <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminUsersTabBar">
-            <include-vars class="display-none">{ tabs: [`Add`, `Edit`, `Delete`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
+            <include-vars class="display-none">{ tabs: [`Add Users`, `Edit Users`, `Delete Users`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
           </include-html>
         </slot-markup>
       </div>
@@ -132,7 +132,7 @@
         <include-html include-in="admin-page.html" src="./html/components/admin/admin-users-tab-bar.html" component-class="AdminUsersTabBar" component-id="AdminUsersTabBarContent"></include-html>
       </div>
     </div>
-    
+
     <include-html include-in="admin-page.html" src="./html/components/action-button.html" component-class="ActionButton" component-id="MainPageActionButton" onclick="goToIndexPage()">
       <include-vars class="display-none">{ title: `Main Page` }</include-vars>
     </include-html>

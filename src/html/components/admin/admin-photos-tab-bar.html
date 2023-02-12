@@ -88,7 +88,7 @@
             <div id="{id}Photos" class="w100">
               <div id="{id}PhotosAdd" class="w100">
                 <include-html include-in="admin-photos-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}PhotosAddTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Add` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Add Photos` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}PhotosAddTabContent" for-slot="{id}PhotosAddTabContentSlot">
                   <include-html include-in="admin-photos-tab-bar.html" src="./html/components/photos/edit-photos.html" component-class="EditPhotos" component-id="{id}PhotosAddComponent"></include-html>
@@ -97,7 +97,7 @@
     
               <div id="{id}PhotosEdit" class="w100">
                 <include-html include-in="admin-photos-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}PhotosEditTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Edit` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Edit Photos` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}PhotosEditTabContent" for-slot="{id}PhotosEditTabContentSlot">
                   <include-html include-in="admin-photos-tab-bar.html" src="./html/components/photos/photos-list.html" component-class="PhotosList" component-id="{id}PhotosEditList">
@@ -110,7 +110,7 @@
     
               <div id="{id}PhotosDelete" class="w100">
                 <include-html include-in="admin-photos-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}PhotosDeleteTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Delete` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminPhotosTabBar`, tab: `Delete Photos` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}PhotosDeleteTabContent" for-slot="{id}PhotosDeleteTabContentSlot">
                   <include-html include-in="admin-photos-tab-bar.html" src="./html/components/photos/photos-list.html" component-class="PhotosList" component-id="{id}PhotosDeleteList">

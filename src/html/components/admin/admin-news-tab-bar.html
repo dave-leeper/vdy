@@ -87,7 +87,7 @@
             <div id="{id}News" class="w100">
               <div id="{id}NewsAdd" class="w100">
                 <include-html include-in="admin-news-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}NewsAddTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminNewsTabBar`, tab: `Add` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminNewsTabBar`, tab: `Add News` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}NewsAddTabContent" for-slot="{id}NewsAddTabContentSlot">
                   <div id="{id}NewsAddTitle" class="w100 m-b-5 amber-500">Add A News Item</div>
@@ -97,7 +97,7 @@
     
               <div id="{id}NewsEdit" class="w100">
                 <include-html include-in="admin-news-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}NewsEditTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminNewsTabBar`, tab: `Edit` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminNewsTabBar`, tab: `Edit News` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}NewsEditTabContent" for-slot="{id}NewsEditTabContentSlot">
                   <include-html include-in="admin-news-tab-bar.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsEditList"></include-html>
@@ -108,7 +108,7 @@
     
               <div id="{id}NewsDelete" class="w100">
                 <include-html include-in="admin-news-tab-bar.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="{id}NewsDeleteTabContent">
-                  <include-props class="display-none">{ tabBarId: `AdminNewsTabBar`, tab: `Delete` }</include-props>
+                  <include-props class="display-none">{ tabBarId: `AdminNewsTabBar`, tab: `Delete News` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}NewsDeleteTabContent" for-slot="{id}NewsDeleteTabContentSlot">
                   <include-html include-in="admin-news-tab-bar.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsDeleteList"></include-html>

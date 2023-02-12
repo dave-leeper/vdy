@@ -83,19 +83,35 @@
                     this.vars.value = this.Element.value 
                     this.Element.dispatchEvent(newTextDataEvent)
                 }
-                this.showErrors(results)
+                if (showErrors) { this.showErrors(results) }
             }
             showErrors(suiteResultsTree) {
-                for (const test of suiteResultsTree.nodes) {
-                    for (const assertion of test.children) {
-                        let errorDiv = document.createElement(`div`)
-                        let mark = (assertion.passed)? `✓` : `✗`
+                if (`none` === this.props.showValidationErrors.toLowerCase()) { return }
+                else if (`inline` === this.props.showValidationErrors.toLowerCase()) {
+                    for (const test of suiteResultsTree.nodes) {
+                        for (const assertion of test.children) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
 
-                        errorDiv.innerText = `${mark} ${assertion.description}`
-                        if (assertion.passed) { errorDiv.setAttribute(`class`, `caption-2 success`) }
-                        else { errorDiv.setAttribute(`class`, `caption-2 error`) }
-                        this.ErrorElement.appendChild(errorDiv);
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `caption-2 success`) }
+                            else { errorDiv.setAttribute(`class`, `caption-2 error`) }
+                            this.ErrorElement.appendChild(errorDiv)
+                        }
                     }
+                } else if (`snackbar` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (const test of suiteResultsTree.nodes) {
+                        for (const assertion of test.children) {
+                            let errorDiv = document.createElement(`div`)
+                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { showError(error) }
                 }
             }
             props = {
@@ -110,7 +126,8 @@
                 required: false,
                 rows: 5,
                 tabIndex: 1,
-                wrap: `hard`
+                wrap: `hard`,
+                showValidationErrors: `inline`
             }
             vars = {
                 value: ``,

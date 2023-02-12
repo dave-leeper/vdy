@@ -28,7 +28,6 @@
                 const showErrors = `inline` === this.props.showValidationErrors
 
                 this.validate(showErrors)
-                if (this.props.onFocusCallback) { this.props.onFocusCallback(this) }
             }
             async onBlur(event) { 
                 const showErrors = `snackbar` === this.props.showValidationErrors
@@ -36,14 +35,12 @@
                 while (this.ErrorElement.firstChild) {
                     this.ErrorElement.removeChild(this.ErrorElement.firstChild);
                 }
-                if (this.props.onBlurCallback) { this.props.onBlurCallback(this) }
                 this.validate(showErrors)
             }
             async onInput(event) {
                 const showErrors = `inline` === this.props.showValidationErrors
 
                 this.validate(showErrors)
-                if (this.props.onInputCallback) { this.props.onInputCallback(this) }
             }
             async validate(showErrors) {
                 this.vars.valid = false

@@ -14,13 +14,26 @@
                 if (this.props.cols) { this.Element.setAttribute('cols', `${this.props.cols}`) } else { this.Element.setAttribute('cols', `80`) }
                 if (this.props.labelAboveField) { this.WrapperElement.setAttribute('class', `flex-col`) } else { this.WrapperElement.setAttribute('class', `flex-row`) }
             }
-            async onFocus(event) { this.validate() }
-            async onBlur(event) { while (this.ErrorElement.firstChild) { this.ErrorElement.removeChild(this.ErrorElement.firstChild) }}
+            async onFocus(event) { 
+                const showErrors = `inline` === this.props.showValidationErrors
+
+                this.validate(showErrors) 
+            }
+            async onBlur(event) { 
+                const showErrors = `snackbar` === this.props.showValidationErrors
+
+                while (this.ErrorElement.firstChild) { 
+                    this.ErrorElement.removeChild(this.ErrorElement.firstChild) 
+                }
+                this.validate(showErrors)
+            }
             async onInput(event) {
-                this.validate()
+                const showErrors = `inline` === this.props.showValidationErrors
+
+                this.validate(showErrors)
                 this.vars.value = this.Element.value
             }
-            async validate() {
+            async validate(showErrors) {
                 this.vars.valid = false
                 while (this.ErrorElement.firstChild) { this.ErrorElement.removeChild(this.ErrorElement.firstChild) }
                 let testArray = [

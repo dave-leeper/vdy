@@ -49,6 +49,11 @@
           Queue.broadcast(Messages.SITE_LOADED, null)
         })
       }
+      function goToIndexPage() {
+        let params = new URLSearchParams(window.location.search)
+
+        window.location.href = `/index?${params.toString()}`
+      }
 
       function setCSSDefaults() {
         const r = document.querySelector(`:root`)
@@ -74,6 +79,7 @@
     </script>
   </head>
   <body class="margin-5 bg-grey-e">
+
     <include-html include-in="index.html" src="./html/components/snackbar.html" component-class="Snackbar" component-id="SnackbarError">
       <include-props class="display-none">{ isError: true }</include-props>
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
@@ -82,6 +88,8 @@
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
     
+    <div id="IndexPageButton" class="button" onclick="goToIndexPage()">Go To Main Page</div>
+
     <div id="AdminTabBarWrapper" class="w95 border-amber-500 border-b-solid border-2 m-10">
       <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminTabBar">
         <include-vars class="display-none">{ tabs: [`News`, `Photos`, `Users`], activeTab: 0, tabsCentered: false }</include-vars>

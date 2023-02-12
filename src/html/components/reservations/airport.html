@@ -57,7 +57,13 @@
                 this.ArrivalDate.Element.tabIndex = firstIndex + 2
                 this.EstimatedArrivalTime.Element.tabIndex = firstIndex + 3
             }
-            getFieldCount() { return 4 }
+            getFieldCount() { if (this.vars.shortForm) { return 1 } else { return 4 }}
+            setShortForm() {
+                this.vars.shortForm = true
+                this.FlightNumber.WrapperElement.classList.add(`display-none`)
+                this.ArrivalDate.WrapperElement.classList.add(`display-none`)
+                this.EstimatedArrivalTime.WrapperElement.classList.add(`display-none`)
+            }
             getData() {
                 const airportObj = this.Airport
                 const flightNumberObj = this.FlightNumber
@@ -94,6 +100,9 @@
             }
             props = {
                 title: ``
+            }
+            vars = {
+                shortForm: false
             }
         }
     </script>

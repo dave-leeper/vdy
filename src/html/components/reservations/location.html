@@ -13,6 +13,12 @@
                     else if (`Address` === selected?.value) { this.showAddress() }
                 })
             }
+            onDescendantsMounted() {
+                super.onDescendantsMounted()
+                if (`Dropoff` !== this.props.title) { return }
+                this.AirportInfo.setShortForm()
+                this.AddressInfo.setShortForm()
+            }
             isAirportVisible() { return !this.AirportWrapperElement.classList.contains(`display-none`) }
             showAirport() { 
                 if (!this.isAirportVisible()) {  
@@ -63,7 +69,7 @@
     <style>
     </style>
     <component-markup>
-        <div id="{id}" class="reservation-card w45-m-100">
+        <div id="{id}" class="reservation-card w50-m-100">
             <h2 id="{id}Title" class="header-6 margin-l-5 margin-b-5">{title}</h2>
             <div id="{id}SelectWrapper" class="w100px">
                 <include-html include-in="location.html" src="./html/components/select.html" component-class="Select" component-id="{id}LocationSelect">

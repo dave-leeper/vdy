@@ -62,7 +62,12 @@
                 this.Date.Element.tabIndex = firstIndex + 4
                 this.Time.Element.tabIndex = firstIndex + 5
             }
-            getFieldCount() { return 6 }
+            getFieldCount() { if (this.vars.shortForm) { return 4 } else { return 6 }}
+            setShortForm() {
+                this.vars.shortForm = true
+                this.Date.WrapperElement.classList.add(`display-none`)
+                this.Time.WrapperElement.classList.add(`display-none`)
+            }
             getData() {
                 const addressObj = this.Address
                 const address2Obj = this.Address2
@@ -111,6 +116,9 @@
             }
             props = {
                 title: ``
+            }
+            vars = {
+                shortForm: false
             }
         }
     </script>

@@ -4,6 +4,7 @@
         class About extends Component { 
             initialize(id) {
                 super.initialize(id)
+                this.loadText()
                 Queue.register(this, Messages.SHOW_TAB, (message) => {
                     if (message.tabBar.id !== `TabBar`) { return }
                     if (message.tab !== `Home`) {
@@ -13,15 +14,29 @@
                     this.Element.classList.remove(`display-none`)
                 })
             }
+            async loadText () {
+                const response = await SIText.get()
+
+                if (200 === response.status) { 
+                    let textRecords = await response.json()
+                    for (text of textRecords) {
+                        if (`about` === text.for) {
+                            this.vars.text = text.text
+                            break
+                        }
+                    }
+                } else { showError(`Error retrieving text. Status code ${response.status}.`) }
+            }
+            vars = {
+                text: `Vince Drives You is a Luxury SUV Transportation Service serving the Valley of the Sun. Advance reservations are required. I have an on-time pickup guarantee which means if you're not picked up on time you get a $50 discount on that trip, not a future credit. You can't do better anywhere.
+            <br><br>If you are looking for a spacious, clean and comfortable trip then calling me is the only number you need to know. Rates start at $60 and hourly packages are available for your special events. There is never a surge charge, you will know your full fee when your trip is confirmed regardless of how far in advance your service is booked. I now have a Mercedes Sprinter with an 11 passenger capacity also available for larger party pick ups at the airport or for special events.`
+            }
         }
     </script>
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="amber-500 p-5 p-t-10 p-r-10 w45-m-100 caption-1 z1">
-            Vince Drives You is a Luxury SUV Transportation Service serving the Valley of the Sun. Advance reservations are required. I have an on-time pickup guarantee which means if you're not picked up on time you get a $50 discount on that trip, not a future credit. You can't do better anywhere.
-            <br><br>If you are looking for a spacious, clean and comfortable trip then calling me is the only number you need to know. Rates start at $60 and hourly packages are available for your special events. There is never a surge charge, you will know your full fee when your trip is confirmed regardless of how far in advance your service is booked. I now have a Mercedes Sprinter with an 11 passenger capacity also available for larger party pick ups at the airport or for special events.
-        </span>
+        <span id="{id}" class="amber-500 p-5 p-t-10 p-r-10 w45-m-100 caption-1 z1">{text}</span>
     </component-markup>
     <test-script>
     </test-script>

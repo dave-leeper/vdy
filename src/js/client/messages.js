@@ -33,4 +33,5 @@ class Messages {
     static PHOTO_EDITED = `PHOTO_EDITED`
     static USER_SELECTED = `USER_SELECTED`
     static USER_EDITED = `USER_EDITED`
+    static TEXT_EDITED = `TEXT_EDITED`
 }

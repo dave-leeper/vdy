@@ -29,6 +29,7 @@
     <script type="text/javascript" src="./js/client/server-interaction/si-news.js"></script>
     <script type="text/javascript" src="./js/client/server-interaction/si-photos.js"></script>
     <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-text.js"></script>
     <script type="text/javascript" src="./js/client/test.js"></script>
     <script type="text/javascript" src="./js/client/purify.min.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
@@ -90,7 +91,7 @@
 
     <div id="AdminTabBarWrapper" class="w95 border-amber-500 border-b-solid border-2 m-10">
       <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminTabBar">
-        <include-vars class="display-none">{ tabs: [`News`, `Photos`, `Users`], activeTab: 0, tabsCentered: false }</include-vars>
+        <include-vars class="display-none">{ tabs: [`News`, `Photos`, `Users`, `Text`], activeTab: 0, tabsCentered: false }</include-vars>
       </include-html>
     </div>
 
@@ -120,6 +121,15 @@
         <slot-markup for-component-id="AdminUsersTab" for-slot="AdminUsersTabSlot">
           <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminUsersTabBar">
             <include-vars class="display-none">{ tabs: [`Add Users`, `Edit Users`, `Delete Users`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
+          </include-html>
+        </slot-markup>
+
+        <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="AdminTextTab">
+          <include-props class="display-none">{ tabBarId: `AdminTabBar`, tab: `Text` }</include-props>
+        </include-html>
+        <slot-markup for-component-id="AdminTextTab" for-slot="AdminTextTabSlot">
+          <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminTextTabBar">
+            <include-vars class="display-none">{ tabs: [`Front Page`, `Reviews`], activeTab: 0, tabsInRow: false, tabsCentered: false }</include-vars>
           </include-html>
         </slot-markup>
       </div>

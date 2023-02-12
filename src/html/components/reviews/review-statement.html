@@ -14,6 +14,19 @@
                     this.Element.classList.remove(`display-none`)
                 })
             }
+            async loadText () {
+                const response = await SIText.get()
+
+                if (200 === response.status) { 
+                    let textRecords = await response.json()
+                    for (text of textRecords) {
+                        if (`review` === text.for) {
+                            this.vars.text = text.text
+                            break
+                        }
+                    }
+                } else { showError(`Error retrieving text. Status code ${response.status}.`) }
+            }
         }
     </script>
     <style>

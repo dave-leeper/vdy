@@ -1,8 +1,7 @@
-const {surrealDBCreate} = require(`../database/surrealdb`)
+const {surrealDBChange} = require(`../database/surrealdb`)
 const Registry = require(`../utility/registry`)
 const {jwtValidation} = require(`../utility/jwt-validation`)
 const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
-const {getNewId} = require(`../utility/new-id`)
 const {log} = require('../utility/log');
 
 module.exports = (entry) => {
@@ -12,7 +11,6 @@ module.exports = (entry) => {
         const db = Registry.get(`SurrealDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
         let originalRequest = req.body
-        let processedRequest = originalRequest
 
         if (!db) {
             const err = `503 Service Unavailable`
@@ -46,6 +44,8 @@ module.exports = (entry) => {
             return
         }
 
+        let processedRequest = originalRequest
+
         if (entry.args.preprocessor) {
             const {preprocessor} = require(entry.args.preprocessor)
             const preprocessorResult = await preprocessor(originalRequest)
@@ -69,21 +69,7 @@ module.exports = (entry) => {
                 return
             }    
         }
-
-        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-
-        if (200 !== jwtReplaceTokenResult.status) {
-            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-            next && next(jwtReplaceTokenResult.err)
-            return
-        }
-
-        const newId = await getNewId(db, entry.args.table)
-        const newRecordId = `${entry.args.table}:${newId}`
-        
-        await surrealDBCreate(db, newRecordId, processedRequest)
-
-        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` }}
+        await surrealDBChange(db, processedRequest.id, processedRequest)
 
         if (entry.args.postprocessor) {
             const {postprocessor} = require(entry.args.postprocessor)
@@ -96,6 +82,15 @@ module.exports = (entry) => {
             } else {
                 response = postprocessorResult.newResponse
             } 
+        }
+
+        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` }}
+
+        if (200 !== jwtReplaceTokenResult.status) {
+            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+            next && next(jwtReplaceTokenResult.err)
+            return
         }
 
         res.status(200).send(JSON.stringify(response))

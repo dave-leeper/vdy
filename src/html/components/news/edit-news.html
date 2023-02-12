@@ -11,20 +11,20 @@
             }
             async validateNews() {
                 if (!this.FileSelector.vars.selectedFile) {
-                        showError(`File name is invalid.`)
-                        return false
-                    }
-                    await this.Title.validate()
-                    if (!this.Title.vars.valid) {
-                        showError(`${this.Title.props.name} is invalid.`)
-                        return false
-                    }
-                    await this.Text.validate()
-                    if (!this.Text.vars.valid) {
-                        showError(`${this.Text.props.name} is invalid.`)
-                        return false
-                    }
-                    return true
+                    showError(`File name is invalid.`)
+                    return false
+                }
+                await this.Title.validate()
+                if (!this.Title.vars.valid) {
+                    showError(`${this.Title.props.name} is invalid.`)
+                    return false
+                }
+                await this.Text.validate()
+                if (!this.Text.vars.valid) {
+                    showError(`${this.Text.props.name} is invalid.`)
+                    return false
+                }
+                return true
             }
             getNews() {
                 const news = {

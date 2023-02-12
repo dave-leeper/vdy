@@ -43,7 +43,7 @@
 
             const userId = this.UsersEditList.getSelectedUser().id
             const user = this.UserEditComponent.getUser()
-            const response = await SIUserss.update(user.userName, user.password, user.roles, user.title, user.name.first, user.name.last, user.file, userId)
+            const response = await SIUsers.update(user.userName, user.password, user.roles, user.title, user.name.first, user.name.last, user.file, userId)
             if (200 !== response.status) {
               if (401 === response.status) { window.location.href = `/login` }
               else { showError(`Error updating user. Status code ${response.status}.`)}

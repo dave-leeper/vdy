@@ -103,7 +103,7 @@
         <div id="{id}">
             <div>
                 <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airport">
-                    <include-props class="display-none">{ name: `Airport`, placeholder: `Airport`, label: `Airport`, labelAboveField: false, list: `{id}AirportList`, required: true, minlength: 2, maxlength: 30, tabindex: 101, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `Airport`, placeholder: `Airport`, label: `Airport`, labelAboveField: false, list: `{id}AirportList`, required: true, minlength: 2, maxlength: 30, tabindex: 101, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <datalist id="{id}AirportList">
@@ -116,15 +116,15 @@
                     <option value="??? Terminal 3"></option>
                 </datalist>
                 <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
-                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabindex: 102, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabindex: 102, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}ArrivalDate">
-                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 103, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 103, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>
                 </include-html>
                 <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EstimatedArrivalTime">
-                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 104, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 104, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `time` } </include-vars>
                 </include-html>
             </div>

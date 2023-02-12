@@ -54,19 +54,19 @@
         <div id="{id}" class="flex-row">
             <div class="flex-col margin-l-2 w350px">
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableFirstName">
-                    <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, tabindex: 1, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableLastName">
-                    <include-props class="display-none">{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, tabindex: 2, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, tabindex: 2, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableCity">
-                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, tabindex: 3, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, tabindex: 3, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}EditableState">
-                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: 4, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{id}state_list`, required: true, minlength: 2, maxlength: 2, tabindex: 4, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
                 <datalist id="{id}state_list">
@@ -134,7 +134,7 @@
                     <include-props class="display-none">{ imageURL: `{imageURL}` }</include-props>
                 </include-html>
                 <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}AvatarURL">
-                    <include-props class="display-none">{ name: `AvatarURL`, placeholder: `Avatar URL`, label: `Avatar URL`, labelAboveField: false, minlength: 4, maxlength: 2048, tabindex: 5, showValidationErrors: false }</include-props>
+                    <include-props class="display-none">{ name: `AvatarURL`, placeholder: `Avatar URL`, label: `Avatar URL`, labelAboveField: false, minlength: 4, maxlength: 2048, tabindex: 5, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `url` } </include-vars>
                 </include-html>
             </div>

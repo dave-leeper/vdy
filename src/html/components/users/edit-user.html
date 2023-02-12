@@ -16,12 +16,12 @@
                     showError(`File name is invalid.`)
                     return false
                 }
-                await this.Username.validate()
+                await this.Username.validate(false)
                 if (!this.Username.vars.valid) {
                     showError(`${this.Username.props.name} is invalid.`)
                     return false
                 }
-                await this.Password.validate()
+                await this.Password.validate(false)
                 if (!this.Password.vars.valid) {
                     showError(`${this.Password.props.name} is invalid.`)
                     return false
@@ -30,17 +30,17 @@
                     showError(`${this.Password.props.name} is invalid.`)
                     return false
                 }
-                await this.FirstName.validate()
+                await this.FirstName.validate(false)
                 if (!this.FirstName.vars.valid) {
                     showError(`${this.FirstName.props.name} is invalid.`)
                     return false
                 }
-                await this.LastName.validate()
+                await this.LastName.validate(false)
                 if (!this.LastName.vars.valid) {
                     showError(`${this.LastName.props.name} is invalid.`)
                     return false
                 }
-                await this.Title.validate()
+                await this.Title.validate(false)
                 if (!this.Title.vars.valid) {
                     showError(`${this.Title.props.name} is invalid.`)
                     return false
@@ -71,30 +71,30 @@
         <span id="{id}" class="flex-col w100 m-5">
             <include-html include-in="edit-user.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Username">
-                <include-props>{ name: `Username`, placeholder: `Username`, label: `Username`, labelAboveField: false, required: true, size: 25, minlength: 2, maxlength: 25, tabIndex: 2, showValidationErrors: false }</include-props>
+                <include-props>{ name: `Username`, placeholder: `Username`, label: `Username`, labelAboveField: false, required: true, size: 25, minlength: 2, maxlength: 25, tabIndex: 2, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Password">
-                <include-props>{ name: `Password`, label: `Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 3, showValidationErrors: false }</include-props>
+                <include-props>{ name: `Password`, label: `Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 3, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `password` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}PasswordAgain">
-                <include-props>{ name: `ReenterPassword`, label: `Re-enter Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 4, showValidationErrors: false }</include-props>
+                <include-props>{ name: `ReenterPassword`, label: `Re-enter Password`, labelAboveField: false, required: true, size: 20,  minlength: 8, maxlength: 20, tabIndex: 4, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `password` } </include-vars>
             </include-html>
             <include-html include-in="reservations.html" src="./html/components/checkbox.html" component-class="Checkbox" component-id="{id}IsAdmin" checked="false">
                 <include-props class="display-none">{ label: `Is Admin?`, name: `IsAdmin`, tabindex: 5 }</include-props>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FirstName">
-                <include-props>{ name: `FirstName`, label: `First Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 5, showValidationErrors: false }</include-props>
+                <include-props>{ name: `FirstName`, label: `First Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 5, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}LastName">
-                <include-props>{ name: `LastName`, label: `Last Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 6, showValidationErrors: false }</include-props>
+                <include-props>{ name: `LastName`, label: `Last Name`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 6, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Title">
-                <include-props>{ name: `Title`, label: `Title`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 7, showValidationErrors: false }</include-props>
+                <include-props>{ name: `Title`, label: `Title`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 7, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <div id="{id}ButtonWrapper" class="flex-col w100 m-5">

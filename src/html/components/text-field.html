@@ -25,20 +25,27 @@
                 if (this.props.isPassword) { this.EyeElement.setAttribute(`class`, `button`) } else { this.EyeElement.setAttribute(`class`, `display-none`) }
             }
             async onFocus(event) {
-                this.validate()
+                const showErrors = `inline` === this.props.showValidationErrors
+
+                this.validate(showErrors)
                 if (this.props.onFocusCallback) { this.props.onFocusCallback(this) }
             }
             async onBlur(event) { 
+                const showErrors = `snackbar` === this.props.showValidationErrors
+
                 while (this.ErrorElement.firstChild) {
                     this.ErrorElement.removeChild(this.ErrorElement.firstChild);
                 }
                 if (this.props.onBlurCallback) { this.props.onBlurCallback(this) }
+                this.validate(showErrors)
             }
             async onInput(event) {
-                this.validate()
+                const showErrors = `inline` === this.props.showValidationErrors
+
+                this.validate(showErrors)
                 if (this.props.onInputCallback) { this.props.onInputCallback(this) }
             }
-            async validate() {
+            async validate(showErrors) {
                 this.vars.valid = false
                 this.ErrorElement.removeChildren()
                 let testArray = [
@@ -204,19 +211,35 @@
                     this.vars.value = this.Element.value 
                     this.Element.dispatchEvent(newTextDataEvent)
                 }
-                if (this.props.showValidationErrors) { this.showErrors(results) }
+                if (showErrors) { this.showErrors(results) }
             }
             showErrors(suiteResultsTree) {
-                for (const test of suiteResultsTree.nodes) {
-                    for (const assertion of test.children) {
-                        let errorDiv = document.createElement(`div`)
-                        let mark = (assertion.passed)? `✓` : `✗`
+                if (`none` === this.props.showValidationErrors.toLowerCase()) { return }
+                else if (`inline` === this.props.showValidationErrors.toLowerCase()) {
+                    for (const test of suiteResultsTree.nodes) {
+                        for (const assertion of test.children) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
 
-                        errorDiv.innerText = `${mark} ${assertion.description}`
-                        if (assertion.passed) { errorDiv.setAttribute(`class`, `caption-2 success`) }
-                        else { errorDiv.setAttribute(`class`, `caption-2 error`) }
-                        this.ErrorElement.appendChild(errorDiv);
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `caption-2 success`) }
+                            else { errorDiv.setAttribute(`class`, `caption-2 error`) }
+                            this.ErrorElement.appendChild(errorDiv)
+                        }
                     }
+                } else if (`snackbar` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (const test of suiteResultsTree.nodes) {
+                        for (const assertion of test.children) {
+                            let errorDiv = document.createElement(`div`)
+                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { showError(error) }
                 }
             }
             onShowHideClicked() {
@@ -247,7 +270,7 @@
                 labelAboveField: false,
                 isPassword: false,
                 tabindex: 0,
-                showValidationErrors: true
+                showValidationErrors: `inline`
             }
             vars = {
                 type: `text`, // date, datetime-local, email, month, number, password, tel, text, time, url, week

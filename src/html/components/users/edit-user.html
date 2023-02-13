@@ -78,7 +78,7 @@
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="flex-col w100 m-5">
+        <span id="{id}" class="flex-col w100 m5">
             <include-html include-in="edit-user.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
             <include-html include-in="edit-user.html" src="./html/components/img.html" component-class="Img" component-id="{id}Preview"></include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Username">
@@ -108,7 +108,7 @@
                 <include-props>{ name: `Title`, label: `Title`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 7, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
-            <div id="{id}ButtonWrapper" class="flex-col w100 m-5">
+            <div id="{id}ButtonWrapper" class="flex-col w100 m5">
                 <div id="{id}Button" class="button" onclick="$obj.onSubmit()">Submit</div>
             </div>
         </span>

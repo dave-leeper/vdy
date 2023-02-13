@@ -89,14 +89,14 @@
       <include-vars class="display-none">{ text: `Message.` }</include-vars>
     </include-html>
 
-    <div id="AdminTabBarWrapper" class="w95 border-amber-500 border-b-solid border-2 m-10">
+    <div id="AdminTabBarWrapper" class="w95 border-amber-500 border-b-solid border-2 m10">
       <include-html include-in="admin-page.html" src="./html/components/tab-bar.html" component-class="TabBar" component-id="AdminTabBar">
         <include-vars class="display-none">{ tabs: [`News`, `Photos`, `Users`, `Text`], activeTab: 0, tabsCentered: false }</include-vars>
       </include-html>
     </div>
 
     <div id="AdminBody" class="flex-row">
-      <div id="AdminTabBars" class=" w125px border-amber-500 border-r-solid border-2 m-r-5">
+      <div id="AdminTabBars" class=" w125px border-amber-500 border-r-solid border-2 m5-r">
         <include-html include-in="admin-page.html" src="./html/components/tab-content.html" component-class="TabContent" component-id="AdminNewsTab">
           <include-props class="display-none">{ tabBarId: `AdminTabBar`, tab: `News` }</include-props>
         </include-html>

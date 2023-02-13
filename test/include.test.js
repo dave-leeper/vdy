@@ -219,7 +219,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
             props = { prop1: `value1`, prop2: `value2` }
         }
         let testComponent = new TestComponent()
-        let html = `<footer class="center-text caption-1 red-f p-tb-5 margin-tb-5 bg-gray-e border-2 border-solid border-black">My Footer</footer>`
+        let html = `<footer class="center-text caption-1 red-f p5-tb margin-tb-5 bg-gray-e border-2 border-solid border-black">My Footer</footer>`
         let componentFragment = ComponentLifecycle.compile(html)
         let results = []
 
@@ -243,7 +243,7 @@ suite(`Test ComponentLifecycle`, `Ensure ComponentLifecycle is working.`, [
             props = { prop1: `value1`, prop2: `value2` }
         }
         let testComponent = new TestComponent()
-        let html = `<footer class="center-text caption-1 red-f p-tb-5 margin-tb-5 bg-gray-e border-2 border-solid border-black">My Footer</footer>`
+        let html = `<footer class="center-text caption-1 red-f p5-tb m5-tb bg-gray-e border-2 border-solid border-black">My Footer</footer>`
         let componentFragment = ComponentLifecycle.compile(html)
         let results = []
 

@@ -43,14 +43,14 @@
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="flex-col w100 m-5">
+        <span id="{id}" class="flex-col w100 h300px m5">
             <include-html include-in="edit-photos.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
             <include-html include-in="edit-photos.html" src="./html/components/img.html" component-class="Img" component-id="{id}Preview"></include-html>
             <include-html include-in="edit-photos.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">
-                <include-props>{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 400, cols: 35, rows: 12, tabIndex: 3 }</include-props>
+                <include-props>{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 400, cols: 50, rows: 8, tabIndex: 3 }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
-            <div id="{id}ButtonWrapper" class="flex-col w100 m-5">
+            <div id="{id}ButtonWrapper" class="flex-col w100 m5">
                 <div id="{id}Button" class="button" onclick="$obj.onSubmit()">Submit</div>
             </div>
         </span>

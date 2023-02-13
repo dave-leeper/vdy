@@ -90,7 +90,7 @@
                   <include-props class="display-none">{ tabBarId: `AdminNewsTabBar`, tab: `Add News` }</include-props>
                 </include-html>
                 <slot-markup for-component-id="{id}NewsAddTabContent" for-slot="{id}NewsAddTabContentSlot">
-                  <div id="{id}NewsAddTitle" class="w100 m-b-5 amber-500">Add A News Item</div>
+                  <div id="{id}NewsAddTitle" class="w100 m5-b m5-l amber-500">Add A News Item</div>
                   <include-html include-in="admin-news-tab-bar.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}NewsAddComponent"></include-html>
                 </slot-markup>        
               </div>
@@ -101,7 +101,7 @@
                 </include-html>
                 <slot-markup for-component-id="{id}NewsEditTabContent" for-slot="{id}NewsEditTabContentSlot">
                   <include-html include-in="admin-news-tab-bar.html" src="./html/components/news/news-list.html" component-class="NewsList" component-id="{id}NewsEditList"></include-html>
-                  <div id="{id}NewsEditTitle" class="m-t-15 m-b-10 amber-500">Enter The New Information For The News Item</div>
+                  <div id="{id}NewsEditTitle" class="m15-t m10-b amber-500">Enter The New Information For The News Item</div>
                   <include-html include-in="admin-news-tab-bar.html" src="./html/components/news/edit-news.html" component-class="EditNews" component-id="{id}NewsEditComponent"></include-html>
                 </slot-markup>
               </div>

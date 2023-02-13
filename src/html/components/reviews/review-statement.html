@@ -4,6 +4,7 @@
         class ReviewStatement extends Component { 
             initialize(id) {
                 super.initialize(id)
+                this.loadText()
                 Queue.register(this, Messages.SHOW_TAB, (message) => {
                     if (message.tabBar.id !== `TabBar`) { return }
                     if (message.tab !== `Reviews`) { return }
@@ -19,13 +20,16 @@
 
                 if (200 === response.status) { 
                     let textRecords = await response.json()
-                    for (text of textRecords) {
-                        if (`review` === text.for) {
+                    for (const text of textRecords) {
+                        if (`reviews` === text.for) {
                             this.vars.text = text.text
                             break
                         }
                     }
                 } else { showError(`Error retrieving text. Status code ${response.status}.`) }
+            }
+            vars = {
+                text: `These are all genuine reviews from real customers. I can't add to them or edit them. I can only edit my replies, because occasionally I make a mistake.<br><br>We very much enjoy the feedback our customers give us. If you ride with us, feel free to let us know how we did.<br><br>Vince`
             }
         }
     </script>
@@ -57,13 +61,7 @@
                     <include-props class="display-none">{ imageURL: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg` }</include-props>
                 </include-html>
             </div>
-            <div id="{id}Statment" class="text-1 margin-l-10 margin-b-10">
-                These are all genuine reviews from real customers. I can't add to them or edit them. I can only edit my replies, because occasionally I make a mistake.<br>
-                <br>
-                We very much enjoy the feedback our customers give us. If you ride with us, feel free to let us know how we did.<br>
-                <br>
-                Vince
-            </div>
+            <div id="{id}Statment" class="text-1 margin-l-10 margin-b-10 whitespace-pre-wrap">{text}</div>
         </div>
     </component-markup>
     <test-script>

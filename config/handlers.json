@@ -47,6 +47,26 @@
     ],
     "database": [
         {
+            "name": "Get text information.",
+            "verb": "GET",
+            "path": "/text-info",
+            "handler": "db-select.js",
+            "log": "INFO",
+            "args": {
+                "table": "text"
+            }
+        },
+        {
+            "name": "Update text information.",
+            "verb": "POST",
+            "path": "/text-info-update",
+            "handler": "db-update.js",
+            "log": "INFO",
+            "args": {
+                "table": "text"
+            }
+        },
+        {
             "name": "Get user information.",
             "verb": "GET",
             "path": "/user-info",

@@ -12,7 +12,13 @@
                 if (this.props.maxlength) { this.Element.setAttribute('maxlength', this.props.maxlength) } else { this.Element.removeAttribute('maxlength') }
                 if (this.props.required) { this.Element.setAttribute('required', true) } else { this.Element.removeAttribute('required') }
                 if (this.props.cols) { this.Element.setAttribute('cols', `${this.props.cols}`) } else { this.Element.setAttribute('cols', `80`) }
-                if (this.props.labelAboveField) { this.WrapperElement.setAttribute('class', `flex-col`) } else { this.WrapperElement.setAttribute('class', `flex-row`) }
+                if (this.props.labelAboveField) { 
+                    if (this.WrapperElement.classList.contains(`flex-row`)) { this.WrapperElement.classList.remove(`flex-row`) }
+                    this.WrapperElement.classList.add(`flex-col`) 
+                } else { 
+                    if (this.WrapperElement.classList.contains(`flex-col`)) { this.WrapperElement.classList.remove(`flex-col`) }
+                    this.WrapperElement.classList.add(`flex-row`) 
+                }
             }
             async onFocus(event) { 
                 const showErrors = `inline` === this.props.showValidationErrors
@@ -198,10 +204,10 @@
         }
     </style>
     <component-markup>
-        <div id="{id}Wrapper">
-            <label id="{id}Label" for="{name}" class="text-area-label h5-0em">{label}</label>
-            <div id="{id}InputWrapper">
-                <textarea id="{id}" name="{name}" class="text-area h5-0em" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="{tabIndex}">{value}</textarea>
+        <div id="{id}Wrapper" class="w100 h100">
+            <label id="{id}Label" for="{name}" class="text-area-label">{label}</label>
+            <div id="{id}InputWrapper w100 h100">
+                <textarea id="{id}" name="{name}" class="text-area w100 h100" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="{tabIndex}">{value}</textarea>
                 <div id="{id}Error"></div>
             </div>
         </div>

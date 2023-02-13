@@ -23,7 +23,7 @@ module.exports.jwtCreate = async (name) => {
         return { status: 503, err }
     }
 
-    const query = `SELECT * FROM user:${name}`
+    const query = `SELECT * FROM user WHERE userName = '${name}';`
     const queryResult = await db.query(query)
 
     if (0 === queryResult[0].result.length) {

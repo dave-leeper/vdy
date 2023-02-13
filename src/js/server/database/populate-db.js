@@ -19,11 +19,11 @@ module.exports = {
       await surrealDBCreate(db, `text:0`, {
         for: `about`,
         text: `Vince Drives You is a Luxury SUV Transportation Service serving the Valley of the Sun. Advance reservations are required. I have an on-time pickup guarantee which means if you're not picked up on time you get a $50 discount on that trip, not a future credit. You can't do better anywhere.
-        <br><br>If you are looking for a spacious, clean and comfortable trip then calling me is the only number you need to know. Rates start at $60 and hourly packages are available for your special events. There is never a surge charge, you will know your full fee when your trip is confirmed regardless of how far in advance your service is booked. I now have a Mercedes Sprinter with an 11 passenger capacity also available for larger party pick ups at the airport or for special events.`,
+        \n\nIf you are looking for a spacious, clean and comfortable trip then calling me is the only number you need to know. Rates start at $60 and hourly packages are available for your special events. There is never a surge charge, you will know your full fee when your trip is confirmed regardless of how far in advance your service is booked. I now have a Mercedes Sprinter with an 11 passenger capacity also available for larger party pick ups at the airport or for special events.`,
       })
       await surrealDBCreate(db, `text:1`, {
         for: `reviews`,
-        text: `These are all genuine reviews from real customers. I can't add to them or edit them. I can only edit my replies, because occasionally I make a mistake.<br><br>We very much enjoy the feedback our customers give us. If you ride with us, feel free to let us know how we did.<br><br>Vince`,
+        text: `These are all genuine reviews from real customers. I can't add to them or edit them. I can only edit my replies, because occasionally I make a mistake.\n\nWe very much enjoy the feedback our customers give us. If you ride with us, feel free to let us know how we did.\n\nVince`,
       })
 
       await surrealDBDelete(db, `user`)

@@ -15,9 +15,7 @@
                 return true
             }
             getText() {
-                const text = {
-                    text: this.Text.Element.value
-                }
+                const text = this.Text.Element.value
                 
                 return text 
             }
@@ -27,9 +25,9 @@
     <style>
     </style>
     <component-markup>
-        <span id="{id}" class="flex-col w100 m-5">
-            <include-html include-in="edit-news.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">
-                <include-props>{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 2000, cols: 35, rows: 12, tabIndex: 1 }</include-props>
+        <span id="{id}" class="flex-col w100 h300px m-5">
+            <include-html include-in="edit-text.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">
+                <include-props>{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 2000, cols: 100, rows: 20, tabIndex: 1 }</include-props>
                 <include-vars>{ type: `text` } </include-vars>
             </include-html>
             <div id="{id}ButtonWrapper" class="flex-col w100 m-5">

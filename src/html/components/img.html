@@ -1,16 +1,21 @@
 <custom-component>
     <script>
         //# sourceURL=html/components/image.html
-        class Image extends Component { 
+        class Img extends Component { 
             afterMount() {
                 super.afterMount()
-                if (!this.vars.src) { return }
                 if (!this.vars.width && !this.vars.height) { return }
 
                 if (this.vars.lazyLoading) { this.Element.setAtribute(`loading`, `lazy`) }
-                else { this.Element.setAtribute(`loading`, `eager`) }
+                else { this.Element.setAttribute(`loading`, `eager`) }
                 if (this.vars.width) { this.Element.width = this.vars.width }
                 if (this.vars.height) { this.Element.height = this.vars.height }
+
+                if (!this.vars.src) { return }
+                this.Element.src = this.vars.src
+            }
+            setSourceFromFile(file) { 
+                this.vars.src = URL.createObjectURL(file)
                 this.Element.src = this.vars.src
             }
             vars = {
@@ -23,7 +28,7 @@
     </script>
     <style>
     </style>
-    <component-markup>
+    <component-markup>  
         <img id="{id}">
     </component-markup>
     <test-script>

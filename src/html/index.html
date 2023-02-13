@@ -117,7 +117,9 @@
     <slot-markup for-component-id="HomeTab" for-slot="HomeTabSlot">
       <div class="w100 relative-m-static">
         <img src="../images/home.png" class="h100 center-img">
-        <include-html include-in="index.html" src="./html/components/news/news.html" component-class="News" component-id="News"></include-html>
+        <div class="absolute-m-static flex-col flex-center flex-align-center w100 h150px t5px">
+          <include-html include-in="index.html" src="./html/components/news/news.html" component-class="News" component-id="News"></include-html>
+        </div>
       </div>
     </slot-markup>
 

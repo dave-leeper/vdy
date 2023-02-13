@@ -2,6 +2,16 @@
     <script>
         //# sourceURL=html/components/photos/edit-photos.html
         class EditPhotos extends Component {
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.FILE_SELECTED, (message) => {
+                    if (message.component !== this.FileSelector) { return }
+                    
+                    const file = message.component.vars.selectedFile
+
+                    this.Preview.setSourceFromFile(file)
+                })
+            }
             setPhoto(photo) {
                 this.FileSelector.Element.value = ``
                 this.Text.vars.value = photo.text
@@ -35,6 +45,7 @@
     <component-markup>
         <span id="{id}" class="flex-col w100 m-5">
             <include-html include-in="edit-photos.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
+            <include-html include-in="edit-photos.html" src="./html/components/img.html" component-class="Img" component-id="{id}Preview"></include-html>
             <include-html include-in="edit-photos.html" src="./html/components/text-area.html" component-class="TextArea" component-id="{id}Text">
                 <include-props>{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 400, cols: 35, rows: 12, tabIndex: 3 }</include-props>
                 <include-vars>{ type: `text` } </include-vars>

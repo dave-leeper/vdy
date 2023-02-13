@@ -2,6 +2,16 @@
     <script>
         //# sourceURL=html/components/users/edit-user.html
         class EditUser extends Component {
+            initialize(id) {
+                super.initialize(id)
+                Queue.register(this, Messages.FILE_SELECTED, (message) => {
+                    if (message.component !== this.FileSelector) { return }
+                    
+                    const file = message.component.vars.selectedFile
+
+                    this.Preview.setSourceFromFile(file)
+                })
+            }
             setUser(user) {
                 this.FileSelector.Element.value = ``
                 this.Username.vars.value = user.userName
@@ -70,6 +80,7 @@
     <component-markup>
         <span id="{id}" class="flex-col w100 m-5">
             <include-html include-in="edit-user.html" src="./html/components/file-selector.html" component-class="FileSelector" component-id="{id}FileSelector"></include-html>
+            <include-html include-in="edit-user.html" src="./html/components/img.html" component-class="Img" component-id="{id}Preview"></include-html>
             <include-html include-in="edit-user.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Username">
                 <include-props>{ name: `Username`, placeholder: `Username`, label: `Username`, labelAboveField: false, required: true, size: 25, minlength: 2, maxlength: 25, tabIndex: 2, showValidationErrors: `snackbar` }</include-props>
                 <include-vars>{ type: `text` } </include-vars>

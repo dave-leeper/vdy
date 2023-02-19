@@ -146,14 +146,6 @@ module.exports = (entry) => {
                 return
             }
     
-            const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-    
-            if (200 !== jwtReplaceTokenResult.status) {
-                res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-                next && next(jwtReplaceTokenResult.err)
-                return
-            }
-    
             const fileNumber = parseInt(parseFields.id.split(`:`)[1])
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
             const newFileName = `news${fileNumber}${newFileExtension}`
@@ -161,7 +153,15 @@ module.exports = (entry) => {
             const createResult = await surrealDBChange(db, parseFields.id, updateData)
     
 
-            fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {
+            fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, async () => {
+                const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+    
+                if (200 !== jwtReplaceTokenResult.status) {
+                    res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+                    next && next(jwtReplaceTokenResult.err)
+                    return
+                }
+
                 let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: updateData }}
     
                 res.status(200).send(JSON.stringify(response))

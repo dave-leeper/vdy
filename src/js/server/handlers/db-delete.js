@@ -46,6 +46,9 @@ module.exports = (entry) => {
             next && next(jwtValidationResult.err)
             return
         }
+
+        await surrealDBDelete(db, request.id)
+        
         const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
 
         if (200 !== jwtReplaceTokenResult.status) {
@@ -53,8 +56,6 @@ module.exports = (entry) => {
             next && next(jwtReplaceTokenResult.err)
             return
         }
-
-        await surrealDBDelete(db, request.id)
 
         let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` }}
         res.status(200).send(JSON.stringify(response))

@@ -70,20 +70,10 @@ module.exports = (entry) => {
             }    
         }
 
-        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-
-        if (200 !== jwtReplaceTokenResult.status) {
-            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-            next && next(jwtReplaceTokenResult.err)
-            return
-        }
-
         const newId = await getNewId(db, entry.args.table)
         const newRecordId = `${entry.args.table}:${newId}`
         
         await surrealDBCreate(db, newRecordId, processedRequest)
-
-        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` }}
 
         if (entry.args.postprocessor) {
             const {postprocessor} = require(entry.args.postprocessor)
@@ -93,10 +83,17 @@ module.exports = (entry) => {
                 res.status(postprocessorResult.status).send(postprocessorResult.err)
                 next && next(postprocessorResult.err)
                 return
-            } else {
-                response = postprocessorResult.newResponse
-            } 
         }
+
+        const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+
+        if (200 !== jwtReplaceTokenResult.status) {
+            res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+            next && next(jwtReplaceTokenResult.err)
+            return
+        }
+
+        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` }}
 
         res.status(200).send(JSON.stringify(response))
     }

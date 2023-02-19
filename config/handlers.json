@@ -17,6 +17,16 @@
         {
             "name": "Load Index file.",
             "verb": "GET",
+            "path": "/",
+            "handler": "file.js",
+            "log": "INFO",
+            "args": {
+                "file": "./html/index.html"
+            }
+        },
+        {
+            "name": "Load Index file.",
+            "verb": "GET",
             "path": "/index",
             "handler": "file.js",
             "log": "INFO",

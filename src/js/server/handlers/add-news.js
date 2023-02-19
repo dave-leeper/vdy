@@ -109,16 +109,16 @@ module.exports = (entry) => {
             const newFileName = `news${newId}${newFileExtension}`
             const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
             const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
+    
+            fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, async () => {
+                const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+    
+                if (200 !== jwtReplaceTokenResult.status) {
+                    res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+                    next && next(jwtReplaceTokenResult.err)
+                    return
+                }
 
-            const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-    
-            if (200 !== jwtReplaceTokenResult.status) {
-                res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-                next && next(jwtReplaceTokenResult.err)
-                return
-            }
-    
-            fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, () => {
                 let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
 
                 res.status(200).send(JSON.stringify(response))

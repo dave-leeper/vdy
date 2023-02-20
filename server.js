@@ -2,6 +2,12 @@
 // flyctl apps restart vdytesting
 // flyctl launch
 // flyctl deploy
+//
+// flyctl ips list -a vdytesting
+// * Add A and AAAA records for site at DNS provider
+// flyctl certs create -a vdytesting vincedrivesyou.com
+// flyctl certs show -a vdytesting
+// * Connect to https://vincedrivesyou.com
 const express = require("express")
 const HandlerManager = require('./src/js/server/load-handlers')
 const Surreal = require(`surrealdb.js`)

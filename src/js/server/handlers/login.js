@@ -29,9 +29,9 @@ module.exports = (entry) => {
 
         const query = `SELECT * FROM user WHERE userName = '${name}';`
         const queryResult = await db.query(query)
-        const recordsFound = queryResult[0].result.length
+        const recordsFound = queryResult[0]?.result?.length
 
-        if (0 === recordsFound) {
+        if (!recordsFound) {
             const err = `401 Unauthorized`
 
             console.error(err + `: User name "${name}" not found in database.`)

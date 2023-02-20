@@ -47,8 +47,8 @@
     <script>
       // KEYWORDS Airport transportation
       function initializeApp() {
-        // const server = `http://localhost:8080/`
-        const server = `https://vdytesting.fly.dev/`
+        const server = `http://localhost:8080/`
+        // const server = `https://vdytesting.fly.dev/`
         Registry.register(`Server`, server)
         const params = new URLSearchParams(window.location.search)
         const token = params.get(`token`)

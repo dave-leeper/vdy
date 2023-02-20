@@ -39,10 +39,10 @@
             }
           }          
           async updateUser() {
-            if (!this.UserEditComponent.validateUser()) { return }
+            if (!this.UsersEditComponent.validateUser()) { return }
 
             const userId = this.UsersEditList.getSelectedUser().id
-            const user = this.UserEditComponent.getUser()
+            const user = this.UsersEditComponent.getUser()
             const response = await SIUsers.update(user.userName, user.password, user.roles, user.title, user.name.first, user.name.last, user.file, userId)
             if (200 !== response.status) {
               if (401 === response.status) { window.location.href = `/login` }

@@ -7,8 +7,6 @@
                 Queue.register(this, Messages.SITE_LOADED, () => { this.loadNews() })
             }
             async loadNews () {
-                let credentials = JavascriptWebToken.getCredentials()
-
                 const response = await SINews.get()
 
                 if (200 !== response.status) { 

@@ -103,26 +103,36 @@ module.exports = (entry) => {
                 return
             }
     
-            const newId = await getNewId(db, entry.args.table)
-            const newFileExtension = path.extname(parseFiles.filename.originalFilename)
-            const newRecordId = `${entry.args.table}:${newId}`
-            const newFileName = `news${newId}${newFileExtension}`
-            const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
-            const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
+            try {
+                const newId = await getNewId(db, entry.args.table)
+                const newFileExtension = path.extname(parseFiles.filename.originalFilename)
+                const newRecordId = `${entry.args.table}:${newId}`
+                const newFileName = `news${newId}${newFileExtension}`
+                const newPhotoRecord = { title: parseFields.title, text: parseFields.text, file: newFileName }
+                const createResult = await surrealDBCreate(db, newRecordId, newPhotoRecord)
+        
+                fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, async () => {
+                    const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+        
+                    if (200 !== jwtReplaceTokenResult.status) {
+                        res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
+                        next && next(jwtReplaceTokenResult.err)
+                        return
+                    }
     
-            fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, async () => {
-                const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
+                    let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
     
-                if (200 !== jwtReplaceTokenResult.status) {
-                    res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
-                    next && next(jwtReplaceTokenResult.err)
-                    return
-                }
+                    res.status(200).send(JSON.stringify(response))
+                })
+            } catch (e) {
+                const err = `500 Internal Server Error`
+    
+                console.error(err + `: Database operation failed.`)
+                res.status(500).send(err)
+                next && next(err)
+                return
+            }
 
-                let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
-
-                res.status(200).send(JSON.stringify(response))
-            })
         })
     }
 }

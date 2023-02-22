@@ -182,7 +182,7 @@ class Component {
                 child.destroy()
             }
         }
-        if (!window.$components?.objectRegistry?.has(this.id)) { ComponentLifecycle.destroyComponentObject(`${this.id}`) }
+        if (window.$components?.objectRegistry?.has(this.id)) { ComponentLifecycle.destroyComponentObject(`${this.id}`) }
         Queue.broadcast(Messages.COMPONENT_AFTER_DESTRUCTION, this)
     }
     get Parent() {

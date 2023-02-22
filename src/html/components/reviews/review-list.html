@@ -128,10 +128,8 @@
                 return results
             }
             async buildListElements(newDOMElements) {
-                const listRootElement = document.getElementById(this.id)
-
                 for (const element of newDOMElements) {
-                    listRootElement.appendChild(element)
+                    this.Element.appendChild(element)
                     await Loader.loadIncludes()
                 }
             }
@@ -156,6 +154,24 @@
             
                 this.SummaryElement.after(newInclude)
                 await Loader.loadIncludes()
+            }
+            removeReviews() {
+                for (let reviewAndReply of this.vars.reviews) {
+                    const reviewId = `Review${this.getCleanId(reviewAndReply.review.id)}`
+                    const review = Component.getObject(reviewId)
+                    const reviewElement = document.getElementById(reviewId)
+
+                    review?.destroy()
+                    reviewElement?.remove()
+                    if (!reviewAndReply.reply) { continue }
+
+                    const replyId = `Reply${this.getCleanId(reviewAndReply.reply.id)}`
+                    const reply = Component.getObject(replyId)
+                    const replyElement = document.getElementById(replyId)
+
+                    reply?.destroy()
+                    replyElement?.remove()
+                }
             }
             setReviewCountAndAverage() {
                 if (!this.vars.reviews || 0 === this.vars.reviews.length) {

@@ -17,18 +17,15 @@
             }
             async reply() {
                 const reviewObject = this.getReviewObject()
-                let propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
+                const replyDialog = document.getElementById(`ReplyDialog`)
+                const propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
+                const newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
 
-                if (!document.getElementById(`ReplyDialog`)) {
-                    let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
-
-                    this.getReviewElement().appendChild(newInclude)
-                    await Loader.loadIncludes()
-                }
-
-                const replyDialog = Component.getObject(`ReplyDialog`)
-
-                replyDialog.show()
+                if (replyDialog) { replyDialog.remove() }
+                if (Component.isObjectRegistered(`ReplyDialog`)) { Component.getObject(`ReplyDialog`).destroy() }
+                this.getReviewElement().appendChild(newInclude)
+                await Loader.loadIncludes()
+                Component.getObject(`ReplyDialog`).show()
             }
             props = {
                 reviewId: ``,

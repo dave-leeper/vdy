@@ -4,20 +4,20 @@
         class UsefulFunnyCool extends Component {
             afterMount() {
                 super.afterMount()
-                JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) { return }
-                    if (!credentials?.roles) { return }
-                    if (!credentials.roles.includes("Admin")) { return }
+                
+                const credentials = JavascriptWebToken.getCredentials()
 
-                    const replyElement = document.getElementById(this.getReviewComponentObjectId())
-                    const reviewElementId = this.getReviewComponentObjectId()
-                    const reviewObject = Component.getObject(reviewElementId)
+                if (!credentials?.roles) { return }
+                if (!credentials.roles.includes("Admin")) { return }
 
-                    if (!replyElement) { return }
-                    if (reviewObject.hasReply()) { return }
+                const replyElement = document.getElementById(this.getReviewComponentObjectId())
+                const reviewElementId = this.getReviewComponentObjectId()
+                const reviewObject = Component.getObject(reviewElementId)
 
-                    this.ReplyButtonElement.setAttribute(`class`, `ufc-text-button`)
-                })
+                if (!replyElement) { return }
+                if (reviewObject.hasReply()) { return }
+
+                this.ReplyButtonElement.setAttribute(`class`, `ufc-text-button`)
             }
             getReviewComponentObjectId() { return this.id.slice(0, -3) }
             incrimentUseful() { 

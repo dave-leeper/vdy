@@ -4,7 +4,9 @@
         class ReplyDialog extends Component {
             initialize(id) {
                 super.initialize(id)
-
+                this.setDialogContents()
+            }
+            setDialogContents() {
                 const reviewObj = Component.getObject(`Review${this.props.reviewId}`)
 
                 this.vars.reviewImageURL = reviewObj.props.imageURL
@@ -26,85 +28,81 @@
             }
             onBlur(event) { this.updateReply() }
             onInput(event) { this.updateReply() }
-            updateReply() { this.vars.reply = this.ReplyText.value }
+            updateReply() { this.vars.reply = this.ReplyTextElement.value }
             show() { this.Element.setAttribute(`class`, `display-block modal-x`) }
             hide() {
-                this.Element.setAttribute(`class`, `display-none modal-x`)
+                this.Element?.setAttribute(`class`, `display-none modal-x`)
                 this.destroy()
             }
-            save() {
-                JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) {
-                        showError(`Error getting credentials.`)
-                        return
+            async save() {
+                const credentials = JavascriptWebToken.getCredentials()
+
+                if (this.vars.editingExistingReply) {
+                    const replyNumber = this.props.replyId.split(`_`)[1]
+                    const replyText = this.vars.reply.replace(/\n/g, "\\n")
+                    const reply = {
+                        id: `review:${replyNumber}`,
+                        reply: DOMPurify.sanitize(replyText)
                     }
+                    const server = Registry.get(`Server`)
+                    const response = await fetch(`${server}update-reply`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': `'Bearer ${credentials.token}'`
+                        },
+                        body: JSON.stringify(reply)
+                    })
 
-                    if (this.vars.editingExistingReply) {
-                        const replyNumber = this.props.replyId.split(`_`)[1]
-                        const replyText = this.vars.reply.replace(/\n/g, "\\n")
-                        const reply = {
-                            id: `review:${replyNumber}`,
-                            reply: DOMPurify.sanitize(replyText)
-                        }
-                        const server = Registry.get(`Server`)
-                        const response = await fetch(`${server}update-reply`, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'Authorization': `'Bearer ${credentials.token}'`
-                            },
-                            body: JSON.stringify(reply)
-                        })
+                    if (200 === response.status) {
+                        const content = await response.json()
+                        const reviewList = Component.getObject(`ReviewList`)
 
-                        if (200 === response.status) {
-                            const content = await response.json()
-                            const reviewList = Component.getObject(`ReviewList`)
-
-                            reviewList.destroyReviewsAndReplies()
-                            await reviewList.fetchReviews()
-                            JavascriptWebToken.storeCredentials(content.jwt)
-                            showInfo(`Reply updated.`)
-                        } else {
-                            if (401 === response.status) { window.location.href = `/login` }
-                            else { showError(`Error updating reply. Status code ${response.status}.`) }
-                        }
+                        JavascriptWebToken.storeCredentials(content.jwt)
+                        reviewList.removeReviews()
+                        await reviewList.fetchReviews()
+                        showInfo(`Reply updated.`)
                     } else {
-                        const reviewNumber = this.props.reviewId.split(`_`)[1]
-                        const reply = {
-                            replyingTo: reviewNumber,
-                            image: DOMPurify.sanitize(credentials.image),
-                            name: {
-                                first: DOMPurify.sanitize(credentials.name.first),
-                                last: DOMPurify.sanitize(credentials.name.last)
-                            },
-                            title: `Business Owner`,
-                            reply: this.vars.reply
-                        }
-                        const server = Registry.get(`Server`)
-                        const response = await fetch(`$server}add-reply`, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'Authorization': `'Bearer ${credentials.token}'`
-                            },
-                            body: JSON.stringify(reply)
-                        });
-
-                        if (200 === response.status) {
-                            const content = await response.json()
-                            const reviewList = Component.getObject(`ReviewList`)
-
-                            JavascriptWebToken.storeCredentials(content.jwt)
-                            await reviewList.fetchReviews()
-                            showInfo(`Reply added.`)
-                        } else {
-                            if (401 === response.status) { window.location.href = `/login` }
-                            else { showError(`Error adding reply. Status code ${response.status}.`) }
-                        }
+                        if (401 === response.status) { window.location.href = `/login` }
+                        else { showError(`Error updating reply. Status code ${response.status}.`) }
                     }
-                })
+                } else {
+                    const reviewNumber = this.props.reviewId.split(`_`)[1]
+                    const reply = {
+                        replyingTo: reviewNumber,
+                        image: DOMPurify.sanitize(credentials.image),
+                        name: {
+                            first: DOMPurify.sanitize(credentials.name.first),
+                            last: DOMPurify.sanitize(credentials.name.last)
+                        },
+                        title: `Business Owner`,
+                        reply: this.vars.reply
+                    }
+                    const server = Registry.get(`Server`)
+                    const response = await fetch(`${server}add-reply`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': `'Bearer ${credentials.token}'`
+                        },
+                        body: JSON.stringify(reply)
+                    });
+
+                    if (200 === response.status) {
+                        const content = await response.json()
+                        const reviewList = Component.getObject(`ReviewList`)
+
+                        JavascriptWebToken.storeCredentials(content.jwt)
+                        reviewList.removeReviews()
+                        await reviewList.fetchReviews()
+                        showInfo(`Reply added.`)
+                    } else {
+                        if (401 === response.status) { window.location.href = `/login` }
+                        else { showError(`Error adding reply. Status code ${response.status}.`) }
+                    }
+                }
                 this.hide()
             }
             props = {

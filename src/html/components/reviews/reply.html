@@ -4,14 +4,13 @@
         class Reply extends Component {
             afterMount() { 
                 super.afterMount()
-                JavascriptWebToken.getCredentials(async (error, credentials) => {
-                    if (error) { return }
-                    if (!credentials?.roles) { return }
-                    if (!credentials.roles.includes("Admin")) { return }
-                    if (!this.EditButton) { return }
+                const credentials = JavascriptWebToken.getCredentials()
 
-                    this.EditButton.setAttribute(`class`, `text-button`)
-                })
+                if (!credentials?.roles) { return }
+                if (!credentials.roles.includes("Admin")) { return }
+                if (!this.EditButtonElement) { return }
+
+                this.EditButtonElement.setAttribute(`class`, `text-button`)
             }
             getReviewElement() {
                 return document.getElementById(`Review${this.props.reviewId}`)
@@ -24,19 +23,16 @@
             }
             async edit() { 
                 const reviewObject = this.getReviewObject()
+                const replyDialogElement = document.getElementById(`ReplyDialog`)
                 const replyComponentObjectId = `Review${this.props.reviewId}`
-                let propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
+                const propsInnerText = "{ reviewId: `" + this.props.reviewId + "`, replyId: `" + this.props.replyId + "` }"
+                const newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
 
-                if (!document.getElementById(`ReplyDialog`)) {
-                    let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply-dialog.html`, `ReplyDialog`,  `ReplyDialog`, propsInnerText, null)
-
-                    this.getReviewElement().appendChild(newInclude)
-                    await Loader.loadIncludes()
-                }
-
-                const replyDialog = Component.getObject(`ReplyDialog`)
-
-                replyDialog.show()
+                if (replyDialogElement) { replyDialogElement.remove() }
+                if (Component.isObjectRegistered(`ReplyDialog`)) { Component.getObject(`ReplyDialog`).destroy() }
+                this.getReviewElement().appendChild(newInclude)
+                await Loader.loadIncludes()
+                Component.getObject(`ReplyDialog`).show()
             }
             showError(message) {
                 let errorSnackbar = Component.getObject(`SnackbarError`)

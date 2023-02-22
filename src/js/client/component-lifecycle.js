@@ -282,7 +282,7 @@ class ComponentLifecycle {
         }
 
         let componentObject = eval(`new ${componentClass}()`)
-        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
+        let markerId = `-ComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
         let componentFragment =  window.$components.fragmentRegistry.get(componentClass)
 
@@ -545,7 +545,7 @@ class ComponentLifecycle {
 
         let componentObjectInfo = window.$components.objectRegistry.get(componentObjectId)
         let fragment = window.$components.fragmentRegistry.get(componentObjectInfo.componentClass)
-        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
+        let markerId = `-ComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
 
         if (!fragment) { 
@@ -597,7 +597,7 @@ class ComponentLifecycle {
         }
 
         let fragment = window.$components.fragmentRegistry.get(componentObjectInfo.componentClass)
-        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
+        let markerId = `-ComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
         let markup = fragment.querySelector(`component-markup`)
 
@@ -624,7 +624,7 @@ class ComponentLifecycle {
         return true
     }
     static destroyComponentObject(componentObjectId) {
-        let markerId = `-VanillaComponentBeginMarker${componentObjectId}`
+        let markerId = `-ComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
         let component = Component.getObject(componentObjectId)
 

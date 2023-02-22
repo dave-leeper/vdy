@@ -87,42 +87,45 @@
                 for (let loop = 0; loop < data.length; loop++) {
                     let review = data[loop].review
                     let reply = data[loop].reply
-                    let propsInnerText = "{ "
-                    let varsInnerText = (reply)? "{ replyId: `" + reply.id + "` }" : null
+                    let varsObj = (reply)? { replyId: reply.id  } : null
 
                     if (!review.image) { review.image = `./images/generic-avatar.png` }
-                    propsInnerText += "reviewId: `" + this.getCleanId(review.id) + "`, "
-                    propsInnerText += "imageURL: `" + review.image + "`, "
-                    propsInnerText += "firstName: `" + review.name.first + "`, "
-                    propsInnerText += "lastName: `" + review.name.last + "`, "
-                    propsInnerText += "date: `" + review.date + "`, "
-                    propsInnerText += "city: `" + review.city + "`, "
-                    propsInnerText += "state: `" + review.state + "`, "
-                    propsInnerText += "rating: " + review.stars + ", "
-                    propsInnerText += "review: `" + review.review.replace(/\n/g, "\\n") + "`, "
-                    propsInnerText += "usefulCount: " + review.usefulCount + ", "
-                    propsInnerText += "funnyCount: " + review.funnyCount + ", "
-                    propsInnerText += "coolCount: " + review.coolCount + " }"
 
-                    let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsInnerText, varsInnerText)
+                    let propsObj = { 
+                        reviewId: this.getCleanId(review.id),
+                        imageURL: review.image,
+                        firstName: review.name.first,
+                        lastName: review.name.last,
+                        date: review.date,
+                        city: review.city,
+                        state: review.state,
+                        rating: review.stars,
+                        review: review.review.replace(/\n/g, "\\n"),
+                        usefulCount: review.usefulCount,
+                        funnyCount: review.funnyCount,
+                        coolCount: review.coolCount
+                    }
+
+                    let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsObj, varsObj)
 
                     results.push(newInclude)
 
                     if (!reply) { continue }
                     if (!reply.image) { reply.image = `./images/generic-avatar.png` }
 
-                    propsInnerText = `{`
-                    propsInnerText += "reviewId: `" + this.getCleanId(review.id) + "`, "
-                    propsInnerText += "replyId: `" + this.getCleanId(reply.id) + "`, "
-                    propsInnerText += "imageURL: `" + reply.image + "`, "
-                    propsInnerText += "firstName: `" + reply.name.first + "`, "
-                    propsInnerText += "lastName: `" + reply.name.last + "`, "
-                    propsInnerText += "title: `" + reply.title + "`, "
-                    propsInnerText += "date: `" + reply.date + "` }"
+                    propsObj = { 
+                        reviewId: this.getCleanId(review.id),
+                        replyId: this.getCleanId(reply.id),
+                        imageURL: reply.image,
+                        firstName: reply.name.first,
+                        lastName: reply.name.last,
+                        title: reply.title,
+                        date: reply.date
+                    }
 
-                    varsInnerText = reply.reply? "{ reply: `" + reply.reply.replace(/\n/g, "\\n") + "` }" : "{ reply: `` }"
+                    varsObj = reply.reply? { reply: reply.reply.replace(/\n/g, "\\n") } : { reply: `` }
 
-                    newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${this.getCleanId(reply.id)}`, propsInnerText, varsInnerText)
+                    newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/reply.html`, `Reply`,  `Reply${this.getCleanId(reply.id)}`, propsObj, varsObj)
                     results.push(newInclude)
                 }
                 return results
@@ -134,23 +137,23 @@
                 }
             }
             async addNewReview(review) {
-                let propsInnerText = "{ "
-
                 if (!review.image) { review.image = `./images/generic-avatar.png` }
-                propsInnerText += "reviewId: `" + this.getCleanId(review.id) + "`, "
-                propsInnerText += "imageURL: `" + review.image + "`, "
-                propsInnerText += "firstName: `" + review.name.first + "`, "
-                propsInnerText += "lastName: `" + review.name.last + "`, "
-                propsInnerText += "date: `" + review.date + "`, "
-                propsInnerText += "city: `" + review.city + "`, "
-                propsInnerText += "state: `" + review.state + "`, "
-                propsInnerText += "rating: " + review.stars + ", "
-                propsInnerText += "review: `" + review.review.replace(/\n/g, "\\n") + "`, "
-                propsInnerText += "usefulCount: " + review.usefulCount + ", "
-                propsInnerText += "funnyCount: " + review.funnyCount + ", "
-                propsInnerText += "coolCount: " + review.coolCount + " }"
 
-                let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsInnerText, null)
+                let propsObj =  { reviewId:this.getCleanId(review.id),
+                    imageURL: review.image,
+                    firstName: review.name.first,
+                    lastName: review.name.last,
+                    date: review.date,
+                    city: review.city,
+                    state: review.state,
+                    rating: review.stars,
+                    review: review.review.replace(/\n/g, "\\n"),
+                    usefulCount: review.usefulCount,
+                    funnyCount: review.funnyCount,
+                    coolCount: review.coolCoun
+                }
+
+                let newInclude = Component.createComponentInclude(`index.html`, `./html/components/reviews/review.html`, `Review`,  `Review${this.getCleanId(review.id)}`, propsObj, null)
             
                 this.SummaryElement.after(newInclude)
                 await Loader.loadIncludes()

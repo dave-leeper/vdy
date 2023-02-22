@@ -41,7 +41,7 @@
                     const imgElement = document.createElement(`img`)
                     const imgId = `${this.id}Img${loop}`
                     const imgSrc = `./images/${photo.file}`
-                    let varsInnerText = "{ tooltipText: `"+ photo.text + "`}"
+                    let varsObj = { tooltipText: photo.text }
                     const imgtext = `./images/`
                     const imgHeight = `300`
                     const imgWidth = `46`
@@ -49,7 +49,7 @@
                         this.photoClicked(loop)
                         Queue.broadcast(Messages.PHOTO_SELECTED, { index: loop, element: wrapperDivElement, component: this })
                     }
-                    const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsInnerText)
+                    const newInclude = Component.createComponentInclude(`index.html`, `./html/components/tooltip.html`, `Tooltip`,  `${this.id}ToolTip${loop}`, null, varsObj)
 
                     wrapperDivElement.id = wrapperDivId
                     wrapperDivElement.classList.add(`tooltip`)

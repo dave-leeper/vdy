@@ -264,7 +264,7 @@
             "handler": "send-email.js",
             "log": "INFO",
             "args": {
-                "formatter": "./server/utility/format-reservation-request.js"
+                "formatter": "../utility/format-reservation-request.js"
             }
         }
     ]

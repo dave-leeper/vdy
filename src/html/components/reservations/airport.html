@@ -78,23 +78,23 @@
                     showError(`${airportObj.props.name} is invalid.`)
                     return null
                 }
-                if (!flightNumberObj.vars.valid) {
+                if (this.FlightNumber?.Element?.value && !flightNumberObj.vars.valid) {
                     showError(`${flightNumberObj.props.name} is invalid.`)
                     return null
                 }
-                if (!arrivalDateObj.vars.valid) {
+                if (this.ArrivalDate?.Element?.value && !arrivalDateObj.vars.valid) {
                     showError(`${arrivalDateObj.props.name} is invalid.`)
                     return null
                 }
-                if (!estimatedArrivalTimeObj.vars.valid) {
+                if (this.EstimatedArrivalTime?.Element?.value && !estimatedArrivalTimeObj.vars.valid) {
                     showError(`${estimatedArrivalTimeObj.props.name} is invalid.`)
                     return null
                 }
 
                 const airport = this.Airport.Element.value
-                const flightNumber = this.FlightNumber.Element.value
-                const arrivalDate = this.ArrivalDate.Element.value
-                const estimatedArrivalTime = this.EstimatedArrivalTime.Element.value
+                const flightNumber = this.FlightNumber?.Element?.value
+                const arrivalDate = this.ArrivalDate?.Element?.value
+                const estimatedArrivalTime = this.EstimatedArrivalTime?.Element?.value
 
                 return { airport, flightNumber, arrivalDate, estimatedArrivalTime }
             }

@@ -44,13 +44,13 @@ class Component {
         if (props) {
             let newIncludeProps = document.createElement(`include-props`, { })
 
-            newIncludeProps.innerText = props
+            newIncludeProps.innerText = JSON.stringify(props)
             newInclude.appendChild(newIncludeProps)
         }
         if (vars) {
             let newIncludeVars = document.createElement(`include-vars`, { })
 
-            newIncludeVars.innerText = vars
+            newIncludeVars.innerText = JSON.stringify(vars)
             newInclude.appendChild(newIncludeVars)
         }
         return newInclude

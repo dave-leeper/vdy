@@ -43,7 +43,7 @@ module.exports = (entry) => {
                         next && next(error)
                         return
                     } else {
-                        res.status(200).send(`Email sent.`)
+                        res.status(200).send(`Success.`)
                         next && next()
                     }
                 })

@@ -96,12 +96,12 @@
                     showError(`${stateObj.props.name} is invalid.`)
                     return null
                 }
-                if (!dateObj.vars.valid) {
-                    showError(`${dateObj.props.name} is invalid.`)
+                if (this.Date?.Element?.value && !dateObj.vars.valid) {
+                    showError(`${cityObj.props.name} is invalid.`)
                     return null
                 }
-                if (!timeObj.vars.valid) {
-                    showError(`${timeObj.props.name} is invalid.`)
+                if (this.Time?.Element?.value && !timeObj.vars.valid) {
+                    showError(`${stateObj.props.name} is invalid.`)
                     return null
                 }
 
@@ -109,8 +109,8 @@
                 const address2 = this.Address2.Element.value
                 const city = this.City.Element.value
                 const state = this.State.Element.value
-                const date = this.Date.Element.value
-                const time = this.Time.Element.value
+                const date = this.Date?.Element?.value
+                const time = this.Time?.Element?.value
 
                 return { address, address2, city, state, date, time }
             }

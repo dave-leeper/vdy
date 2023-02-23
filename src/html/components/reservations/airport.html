@@ -5,8 +5,8 @@
             onChildrenMounted() {
                 const testState = async () => {
                     let results = []
-                    const airports = [`Chandler Municipal Airport`, `Dalhart Airport Terminal 4`, `Deer Valley Airport`, `Glendale Municipal Airport`,
-                        `Phoenix-Mesa Gateway Airport`, `Scottsdale Airport`, `??? Terminal 3`]
+                    const airports = [`Chandler Municipal Airport`, `Dalhart Terminal 3`, `Dalhart Airport Terminal 4`, `Deer Valley Airport`, `Glendale Municipal Airport`,
+                        `Phoenix-Mesa Gateway Airport`, `Scottsdale Airport`]
 
                     assert(airports.includes(this.Airport.Element.value),                   `Field '${this.Airport.props.label}' is a valid airport.`, results, true)
                     return results
@@ -117,12 +117,12 @@
                 </include-html>
                 <datalist id="{id}AirportList">
                     <option value="Chandler Municipal Airport"></option>
+                    <option value="Dalhart Terminal 3"></option>
                     <option value="Dalhart Airport Terminal 4"></option>
                     <option value="Deer Valley Airport"></option>
                     <option value="Glendale Municipal Airport"></option>
                     <option value="Phoenix-Mesa Gateway Airport"></option>
                     <option value="Scottsdale Airport"></option>
-                    <option value="??? Terminal 3"></option>
                 </datalist>
                 <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
                     <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabindex: 102, showValidationErrors: `snackbar` }</include-props>

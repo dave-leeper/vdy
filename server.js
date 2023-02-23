@@ -41,8 +41,8 @@ const initializeServer = async () => {
     handlerManager.buildHandlers(data, app)
 
     // Setup database connection    
-    const db = new Surreal.default(`http://127.0.0.1:8000/rpc`)
-    // const db = new Surreal.default(`wss://vdydb.fly.dev/rpc`)
+    // const db = new Surreal.default(`http://127.0.0.1:8000/rpc`)
+    const db = new Surreal.default(`wss://vdydb.fly.dev/rpc`)
 
     await surrealDBSignIn(db, `root`, `root`)
     await surrealDBUse(db, `test`, `test`)

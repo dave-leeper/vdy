@@ -70,6 +70,456 @@ module.exports = {
       await surrealDBCreate(db, `news:6`, { title: `Coming soon, book now.`, text: `New Mercedes Sprinter 11 passenger van arriving any day now. It’s time to book your special event. Call (602) 545-8557`, file: `news6.jpg` })
 
       await surrealDBDelete(db, `review`)
+      await surrealDBCreate(db, `review:74`, {
+        name: {
+          first: `Joey`,
+          last: `Windham`
+        },
+        date: `1/25/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Awesome guy was on the money with being on time took me and my daughter our first daddy daughter dance and just made it that much easier for us`
+      })
+      await surrealDBCreate(db, `review:73`, {
+        replyingTo: 74,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `1/26/2022`,
+        title: `Business Owner`,
+        reply: `Glad I was able to help make your night just a little bit easier and I enjoyed our conversation. Thanks and I’ll see you next time.`
+      })
+      await surrealDBCreate(db, `review:72`, {
+        name: {
+          first: `Jenna`,
+          last: `Miller`
+        },
+        date: `9/21/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `I️ stumbled across Vince’s Google listing and couldn’t have been happier with the experience. Our transportation to and from the airport was seamless - he was quick and easy to communicate with and flexible with some flight delays and time changes. I️ was anxious about getting to the airport on time for a super early morning flight (needed to be picked up at 3:30am) and didn’t want to have to rely on being able to find a ride share option at that time of day. He was on time (actually, early!) and his vehicle was always spotless! Thanks Vince!`
+      })
+      await surrealDBCreate(db, `review:71`, {
+        replyingTo: 72,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `9/22/2022`,
+        title: `Business Owner`,
+        reply: `Thanks for the kind words Jenna, it was truly a pleasure working with you and I hope to be able to serve you again somewhere down the road.`
+      })
+      await surrealDBCreate(db, `review:70`, {
+        name: {
+          first: `Jeff`,
+          last: `Zook`
+        },
+        date: `8/14/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Got Vince as a chance encounter and now I only use him wherever I travel to. He’s always early, super clean vehicle, and makes you feel comfortable as a passenger.`
+      })
+      await surrealDBCreate(db, `review:69`, {
+        replyingTo: 70,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `8/15/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Jeff, I always enjoy giving you, your family and friends a ride. Great conversation and a laugh or two.`
+      })
+      await surrealDBCreate(db, `review:68`, {
+        name: {
+          first: `Christine`,
+          last: `Ferrell`
+        },
+        date: `5/29/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Vince is always prompt and friendly! Fantastic Driver for any need. I have used for events and airport drop offs always on time and a spotless ride. Definitely recommend.`
+      })
+      await surrealDBCreate(db, `review:67`, {
+        replyingTo: 68,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `5/30/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Christine, I’ll see you again next time.`
+      })
+      await surrealDBCreate(db, `review:66`, {
+        name: {
+          first: `Joseph`,
+          last: `Early`
+        },
+        date: `3/14/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Using Vince's services provided me with safe, reliable and affordable private transportation. Vince is a spectacular driver, conversationalist, and company. He has a nice, clean and overall cool vehicle. I highly recommend his services, I will be a repeat client. Thanks Vince!`
+      })
+      await surrealDBCreate(db, `review:65`, {
+        replyingTo: 66,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `3/15/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Joseph, it was a pleasure driving you around last night and that cigar was great. You rock!`
+      })
+      await surrealDBCreate(db, `review:64`, {
+        name: {
+          first: `Aaron`,
+          last: `Harding`
+        },
+        date: `12/14/2021`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Vince saved our bacon! We were left stranded by Uber and Vince stepped in on short notice, getting us to the airport with just seconds to spare!!! We are forever grateful and would recommend him to anyone!!! We will be calling him again next time we are in the area!`
+      })
+      await surrealDBCreate(db, `review:63`, {
+        replyingTo: 64,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `12/15/2021`,
+        title: `Business Owner`,
+        reply: `Thanks for the review, glad I was able to get you there on time and I hope you had a pleasant flight home.`
+      })
+      await surrealDBCreate(db, `review:62`, {
+        name: {
+          first: `Victoria`,
+          last: `Griego`
+        },
+        date: `2/6/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Vince is a very polite, professional and safe driver.\\n\\nHe picked me up right on time.\\n\\nHe keeps his vehicle spotless.\\n\\nI will definitely be calling him again.`
+      })
+      await surrealDBCreate(db, `review:61`, {
+        replyingTo: 62,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/7/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Victoria, looking forward to the next trip.`
+      })
+      await surrealDBCreate(db, `review:60`, {
+        name: {
+          first: `Stephanie`,
+          last: `Hafner`
+        },
+        date: `2/11/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Vince is our driver whenever we are in AZ. He is dependable, punctual, and friendly. Vince has become part of our AZ family. His vehicle is always clean on the inside and the outside. Vince checks our flights and knows if we are arriving early or late and he compensates to ensure that he is there waiting outside baggage claim when we arrive. Vince is a great driver, which is super important to me as I am prone to motion sickness in vehicles. If you are in the AZ area and looking for an incredible driver then Vince is your man!`
+      })
+      await surrealDBCreate(db, `review:59`, {
+        replyingTo: 60,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/12/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Stephanie, I always look forward to your visits here. It's a real pleasure driving you and your family around.`
+      })
+      await surrealDBCreate(db, `review:58`, {
+        name: {
+          first: `Brendan`,
+          last: `Gallagher`
+        },
+        date: `1/29/2021`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `I have used Vince's services quite a few times and am always very pleased.  Exceptional service, always punctual and a very pleasant gentleman as well. I will continue to use Vince   Drives You anytime I need a ride and highly recommend his services. Thanks Vince!`
+      })
+      await surrealDBCreate(db, `review:57`, {
+        replyingTo: 58,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `1/30/2021`,
+        title: `Business Owner`,
+        reply: `Thanks Brendan, I see you didn’t say how much I paid you for that review. Just kidding, always appreciate your business.`
+      })
+      await surrealDBCreate(db, `review:56`, {
+        name: {
+          first: `Daryll`,
+          last: `Hindman`
+        },
+        date: `3/3/2021`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `I called Vince Drives you, and was pleasantly surprised when Vince was my actual driver that picked me up. He's professional, courteous, covid conscious, the vehicle was roomy and clean. I highly recommend Vince as my go-to driver Everytime I fly in to Phoenix, which is usually 3 times a month.`
+      })
+      await surrealDBCreate(db, `review:55`, {
+        replyingTo: 56,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `3/4/2021`,
+        title: `Business Owner`,
+        reply: `Thanks Daryll, I look forward to being of service the next time you’re in Phoenix.`
+      })
+      await surrealDBCreate(db, `review:54`, {
+        name: {
+          first: `Donna`,
+          last: `Fiore`
+        },
+        date: `1/28/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Vince is second to none when it comes to professionalism! His luxurious vehical is Impecable and smells amazing. Our hour and a half drive together was pleasant and warm.\\nVince Your 10 STARS  ********** in my Book.\\nThank you for the drive!`
+      })
+      await surrealDBCreate(db, `review:53`, {
+        replyingTo: 54,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `1/29/2022`,
+        title: `Business Owner`,
+        reply: `Wow, 10 stars. Thank you so much. Hope to be able to be of service to you again in the future.`
+      })
+      await surrealDBCreate(db, `review:52`, {
+        name: {
+          first: `Keith`,
+          last: `V`
+        },
+        date: `2/2/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `I dont usual Lyft to airport but Vince was our ride from house.  So glad he gave me his card.  We will use Vince again and again in the future.  Thanks Vince.  Great Ride`
+      })
+      await surrealDBCreate(db, `review:51`, {
+        replyingTo: 52,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/3/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Keith, glad you enjoyed the service. See you next time.`
+      })
+      await surrealDBCreate(db, `review:50`, {
+        name: {
+          first: `RICHARD E`,
+          last: `VOIGHT JR`
+        },
+        date: `2/26/2021`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `I used Vince's service a few times now. Very high class & roomy vehicle, Vince was prompt & on time, reasonable rates, would highly recommend, Thank you for your service,  Rich`
+      })
+      await surrealDBCreate(db, `review:49`, {
+        replyingTo: 50,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/27/2021`,
+        title: `Business Owner`,
+        reply: `Thanks Rich, I look forward to working with you again soon.`
+      })
+      await surrealDBCreate(db, `review:48`, {
+        name: {
+          first: `Britney`,
+          last: `Barragan`
+        },
+        date: `10/14/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `This gentleman has class. Will definitely be returning clients!`
+      })
+      await surrealDBCreate(db, `review:47`, {
+        replyingTo: 48,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `10/15/2022`,
+        title: `Business Owner`,
+        reply: `Much appreciated, looking forward to the next time.`
+      })
+      await surrealDBCreate(db, `review:46`, {
+        name: {
+          first: `Kevin`,
+          last: `Cooney`
+        },
+        date: `2/14/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Vince is an absolute professional and one of his best attributes is his timeliness. I would highly suggest Vince to anyone in the Phoenix area.`
+      })
+      await surrealDBCreate(db, `review:45`, {
+        replyingTo: 46,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/14/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Kevin, I’ll try and be late next time. Just kidding, see you in a few weeks.`
+      })
+      await surrealDBCreate(db, `review:44`, {
+        name: {
+          first: `Nick`,
+          last: `Seevers`
+        },
+        date: `2/02/2022`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Absolutely great ride. One of the cleanest vehicles I’ve been in for a car service. Shows up on time, extremely knowledgeable and professional.`
+      })
+      await surrealDBCreate(db, `review:43`, {
+        replyingTo: 44,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/03/2022`,
+        title: `Business Owner`,
+        reply: `Thanks Nick, I’ll see you for Spring Training again next year.`
+      })
+      await surrealDBCreate(db, `review:42`, {
+        name: {
+          first: `Dru`,
+          last: `Mundorff`
+        },
+        date: `1/12/2021`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `On time and Vehicle clean! Best service in town!`
+      })
+      await surrealDBCreate(db, `review:41`, {
+        replyingTo: 42,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `1/13/2021`,
+        title: `Business Owner`,
+        reply: `Thanks for the compliment, I’ll see you next time.`
+      })
+      await surrealDBCreate(db, `review:40`, {
+        name: {
+          first: `Rita`,
+          last: `Scheiring`
+        },
+        date: `2/9/2021`,
+        city: ``,
+        state: ``,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `5 stars!`
+      })
+      await surrealDBCreate(db, `review:39`, {
+        replyingTo: 40,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/10/2021`,
+        title: `Business Owner`,
+        reply: `Thanks for the rating, it’s greatly appreciated.`
+      })
       await surrealDBCreate(db, `review:38`, {
         name: {
           first: `Bri`,

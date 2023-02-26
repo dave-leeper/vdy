@@ -1,8 +1,11 @@
 class Loader {
     static includeTree = new Tree()
+    static includeCache = new Map()
     static get tree() { return Loader.includeTree }
+    static get cache() { return Loader.includeCache }
     
     static loadFile = async (filename) => {
+        if (Loader.cache.has(filename)) { return Loader.cache.get(filename) }
         let response = await fetch(filename)
     
         if (!response.ok) {
@@ -14,6 +17,7 @@ class Loader {
     
         let text = await response.text()
 
+        Loader.cache.set(filename, text)
         return text
     }
     static updateIncludeTree = (parentName, childName) => {

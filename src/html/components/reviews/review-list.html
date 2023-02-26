@@ -234,13 +234,13 @@
                 <div id="{id}LoadingText">Loading reviews...</div>
                 <include-html include-in="review-list.html" src="./html/components/loading.html" component-class="Loading" component-id="{id}Loading"></include-html>
             </div>
-            <div id="{id}Summary" class="flex-row flex-space-between flex-center flex-align-baseline w33">
+            <div id="{id}Summary" class="flex-col flex-space-between flex-center flex-align-baseline w33 m5-l">
                 <div id="{id}SummaryReviewCount">{reviewCount} Reviews</div>
                 <include-html include-in="review.html" src="./html/components/reviews/stars.html" component-class="Stars" component-id="{id}Stars">
                     <include-props class="display-none">{ editable: false }</include-props>
                     <include-vars class="display-none">{ rating: {reviewAverage} }</include-vars>
                 </include-html>
-                <div id="{id}SummaryReviewAverage">{reviewAverage} Star Average</div>
+                <div id="{id}SummaryReviewAverage" class="m10-b">{reviewAverage} Star Average</div>
             </div>
         </article>
     </component-markup>

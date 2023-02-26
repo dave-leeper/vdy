@@ -70,6 +70,108 @@ module.exports = {
       await surrealDBCreate(db, `news:6`, { title: `Coming soon, book now.`, text: `New Mercedes Sprinter 11 passenger van arriving any day now. It’s time to book your special event. Call (602) 545-8557`, file: `news6.jpg` })
 
       await surrealDBDelete(db, `review`)
+      await surrealDBCreate(db, `review:38`, {
+        name: {
+          first: `Bri`,
+          last: `L`
+        },
+        date: `1/9/2023`,
+        city: `Mesa`,
+        state: `AZ`,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `I contacted Vince really early in the morning for a same day service to go from PHX to Cottonwood. He responded right away and luckily he had a gap in his schedule and was able to squeeze me in. He picked me up within a few hours and drove me 2.5 hours into the steep mountain!! (Sorry Vince) I was able to bring my puppy while I kept him in his kennel. His truck is really nice and it truly felt sophisticated and of quality. Definitely will be booking again and highly recommend to everyone!`
+      })
+      await surrealDBCreate(db, `review:37`, {
+        replyingTo: 38,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `1/10/2023`,
+        title: `Business Owner`,
+        reply: `Hi Brianna, I remember that trip well, it was actually to Crown King. I had never been there before and it’s quite beautiful once you get back there. It had recently snowed on the roads were a mess, more for a keep than a luxury SUV, but it was a pleasant trip and we had great conversations on the way. For me, a one-time experience as I won’t be driving back into there again without a four wheel drive vehicle.`
+      })
+      await surrealDBCreate(db, `review:36`, {
+        name: {
+          first: `Leilani`,
+          last: `R`
+        },
+        image: `https://s3-media0.fl.yelpcdn.com/photo/8pSfhZJpo1seiuMSysF9iQ/60s.jpg`,
+        date: `1/22/2023`,
+        city: `Peoria`,
+        state: `AZ`,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `We booked Vince Drives You the later part of December and first part of January - Brendan was our driver.  What a great trip to the airport - Brendan arrived a few minutes early, helped us load the SUV and got us to the airport with great conversation and professional driving! I HIGHLY recommend this car service!!`
+      })
+      await surrealDBCreate(db, `review:35`, {
+        replyingTo: 36,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `1/23/2023`,
+        title: `Business Owner`,
+        reply: `Thank you, Leilani, I'm extremely proud to have Brendan as a part of the Vince Drives You team. I have your booking request for rides in the future and will process them this morning, it's my pleasure to be of service to you. Vince`
+      })
+      await surrealDBCreate(db, `review:34`, {
+        name: {
+          first: `Chip`,
+          last: `..`
+        },
+        date: `2/23/2023`,
+        city: `San Francisco`,
+        state: `CA`,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `On time and patient, as Sky Harbor takes forever getting your luggage.  Very friendly ride to hotel.  It's the way car service use to be.`
+      })
+      await surrealDBCreate(db, `review:33`, {
+        replyingTo: 34,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `2/24/2023`,
+        title: `Business Owner`,
+        reply: `Thanks for your business Chip, Brendan said you were great customers and I look forward to helping you again soon. Vince`
+      })
+      await surrealDBCreate(db, `review:32`, {
+        name: {
+          first: `Melissa`,
+          last: `W`
+        },
+        image: `https://s3-media0.fl.yelpcdn.com/photo/LlYmYwXPawU65kSsVM8XGw/60s.jpg`,
+        date: `1/10/2023`,
+        city: `Thousand Oaks`,
+        state: `CA`,
+        stars: 5,
+        usefulCount: 0,
+        funnyCount: 0,
+        coolCount: 0,
+        review: `Vince was great! My plane arrived early and he was already there waiting. I also randomly ran into my brother on the plane and he was able to take him as well. I will definitely use Vince if I'm ever in the area again. Thank you!`
+      })
+      await surrealDBCreate(db, `review:31`, {
+        replyingTo: 32,
+        image: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg`,
+        name: {
+          first: `Vincent`,
+          last: `S`
+        },
+        date: `1/10/2023`,
+        title: `Business Owner`,
+        reply: `Thanks for the kind words, it was my pleasure taking care of you and your brother. I look forward to the next time.`
+      })
       await surrealDBCreate(db, `review:19`, {
         name: {
           first: `Doug`,

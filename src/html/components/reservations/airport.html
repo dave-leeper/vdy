@@ -5,8 +5,12 @@
             onChildrenMounted() {
                 const testState = async () => {
                     let results = []
-                    const airports = [`Chandler Municipal Airport`, `Dalhart Terminal 3`, `Dalhart Airport Terminal 4`, `Deer Valley Airport`, `Glendale Municipal Airport`,
+                    const airports = [`Chandler Municipal Airport`, `Skyharbor Terminal 3`, `Skyharbor Airport Terminal 4`, `Deer Valley Airport`, `Glendale Municipal Airport`,
                         `Phoenix-Mesa Gateway Airport`, `Scottsdale Airport`]
+                    const airlines = [`Advanced Air`, `Air Canada`, `Alaska Airlines`, `Allegiant`, `American Airlines`, `Breeze Airways`, `British Airways`, `Condor Airlines`,
+                        `Contour Airlines`, `Delta Airlines`, `Denver Air Connection`, `Frontier Airlines`, `Hawaiian Airlines`, `JetBlue Airways`, 
+                        `JSX - Jackson Jet Center`, `Lynx Air`, `Southern Airways Express`, `Southwest Airlines`, `Spirit Airlines`,
+                        `Sun Country Airlines`, `United Airlines`, `Volaris`, `WestJet`]
 
                     assert(airports.includes(this.Airport.Element.value),                   `Field '${this.Airport.props.label}' is a valid airport.`, results, true)
                     return results
@@ -53,24 +57,32 @@
             }
             setIndexes(firstIndex) {
                 this.Airport.Element.tabIndex = firstIndex
-                this.FlightNumber.Element.tabIndex = firstIndex + 1
-                this.ArrivalDate.Element.tabIndex = firstIndex + 2
-                this.EstimatedArrivalTime.Element.tabIndex = firstIndex + 3
+                this.Airline.Element.tabIndex = firstIndex + 1
+                this.FlightNumber.Element.tabIndex = firstIndex + 2
+                this.ArrivalDate.Element.tabIndex = firstIndex + 3
+                this.EstimatedArrivalTime.Element.tabIndex = firstIndex + 4
+
             }
-            getFieldCount() { if (this.vars.shortForm) { return 1 } else { return 4 }}
+            getFieldCount() { if (this.vars.shortForm) { return 1 } else { return 5 }}
             setShortForm() {
                 this.vars.shortForm = true
+                this.AirlineOuterWrapperElement.classList.add(`display-none`)
                 this.FlightNumber.WrapperElement.classList.add(`display-none`)
                 this.ArrivalDate.WrapperElement.classList.add(`display-none`)
                 this.EstimatedArrivalTime.WrapperElement.classList.add(`display-none`)
             }
             getData() {
                 const airportObj = this.Airport
+                const airlineObj = this.Airline
                 const flightNumberObj = this.FlightNumber
                 const arrivalDateObj = this.ArrivalDate
                 const estimatedArrivalTimeObj = this.EstimatedArrivalTime
 
                 if (!airportObj || !flightNumberObj || !arrivalDateObj || !estimatedArrivalTimeObj) {
+                    showError(`Error getting airport data.`)
+                    return null
+                }
+                if (!this.vars.shortForm && !arrivalDateObj) {
                     showError(`Error getting airport data.`)
                     return null
                 }
@@ -86,17 +98,21 @@
                     showError(`${arrivalDateObj.props.name} is invalid.`)
                     return null
                 }
+                /*
                 if (this.EstimatedArrivalTime?.Element?.value && !estimatedArrivalTimeObj.vars.valid) {
                     showError(`${estimatedArrivalTimeObj.props.name} is invalid.`)
                     return null
                 }
+                */
 
                 const airport = this.Airport.Element.value
+                const airline = this.Airline.Element.value
                 const flightNumber = this.FlightNumber?.Element?.value
                 const arrivalDate = this.ArrivalDate?.Element?.value
                 const estimatedArrivalTime = this.EstimatedArrivalTime?.Element?.value
 
-                return { airport, flightNumber, arrivalDate, estimatedArrivalTime }
+                if (!this.vars.shortForm) { return { airport, airline, flightNumber, arrivalDate, estimatedArrivalTime }}
+                else { return { airport, flightNumber, arrivalDate, estimatedArrivalTime }}
             }
             props = {
                 title: ``
@@ -117,13 +133,44 @@
                 </include-html>
                 <datalist id="{id}AirportList">
                     <option value="Chandler Municipal Airport"></option>
-                    <option value="Dalhart Terminal 3"></option>
-                    <option value="Dalhart Airport Terminal 4"></option>
+                    <option value="Skyharbor Terminal 3"></option>
+                    <option value="Skyharbor Airport Terminal 4"></option>
                     <option value="Deer Valley Airport"></option>
                     <option value="Glendale Municipal Airport"></option>
                     <option value="Phoenix-Mesa Gateway Airport"></option>
                     <option value="Scottsdale Airport"></option>
                 </datalist>
+                <div id="{id}AirlineOuterWrapper">
+                    <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
+                        <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{id}AirlineList`, minlength: 2, maxlength: 30, tabindex: 101, showValidationErrors: `snackbar` }</include-props>
+                        <include-vars class="display-none">{ type: `text` } </include-vars>
+                    </include-html>
+                    <datalist id="{id}AirlineList">
+                        <option value="Advanced Air"></option>
+                        <option value="Air Canada"></option>
+                        <option value="Alaska Airlines"></option>
+                        <option value="Allegiant"></option>
+                        <option value="American Airlines"></option>
+                        <option value="Breeze Airways"></option>
+                        <option value="British Airways"></option>
+                        <option value="Condor Airlines"></option>
+                        <option value="Contour Airlines"></option>
+                        <option value="Delta Airlines"></option>
+                        <option value="Denver Air Connection"></option>
+                        <option value="Frontier Airlines"></option>
+                        <option value="Hawaiian Airlines"></option>
+                        <option value="JetBlue Airways"></option>
+                        <option value="JSX - Jackson Jet Center"></option>
+                        <option value="Lynx Air"></option>
+                        <option value="Southern Airways Express"></option>
+                        <option value="Southwest Airlines"></option>
+                        <option value="Spirit Airlines"></option>
+                        <option value="Sun Country Airlines"></option>
+                        <option value="United Airlines"></option>
+                        <option value="Volaris"></option>
+                        <option value="WestJet"></option>
+                    </datalist>
+                </div>
                 <include-html include-in="airport.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
                     <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabindex: 102, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>

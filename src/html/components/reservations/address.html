@@ -3,11 +3,10 @@
         //# sourceURL=html/components/reservations/address.html
         class Address extends Component {
             onChildrenMounted() {
+                super.onChildrenMounted()
                 const testState = async () => {
                     let results = []
-                    const states = [`AL`, `AK`, `AZ`, `AR`, `AS`, `CA`, `CO`, `CT`, `DE`, `DC`, `FL`, `GA`, `GU`, `HI`, `ID`, `IL`, `IN`, `IA`,
-                        `KS`, `KY`, `LA`, `ME`, `MD`, `MA`, `MI`, `MN`, `MS`, `MO`, `MT`, `NE`, `NV`, `NH`, `NJ`, `NM`, `NY`, `NC`, `ND`, `MP`,
-                        `OH`, `OK`, `OR`, `PA`, `PR`, `RI`, `SC`, `SD`, `TN`, `TX`, `TT`, `UT`, `VT`, `VA`, `VI`, `WA`, `WV`, `WI`, `WY`]
+                    const states = [`AZ`, `CA`, `CO`, `NV`, `NM`, `UT`]
 
                     assert(states.includes(this.State.Element.value),                        `Field '${this.State.props.label}' is a valid state code.`, results, true)
                     return results
@@ -41,16 +40,15 @@
                     return results
                 }
 
-                this.State.vars.customValidationTests.push(testState)
                 this.Date.vars.customValidationTests.push(testDate)
                 this.Time.vars.customValidationTests.push(testTime)
-                super.onChildrenMounted()
             }
             clearData() {
                 this.Address.Element.value = ''
                 this.Address2.Element.value = ''
                 this.City.Element.value = ''
                 this.State.Element.value = ''
+                this.Zip.Element.value = ''
                 this.Date.Element.value = ''
                 this.Time.Element.value = ''
             }
@@ -59,12 +57,18 @@
                 this.Address2.Element.tabIndex = firstIndex + 1
                 this.City.Element.tabIndex = firstIndex + 2
                 this.State.Element.tabIndex = firstIndex + 3
-                this.Date.Element.tabIndex = firstIndex + 4
-                this.Time.Element.tabIndex = firstIndex + 5
+                this.Zip.Element.tabIndex = firstIndex + 4
+                this.Date.Element.tabIndex = firstIndex + 5
+                this.Time.Element.tabIndex = firstIndex + 6
             }
-            getFieldCount() { if (this.vars.shortForm) { return 4 } else { return 6 }}
+            getFieldCount() { if (this.vars.shortForm) { return 5 } else { return 7 }}
             setShortForm() {
                 this.vars.shortForm = true
+                this.State.Element.remove(5)
+                this.State.Element.remove(4)
+                this.State.Element.remove(3)
+                this.State.Element.remove(2)
+                this.State.Element.remove(1)
                 this.Date.WrapperElement.classList.add(`display-none`)
                 this.Time.WrapperElement.classList.add(`display-none`)
             }
@@ -73,10 +77,11 @@
                 const address2Obj = this.Address2
                 const cityObj = this.City
                 const stateObj = this.State
+                const zipObj = this.Zip
                 const dateObj = this.Date
                 const timeObj = this.Time
 
-                if (!addressObj || !address2Obj || !cityObj || !stateObj || !dateObj || !timeObj) {
+                if (!addressObj || !address2Obj || !cityObj || !stateObj || !zipObj || !dateObj || !timeObj) {
                     showError(`Error getting address data.`)
                     return null
                 }
@@ -92,8 +97,8 @@
                     showError(`${cityObj.props.name} is invalid.`)
                     return null
                 }
-                if (!stateObj.vars.valid) {
-                    showError(`${stateObj.props.name} is invalid.`)
+                if (!zipObj.vars.valid) {
+                    showError(`${zipObj.props.name} is invalid.`)
                     return null
                 }
                 if (this.Date?.Element?.value && !dateObj.vars.valid) {
@@ -109,10 +114,11 @@
                 const address2 = this.Address2.Element.value
                 const city = this.City.Element.value
                 const state = this.State.Element.value
+                const zip = this.Zip.Element.value
                 const date = this.Date?.Element?.value
                 const time = this.Time?.Element?.value
 
-                return { address, address2, city, state, date, time }
+                return { address, address2, city, state, zip, date, time }
             }
             props = {
                 title: ``
@@ -145,69 +151,13 @@
                     <include-props class="display-none">{ name: `City`, placeholder: `City`, label: `City`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: 203, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <include-html include-in="review-header-editable.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}State">
-                    <include-props class="display-none">{ name: `State`, label: `State`, labelAboveField: false, list: `{id}StateList`, required: true, minlength: 2, maxlength: 2, tabindex: 204, showValidationErrors: `snackbar` }</include-props>
+                <include-html include-in="location.html" src="./html/components/select.html" component-class="Select" component-id="{id}State">
+                    <include-props class="display-none">{ label: `State`, name: `State`, options: [{ value: `AZ`, text: `AZ (Arizona)` }, { value: `CA`, text: `CA (California)` }, { value: `CO`, text: `CO (Colorado)` }, { value: `NV`, text: `NV (Nevada)` }, { value: `NM`, text: `NM (New Mexico)` }, { value: `UT`, text: `UT (Utah)` }], tabindex: 1 }</include-props>
+                </include-html>
+                <include-html include-in="address.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Zip">
+                    <include-props class="display-none">{ name: `Zip`, placeholder: `Zip`, label: `Zip`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabindex: 203, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `text` } </include-vars>
                 </include-html>
-                <datalist id="{id}StateList">
-                    <option value="AL (Alabama)"></option>
-                    <option value="AK (Alaska)"></option>
-                    <option value="AZ (Arizona)"></option>
-                    <option value="AR (Arkansas)"></option>
-                    <option value="AS (American Samoa)"></option>
-                    <option value="CA (California)"></option>
-                    <option value="CO (Colorado)"></option>
-                    <option value="CT (Connecticut)"></option>
-                    <option value="DE (Delaware)"></option>
-                    <option value="DC (District of Columbia)"></option>
-                    <option value="FL (Florida)"></option>
-                    <option value="GA (Georgia)"></option>
-                    <option value="GU (Guam)"></option>
-                    <option value="HI (Hawaii)"></option>
-                    <option value="ID (Idaho)"></option>
-                    <option value="IL (Illinois)"></option>
-                    <option value="IN (Indiana)"></option>
-                    <option value="IA (Iowa)"></option>
-                    <option value="KS (Kansas)"></option>
-                    <option value="KY (Kentucky)"></option>
-                    <option value="LA (Louisiana)"></option>
-                    <option value="ME (Maine)"></option>
-                    <option value="MD (Maryland)"></option>
-                    <option value="MA (Massachusetts)"></option>
-                    <option value="MI (Michigan)"></option>
-                    <option value="MN (Minnesota)"></option>
-                    <option value="MS (Mississippi)"></option>
-                    <option value="MO (Missouri)"></option>
-                    <option value="MT (Montana)"></option>
-                    <option value="NE (Nebraska)"></option>
-                    <option value="NV (Nevada)"></option>
-                    <option value="NH (New Hampshire)"></option>
-                    <option value="NJ (New Jersey)"></option>
-                    <option value="NM (New Mexico)"></option>
-                    <option value="NY (New York)"></option>
-                    <option value="NC (North Carolina)"></option>
-                    <option value="ND (North Dakota)"></option>
-                    <option value="MP (Northern Mariana Islands)"></option>
-                    <option value="OH (Ohio)"></option>
-                    <option value="OK (Oklahoma)"></option>
-                    <option value="OR (Oregon)"></option>
-                    <option value="PA (Pennsylvania)"></option>
-                    <option value="PR (Puerto Rico)"></option>
-                    <option value="RI (Rhode Island)"></option>
-                    <option value="SC (South Carolina)"></option>
-                    <option value="SD (South Dakota)"></option>
-                    <option value="TN (Tennessee)"></option>
-                    <option value="TX (Texas)"></option>
-                    <option value="TT (Trust Territories)"></option>
-                    <option value="UT (Utah)"></option>
-                    <option value="VT (Vermont)"></option>
-                    <option value="VA (Virginia)"></option>
-                    <option value="VI (Virgin Islands)"></option>
-                    <option value="WA (Washington)"></option>
-                    <option value="WV (West Virginia)"></option>
-                    <option value="WI (Wisconsin)"></option>
-                    <option value="WY (Wyoming)"></option>
-                </datalist>
                 <include-html include-in="address.html" src="./html/components/text-field.html" component-class="TextField" component-id="{id}Date">
                     <include-props class="display-none">{ name: `Date`, label: `Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabindex: 205, showValidationErrors: `snackbar` }</include-props>
                     <include-vars class="display-none">{ type: `date` } </include-vars>

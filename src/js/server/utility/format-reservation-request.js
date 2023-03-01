@@ -38,6 +38,11 @@ module.exports = (json) => {
             return { status: 400, text: err }
         }
         text += `State: ${json.pickupLocation.state}\n`
+        if (!json.pickupLocation.zip) {
+            console.error(err + `: Must provide zip code information.`)
+            return { status: 400, text: err }
+        }
+        text += `Zip: ${json.pickupLocation.zip}\n`
         if (!json.pickupLocation.date) {
             console.error(err + `: Must provide date information.`)
             return { status: 400, text: err }
@@ -49,6 +54,11 @@ module.exports = (json) => {
         }
         text += `Time: ${json.pickupLocation.time}\n`
     } else {
+        text += `Airport: ${json.pickupLocation.airport}\n`
+        if (!json.pickupLocation.airline) {
+            console.error(err + `: Must provide airline information.`)
+            return { status: 400, text: err }
+        }
         text += `Airline: ${json.pickupLocation.airline}\n`
         if (!json.pickupLocation.flightNumber) {
             console.error(err + `: Must provide flightNumber information.`)
@@ -84,6 +94,11 @@ module.exports = (json) => {
             return { status: 400, text: err }
         }
         text += `State: ${json.dropoffLocation.state}\n`
+        if (!json.dropoffLocation.zip) {
+            console.error(err + `: Must provide zip code information.`)
+            return { status: 400, text: err }
+        }
+        text += `Zip: ${json.dropoffLocation.zip}\n`
         /*
         if (!json.dropoffLocation.date) {
             console.error(err + `: Must provide date information.`)

@@ -24,7 +24,7 @@
             setNewsTimer() {
                 const newsTimer = () => { this.nextNews() }
                 
-                this.vars.newsTimer = setInterval(newsTimer, 10000)
+                this.vars.newsTimer = setInterval(newsTimer, 12000)
             }
             clearNewsTimer() { if (this.vars.newsTimer) { clearInterval(this.vars.newsTimer) }}
             showNews() {

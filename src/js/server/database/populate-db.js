@@ -61,7 +61,7 @@ module.exports = {
       await surrealDBCreate(db, `photo:0`, { text: `Enjoy a stress free trip to the red rocks of Sedona.`, file: `photo0.jpg` })
 
       await surrealDBDelete(db, `news`)
-      await surrealDBCreate(db, `news:0`, { title: `Visiting the red rocks of Sedona.`, text: `Phoenix Sky Harbor to Sedona, up to 7 passengers plus luggage for only $240 one way. Call Vince at (602) 545-8557 to schedule your trip.`, file: `news0.jpg` })
+      await surrealDBCreate(db, `news:0`, { title: `Visiting the red rocks of Sedona.`, text: `Phoenix Sky Harbor to Sedona, up to 6 passengers plus luggage for only $240 one way. Call Vince at (602) 545-8557 to schedule your trip.`, file: `news0.jpg` })
       await surrealDBCreate(db, `news:1`, { title: `On time pickup guaranteed.`, text: `Nobody has a better on time record. Period.`, file: `news1.jpg` })
       await surrealDBCreate(db, `news:2`, { title: `We specialize in luxury SUV service.`, text: `Give us a call at (602) 545-8557 to book an appointment. We're always happy to chat about options and pricing.`, file: `news2.jpg` })
       await surrealDBCreate(db, `news:3`, { title: `Pick up that phone.`, text: `Calling me at (602) 545-8557 is the first and best step to having your transportation needs professionally taken care of.`, file: `news3.jpg` })

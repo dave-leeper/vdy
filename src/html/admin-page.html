@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Vince Drives You</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/json-utils.js"></script>
+    <script type="text/javascript" src="./js/client/snackbar.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-analytics.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-news.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-photos.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-text.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-reservations.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-quotes.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-logs.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-database.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+        //# sourceURL=html/admin-page.html
+        function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          Queue.register(this, `GO_TO_INDEX_PAGE`, (message) => { this.goToIndexPage() })
+          Queue.register(this, Loader.msgs.SITE_LOADED, (message) => { 
+            const drawer = Component.getObject(`Drawer`)
+          })
+          await Loader.siteLoaded()
+        })
+      }
+      function goToIndexPage() {
+        let params = new URLSearchParams(window.location.search)
+
+        window.location.href = `/index?${params.toString()}`
+      }
+
+      function setCSSDefaults() {
+        Theme.theme = 'grey-glass'
+      }
+      setCSSDefaults()
+      initializeApp()
+    </script>
+    <style>
+          :root {
+      --admin-width: 100%;
+      --admin-height: 100%;
+      --admin-background-color: var(--background-color);
+      --admin-margin: 5px;
+    }
+    [data-theme="grey-glass"] {
+      --admin-width: 100%;
+      --admin-height: 100%;
+      --admin-background-color: var(--grey-glass-5);
+      --admin-margin: 5px;
+    }
+
+    .admin {
+      width: var(--admin-width);
+      height: var(--admin-height);
+      background-color: var(--admin-background-color);
+      margin: var(--admin-margin);
+    }
+
+    </style>
+  </head>
+  <body class="admin">
+
+    <include-html data-src="./html/components/snackbar.html" data-id="SnackbarError"
+      data-props="{ isError: true }"
+      data-vars="{ text: `Message.` }">
+    </include-html>
+    <include-html data-src="./html/components/snackbar.html" data-id="SnackbarInfo"
+      data-vars="{ text: `Message.` }">
+    </include-html>
+
+    <div id="AdminTabBarWrapper" class="w95 m10">
+      <include-html data-src="./html/components/tab-bar.html" data-id="AdminTabBar"
+        data-vars="{ tabs: [`Analytics`, `News`, `Photos`, `Users`, `Text`, `Reservations`, `Logs`, `Database`], activeTab: 0, tabsCentered: false }">
+      </include-html>
+    </div>
+
+    <include-html data-src="./html/components/drawer.html" data-id="Drawer"></include-html>
+
+    <div id="AdminBody" class="flex-row w100 h100">
+        <include-html data-src="./html/components/admin/admin-analytics.html" data-id="AdminAnalyticsContent"></include-html>
+
+        <include-html data-src="./html/components/admin/admin-news.html" data-id="AdminNewsContent"></include-html>
+
+        <include-html data-src="./html/components/admin/admin-photos.html" data-id="AdminPhotosContent"></include-html>
+
+        <include-html data-src="./html/components/admin/admin-users.html" data-id="AdminUsersContent"></include-html>
+        
+        <include-html data-src="./html/components/admin/admin-text.html" data-id="AdminTextContent"></include-html>
+        
+        <include-html data-src="./html/components/admin/admin-reservations.html" data-id="AdminReservationsContent"></include-html>
+        
+        <include-html data-src="./html/components/admin/admin-logs.html" data-id="AdminLogsContent"></include-html>
+       
+        <include-html data-src="./html/components/admin/admin-database.html" data-id="AdminDatabaseContent"></include-html>
+    </div>
+
+    <include-html data-src="./html/components/action-button.html" data-id="MainPageActionButton"
+      data-props="{ clickMessage: `GO_TO_INDEX_PAGE` }"
+      data-vars="{ title: `Main Page` }">
+    </include-html>
+  </body>
+</html>

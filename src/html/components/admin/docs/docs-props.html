@@ -1,0 +1,153 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/docs/docs-props.html
+        class DocsProps extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/docs/docs-props.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                this.idStorage = []
+
+                Queue.registerAsync(this, this.props.displayDocMessage, async (json) => {
+                    this.vars.json = json
+                })
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    if (message.tabBar.id !== this.props.tabBarId) { return }
+                    if (this.props.name.toUpperCase() !== message.title?.toUpperCase()) {
+                        this.Element.addClass(`display-none`)
+                        return 
+                    }
+                    this.Element.removeClass(`display-none`)
+                    await this.load()
+                })
+            }
+            async destroy() { 
+                await super.destroy()
+                await this.destroyIds()
+            }
+            async destroyIds() {
+                for (let id of this.idStorage) {
+                    if (!Component.isObjectRegistered(id)) { continue }
+
+                    const obj = Component.getObject(id)
+
+                    if (!obj) { return }
+                    await obj.destroy()
+                    await obj.Element?.destroyChildren()
+                    await obj.Element?.removeChildren()
+                }
+                this.idStorage = []
+            }
+            async load() { 
+                await this.destroyIds()
+                await this.PropsParentElement.destroyChildren()
+                this.PropsParentElement.removeChildren()
+                if (!this.vars.json || !this.vars.json.docs || !this.vars.json.docs.name) { 
+                    return 
+                }
+
+                const nameUpperCase = this.props.name?.toUpperCase()
+                const doc = this.vars.json?.docs
+                const properIdBase = `${this.id}${this.props.name}`
+                const properties = (`PROPS` === nameUpperCase)? doc?.props?.properties : doc?.vars?.properties
+
+                if (!properties || 0 === properties.length) { 
+                    const propElement = document.createElement(`div`)
+
+                    ComponentLifecycle.addConvenienceMethodsToElement(propElement)
+                    propElement.id = `${properIdBase}None`
+                    propElement.innerText = `None`
+                    propElement.addClass(`props-description`)
+                    this.PropsParentElement.appendChild(propElement)
+                    return
+                 }
+                for (let loop = 0; loop < properties.length; loop++) {
+                    const property = properties[loop]
+                    const propElement = document.createElement(`div`)
+                    const propDetailRowElement = document.createElement(`div`)
+                    const propNameElement = document.createElement(`div`)
+                    const propTypeElement = document.createElement(`div`)
+
+                    ComponentLifecycle.addConvenienceMethodsToElement(propElement)
+                    ComponentLifecycle.addConvenienceMethodsToElement(propDetailRowElement)
+                    ComponentLifecycle.addConvenienceMethodsToElement(propNameElement)
+                    ComponentLifecycle.addConvenienceMethodsToElement(propTypeElement)
+
+                    propElement.id = `${properIdBase}${loop}`
+                    propElement.id = `${properIdBase}DetailRow${loop}`
+                    propNameElement.id = `${properIdBase}Name${loop}`
+                    propTypeElement.id = `${properIdBase}Type${loop}`
+
+                    propNameElement.innerText = property.name
+                    propTypeElement.innerText = `{${property.type}}`
+
+                    propElement.addClass(`flex-col`)
+                    propDetailRowElement.addClass(`flex-row`)
+                    propNameElement.addClass(`props-name`)
+                    propNameElement.addClass(`m10-r`)
+                    propTypeElement.addClass(`props-type`)
+                    propTypeElement.addClass(`m10-r`)
+                    
+                    this.PropsParentElement.appendChild(propElement)
+                    propElement.appendChild(propDetailRowElement)
+                    propDetailRowElement.appendChild(propNameElement)
+                    propDetailRowElement.appendChild(propTypeElement)
+
+                    const descriptionText = property.description.replace(/(?:\r\n|\r|\n)/g, ``).replaceAll('`', `'`)
+                    const descriptionProps = null
+                    const descriptionVars = { description: descriptionText }
+                    const descriptionId = `${properIdBase}PropsDescription${loop}`
+
+                    await DocsDescription.create(propElement, descriptionId, descriptionProps, descriptionVars)
+                    this.idStorage.push(descriptionId)
+                }
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} name - Can be Props or Vars, depending on what this object is being used to describe.
+             */
+             props = {
+                name: `Props`,     // Vars
+                tabBarId: ``,
+                displayDocMessage: `DISPLAY_DOC`
+            }
+            /** 
+             * @member {Object}
+             * @name vars
+             * @property {Object} json - JSON that describes the current document.
+             */
+             vars = {
+                json: null
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --props-name-color: var(--secondary-variant-color);
+            --props-type-color: var(--primary-variant-color);
+            --props-description-color: var(--primary-text);
+        }
+
+        .props-name {
+            color: var(--props-keyword-color)
+        }
+        .props-type {
+            color: var(--props-type-color)
+        }
+        .props-description {
+            color: var(--props-description-color)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-col flex-align-start p-default m-default">
+            <div id="{id}PropsParent" class="flex-col"></div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

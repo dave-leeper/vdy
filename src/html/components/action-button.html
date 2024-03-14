@@ -1,0 +1,252 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/action-button.html
+        class ActionButton extends Component {
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, Messages.DOCUMENT_DEFAULT_ACTION, (message) => { this.onKeyDown(message) })
+            }
+            async afterMount() { 
+                await super.afterMount()
+                if (`left` === this.props.position.toLowerCase()) {
+                    this.Element.removeClass(`action-button-center`)
+                    this.Element.addClass(`action-button-left`)
+                } else if (`right` === this.props.position.toLowerCase()) {
+                    this.Element.removeClass(`action-button-center`)
+                    this.Element.addClass(`action-button-right`)
+                }
+                if (this.props.isDefault) {
+                    this.Element.removeClass(`action-button`)
+                    this.Element.addClass(`action-button-default`)
+                }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    if (-1 === this.vars.tabIndex && -1 !== this.vars.disabledTabIndex) { 
+                        this.vars.tabIndex = this.vars.disabledTabIndex 
+                        this.vars.disabledTabIndex = -1
+                    }
+                    this.Element.removeClass(`action-button-disabled`)
+                    if (this.props.isDefault) { this.Element.addClass(`action-button-default`) } 
+                    else { this.Element.addClass(`action-button`) }
+                    this.Element.addClass(`brighten`)
+                } else {
+                    this.vars.disabledTabIndex = this.vars.tabIndex
+                    this.vars.tabIndex = -1
+                    this.Element.addClass(`action-button-disabled`)
+                    this.Element.removeClass(`action-button`)
+                    this.Element.removeClass(`action-button-default`)
+                    this.Element.removeClass(`brighten`)
+                }
+            }
+            onClick(event) { 
+                if (!this.enabled) { return }
+                event?.stopPropagation()
+                Queue.broadcast(this.props.clickMessage, this) 
+            }
+            onKeyDown(event) { 
+                if (!this.enabled) { return }
+                if ((`Enter` === event?.key || ` ` === event?.key) && (this.Element.hasFocus() || this.props.isDefault)) {
+                    event?.stopPropagation()
+                    this.onClick() 
+                }
+            }
+            async show() {
+                super.show()
+                this.TitleElement.removeClass(`display-none`)
+                this.onEnabled()
+            }
+            async hide() {
+                super.hide()
+                this.Element.removeClass(`action-button`)
+                this.Element.removeClass(`action-button-default`)
+                this.Element.removeClass(`action-button-disabled`)
+                this.TitleElement.addClass(`display-none`)
+            }
+            async wait() {
+                if (this.isWaiting()) { return }
+                await super.wait()
+
+                const id = `${this.id}Waiting`
+                const vars = { width: 60, height: 60 }
+                const newInclude = Component.createComponentInclude(`./html/components/loading.html`, id, null, vars)
+
+                this.TitleElement.hide()
+                this.Element.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async unwait() {
+                if (!this.isWaiting()) { return }
+
+                const id = `${this.id}Waiting`
+                const waitingObj = Component.getObject(id)
+
+                this.TitleElement.show()
+                await super.unwait()
+                if (!waitingObj) { return }
+                await waitingObj.destroy()
+            }
+            props = {
+                position: `center`,
+                isDefault: false,
+                clickMessage: Messages.ON_CLICK
+            }
+            vars = {
+                title: ``,
+                tabIndex: 0,
+                disabledTabIndex: -1
+            }
+        }
+    </script>
+    <style>
+        :root { 
+            --action-button-position: fixed;
+            --action-button-display: flex;
+            --action-button-flex-direction: row;
+            --action-button-justify-content: center;
+            --action-button-align-items: center;
+            --action-button-bottom: 20px;
+            --action-button-width: 100px;
+            --action-button-height: 100px;
+            --action-button-transform: translate(-50%, -50%);
+            --action-button-color: var(--text-color);
+            --action-button-background-color: var(--background-color);
+            --action-button-background-color-default: var(--primary-variant-color);
+            --action-button-cursor: default;
+            --action-button-padding: 3px;
+            --action-button-margin: 0 auto;
+            --action-button-border-color: var(--default-border-color);
+            --action-button-border-width: var(--default-border-width);
+            --action-button-border-style: var(--default-border-style);
+            --action-button-border-radius: 50%;
+            --action-button-box-shadow: var(--default-box-shadow);
+
+            --action-button-center-left: 50%;
+            --action-button-left-left: 10%;
+            --action-button-right-right: 10%;
+
+            --action-button-disabled-color: var(--primary-color);
+            --action-button-disabled-background-color: var(--background-color);
+            --action-button-disabled-cursor: not-allowed;
+            --action-button-disabled-padding: 3px;
+            --action-button-disabled-margin: 0 auto;
+            --action-button-disabled-border-color: var(--default-border-color);
+            --action-button-disabled-border-width: var(--default-border-width);
+            --action-button-disabled-border-style: var(--default-border-style);
+            --action-button-disabled-border-radius: 50%;
+            --action-button-disabled-box-shadow: none;
+
+            --action-button-title-text-align: center;
+            --action-button-title-font-family: var(--primary-font-family);
+            --action-button-title-font-size: var(--text-1-font-size);
+            --action-button-title-font-weight: var(--text-1-font-weight);
+        }
+        [data-theme="grey-glass"] {
+            --action-button-background-color: var(--grey-glass-trans-4);
+        }
+
+        .action-button {
+            position: var(--action-button-position);
+            display: var(--action-button-display);
+            flex-direction: var(--action-button-flex-direction);
+            justify-content: var(--action-button-justify-content);
+            align-items: var(--action-button-align-items);
+            bottom: var(--action-button-bottom);
+            width: var(--action-button-width);
+            height: var(--action-button-height);
+            transform: var(--action-button-transform);
+            color: var(--action-button-color);
+            background-color: var(--action-button-background-color);
+            cursor: var(--action-button-cursor);
+            text-align: var(--action-button-text-align);
+            font-family: var(--action-button-font-family);
+            font-size: var(--action-button-font-size);
+            font-weight: var(--action-button-font-weight);
+            padding: var(--action-button-padding);
+            margin: var(--action-button-margin);
+            border-color: var(--action-button-border-color);
+            border-width: var(--action-button-border-width);
+            border-style: var(--action-button-border-style);
+            border-radius: var(--action-button-border-radius);
+            box-shadow: var(--action-button-box-shadow);
+        }
+
+        .action-button-center {
+            left: var(--action-button-center-left);
+        }
+        .action-button-left {
+            left: var(--action-button-left-left);
+        }
+        .action-button-right {
+            right: var(--action-button-right-right);
+        }
+
+        .action-button-default {
+            position: var(--action-button-position);
+            display: var(--action-button-display);
+            flex-direction: var(--action-button-flex-direction);
+            justify-content: var(--action-button-justify-content);
+            align-items: var(--action-button-align-items);
+            bottom: var(--action-button-bottom);
+            width: var(--action-button-width);
+            height: var(--action-button-height);
+            transform: var(--action-button-transform);
+            color: var(--action-button-color);
+            background-color: var(--action-button-background-color-default);
+            cursor: var(--action-button-cursor);
+            text-align: var(--action-button-text-align);
+            font-family: var(--action-button-font-family);
+            font-size: var(--action-button-font-size);
+            font-weight: var(--action-button-font-weight);
+            padding: var(--action-button-padding);
+            margin: var(--action-button-margin);
+            border-color: var(--action-button-border-color);
+            border-width: var(--action-button-border-width);
+            border-style: var(--action-button-border-style);
+            border-radius: var(--action-button-border-radius);
+            box-shadow: var(--action-button-box-shadow);
+        }
+        .action-button-disabled {
+            position: var(--action-button-position);
+            display: var(--action-button-display);
+            flex-direction: var(--action-button-flex-direction);
+            justify-content: var(--action-button-justify-content);
+            align-items: var(--action-button-align-items);
+            left: var(--action-button-left);
+            bottom: var(--action-button-bottom);
+            width: var(--action-button-width);
+            height: var(--action-button-height);
+            transform: var(--action-button-transform);
+            color: var(--action-button-disabled-color);
+            background-color: var(--action-button-disabled-background-color);
+            cursor: var(--action-button-disabled-cursor);
+            text-align: var(--action-button-text-align);
+            font-family: var(--action-button-font-family);
+            font-size: var(--action-button-font-size);
+            font-weight: var(--action-button-font-weight);
+            padding: var(--action-button-disabled-padding);
+            margin: var(--action-button-disabled-margin);
+            border-color: var(--action-button-disabled-border-color);
+            border-width: var(--action-button-disabled-border-width);
+            border-style: var(--action-button-disabled-border-style);
+            border-radius: var(--action-button-disabled-border-radius);
+            box-shadow: var(--action-button-disabled-box-shadow);
+        }
+        .action-button-title {
+            text-align: var(--action-button-title-text-align);
+            font-family: var(--action-button-title-font-family);
+            font-size: var(--action-button-title-font-size);
+            font-weight: var(--action-button-title-font-weight);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="action-button action-button-center brighten" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)" tabindex="{tabIndex}">
+            <div id="{id}Title" class="action-button-title">{title}</div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

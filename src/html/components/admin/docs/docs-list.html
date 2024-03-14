@@ -1,0 +1,122 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/docs/docs-list.html
+        class DocsList extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/docs/docs-list.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            static getDocName(path) {
+                const index1 = path.lastIndexOf('/')
+                const pathWithoutBase = path.substr(index1 + 1)
+                const index2 = pathWithoutBase.lastIndexOf('.')
+                const intialDocName = pathWithoutBase.substr(0, index2)
+
+                const camelCaseTestName = intialDocName.toLowerCase().replace(/[-_][a-z0-9]/g, (group) => group.slice(-1).toUpperCase())
+                const docName = camelCaseTestName.charAt(0).toUpperCase() + camelCaseTestName.slice(1)
+
+                return docName
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                await this.loadDocs()
+                this.DocListElement.style.height = `${screen.height}px`
+            }
+            async loadDocs() {
+                if (!this.vars.docListJSON) {
+                    const json = await this.fetchDocs()
+
+                    if (json) { this.vars.docListJSON = json }
+                }
+                for (let loop = 0; loop < this.vars.docListJSON.length; loop++) {
+                    const docItem = this.vars.docListJSON[loop]
+
+                    if (docItem.endsWith(`.js`)) { await this.buildDocTextButton(`javascript`, `JS`, docItem, loop, this.JSListElement) }
+                    else if (docItem.endsWith(`.html`)) { await this.buildDocTextButton(`component`, `HTML`, docItem, loop, this.HTMLListElement) }
+                }
+            }
+            async fetchDocs() {
+                const response = await SIDocs.getDocs()
+
+                if (200 !== response.status) { 
+                    showError(`Error getting documentation. Status code ${response.status}.`) 
+                    return null
+                }
+
+                const text = await response.text()
+                const json = JSON.parse(text)
+
+                return json
+            }
+            async buildDocTextButton(name, idFragment, doc, index, parent) {
+                const docName = DocsList.getDocName(doc)
+                const id = `Doc${idFragment}${index}`
+                const props = { clickMessage: id, alignTitle: `left` }
+                const vars = { extraData: doc, title: docName }
+                const newInclude = Component.createComponentInclude(`./html/components/text-button.html`, id, props, vars)
+                const onClick = async () => {
+                    let json = null
+
+                    if (this.props.docsJSON.has(doc)) {
+                        json = this.props.docsJSON.get(doc)
+                    } else {
+                        const response = await SIDocs.getDoc(doc)
+
+                        if (200 !== response.status) { 
+                            Error(`Error getting documentation for ${docName}. Status code ${response.status}.`) 
+                            return null
+                        }
+
+                        const text = await response.text()
+
+                        json = JSON.parse(text)
+                        this.props.docsJSON.set(doc, json)
+                    }
+                    await Queue.broadcast(this.props.displayDocMessage, json)
+                }
+
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+                Queue.registerAsync(Component.getObject(id), id, onClick)
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} displayDocMessage - The message sent when a document should be displayed.
+             * @property {Map<String, Object>} docsJSON - The key is the path to the file. The object is the JSON for the file's documentation. 
+             */
+            props = {
+                displayDocMessage: `DISPLAY_DOC`,
+                docsJSON: new Map()
+            }
+            /** 
+             * @member {Object}
+             * @name vars
+             * @property {string[]} docListJSON - The documentation JSON downloaded from the server.
+             */
+             vars = {
+                docListJSON: null
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-start h100 p-default m-default">
+            <div id="{id}DocList" class="flex-col w200px overflow-y-auto border-r-solid border-2 border-text">
+                <div id="{id}JS">
+                    <div id="{id}JSTitle" class="header-6">Javascript Docs</div>
+                    <div id="{id}JSList"></div>
+                </div>
+                <div id="{id}HTML">
+                    <div id="{id}HTMLTitle" class="header-6 m15-t">HTML Docs</div>
+                    <div id="{id}HTMLList"></div>
+                </div>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

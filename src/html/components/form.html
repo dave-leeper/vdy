@@ -1,0 +1,168 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/form.html
+        class Form extends SlottedComponent {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/form.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.beforeSubmitClickMessage, async (message) => { await this.prepSubmit(message) })
+            }
+            async afterMount() { 
+                await super.afterMount()
+
+                if (this.props.autocomplete) { this.Element.setAttribute(`autocomplete`, true) } else { this.Element.removeAttribute(`autocomplete`) }
+            }
+            async validate(showErrors) {  
+                const slottedComponents = this.slotChildComponents
+
+                this.vars.valid = false
+                for (let slottedComponent of slottedComponents) {
+                    if (slottedComponent.validate) { 
+                        await slottedComponent.validate(false)
+                        if (!slottedComponent.isValid()) { 
+                            await slottedComponent.validate(true)
+                            return 
+                        }
+                    }
+                }
+                
+                const testFormSuite = {
+                    name: `Form`,
+                    description: `Ensure Form contains valid data.`,
+                    tests: [ ]
+                }
+
+                this.vars.valid = false
+                this.clearErrors()             
+
+                if (this.vars.customValidationTests && Array.isArray(this.vars.customValidationTests) && 0 < this.vars.customValidationTests.length) {
+                    testFormSuite.tests = testFormSuite.tests.concat(this.vars.customValidationTests)
+                }
+
+                let results = await suite(testFormSuite)
+                this.vars.valid = (0 === results.failCount)
+                if (this.vars.valid) { await Queue.broadcast(Messages.NEW_VALID_DATA, this) }
+                if (showErrors) { this.showErrors(results) }
+            }
+            isValid() { return this.vars.valid }
+            async showErrors(suiteResultsTree) {
+                if (`none` === this.props.showValidationErrors.toLowerCase()) { return }
+                else if (`inline` === this.props.showValidationErrors.toLowerCase()) {
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
+
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `text-field-success-message opacity-0 show`) }
+                            else { errorDiv.setAttribute(`class`, `text-field-error-message opacity-0 show`) }
+                            this.ErrorElement.appendChild(errorDiv)
+                        }
+                    }
+                } else if (`snackbar` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { showError(error) }
+                } else if (`dialog` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { 
+                        await Error(error, `Errors`) 
+                    }
+                } else {        // component-id
+                    const errorParent = document.getElementById(this.props.showValidationErrors)
+
+                    if (!errorParent) { return }
+                    while (errorParent.firstChild) { errorParent.removeChild(errorParent.firstChild) }
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
+
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `text-field-success-message opacity-0 show`) }
+                            else { errorDiv.setAttribute(`class`, `text-field-error-message opacity-0 show`) }
+                            errorParent.appendChild(errorDiv)
+                        }
+                    }
+                }
+            }
+            clearErrors() { this.ErrorElement.removeChildren() }
+            async getData() {
+                const slottedComponents = this.slotChildComponents
+                const body = {}
+                const files = []
+                let hasBody = false
+
+                for (let slottedComponent of slottedComponents) {
+                    if (`SubmitButton` === slottedComponent.className()) { continue }
+
+                    const isFile = `FileSelector` === slottedComponent.className()
+                    const data = await slottedComponent.getData()
+
+                    if (!data) { continue }
+                    if (isFile) { files.push(data) }
+                    else { 
+                        hasBody = true
+                        body[data.name] = data.value 
+                    }
+                }
+
+                return { name: this.id, value: { body: hasBody? body : null, files: files.length? files : null }}
+            }
+            async prepSubmit(submitButton) {
+                await this.validate(true)
+                if (!this.vars.valid) {
+                    submitButton.cancelSubmit()
+                    return
+                }
+
+                const data = await this.getData()
+
+                submitButton.setBody(data.value.body)
+                submitButton.setFiles(data.value.files)
+                submitButton.completeSubmit()
+            }
+            props = {
+                autocomplete: `true`,
+                beforeSubmitClickMessage: Messages.BEFORE_SUBMIT,
+                showValidationErrors: `inline`, // snackbar, dialog, component-id, none
+            }
+            vars = {
+                valid: false,
+                customValidationTests: []
+            }
+        }
+    </script>
+    <style>
+        :root {
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="form">
+            <component-slot id="{id}Slot">DEFAULT CONTENT FOR {id}Slot</component-slot>
+            <div id="{id}Error"></div>
+        </div>    
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

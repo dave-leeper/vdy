@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Test Runner</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Test the web client">
+  <meta name="keywords" content="HTML, CSS, JavaScript">
+  <meta name="author" content="Dave Leeper">
+  <script type="text/javascript" src="./js/client/vars.js"></script>
+  <script type="text/javascript" src="./js/client/messages.js"></script>
+  <script type="text/javascript" src="./js/client/queue.js"></script>
+  <script type="text/javascript" src="./js/client/tree-node.js"></script>
+  <script type="text/javascript" src="./js/client/tree.js"></script>
+  <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+  <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+  <script type="text/javascript" src="./js/client/component.js"></script>
+  <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+  <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+  <script type="text/javascript" src="./js/client/loader.js"></script>
+  <script type="text/javascript" src="./js/client/theme.js"></script>
+  <script type="text/javascript" src="./js/client/registry.js"></script>
+  <script type="text/javascript" src="./js/client/snackbar.js"></script>
+  <script type="text/javascript" src="./js/client/json-utils.js"></script>
+  <script type="text/javascript" src="./js/client/test.js"></script>
+  <script type="text/javascript" src="./js/client/purify.min.js"></script>
+  <script type="text/javascript" src="./js/client/date.js"></script>
+  <script type="text/javascript" src="./js/client/time.js"></script>
+  <script type="text/javascript" src="./js/client/dialog.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-analytics.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-news.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-photos.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-text.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-testing.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-reservations.js"></script>
+  <script type="text/javascript" src="./js/client/server-interaction/si-quotes.js"></script>
+  <link rel="stylesheet" href="./css/styles.css">
+  <script>
+    const initializeApp = (server, theme = `grey-glass`) => {
+      const params = new URLSearchParams(window.location.search)
+      const token = params.get(`token`)
+
+      Registry.register(`Server`, server)
+      JavascriptWebToken.storeCredentials(JSON.parse(token))
+      document.addEventListener(`DOMContentLoaded`, async () => { 
+        Loader.registerCustomTags()
+        await Loader.loadIncludes()
+        SlotManager.loadSlots()
+        Queue.registerAsync(this, `LIGHT_THEME_IMG_TOGGLE`, async (message) => { Theme.theme = 'light' })
+        Queue.registerAsync(this, `GREY_THEME_IMG_TOGGLE`, async (message) => { Theme.theme = 'grey-glass' })
+        Queue.registerAsync(this, `DARK_THEME_IMG_TOGGLE`, async (message) => { Theme.theme = 'dark' })
+
+        Theme.theme = theme
+        await Loader.siteLoaded()
+      })
+    }
+    // initializeApp(`https://vincedrivesyou.com/`)
+    initializeApp(`https://localhost/`)
+  </script>
+</head>
+<body>
+      <include-html data-src="./html/components/snackbar.html" data-id="SnackbarError"
+        data-props="{ isError: true }"
+        data-vars="{ text: `Message.` }">
+      </include-html>
+      <include-html data-src="./html/components/snackbar.html" data-id="SnackbarInfo"
+        data-vars="{ text: `Message.` }">
+      </include-html>
+      <div class="absolute flex-row flex-space-around flex-align-center flex-center t0 r0 w90px h30px z-layer1">
+        <include-html data-src="./html/components/img-toggle.html" data-id="LightThemeImgToggle"
+            data-props="{ clickMessage: `LIGHT_THEME_IMG_TOGGLE`, size: `s`, groupName: `theme`, groupValue: `light`, checkOnFocus: false }"
+            data-vars="{ imageURL: `../../images/themes/{theme}/light-theme.png`, imageURL2: `../../images/themes/{theme}/light-theme-toggled.png`, 
+              disabledImageURL: `../../images/themes/{theme}/light-theme-disabled.png`, tooltipText: `Light Theme` }">
+        </include-html>
+        <include-html data-src="./html/components/img-toggle.html" data-id="GreyThemeImgToggle"
+            data-props="{ clickMessage: `GREY_THEME_IMG_TOGGLE`, size: `s`, groupName: `theme`, groupValue: `grey`, checkOnFocus: false }"
+            data-vars="{ imageURL: `../../images/themes/{theme}/grey-theme.png`, imageURL2: `../../images/themes/{theme}/grey-theme-toggled.png`,
+              disabledImageURL: `../../images/themes/{theme}/grey-theme-disabled.png`, tooltipText: `Grey Theme`, checked: true }">
+        </include-html>
+        <include-html data-src="./html/components/img-toggle.html" data-id="DarkThemeImgToggle"
+            data-props="{ clickMessage: `DARK_THEME_IMG_TOGGLE`, size: `s`, groupName: `theme`, groupValue: `dark`, checkOnFocus: false }"
+            data-vars="{ imageURL: `../../images/themes/{theme}/dark-theme.png`, imageURL2: `../../images/themes/{theme}/dark-theme-toggled.png`,
+              disabledImageURL: `../../images/themes/{theme}/dark-theme-disabled.png`, tooltipText: `Dark Theme` }">
+        </include-html>
+    </div>
+
+    <div id="Test" class="flex-row p-default m-default w100 h100">
+      <include-html data-src="./html/components/admin/tests/tests-list.html" data-id="List"
+        data-props="{ runTestsClickMessage: `RUN_TESTS` }">
+      </include-html>
+      <include-html data-src="./html/components/admin/tests/tests-panel.html" data-id="Panel">
+      </include-html>
+      <include-html data-src="./html/components/admin/tests/tests-results.html" data-id="Results">
+      </include-html>
+    </div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reviews/review.html
+        class Review extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/review.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            getReviewElement() {
+                return document.getElementById(`Review${this.props.reviewId}`)
+            }
+            getReviewObject() {
+                return Component.getObject(`Review${this.props.reviewId}`)
+            }
+            getReplyElement() {
+                if (!this.hasReply()) { return null }
+                return document.getElementById(`Reply${this.vars.replyId}`)
+            }
+            hasReply() {
+                return !!this.vars.replyId
+            }
+            async reply() {
+                const reviewObject = this.getReviewObject()
+                const replyDialog = document.getElementById(`ReplyDialog`)
+                const propsObj = { reviewId: this.props.reviewId, replyId: this.props.replyId }
+                const newInclude = Component.createComponentInclude(`./html/components/reviews/reply-dialog.html`, `ReplyDialog`, propsObj, null)
+
+                if (replyDialog) { replyDialog.remove() }
+                if (Component.isObjectRegistered(`ReplyDialog`)) { await Component.getObject(`ReplyDialog`).destroy() }
+                this.getReviewElement().appendChild(newInclude)
+                await Loader.loadIncludes()
+                Component.getObject(`ReplyDialog`).show()
+            }
+            props = {
+                reviewId: ``,
+                imageURL: ``,
+                firstName: ``,
+                lastName: ``,
+                city: ``,
+                state: ``,
+                starCount: 0,
+                review: `Review Text`,
+                usefulCount: 0,
+                funnyCount: 0,
+                coolCount: 0,
+            }
+            vars = {
+                replyId: ``,
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --review-card-display: flex;
+            --review-card-flex-direction: column;
+            --review-card-color: --blue-gray-50;
+            --review-card-pad: 5px;
+            --review-card-margin: 5px;
+            --review-card-border-style: solid;
+            --review-card-border-width: 2px;
+            --review-card-border-color: var(--blue-400);
+        }
+
+        .review-card {
+            display: var(--review-card-display);
+            flex-direction: var(--review-card-flex-direction);
+            color: var(--review-card-color);
+            padding: var(--review-card-pad);
+            margin: var(--review-card-margin);
+            border-style: var(--review-card-border-style);
+            border-width: var(--review-card-border-width);
+            border-color: var(--review-card-border-color);
+        }
+    </style>
+    <component-markup>
+        <section id="{id}" class="review-card">
+            <div id="{id}HeaderWrapper">
+                <include-html data-src="./html/components/reviews/review-header.html" data-id="{id}ReviewHeader"
+                    data-props="{ imageURL: `{imageURL}`, firstName: `{firstName}`, lastName: `{lastName}`,
+                        city: `{city}`, state: `{state}`, date: `{date}` }">
+                </include-html>
+            </div>
+            <section id="{id}ReviewBody" class="flex-col w100">
+                <include-html data-src="./html/components/stars.html" data-id="{id}Stars"
+                    data-props="{ editable: false }"
+                    data-vars="{ rating: {rating} }">
+                </include-html>
+                <include-html data-src="./html/components/text-more.html" data-id="{id}Review"
+                    data-vars="{ text: `{review}` }">
+                </include-html>
+                <include-html data-src="./html/components/reviews/useful-funny-cool.html" data-id="{id}UFC"
+                    data-vars="{ usefulCount: {usefulCount}, funnyCount: {funnyCount}, coolCount: {coolCount}, replyId: `{replyId}` }">
+                </include-html>
+            </section>
+        </section>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

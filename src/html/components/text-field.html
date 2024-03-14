@@ -1,0 +1,919 @@
+<script src="../../js/client/test.js"></script>
+
+<custom-component>
+    <script>
+        //# sourceURL=html/components/text-field.html
+        class TextField extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/text-field.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+
+                this.props.isPassword = `password` === this.vars.type.toLowerCase()
+                this.vars.valid = false
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`value` !== message.member) { return }
+
+                    this.TextFieldElement.innerText = this.vars.value
+                    if (`date` === this.vars.type) { this.TextFieldElement.value = this.vars.value }
+                    if (`time` === this.vars.type) { this.TextFieldElement.value = this.vars.value }
+                })
+                Queue.register(this, `SHOW_HIDE_PASSWORD`, (message) => { 
+                    if (message?.id !== this.ShowPassword.id) { return }
+                    this.onShowHideClicked() 
+                })
+                Queue.registerAsync(this, `PICK_DATE`, async (message) => { 
+                    if (message?.id !== this.DatePicker.id) { return }
+
+                    const date = this.getDate()
+                    const selectedDate = await CalendarDialog(date)
+
+                    if (!selectedDate) { return }
+
+                    const pad = (i) => { return (i < 10) ? "0" + i : i }
+                    const dateAsText = `${selectedDate.year}-${pad(selectedDate.month)}-${pad(selectedDate.day)}`
+
+                    this.vars.value = dateAsText
+                })
+                Queue.registerAsync(this, `PICK_TIME`, async (message) => { 
+                    if (message?.id !== this.TimePicker.id) { return }
+
+                    const time = this.getTime()
+                    const selectedTime = await TimeDialog(time)
+
+                    if (!selectedTime) { return }
+                    if (`PM` === selectedTime.meridiem) { selectedTime.hour += 12 }
+
+                    const pad = (i) => { return (i < 10) ? "0" + i : i }
+                    const timeAsText = `${pad(selectedTime.hour)}:${pad(selectedTime.minute)}:00`
+
+                    this.vars.value = timeAsText
+                })
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`type` !== message.member) { return }
+
+                    this.updateShowPassword()
+                    this.updateDateTimePickers()
+                })
+            }
+            async afterMount() { 
+                await super.afterMount()
+
+                this.TextFieldElement.setAttribute(`value`, this.vars.value)
+                this.TextFieldElement.setAttribute(`size`, this.props.size)
+                this.TextFieldElement.setAttribute(`minlength`, this.props.minlength)
+                this.TextFieldElement.setAttribute(`maxlength`, this.props.maxlength)
+                if (this.props.min != Number.MAX_VALUE) { this.TextFieldElement.setAttribute(`min`, this.props.min) }
+                if (this.props.max != Number.MIN_VALUE) { this.TextFieldElement.setAttribute(`max`, this.props.max) }
+                if (this.props.name) { this.TextFieldElement.setAttribute(`name`, this.props.name) } else { this.TextFieldElement.removeAttribute(`name`) }
+                if (this.props.placeholder) { this.TextFieldElement.setAttribute(`placeholder`, this.props.placeholder) } else { this.TextFieldElement.removeAttribute(`placeholder`) }
+                if (this.props.pattern) { this.TextFieldElement.setAttribute(`pattern`, this.props.pattern) } else { this.TextFieldElement.removeAttribute(`pattern`) }
+                if (this.props.required) { this.TextFieldElement.setAttribute(`required`, true) } else { this.TextFieldElement.removeAttribute(`required`) }
+                if (this.props.readonly) { this.TextFieldElement.setAttribute(`readonly`, true) } else { this.TextFieldElement.removeAttribute(`readonly`) }
+                if (this.props.autofocus) { this.TextFieldElement.setAttribute(`autofocus`, true) } else { this.TextFieldElement.removeAttribute(`autofocus`) }
+                if (this.props.autocomplete) { this.TextFieldElement.setAttribute(`autocomplete`, true) } else { this.TextFieldElement.removeAttribute(`autocomplete`) }
+                if (this.props.list) { this.TextFieldElement.setAttribute(`list`, this.props.list) } else { this.TextFieldElement.removeAttribute(`list`) }
+                if (this.props.labelAboveField) { 
+                    this.Element.classList.remove(`flex-row`)
+                    this.Element.classList.add(`flex-col`)
+                } else { 
+                    this.Element.classList.add(`flex-row`)
+                    this.Element.classList.remove(`flex-col`)
+                }
+                if (this.props.labelWidth) { this.LabelElement.style.width = this.props.labelWidth }
+                if (this.props.textWidth) { this.LabelElement.style.width = this.props.textWidth }
+                this.showInvalid()
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                this.updateShowPassword()
+                this.updateDateTimePickers()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) { 
+                    if (-1 === this.vars.tabIndex && -1 !== this.vars.disabledTabIndex) { 
+                        this.vars.tabIndex = this.vars.disabledTabIndex 
+                        this.vars.disabledTabIndex = -1
+                    }
+                    if (`date` === this.vars.type && !this.props.useNativeDatePicker) { this.DatePicker.enabled = true }
+                    if (`time` === this.vars.type && !this.props.useNativeTimePicker) { this.TimePicker.enabled = true }
+                    this.TextFieldElement.removeAttribute(`disabled`)
+                    this.Element.classList.add(`bounce-and-brighten`)
+                    this.TextFieldElement.classList.remove(`text-field-disabled`)
+                    this.TextFieldElement.classList.add(`text-field`)
+                    this.LabelElement.classList.remove(`text-field-label-disabled`)
+                    this.LabelElement.classList.add(`text-field-label`)
+                } else { 
+                    this.vars.disabledTabIndex = this.vars.tabIndex
+                    this.vars.tabIndex = -1
+                    if (`date` === this.vars.type && !this.props.useNativeDatePicker) { this.DatePicker.enabled = false }
+                    if (`time` === this.vars.type && !this.props.useNativeTimePicker) { this.TimePicker.enabled = false }
+                    this.TextFieldElement.setAttribute(`disabled`, true)
+                    this.Element.classList.remove(`bounce-and-brighten`)
+                    this.TextFieldElement.classList.add(`text-field-disabled`)
+                    this.TextFieldElement.classList.remove(`text-field`)
+                    this.LabelElement.classList.add(`text-field-label-disabled`)
+                    this.LabelElement.classList.remove(`text-field-label`)
+                }
+                this.updateShowPassword()
+                this.updateDateTimePickers()
+                this.showInvalid()
+            }
+            async onBlur(event) { 
+                if (!this.enabled) { return }
+                const showErrors = `snackbar` === this.props.showValidationErrors || `dialog` === this.props.showValidationErrors
+
+                this.clearErrors()
+                await this.validate(showErrors)
+
+                if (`inline` !== this.props.showValidationErrors && `snackbar` !== this.props.showValidationErrors && `dialog` !== this.props.showValidationErrors&& `none` !== this.props.showValidationErrors) {
+                    const errorParent = document.getElementById(this.props.showValidationErrors)
+
+                    if (!errorParent) { return }
+                    while (errorParent.firstChild) { errorParent.removeChild(errorParent.firstChild) }
+                }
+                this.showInvalid()
+            }
+            async onClick(event) {
+                if (`date` !== this.vars.type && `time` === this.vars.type) { return }
+                if (this.TextFieldElement.classList.contains(`text-field-date-indicator-hidden`)) { event.preventDefault() }
+                else if (this.TextFieldElement.classList.contains(`text-field-time-indicator-hidden`)) { event.preventDefault() }
+            }
+            async onFocus(event) {
+                const showErrors = (`inline` === this.props.showValidationErrors) || (`snackbar` !== this.props.showValidationErrors && `dialog` !== this.props.showValidationErrors && `none` !== this.props.showValidationErrors)
+
+                await this.validate(showErrors)
+            }
+            async onKeyUp(event) {
+                const showErrors = (`inline` === this.props.showValidationErrors) || (`snackbar` !== this.props.showValidationErrors && `dialog` !== this.props.showValidationErrors&& `none` !== this.props.showValidationErrors)
+
+                event?.stopPropagation()
+                await this.validate(showErrors)
+            }
+            focus() { this.TextFieldElement.focus() }
+            async validate(showErrors) {                
+                const requiredTest = {
+                    name: `Required`,
+                    description: `Ensure required field has a value.`,
+                    test: async () => {
+                        let results = []
+
+                        if (!this.props.required) { return results }
+                        assert(0 < this.TextFieldElement.value?.length,                             `Field '${this.props.label}' is required.`, results, false)
+                        return results
+                    }
+                }
+                const minLengthTest = {
+                    name: `Min Length`,
+                    description: `Ensure field is no shorter than ${this.props.minlength}.`,
+                    test: async () => {
+                        let results = []
+
+                        if (!this.TextFieldElement.value?.length && !this.props.required) { return results }
+                        if (!this.props.minlength) { return results }
+                        assert(this.props.minlength <= this.TextFieldElement.value?.length,         `Field '${this.props.label}' must have at least ${this.props.minlength} characters.`, results, false)
+                        return results
+                    }
+                }
+                const maxLengthTest = {
+                    name: `Max Length`,
+                    description: `Ensure field is no longer than ${this.props.maxlength}.`,
+                    test: async () => {
+                        let results = []
+
+                        if (!this.props.maxlength) { return results }
+                        assert(this.props.maxlength >= this.TextFieldElement.value?.length,         `Field '${this.props.label}' cannot have more than ${this.props.maxlength} characters.`, results, false)
+                        return results
+                    }
+                }
+                const minTest = {
+                    name: `Min`,
+                    description: `Ensure field's value is not less than ${this.props.min}.`,
+                    test: async () => {
+                        let results = []
+
+                        if (!this.TextFieldElement.value?.length && !this.props.required) { return results }
+                        if (Number.MAX_VALUE === this.props.min) { return results }
+                        assert(this.props.min <= +this.TextFieldElement.value,                      `Field '${this.props.label}' cannot be less than ${this.props.min}.`, results, false)
+                        return results
+                    }
+                }
+                const maxTest = {
+                    name: `Max`,
+                    description: `Ensure field's value is not more than ${this.props.max}.`,
+                    test: async () => {
+                        let results = []
+
+                        if (Number.MIN_VALUE === this.props.max) { return results }
+                        assert(this.props.max >= +this.TextFieldElement.value,                      `Field '${this.props.label}' cannot be greater than ${this.props.max}.`, results, false)
+                        return results
+                    }
+                }
+                const patternTest = {
+                    name: `Pattern`,
+                    description: `Ensure field matches the pattern ${this.props.pattern}.`,
+                    test: async () => {
+                        let results = []
+
+                        if (0 === this.props.pattern.length) { return results }
+                        assert(new RegExp(this.props.pattern).test(this.TextFieldElement.value),    `Field '${this.props.label}' must match the pattern ${this.props.pattern}.`, results, false)
+                        return results
+                    }
+                }
+                const urlTest = {
+                    name: `URL`,
+                    description: `Ensure field is a valid url.`,
+                    test: async () => {
+                        let results = []
+                        const isValidUrl = urlString => {
+                            const urlPattern = new RegExp('^(https?:\\/\\/)?'+                  // validate protocol
+                            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+                 // validate domain name
+                            '((\\d{1,3}\\.){3}\\d{1,3}))'+                                      // validate OR ip (v4) address
+                            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+                                  // validate port and path
+                            '(\\?[;&a-z\\d%_.~+=-]*)?'+                                         // validate query string
+                            '(\\#[-a-z\\d_]*)?$','i')                                           // validate fragment locator
+
+                            return !!urlPattern.test(urlString)
+                        }
+
+                        if (`url` !== this.vars.type.toLowerCase()) { return results }
+                        assert(isValidUrl(this.TextFieldElement.value),                             `Field '${this.props.label}' must be a valid url.`, results, false)
+                        return results
+                    }
+                }
+                const emailTest = {
+                    name: `Email`,
+                    description: `Ensure field is a valid email.`,
+                    test: async () => {
+                        let results = []
+                        const isValidEmail = emailString => {
+                            const emailPattern = new RegExp('^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3}','i')
+
+                            return !!emailPattern.test(emailString)
+                        }
+
+                        if (`email` !== this.vars.type.toLowerCase()) { return results }
+                        assert(isValidEmail(this.TextFieldElement.value),                           `Field '${this.props.label}' must be a valid email.`, results, false)
+                        return results
+                    }
+                }
+                const phoneTest = {
+                    name: `Phone`,
+                    description: `Ensure field is a valid phone number.`,
+                    test: async () => {
+                        let results = []
+                        const isValidPhone = phoneString => {
+                            const phonePattern = new RegExp(`^[\+]?[(]?[0-9]{3}[)]?[- \.]?[0-9]{3}[- \.]?[0-9]{4,6}$`,`i`)
+
+                            return !!phonePattern.test(phoneString)
+                        }
+
+                        if (`tel` !== this.vars.type.toLowerCase()) { return results }
+                        assert(isValidPhone(this.TextFieldElement.value),                           `Field '${this.props.label}' must be a valid phone number.`, results, false)
+                        return results
+                    }
+                }
+                const numberTest = {
+                    name: `Number`,
+                    description: `Ensure field is a valid number.`,
+                    test: async () => {
+                        let results = []
+                        const isValidNumber = numberString => {
+                            const numberPattern = /^-?\d*\.?\d*$/
+
+                            return !!numberPattern.test(numberString)
+                        }
+
+                        if (`number` !== this.vars.type.toLowerCase()) { return results }
+                        assert(isValidNumber(this.TextFieldElement.value),                          `Field '${this.props.label}' must be a valid number.`, results, false)
+                        return results
+                    }
+                }
+                const dateTest = {
+                    name: `Date`,
+                    description: `Ensure field is a valid date.`,
+                    test: async () => {
+                        let results = []
+                        const isValidDate = (dateString) => {
+                            // First check for the pattern
+                            if(!/^\d{4}-\d{1,2}-\d{1,2}$/.test(dateString))
+                                return false
+
+                            // Parse the date parts to integers
+                            let parts = dateString.split("-")
+                            let day = parseInt(parts[2], 10)
+                            let month = parseInt(parts[1], 10)
+                            let year = parseInt(parts[0], 10)
+
+                            // Check the ranges of month and year
+                            if (year < 1000 || year > 3000 || month == 0 || month > 12)
+                                return false
+
+                            let monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
+
+                            // Adjust for leap years
+                            if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+                                monthLength[1] = 29
+
+                            // Check the range of the day
+                            return day > 0 && day <= monthLength[month - 1]
+                        }
+
+                        if (`date` !== this.vars.type.toLowerCase()) { return results }
+
+                        const passed = isValidDate(this.TextFieldElement.value)
+                        assert(passed,                                                              `Field '${this.props.label}' must be a valid date.`, results, false)
+                        return results
+                    }
+                }
+                const timeTest = {
+                    name: `Time`,
+                    description: `Ensure field is a valid time.`,
+                    test: async () => {
+                        let results = []
+                        const isValidTime = (timeString) => {
+                            const timePattern = new RegExp('^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$')
+
+                            return !!timePattern.test(timeString)
+                        }
+
+                        if (`time` !== this.vars.type.toLowerCase()) { return results }
+                        const passed = isValidTime(this.TextFieldElement.value)
+                        assert(passed,                                                              `Field '${this.props.label}' must be a valid time.`, results, false)
+                        return results
+                    }
+                }
+                const testTextFieldSuite = {
+                    name: `TextField`,
+                    description: `Ensure TextField contains valid data.`,
+                    tests: [ requiredTest, minLengthTest, maxLengthTest, minTest, maxTest, patternTest, urlTest, emailTest, phoneTest, numberTest, dateTest, timeTest ]
+                }
+
+                this.vars.valid = false
+                this.clearErrors()
+
+                if (this.vars.customValidationTests && Array.isArray(this.vars.customValidationTests) && 0 < this.vars.customValidationTests.length) {
+                    testTextFieldSuite.tests = testTextFieldSuite.tests.concat(this.vars.customValidationTests)
+                }
+
+                let results = await suite(testTextFieldSuite)
+                this.vars.valid = (0 === results.failCount)
+                if (this.vars.valid) { 
+                    this.vars.value = this.TextFieldElement.value 
+                    await Queue.broadcast(Messages.NEW_VALID_DATA, { text: this.vars.value, component: this, element: this.TextFieldElement })
+                } 
+                if (showErrors) { this.showErrors(results) }
+            }
+            isValid() { return this.vars.valid }
+            showInvalid() {
+                const removeInvalidBorder = () => {
+                    if (this.isEnabled()) { 
+                        this.TextFieldElement.removeClass(`text-field-disabled`) 
+                        this.TextFieldElement.addClass(`text-field`) 
+                    } else {
+                        this.TextFieldElement.addClass(`text-field-disabled`) 
+                        this.TextFieldElement.removeClass(`text-field`) 
+                    }
+                    this.TextFieldElement.removeClass(`text-field-invalid`)
+                }
+
+                if (!this.vars.showInvalidBorder || !this.isEnabled() || !this.isVisible() || this.isValid()) { 
+                    removeInvalidBorder()
+                    return 
+                }
+                this.TextFieldElement.removeClass(`text-field-disabled`)
+                this.TextFieldElement.removeClass(`text-field`)
+                this.TextFieldElement.addClass(`text-field-invalid`)
+            }
+            async showErrors(suiteResultsTree) {
+                if (`none` === this.props.showValidationErrors.toLowerCase()) { return }
+                else if (`inline` === this.props.showValidationErrors.toLowerCase()) {
+                    let top = 30
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
+
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `text-field-success-message opacity-0 show`) }
+                            else { errorDiv.setAttribute(`class`, `text-field-error-message opacity-0 show`) }
+                            errorDiv.style.top = `${top}px`
+                            this.ErrorElement.appendChild(errorDiv)
+                            top += errorDiv.clientHeight
+                        }
+                    }
+                } else if (`snackbar` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { showError(error) }
+                } else if (`dialog` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { 
+                        await Error(error, `Errors`) 
+                    }
+                } else {        // component-id
+                    const errorParent = document.getElementById(this.props.showValidationErrors)
+
+                    if (!errorParent) { return }
+                    while (errorParent.firstChild) { errorParent.removeChild(errorParent.firstChild) }
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
+
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `text-field-success-message opacity-0 show`) }
+                            else { errorDiv.setAttribute(`class`, `text-field-error-message opacity-0 show`) }
+                            errorParent.appendChild(errorDiv)
+                        }
+                    }
+                }
+            }
+            clearErrors() { 
+                const form = this.Form
+
+                this.ErrorElement.removeChildren()
+                if (form) { form.clearErrors() }
+            }
+            onShowHideClicked() {
+                if (`password` === this.vars.type.toLowerCase()) { 
+                    this.vars.type = `text`
+                } 
+                else if (this.props.isPassword) { 
+                    this.vars.type = `password` 
+                }
+            }
+            updateShowPassword() {
+                if (this.props.isPassword) {
+                    this.ShowPassword.enabled = true
+                    this.ShowPassword.show()
+                } else {
+                    this.ShowPassword.enabled = false
+                    this.ShowPassword.hide() 
+                }
+            }
+            updateDateTimePickers() {
+                this.DatePicker.hide()
+                this.TimePicker.hide()
+
+                if (`date` === this.vars.type) {
+                    if (this.props.useNativeDatePicker) { 
+                        this.TextFieldElement.classList.add(`text-field-date-indicator-visible`)
+                        this.TextFieldElement.classList.remove(`text-field-date-indicator-hidden`)
+                    } else { 
+                        this.TextFieldElement.classList.remove(`text-field-date-indicator-visible`)
+                        this.TextFieldElement.classList.add(`text-field-date-indicator-hidden`)
+                        this.DatePicker.show()
+                    }
+                } else if (`time` === this.vars.type) {
+                    if (this.props.useNativeTimePicker) { 
+                        this.TextFieldElement.classList.add(`text-field-time-indicator-visible`)
+                        this.TextFieldElement.classList.remove(`text-field-time-indicator-hidden`) 
+                    } else { 
+                        this.TextFieldElement.classList.remove(`text-field-time-indicator-visible`)
+                        this.TextFieldElement.classList.add(`text-field-time-indicator-hidden`) 
+                        this.TimePicker.show()
+                    }
+                }
+            }
+            getDate() {
+                if (`date` != this.vars.type) { return null }
+                if (!this.TextFieldElement.value) { return new Date() }
+
+                const parts = this.TextFieldElement.value.split("-")
+                const day = parseInt(parts[2], 10)
+                const month = parseInt(parts[1], 10)
+                const year = parseInt(parts[0], 10)
+                const date = new Date(+year, month - 1, day)
+
+                return date
+            }
+            getTime() {
+                if (`time` != this.vars.type) { return null }
+                if (!this.TextFieldElement.value) { return new Date() }
+
+                const date = new Date()
+                const parts = this.TextFieldElement.value.split(":")
+                const hour = parts[0]
+                const minute = parts[1]
+                
+                date.setHours(hour, minute, 0)
+                return date
+            }
+            getValue() { return this.vars.value }
+            async getData() {
+                await this.validate(false)
+                if (this.vars.valid) { return { name: this.props.name, value: this.vars.value }}
+                return null
+            }
+            props = {
+                autocomplete: ``,
+                autofocus: false,
+                isPassword: false,
+                label: ``,
+                labelAboveField: false,
+                labelWidth: ``,
+                list: ``,
+                maxlength: 50,
+                minlength: 0,
+                min: Number.MAX_VALUE,
+                max: Number.MIN_VALUE,
+                name: ``,
+                pattern: ``,
+                placeholder: ``,
+                readonly: false,
+                required: false,
+                showValidationErrors: `inline`, // snackbar, dialog, component-id, none
+                size: 20,
+                textWidth: ``,
+                useNativeDatePicker: false,
+                useNativeTimePicker: false
+            }
+            vars = {
+                tabIndex: 0,
+                disabledTabIndex: -1,
+                customValidationTests: [],
+                datePickerImageURL: `../images/themes/{theme}/calendar.png`,
+                datePickerDisabledImageURL: `../images/themes/{theme}/calendar-disabled.png`,
+                datePickerTooltip: `Select date`,
+                hidePasswordImageURL: `../images/themes/{theme}/eye-open.png`,
+                showPasswordImageURL: `../images/themes/{theme}/eye-closed.png`,
+                showPasswordTooltip: `Show/Hide Password`,
+                timePickerImageURL: `../images/themes/{theme}/clock.png`,
+                timePickerDisabledImageURL: `../images/themes/{theme}/clock-disabled.png`,
+                timePickerTooltip: `Select time`,
+                type: `text`, // date, datetime-local, email, month, number, password, tel, text, time, url, week
+                valid: false,
+                value: ``,
+                showInvalidBorder: false
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --text-field-wrapper-position: relative;
+            --text-field-wrapper-align-items: baseline;
+
+            --text-field-z-index: inherit;
+            --text-field-color: var(--text-color);
+            --text-field-background-color: var(--background-color);
+            --text-field-padding: var(--default-padding);
+            --text-field-margin: var(--default-margin);
+            --text-field-cursor: text;
+            --text-field-font-family: var(--primary-font-family);
+            --text-field-font-size: var(--text-1-font-size);
+            --text-field-font-weight: var(--text-1-font-weight);
+            --text-field-border-color: var(--default-border-color);
+            --text-field-border-width: var(--default-border-width);
+            --text-field-border-style: var(--default-border-style);
+            --text-field-border-radius: var(--default-border-radius);
+            --text-field-grow: 10;
+            --text-field-picker-filter: none;
+
+            --text-field-focus-border-color: var(--default-border-color);
+            --text-field-focus-border-width: var(--default-border-width);
+            --text-field-focus-border-bottom-style: var(--default-border-style);
+            --text-field-focus-border-top-style: hidden;
+            --text-field-focus-border-right-style: hidden;
+            --text-field-focus-border-left-style: hidden;
+
+            --text-field-placeholder-color: var(--secondary-text-color);
+            --text-field-placeholder-padding: var(--default-padding);
+            --text-field-placeholder-margin: var(--default-margin);
+            --text-field-placeholder-font-family: var(--primary-font-family);
+            --text-field-placeholder-font-size: var(--text-1-font-size);
+            --text-field-placeholder-font-weight: var(--text-1-font-weight);
+
+            --text-field-label-z-index: inherit;
+            --text-field-label-color: var(--text-color);
+            --text-field-label-background-color: var(---clear);
+            --text-field-label-padding: var(--default-padding);
+            --text-field-label-margin: var(--default-margin);
+            --text-field-label-cursor: default;
+            --text-field-label-font-family: var(--primary-font-family);
+            --text-field-label-font-size: var(--text-2-font-size);
+            --text-field-label-font-weight: var(--header-1-font-weight);
+            --text-field-label-border-color: hidden;
+            --text-field-label-border-width: 0;
+            --text-field-label-border-style: none;
+            --text-field-label-border-radius: 0;
+
+            --text-field-invalid-z-index: inherit;
+            --text-field-invalid-color: var(--text-color);
+            --text-field-invalid-background-color: var(--background-color);
+            --text-field-invalid-padding: var(--default-padding);
+            --text-field-invalid-margin: var(--default-margin);
+            --text-field-invalid-cursor: text;
+            --text-field-invalid-font-family: var(--primary-font-family);
+            --text-field-invalid-font-size: var(--text-1-font-size);
+            --text-field-invalid-font-weight: var(--text-1-font-weight);
+            --text-field-invalid-border-color: var(--error-color);
+            --text-field-invalid-border-width: var(--default-border-width);
+            --text-field-invalid-border-style: var(--default-border-style);
+            --text-field-invalid-border-radius: var(--default-border-radius);
+            --text-field-invalid-grow: 10;
+            --text-field-invalid-picker-filter: none;
+
+            --text-field-disabled-z-index: inherit;
+            --text-field-disabled-color: var(--disabled-text-color);
+            --text-field-disabled-background-color: var(--disabled-background-color);
+            --text-field-disabled-padding: var(--default-padding);
+            --text-field-disabled-margin: var(--default-margin);
+            --text-field-disabled-cursor: not-allowed;
+            --text-field-disabled-font-family: var(--primary-font-family);
+            --text-field-disabled-font-size: var(--text-1-font-size);
+            --text-field-disabled-font-weight: var(--text-1-font-weight);
+            --text-field-disabled-border-color: var(--disabled-default-border-color);
+            --text-field-disabled-border-width: var(--disabled-default-border-width);
+            --text-field-disabled-border-style: var(--disabled-default-border-style);
+            --text-field-disabled-border-radius: var(--disabled-default-border-radius);
+            --text-field-disabled-grow: 10;
+
+            --text-field-label-disabled-z-index: inherit;
+            --text-field-label-disabled-color: var(--disabled-text-color);
+            --text-field-label-disabled-background-color: var(---clear);
+            --text-field-label-disabled-padding: var(--default-padding);
+            --text-field-label-disabled-margin: var(--default-margin);
+            --text-field-label-disabled-cursor: default;
+            --text-field-label-disabled-font-family: var(--primary-font-family);
+            --text-field-label-disabled-font-size: var(--text-2-font-size);
+            --text-field-label-disabled-font-weight: var(--header-1-font-weight);
+            --text-field-label-disabled-border-color: hidden;
+            --text-field-label-disabled-border-width: 0;
+            --text-field-label-disabled-border-style: none;
+            --text-field-label-disabled-border-radius: 0;
+
+            --text-field-error-message-position: absolute;
+            --text-field-error-message-z-index: var(--z-layer0b);
+            --text-field-error-message-color: var(--error-color);
+            --text-field-error-message-background-color: var(--secondary-background-color);
+            --text-field-error-message-padding: var(--default-padding);
+            --text-field-error-message-margin: var(--default-margin);
+            --text-field-error-message-cursor: default;
+            --text-field-error-message-font-family: var(--primary-font-family);
+            --text-field-error-message-font-size: var(--text-1-font-size);
+            --text-field-error-message-font-weight: var(--text-1-font-weight);
+
+            --text-field-success-message-position: absolute;
+            --text-field-success-message-z-index: var(--z-layer0b);
+            --text-field-success-message-color: var(--success-color);
+            --text-field-success-message-background-color: var(--secondary-background-color);
+            --text-field-success-message-padding: var(--default-padding);
+            --text-field-success-message-margin: var(--default-margin);
+            --text-field-success-message-cursor: default;
+            --text-field-success-message-font-family: var(--primary-font-family);
+            --text-field-success-message-font-size: var(--text-1-font-size);
+            --text-field-success-message-font-weight: var(--text-1-font-weight);
+        }
+        [data-theme="light"] {
+            --text-field-border-color: var(--grey-7);
+            --text-field-border-width: 1px;
+            --text-field-border-style: solid;
+            --text-field-border-radius: 0;
+
+            --text-field-focus-border-color: var(--grey-7);
+            --text-field-focus-border-width: 2px;
+            --text-field-focus-border-bottom-style: solid;
+        }
+        [data-theme="grey-glass"] {
+            --text-field-background-color: var(--grey-glass-2);
+            --text-field-border-color: var(--grey-glass-3);
+            --text-field-picker-filter: invert(1);
+
+            --text-field-focus-border-color: var(--grey-glass-1);
+            --text-field-focus-border-bottom-style: var(--default-border-style);
+            --text-field-focus-border-top-style: var(--default-border-style);
+            --text-field-focus-border-right-style: var(--default-border-style);
+            --text-field-focus-border-left-style: var(--default-border-style);
+        }
+        [data-theme="vdy"] {
+            --text-field-border-color: var(--primary-variant-color);
+            --text-field-border-width: 1px;
+            --text-field-border-style: solid;
+            --text-field-border-radius: 0;
+            /* https://codepen.io/sosuke/pen/Pjoqqp */
+            --text-field-picker-filter: invert(87%) sepia(25%) saturate(5444%) hue-rotate(348deg) brightness(102%) contrast(109%);
+
+            --text-field-focus-border-color: var(--blue-400);
+            --text-field-focus-border-width: 2px;
+            --text-field-focus-border-bottom-style: solid;
+
+            --text-field-error-message-background-color: var(--background-color);
+            --text-field-success-message-background-color: var(--background-color);
+        }
+        
+        .text-field-wrapper {
+            position: var(--text-field-wrapper-position);
+            align-items: var(--text-field-wrapper-align-items);
+        }
+
+        .text-field {
+            z-index: var(--text-field-z-index);
+            color: var(--text-field-color);
+            background-color: var(--text-field-background-color);
+            padding: var(--text-field-padding);
+            margin: var(--text-field-margin);
+            cursor: var(--text-field-cursor);
+            font-family: var(--text-field-font-family);
+            font-size: var(--text-field-font-size);
+            font-weight: var(--text-field-font-weight);
+            border-color: var(--text-field-border-color);
+            border-width: var(--text-field-border-width);
+            border-style: var(--text-field-border-style);
+            border-radius: var(--text-field-border-radius);
+        }
+        .text-field-invalid {
+            z-index: var(--text-field-invalid-z-index);
+            color: var(--text-field-invalid-color);
+            background-color: var(--text-field-invalid-background-color);
+            padding: var(--text-field-invalid-padding);
+            margin: var(--text-field-invalid-margin);
+            cursor: var(--text-field-invalid-cursor);
+            font-family: var(--text-field-invalid-font-family);
+            font-size: var(--text-field-invalid-font-size);
+            font-weight: var(--text-field-invalid-font-weight);
+            border-color: var(--text-field-invalid-border-color);
+            border-width: var(--text-field-invalid-border-width);
+            border-style: var(--text-field-invalid-border-style);
+            border-radius: var(--text-field-invalid-border-radius);
+        }
+        .text-field-disabled {
+            z-index: var(--text-field-disabled-z-index);
+            color: var(--text-field-disabled-color);
+            background-color: var(--text-field-disabled-background-color);
+            border-radius: var(--text-field-disabled-border-radius);
+            padding: var(--text-field--disabledpadding);
+            margin: var(--text-field-disabled-margin);
+            cursor: var(--text-field-disabled-cursor);
+            font-family: var(--text-field-disabled-font-family);
+            font-size: var(--text-field-font-disabled-size);
+            font-weight: var(--text-field-disabled-font-weight);
+            border-width: var(--text-field-disabled-border-width);
+            border-style: var(--text-field-disabled-border-style);
+            border-radius: var(--text-field-disabled-border-radius);
+        }
+        .text-field::-ms-reveal {
+            display: none;
+        }
+        .text-field-date-indicator-hidden{ }
+        .text-field-date-indicator-hidden::-webkit-calendar-picker-indicator{
+            display: none;
+        }
+        .text-field-date-indicator-hidden::-webkit-input-placeholder{ 
+            visibility: hidden !important;
+        }
+        .text-field-date-indicator-visible::-webkit-calendar-picker-indicator{
+            filter: var(--text-field-picker-filter);
+        }
+
+        .text-field-time-indicator-hidden{ }
+        .text-field-time-indicator-hidden::-webkit-calendar-picker-indicator{
+            display: none;
+        }
+        .text-field-time-indicator-hidden::-webkit-input-placeholder{ 
+            visibility: hidden !important;
+        }
+        .text-field-time-indicator-visible::-webkit-calendar-picker-indicator{
+            filter: var(--text-field-picker-filter);
+        }
+        .text-field:focus {
+            border-color: var(--text-field-focus-border-color);
+            border-width: var(--text-field-focus-border-width);
+            border-style: var(--text-field-focus-border-bottom-style);
+            border-top-style: var(--text-field-focus-border-top-style);
+            border-right-style: var(--text-field-focus-border-right-style);
+            border-left-style: var(--text-field-focus-border-left-style);
+            outline: none;
+        }
+        .text-field::placeholder {
+            color: var(--text-field-placeholder-color);
+            padding: var(--text-field-placeholder-padding);
+            margin: var(--text-field-placeholder-margin);
+            font-family: var(--text-field-placeholder-font-family);
+            font-size: var(--text-field-placeholder-font-size);
+            font-weight: var(--text-field-placeholder-font-weight);
+        }
+
+        .text-field-label {
+            z-index: var(--text-field-label-z-index);
+            color: var(--text-field-label-color);
+            background-color: var(--text-field-label-background-color);
+            padding: var(--text-field-label-padding);
+            margin: var(--text-field-label-margin);
+            cursor: var(--text-field-label-cursor);
+            font-family: var(--text-field-label-font-family);
+            font-size: var(--text-field-label-font-size);
+            font-weight: var(--text-field-label-font-weight);
+            border-color: var(--text-field-label-border-color);
+            border-width: var(--text-field-label-border-width);
+            border-style: var(--text-field-label-border-style);
+            border-radius: var(--text-field-label-border-radius);
+        }
+        .text-field-label-disabled {
+            z-index: var(--text-field-label-disabled-z-index);
+            color: var(--text-field-label-disabled-color);
+            background-color: var(--text-field-label-disabled-background-color);
+            padding: var(--text-field-label-disabled-padding);
+            margin: var(--text-field-label-disabled-margin);
+            cursor: var(--text-field-label-disabled-cursor);
+            font-family: var(--text-field-label-disabled-font-family);
+            font-size: var(--text-field-label-disabled-font-size);
+            font-weight: var(--text-field-label-disabled-font-weight);
+            border-color: var(--text-field-label-disabled-border-color);
+            border-width: var(--text-field-label-disabled-border-width);
+            border-style: var(--text-field-label-disabled-border-style);
+            border-radius: var(--text-field-label-disabled-border-radius);
+        }
+
+        .text-field-error-message {
+            position: var(--text-field-error-message-position);
+            z-index: var(--text-field-error-message-z-index);
+            color: var(--text-field-error-message-color);
+            background-color: var(--text-field-error-message-background-color);
+            padding: var(--text-field-error-message-padding);
+            margin: var(--text-field-error-message-margin);
+            cursor: var(--text-field-error-message-cursor);
+            font-family: var(--text-field-error-message-font-family);
+            font-size: var(--text-field-error-message-font-size);
+            font-weight: var(--text-field-error-message-font-weight);
+        }
+
+        .text-field-success-message {
+            position: var(--text-field-success-message-position);
+            z-index: var(--text-field-success-message-z-index);
+            color: var(--text-field-success-message-color);
+            background-color: var(--text-field-success-message-background-color);
+            padding: var(--text-field-success-message-padding);
+            margin: var(--text-field-success-message-margin);
+            cursor: var(--text-field-success-message-cursor);
+            font-family: var(--text-field-success-message-font-family);
+            font-size: var(--text-field-success-message-font-size);
+            font-weight: var(--text-field-success-message-font-weight);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="text-field-wrapper bounce-and-brighten">
+            <label id="{id}Label" for="{name}" class="text-field-label">{label}</label>
+            <div id="{id}InputAndErrorWrapper">
+                <div id="{id}InputWrapper" class="flex-row">
+                    <input 
+                        id="{id}TextField" 
+                        class="text-field"
+                        list="{list}"
+                        maxlength="{maxlength}"
+                        minlength="{minlength}"
+                        name="{name}"
+                        onblur="$obj.onBlur(event)"
+                        onclick="$obj.onClick(event)"
+                        onfocus="$obj.onFocus(event)"
+                        onkeyup="$obj.onKeyUp(event)"
+                        placeholder="{placeholder}"
+                        size="{size}"
+                        tabindex="{tabIndex}"
+                        type="{type}" 
+                        value="{value}"
+                    >
+                    <include-html data-src="./html/components/img-toggle.html" data-id="{id}ShowPassword"
+                        data-props="{ size: `s`, clickMessage: `SHOW_HIDE_PASSWORD` }"
+                        data-vars="{ imageURL: `{showPasswordImageURL}`, imageURL2: `{hidePasswordImageURL}`, tooltipText: `{showPasswordTooltip}` }">
+                    </include-html>
+                    <include-html data-src="./html/components/img-button.html" data-id="{id}DatePicker"
+                        data-props="{ size: `s`, clickMessage: `PICK_DATE` }"
+                        data-vars="{ imageURL: `{datePickerImageURL}`, disabledImageURL: `{datePickerDisabledImageURL}`, tooltipText: `{datePickerTooltip}` }">
+                    </include-html>
+                    <include-html data-src="./html/components/img-button.html" data-id="{id}TimePicker"
+                        data-props="{ size: `s`, clickMessage: `PICK_TIME` }"
+                        data-vars="{ imageURL: `{timePickerImageURL}`, disabledImageURL: `{timePickerDisabledImageURL}`, tooltipText: `{timePickerTooltip}` }">
+                    </include-html>
+                </div>
+                <div id="{id}Error"></div>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

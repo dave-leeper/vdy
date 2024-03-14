@@ -1,0 +1,152 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/stars.html
+        class Stars extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/stars.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onDescendantsMounted() { 
+                await super.onDescendantsMounted()
+                this.setStars(this.vars.rating, true)
+
+                if (this.props.editable) {
+                    this.Star1.Element.classList.toggle(`cursor-default`)
+                    this.Star2.Element.classList.toggle(`cursor-default`)
+                    this.Star3.Element.classList.toggle(`cursor-default`)
+                    this.Star4.Element.classList.toggle(`cursor-default`)
+                    this.Star5.Element.classList.toggle(`cursor-default`)
+                    this.Element.addClass(`bounce-and-brighten`)
+                } else {
+                    this.Star1.Element.classList.toggle(`cursor-default`)
+                    this.Star2.Element.classList.toggle(`cursor-default`)
+                    this.Star3.Element.classList.toggle(`cursor-default`)
+                    this.Star4.Element.classList.toggle(`cursor-default`)
+                    this.Star5.Element.classList.toggle(`cursor-default`)
+                    this.Element.removeClass(`bounce-and-brighten`)
+                }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+                this.Star1.enabled = this.enabled
+                this.Star2.enabled = this.enabled
+                this.Star3.enabled = this.enabled
+                this.Star4.enabled = this.enabled
+                this.Star5.enabled = this.enabled
+                if (this.enabled && this.props.editable) { this.Element.classList.add(`bounce-and-brighten`) }
+                else { this.Element.classList.remove(`bounce-and-brighten`) }
+            }            
+            setStars(rating, literal) {
+                if (1 === this.vars.rating && 1 === rating && !literal) {
+                    this.vars.rating = 0
+                } else {
+                    this.vars.rating = rating
+                }
+                
+                if (1 >= this.vars.rating) {
+                    this.Star5.setValue(0)
+                    this.Star4.setValue(0)
+                    this.Star3.setValue(0)
+                    this.Star2.setValue(0)
+                    this.Star1.setValue(this.vars.rating)
+                } else if (2 >= this.vars.rating) {
+                    this.Star5.setValue(0)
+                    this.Star4.setValue(0)
+                    this.Star3.setValue(0)
+                    this.Star2.setValue(this.vars.rating - 1)
+                    this.Star1.setValue(1)
+                } else if (3 >= this.vars.rating) {
+                    this.Star5.setValue(0)
+                    this.Star4.setValue(0)
+                    this.Star3.setValue(this.vars.rating - 2)
+                    this.Star2.setValue(1)
+                    this.Star1.setValue(1)
+                } else if (4 >= this.vars.rating) {
+                    this.Star5.setValue(0)
+                    this.Star4.setValue(this.vars.rating - 3)
+                    this.Star3.setValue(1)
+                    this.Star2.setValue(1)
+                    this.Star1.setValue(1)
+                } else {
+                    this.Star5.setValue(this.vars.rating - 4)
+                    this.Star4.setValue(1)
+                    this.Star3.setValue(1)
+                    this.Star2.setValue(1)
+                    this.Star1.setValue(1)
+                }
+
+                Queue.broadcast(this, Messages.NEW_STAR_RATING, { rating: this.vars.rating, component: this, element: this.Element })
+            }
+            editStars(rating) {
+                if (!this.props.editable) { return }
+                this.setStars(rating)
+            }
+            getStars() {
+                const value = this.Star1.vars.value + this.Star2.vars.value + this.Star3.vars.value + this.Star4.vars.value + this.Star5.vars.value
+
+                return value
+            }
+            async getData() {
+                const value = this.getStars()
+                
+                return { name: this.id, value }
+            }
+            props = {
+                editable: true,
+            }
+            vars = {
+                rating: 0,
+                tabIndex: 0
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --stars-position: relative;
+            --stars-display: flex; 
+            --stars-flex-direction: row;
+            --stars-align-items: center;
+            --stars-width: 110px;
+            --stars-height: 20px;
+            --stars-z-index: inherit;
+        }
+
+        .stars {
+            position: var(--stars-position);
+            display: var(--stars-display); 
+            flex-direction: var(--stars-flex-direction);
+            align-items: var(--stars-align-items);
+            width: var(--stars-width);
+            height: var(--stars-height);
+            z-index: var(--stars-z-index);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="stars bounce-and-brighten" tabindex="{tabIndex}">
+            <include-html data-src="./html/components/star.html" data-id="{id}Star1"
+                onclick="$obj.editStars(1)"
+                data-vars="{ value: 0 }">
+            </include-html>
+            <include-html data-src="./html/components/star.html" data-id="{id}Star2"
+                onclick="$obj.editStars(2)"
+                data-vars="{ value: 0 }">
+            </include-html>
+            <include-html data-src="./html/components/star.html" data-id="{id}Star3"
+                onclick="$obj.editStars(3)"
+                data-vars="{ value: 0 }">
+            </include-html>
+            <include-html data-src="./html/components/star.html" data-id="{id}Star4"
+                onclick="$obj.editStars(4)"
+                data-vars="{ value: 0 }">
+            </include-html>
+            <include-html data-src="./html/components/star.html" data-id="{id}Star5"
+                onclick="$obj.editStars(5)"
+                data-vars="{ value: 0 }">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

@@ -1,0 +1,301 @@
+    <custom-component>
+        <script>
+            //# sourceURL=html/components/menu.html
+            class Menu extends Component {
+                static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                    const newInclude = Component.createComponentInclude(`./html/components/menu.html`, componentId, props, vars, classes, styles, attributes)
+                    
+                    parent.appendChild(newInclude)
+                    await Loader.loadIncludes()
+                }
+                async initialize(id) {
+                    await super.initialize(id)
+                    if (this.props.groupName) { Component.addToGroup(this.props.groupName, this) }
+                    Queue.registerAsync(this, Messages.DROPDOWN_CLOSE, async (message) => {
+                        if (!this.DropdownMenu.vars.content.includes(message)) { return }
+                        this.DropdownMenu.close()
+                        await this.check(false)
+                    })
+                    Queue.registerAsync(this, this.props.clickMessage, async (message) => {
+                        if (this !== message) { return }
+                        if (!this.DropdownMenu.isOpen()) { await this.DropdownMenu.open() }
+                        else { await this.DropdownMenu.close() }
+                    })
+                }
+                async onChildrenMounted() { 
+                    await super.onChildrenMounted()
+                    if (this.props.round) { this.MenuElement.classList.add(`menu-round`) }
+                    else { this.MenuElement.classList.remove(`menu-round`) }
+                    if (this.props.underline) { this.MenuElement.classList.add(`menu-underline`) }
+                    else { this.MenuElement.classList.remove(`menu-underline`) }
+                }
+                async onDescendantsMounted() { 
+                    await super.onDescendantsMounted()
+                    this.DropdownMenu.vars.menuItems = this.props.menuItems
+                }
+                async onEnabled() { 
+                    await super.onEnabled()
+                    this.setStyles()
+                }
+                async onClick(event) { 
+                    if (!this.enabled) { return }
+                    if (!this.MenuElement.isVisible()) { return }
+                    event?.stopPropagation()
+                    await this.check(!this.vars.checked) 
+                }
+                async onKeyDown(event) { 
+                    if (!this.enabled) { return }
+                    if (!this.Element.hasFocus()) { return }
+                    if (!this.MenuElement.isVisible()) { return }
+                    if (`Enter` === event?.key || ` ` === event?.key) {
+                        event?.stopPropagation()
+                        await this.check(!this.vars.checked) 
+                        return
+                    }
+
+                    if (`ArrowRight` !== event?.key && `ArrowLeft` !== event?.key && `ArrowDown` !== event?.key && `ArrowUp` !== event?.key) { return }
+
+                    const groupName = Component.isInGroup(this)
+                    const index = Component.groupIndexOf(this)
+                    const groupObjects = Component.getGroupObjects(groupName)
+
+                    if (-1 === index) { return }
+                    if (!groupObjects || 0 === groupObjects.length) { return }
+
+                    const isUsable = (obj) => {
+                        if (null === obj) { return false }
+                        if (obj.isVisible && !obj.isVisible()) { return false }
+                        else if (obj.Element?.isVisible && !obj.Element.isVisible()) { return false }
+                        if (!obj.enabled) {
+                            if (!obj.getAttribute || `true` !== obj.getAttribute(`enabled`)) { return false }
+                        } 
+                        return true
+                    }
+                    const getNextIndex = (currentIndex, groupObjects, eventKey) => {
+                        if (`ArrowRight` === eventKey || `ArrowDown` === eventKey) { return (groupObjects.length - 1 === currentIndex)? 0 : currentIndex + 1 }
+                        if (`ArrowLeft` === eventKey || `ArrowUp` === eventKey) { return (0 === currentIndex)? groupObjects.length - 1 : currentIndex - 1 }
+                        return currentIndex
+                    }
+                    let newIndex = getNextIndex(index, groupObjects, event?.key)
+                    const originalNewIndex = newIndex
+                    let newObject = Component.getGroupObjectAt(groupName, newIndex)
+
+                    while (!isUsable(newObject)) {
+                        newIndex = getNextIndex(newIndex, groupObjects, event?.key)
+                        if (newIndex === originalNewIndex) { 
+                            newObject = null
+                            break 
+                        }
+                        newObject = Component.getGroupObjectAt(groupName, newIndex)
+                    }
+
+                    if (!newObject) { return }
+                    newObject.focus()
+                    event?.stopPropagation()
+                }
+                onFocus() { 
+                    const groupObjects = Component.getGroupObjects(this.props.groupName)
+
+                    for (let menu of groupObjects) {
+                        if (menu === this) { continue }
+                        menu.DropdownMenu.close()
+                        menu.check(false)
+                    }
+                }
+                onBlur() { }
+                focus() { this.MenuElement.focus() }
+                setStyles() {
+                    if (this.enabled) {
+                        if (-1 === this.vars.tabIndex && -1 !== this.vars.disabledTabIndex) { 
+                            this.vars.tabIndex = this.vars.disabledTabIndex 
+                            this.vars.disabledTabIndex = -1
+                        }
+                        if (this.vars.checked) { 
+                            this.MenuElement.addClass(`menu-active`) 
+                            this.MenuElement.removeClass(`menu`) 
+                        } else { 
+                            this.MenuElement.removeClass(`menu-active`) 
+                            this.MenuElement.addClass(`menu`) 
+                        }
+                        this.MenuElement.removeClass(`menu-disabled`)
+                        this.MenuElement.addClass(`bounce-and-brighten`)
+                    } else if (!this.MenuElement.classList.contains(`display-none`)) {
+                        this.vars.disabledTabIndex = this.vars.tabIndex
+                        this.vars.tabIndex = -1
+                        this.MenuElement.removeClass(`menu`)
+                        this.MenuElement.removeClass(`menu-active`)
+                        this.MenuElement.addClass(`menu-disabled`)
+                        this.MenuElement.removeClass(`bounce-and-brighten`)
+                    }
+                }
+                isChecked() { return this.vars.checked }
+                async check(checked) { 
+                    if (checked === this.vars.checked) { return }
+                    if (!this.enabled) { return }
+                    if (!this.MenuElement.isVisible()) { return }
+                    this.vars.checked = checked
+                    this.setStyles()
+                    if (checked) { 
+                        this.updateGroup() 
+                        await Queue.broadcast(this.props.clickMessage, this)
+                    }
+                    if (this.vars.checked !== this.DropdownMenu.isOpen()) {
+                        if (this.vars.checked) { await this.DropdownMenu.open() }
+                        else { await this.DropdownMenu.close() }
+                    }
+                }
+                isOpen() { return this.DropdownMenu.isOpen() }
+                async getData() {
+                    if (this.vars.checked) { return { name: this.props.groupName, value: this.props.groupValue }}
+                    return null
+                }
+                props = {
+                    clickMessage: Messages.ON_CLICK,
+                    underline: false,
+                    round: false,
+                    groupName: ``,
+                    groupValue: ``,
+                    groupIndex: ``,
+                    dropdownGroupName: ``,
+                    dataList: ``,
+                    menuItems: []
+                }
+                vars = {
+                    title: ``,
+                    tabIndex: 0,
+                    disabledTabIndex: -1,
+                    tooltipText: ``,
+                    extraData: ``,
+                    checked: false
+                }
+            }
+        </script>
+        <style>
+            :root {
+                --menu-position: relative;
+                --menu-display: flex;
+                --menu-justify-content: center;
+                --menu-align-items: center;
+                --menu-z-index: inherit;
+                --menu-color: var(--text-color);
+                --menu-background-color: var(--clear);
+                --menu-text-align: center;
+                --menu-font-family: var(--primary-font-family);
+                --menu-font-size: var(--text-1-font-size);
+                --menu-font-weight: var(--text-1-font-weight);
+                --menu-white-space: nowrap;
+                --menu-cursor: default;
+                --menu-padding: var(--default-padding);
+                --menu-margin: var(--default-margin);
+
+                --menu-round-border-radius: 5px 5px 0 0;
+
+                --menu-text-decoration: underline;
+
+                --menu-active-position: relative;
+                --menu-active-display: flex;
+                --menu-active-justify-content: center;
+                --menu-active-align-items: center;
+                --menu-active-z-index: inherit;
+                --menu-active-color: var(--text-color);
+                --menu-active-background-color: var(--primary-variant-color);
+                --menu-active-text-align: center;
+                --menu-active-text-decoration: none;
+                --menu-active-font-family: var(--primary-font-family);
+                --menu-active-font-size: var(--text-1-font-size);
+                --menu-active-font-weight: var(--text-1-font-weight);
+                --menu-active-white-space: nowrap;
+                --menu-active-cursor: default;
+                --menu-active-padding: var(--default-padding);
+                --menu-active-margin: var(--default-margin);
+
+                --menu-disabled-display: flex;
+                --menu-disabled-justify-content: center;
+                --menu-disabled-align-items: center;
+                --menu-disabled-z-index: inherit;
+                --menu-disabled-color: var(--disabled-text-color);
+                --menu-disabled-background-color: var(--clear);
+                --menu-disabled-text-align: center;
+                --menu-disabled-text-decoration: none;
+                --menu-disabled-font-family: var(--primary-font-family);
+                --menu-disabled-font-size: var(--text-1-font-size);
+                --menu-disabled-font-weight: var(--text-1-font-weight);
+                --menu-disabled-white-space: nowrap;
+                --menu-disabled-cursor: not-allowed;
+                --menu-disabled-padding: var(--default-padding);
+                --menu-disabled-margin: var(--default-margin);
+            }
+
+            .menu {
+                position: var(--menu-position);
+                display: var(--menu-display);
+                justify-content: var(--menu-justify-content);
+                align-items: var(--menu-align-items);
+                z-index: var(--menu-z-index);
+                color: var(--menu-color);
+                background-color: var(--menu-background-color);
+                text-align: var(--menu-text-align);
+                font-family: var(--menu-font-family);
+                font-size: var(--menu-font-size);
+                font-weight: var(--menu-font-weight);
+                white-space: var(--menu-white-space);
+                cursor: var(--menu-cursor);
+                padding: var(--menu-padding);
+                margin: var(--menu-margin);
+            }
+            .menu-active {
+                position: var(--menu-active-position);
+                display: var(--menu-active-display);
+                justify-content: var(--menu-active-justify-content);
+                align-items: var(--menu-active-align-items);
+                z-index: var(--menu-active-z-index);
+                color: var(--menu-active-color);
+                background-color: var(--menu-active-background-color);
+                text-align: var(--menu-active-text-align);
+                text-decoration: var(--menu-active-text-decoration);
+                font-family: var(--menu-active-font-family);
+                font-size: var(--menu-active-font-size);
+                font-weight: var(--menu-active-font-weight);
+                white-space: var(--menu-active-white-space);
+                cursor: var(--menu-active-cursor);
+                padding: var(--menu-active-padding);
+                margin: var(--menu-active-margin);
+            }
+            .menu-disabled {
+                position: var(--menu-disabled-position);
+                display: var(--menu-disabled-display);
+                justify-content: var(--menu--disabledjustify-content);
+                align-items: var(--menu-disabled-align-items);
+                z-index: var(--menu-disabled-z-index);
+                color: var(--menu-disabled-color);
+                background-color: var(--menu-disabled-background-color);
+                text-align: var(--menu-disabled-text-align);
+                text-decoration: var(--menu-disabled-text-decoration);
+                font-family: var(--menu-disabled-font-family);
+                font-size: var(--menu-disabled-font-size);
+                font-weight: var(--menu-disabled-font-weight);
+                white-space: var(--menu-disabled-white-space);
+                cursor: var(--menu-disabled-cursor);
+                padding: var(--menu-disabled-padding);
+                margin: var(--menu-disabled-margin);
+            }
+            .menu-round {
+                border-radius: var(--menu-round-border-radius);
+            }
+            .menu-underline {
+                text-decoration: var(--menu-text-decoration);
+            }
+        </style>
+        <component-markup>
+            <div id="{id}" class="bounce-and-brighten" tabIndex="{tabIndex}" onkeydown="$obj.onKeyDown(event)" onclick="$obj.check(!$obj.vars.checked)" onfocus="$obj.onFocus()" onblur="$obj.onBlur()">
+                <div id="{id}Menu" class="menu">{title}</div>
+                <include-html data-src="./html/components/dropdown-menu.html" data-id="{id}DropdownMenu"
+                    data-props="{ anchorId: `{id}Menu`, groupName: `{dropdownGroupName}`, dataList: `{dataList}` }"
+                    data-vars="{ tabIndex: -1 }">
+                </include-html>
+            </div>
+        </component-markup>
+        <script data-is-test="true">
+        </script>
+    </custom-component>
+

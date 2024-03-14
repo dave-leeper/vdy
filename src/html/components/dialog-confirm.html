@@ -1,0 +1,105 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/dialog-confirm.html
+        class DialogConfirm extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/dialog-confirm.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.clickMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.ok(true)
+                })
+                Queue.register(this, this.props.cancelMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.cancel(false)
+                })
+            }
+        }
+        props = {
+            dialogId: `ConfirmDialog`,
+            clickMessage: `CONFIRM_BUTTON_OK`,
+            cancelMessage: `CONFIRM_BUTTON_CANCEL`
+        }
+        vars = {
+            alertTitle: `Confirm`,
+            message: ``
+        }
+    </script>
+    <style>
+        :root {
+            --dialog-confirm-display: flex;
+            --dialog-confirm-flex-direction: column;
+            --dialog-confirm-justify-content: center;
+            --dialog-confirm-cursor: default;
+            --dialog-confirm-padding: 10px;
+            --dialog-confirm-margin: 10px;
+
+            --dialog-confirm-title-color: var(--text-color);
+            --dialog-confirm-title-background-color: var(--clear);
+            --dialog-confirm-title-text-align: center;
+            --dialog-confirm-title-font-family: var(--primary-font-family);
+            --dialog-confirm-title-font-size: var(--header-6-font-size);
+            --dialog-confirm-title-font-weight: var(--header-6-font-weight);
+
+            --dialog-confirm-message-color: flex;
+            --dialog-confirm-message-color: var(--text-color);
+            --dialog-confirm-message-background-color: var(--clear);
+            --dialog-confirm-message-padding: 10px 0;
+            --dialog-confirm-message-margin: 10px 0;
+            --dialog-confirm-message-text-align: left;
+            --dialog-confirm-message-font-family: var(--primary-font-family);
+            --dialog-confirm-message-font-size: var(--text-1-font-size);
+            --dialog-confirm-message-font-weight: var(--text-1-font-weight);
+            --dialog-confirm-message-white-space: pre-wrap;
+        }
+
+        .dialog-confirm {
+            display: var(--dialog-confirm-display);
+            flex-direction: var(--dialog-confirm-flex-direction);
+            justify-content: var(--dialog-confirm-justify-content);
+        }
+
+        .dialog-confirm-title {
+            color: var(--dialog-confirm-title-color);
+            background-color: var(--dialog-confirm-title-background-color);
+            text-align: var(--dialog-confirm-title-text-align);
+            font-family: var(--dialog-confirm-title-font-family);
+            font-size: var(--dialog-confirm-title-font-size);
+            font-weight: var(--dialog-confirm-title-font-weight);
+        }
+
+        .dialog-confirm-message {
+            color: var(--dialog-confirm-message-color);
+            background-color: var(--dialog-confirm-message-background-color);
+            padding: var(--dialog-confirm-message-padding);
+            margin: var(--dialog-confirm-message-margin);
+            text-align: var(--dialog-confirm-message-text-align);
+            font-family: var(--dialog-confirm-message-font-family);
+            font-size: var(--dialog-confirm-message-font-size);
+            font-weight: var(--dialog-confirm-message-font-weight);
+            white-space: var(--dialog-confirm-message-white-space);
+
+        }
+    </style>
+    <component-markup>
+        <div id="{id}Wrapper" class="dialog-confirm">
+            <div id="{id}Title" class="dialog-confirm-title">{alertTitle}</div>
+            <div id="{id}Message" class="dialog-confirm-message">{message}</div>
+            <div id="{id}ButtonWrapper" class="flex-row">
+                <include-html data-src="./html/components/button.html" data-id="{id}CancelButton"
+                    data-props="{ isDefault: false, clickMessage: `{cancelMessage}` }"
+                    data-vars="{ title: `Cancel` }">
+                </include-html>
+                <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                    data-props="{ isDefault: true, clickMessage: `{clickMessage}` }"
+                    data-vars="{ title: `Ok` }">
+                </include-html>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

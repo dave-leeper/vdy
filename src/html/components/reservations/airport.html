@@ -1,0 +1,221 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reservations/airport.html
+        class Airport extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/airport.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onChildrenMounted() {
+                const testDate = {
+                    name: `Date is not in the past`,
+                    description: `Ensure date is not in the past.`,
+                    test: async () => {
+                        let results = []
+                        function isNotBeforeToday(date) {
+                            let today = new Date()
+
+                            today.setHours(0, 0, 0, 0)
+                            return date >= today
+                        }
+
+                        let parts = this.ArrivalDate.TextFieldElement.value.split("-")
+                        let day = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10))
+                        assert(isNotBeforeToday(day),                                           `Field '${this.ArrivalDate.props.label}' cannot be in the past.`, results, false)
+                        return results
+                    }
+                }
+                const testTime = {
+                    name: `Time is not in the past`,
+                    description: `Ensure time is not in the past.`,
+                    test: async () => {
+                        let results = []
+                        function isNotBeforeToday(date) {
+                            const today = new Date()
+
+                            return date >= today
+                        }
+
+                        let dateParts = this.ArrivalDate.TextFieldElement.value.split("-")
+                        let tmeParts = this.EstimatedArrivalTime.TextFieldElement.value.split(":")
+                        let day = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10), parseInt(tmeParts[0], 10), parseInt(tmeParts[1], 10))
+                        assert(isNotBeforeToday(day),                                           `Field '${this.EstimatedArrivalTime.props.label}' cannot be in the past.`, results, false)
+                        return results
+                    }
+                }
+
+                this.ArrivalDate.vars.customValidationTests.push(testDate)
+                this.EstimatedArrivalTime.vars.customValidationTests.push(testTime)
+                await super.onChildrenMounted()
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                
+                // this.Airport.setTitle(`Chandler Municipal`)
+                // this.Airline.setTitle(`Advanced Air`)
+                this.Airport.unselect()
+                this.Airline.unselect()
+            }
+            clearData() {
+                // this.Airport.setTitle(``)
+                this.FlightNumber.TextFieldElement.value = ''
+                this.ArrivalDate.TextFieldElement.value = ''
+                this.EstimatedArrivalTime.TextFieldElement.value = ''
+            }
+            setIndexes(firstIndex) {
+                /*
+                this.Airport.vars.tabIndex = firstIndex
+                this.Airline.vars.tabIndex = firstIndex + 1
+                this.FlightNumber.TextFieldElement.tabIndex = firstIndex + 2
+                this.ArrivalDate.TextFieldElement.tabIndex = firstIndex + 3
+                this.ArrivalDate.DatePicker.Element.tabIndex = firstIndex + 4
+                this.EstimatedArrivalTime.TextFieldElement.tabIndex = firstIndex + 5
+                this.EstimatedArrivalTime.TimePicker.Element.tabIndex = firstIndex + 6
+                */
+                this.Airport.vars.tabIndex = 0
+                this.Airline.vars.tabIndex = 0
+                this.FlightNumber.TextFieldElement.tabIndex = 0
+                this.ArrivalDate.TextFieldElement.tabIndex = 0
+                this.ArrivalDate.DatePicker.Element.tabIndex = 0
+                this.EstimatedArrivalTime.TextFieldElement.tabIndex = 0
+                this.EstimatedArrivalTime.TimePicker.Element.tabIndex = 0
+            }
+            getFieldCount() { if (this.vars.shortForm) { return 2 } else { return 7 }}
+            setShortForm() {
+                this.vars.shortForm = true
+                // this.AirlineOuterWrapperElement.classList.add(`display-none`)
+                this.FlightNumber.Element.classList.add(`display-none`)
+                this.ArrivalDate.Element.classList.add(`display-none`)
+                this.EstimatedArrivalTime.Element.classList.add(`display-none`)
+            }
+            async getData() {
+                await this.Airport.validate(false)
+                if (!this.Airport.isValid()) { return null }
+                await this.Airline.validate(false)
+                if (!this.Airline.isValid()) { return null }
+
+                if (!this.vars.shortForm) {
+                    await this.FlightNumber.validate(false)
+                    if (!this.FlightNumber.isValid()) { return null }
+                    await this.ArrivalDate.validate(false)
+                    if (!this.ArrivalDate.isValid()) { return null }
+                }
+
+                const airport = this.Airport.getTitle()
+                const airline = this.Airline.getTitle()
+                const flightNumber = this.FlightNumber?.TextFieldElement?.value
+                const arrivalDate = this.ArrivalDate?.TextFieldElement?.value
+                const estimatedArrivalTime = this.EstimatedArrivalTime?.TextFieldElement?.value
+
+                if (!this.vars.shortForm) { return { airport, airline, flightNumber, arrivalDate, estimatedArrivalTime }}
+                else { return { airport, airline, flightNumber, arrivalDate, estimatedArrivalTime }}
+            }
+            async getInvalidFields() {
+                const invalidFields = []
+
+                await this.Airport.validate(false)
+                if (!this.Airport.isValid()) { invalidFields.push(this.Airport) }
+                await this.Airline.validate(false)
+                if (!this.Airline.isValid()) { invalidFields.push(this.Airline) }
+
+                if (!this.vars.shortForm) {
+                    await this.FlightNumber.validate(false)
+                    if (!this.FlightNumber.isValid()) { invalidFields.push(this.FlightNumber) }
+                    await this.ArrivalDate.validate(false)
+                    if (!this.ArrivalDate.isValid()) { invalidFields.push(this.ArrivalDate) }
+                    await this.EstimatedArrivalTime.validate(false)
+                    if (!this.EstimatedArrivalTime.isValid()) { invalidFields.push(this.EstimatedArrivalTime) }
+                }
+                return invalidFields
+            }
+            showInvalidBorder(show) {
+                this.Airport.vars.showInvalidBorder = show
+                this.Airline.vars.showInvalidBorder = show
+                this.FlightNumber.vars.showInvalidBorder = show
+                this.ArrivalDate.vars.showInvalidBorder = show
+                this.EstimatedArrivalTime.vars.showInvalidBorder = show
+                this.FlightNumber.showInvalid()
+                this.ArrivalDate.showInvalid()
+                this.EstimatedArrivalTime.showInvalid()
+            }
+            props = {
+                title: ``
+            }
+            vars = {
+                shortForm: false
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}">
+            <div id="{id}AirportOuterWrapper" class="flex-row flex-align-start">
+                <include-html data-src="./html/components/select.html" data-id="{id}Airport"
+                    data-props="{ required: true, groupName: `{id}AirportGroup`, label: `Airport`, labelWidth: `115px`, name: `{id}Airport`, dataList: `{id}AirportList`, noSelectTitle: `Select Airport` }"
+                    data-vars="{ selectTitle: `Select Airport` }"
+                    data-class-header="border">
+                </include-html>
+            </div>
+            <datalist id="{id}AirportList">
+                <option id="{id}AirportList0" value="Chandler Municipal"></option>
+                <option id="{id}AirportList3" value="Deer Valley"></option>
+                <option id="{id}AirportList1" value="Phoenix Sky Harbor"></option>
+                <option id="{id}AirportList4" value="Glendale Municipal"></option>
+                <option id="{id}AirportList5" value="Mesa Gateway"></option>
+                <option id="{id}AirportList6" value="Scottsdale"></option>
+            </datalist>
+            <div id="{id}AirlineOuterWrapper">
+                <include-html data-src="./html/components/select.html" data-id="{id}Airline"
+                    data-props="{ required: true, groupName: `{id}AirlineGroup`, label: `Airline`, labelWidth: `115px`, name: `{id}Airline`, dataList: `{id}AirlineList`, noSelectTitle: `Select Airline` }"
+                    data-vars="{ selectTitle: `Select Airline` }"
+                    data-class-header="border">
+                </include-html>
+            </div>
+            <datalist id="{id}AirlineList">
+                <option value="Not Listed"></option>
+                <option value="Air Canada"></option>
+                <option value="Air France"></option>
+                <option value="Alaska Airlines"></option>
+                <option value="Allegiant"></option>
+                <option value="American Airlines"></option>
+                <option value="Breeze Airways"></option>
+                <option value="British Airways"></option>
+                <option value="Condor Airlines"></option>
+                <option value="Contour Airlines"></option>
+                <option value="Delta Airlines"></option>
+                <option value="Denver Air Connection"></option>
+                <option value="Frontier Airlines"></option>
+                <option value="Hawaiian Airlines"></option>
+                <option value="Jackson Jet Center"></option>
+                <option value="JetBlue Airways"></option>
+                <option value="JSX "></option>
+                <option value="Lynx Air"></option>
+                <option value="Set Jet"></option>
+                <option value="Southern Airways Express"></option>
+                <option value="Southwest Airlines"></option>
+                <option value="Spirit Airlines"></option>
+                <option value="Sun Country Airlines"></option>
+                <option value="United Airlines"></option>
+                <option value="Volaris"></option>
+                <option value="WestJet"></option>
+            </datalist>
+            <include-html data-src="./html/components/text-field.html" data-id="{id}FlightNumber"
+                data-props="{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelWidth: `115px`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabIndex: 0, showValidationErrors: `snackbar` }"
+                data-vars="{ type: `text` }">
+            </include-html>
+            <include-html data-src="./html/components/text-field.html" data-id="{id}ArrivalDate"
+                data-props="{ name: `ArrivalDate`, label: `Arrival Date`, labelWidth: `115px`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabIndex: 0, showValidationErrors: `snackbar` }"
+                data-vars="{ type: `date` }">
+            </include-html>
+            <include-html data-src="./html/components/text-field.html" data-id="{id}EstimatedArrivalTime"
+                data-props="{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelWidth: `115px`, labelAboveField: false, required: true, tabIndex: 0, showValidationErrors: `snackbar` }"
+                data-vars="{ type: `time` }">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

@@ -1,0 +1,65 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/star.html
+        class Star extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/star.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onChildrenMounted() { 
+                await super.onChildrenMounted()
+                this.setValue(this.vars.value)
+                await this.Image.show()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+                this.setValue(this.vars.value)
+                this.Image.enabled = this.enabled
+            }            
+            setValue(value) {
+                let image = `../../images/themes/{theme}/star-empty.png`
+
+                if (!this.enabled) {
+                    this.vars.currentImage = `../../images/themes/{theme}/star-disabled.png`
+                    this.Image.vars.src = `../../images/themes/{theme}/star-disabled.png`
+                    return 
+                }
+                this.vars.value = value
+                if ( 0.33 > value) { 
+                    this.vars.currentImage = image
+                    this.Image.vars.src = image
+                    return 
+                }
+                image = `../../images/themes/{theme}/star-half.png`
+                if ( 0.66 > value) { 
+                    this.vars.currentImage = image
+                    this.Image.vars.src = image
+                    return 
+                }
+                this.vars.currentImage = `../../images/themes/{theme}/star-full.png`
+                this.Image.vars.src = `../../images/themes/{theme}/star-full.png`
+            }
+            async getData() {
+                return { name: this.id, value: this.vars.value }
+            }
+            vars = {
+                value: 0,
+                currentImage: `../../images/themes/{theme}/star-empty.png`
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}">
+            <include-html data-src="./html/components/img.html" data-id="{id}Image"
+                data-props="{ hideAfterMount: false }"
+                data-vars="{ src: `{currentImage}`, lazyLoad: true, width: 20, height: 20 }">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

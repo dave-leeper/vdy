@@ -1,0 +1,748 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/calendar.html
+        class Calendar extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/calendar.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            static isDateBeforeToday(date) {
+                const now = new Date()
+                const result = Calendar.isFirstDateBeforeSecondDate(date, now)
+
+                return result
+            }
+            static isFirstDateBeforeSecondDate(date1, date2) {
+                if (date2.getFullYear() > date1.getFullYear()) { return true }
+                if (date2.getFullYear() < date1.getFullYear()) { return false }
+                if (date2.getMonth() > date1.getMonth()) { return true }
+                if (date2.getMonth() < date1.getMonth()) { return false }
+                if (date2.getDate() > date1.getDate()) { return true }
+                return false
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.prevClickMessage, async (message) => {
+                    if (message !== this.PrevMonthButton) { return }
+                    await this.subtractMonth()
+                })
+                Queue.registerAsync(this, this.props.nextClickMessage, async (message) => {
+                    if (message !== this.NextMonthButton) { return }
+                    await this.addMonth()
+                })
+                Queue.registerAsync(this, Messages.SELECT_BEFORE_OPENED, async (message) => {
+                    if (message === this.MonthSelect) { await this.createMonthSelect() }
+                    else if (message === this.YearSelect) { await this.createYearSelect() }
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+
+                await this.createCalendar()
+                this.setSelectedCell()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                const dayCells = this.getAllDayCells()
+
+                this.PrevMonthButton.enabled = this.enabled
+                this.NextMonthButton.enabled = this.enabled
+                if (this.MonthSelect.isSuspended) { this.MonthSelect.unsuspend() }
+                if (this.YearSelect.isSuspended) { this.YearSelect.unsuspend() }
+                if (this.enabled) {
+                    this.TitleBarElement.removeClass(`calendar-title-disabled`)
+                    this.TitleBarElement.addClass(`calendar-title`)
+                    this.HeaderSUElement.removeClass(`calendar-header-cell-disabled`)
+                    this.HeaderSUElement.addClass(`calendar-header-cell`)
+                    this.HeaderMOElement.removeClass(`calendar-header-cell-disabled`)
+                    this.HeaderMOElement.addClass(`calendar-header-cell`)
+                    this.HeaderTUElement.removeClass(`calendar-header-cell-disabled`)
+                    this.HeaderTUElement.addClass(`calendar-header-cell`)
+                    this.HeaderWEElement.removeClass(`calendar-header-cell-disabled`)
+                    this.HeaderWEElement.addClass(`calendar-header-cell`)
+                    this.HeaderTHElement.removeClass(`calendar-header-cell-disabled`)
+                    this.HeaderTHElement.addClass(`calendar-header-cell`)
+                    this.HeaderFRElement.removeClass(`calendar-header-cell-disabled`)
+                    this.HeaderFRElement.addClass(`calendar-header-cell`)
+                    this.HeaderSAElement.removeClass(`calendar-header-cell-disabled`)
+                    this.HeaderSAElement.addClass(`calendar-header-cell`)
+                    for (let dayElement of dayCells) { 
+                        if (!dayElement.getDate) { continue }
+                        dayElement.removeClass(`calendar-cell-selected`)
+                        dayElement.removeClass(`calendar-cell`)
+                        dayElement.removeClass(`calendar-past-cell`)
+                        dayElement.removeClass(`bounce-and-brighten`)
+                        if (dayElement.isPast() && this.props.pastDatesAreGray) {
+                            dayElement.addClass(`calendar-past-cell`) 
+                            dayElement.tabIndex = -1
+                        } else {
+                            dayElement.addClass(`calendar-cell`)
+                            if (dayElement.isSelected()) { dayElement.addClass(`calendar-cell-selected`) }
+                            dayElement.tabIndex = 0
+                            dayElement.addClass(`bounce-and-brighten`) 
+                        }
+                    }
+                } else {
+                    this.MonthSelect.suspend()
+                    this.YearSelect.suspend()
+                    this.TitleBarElement.addClass(`calendar-title-disabled`)
+                    this.TitleBarElement.removeClass(`calendar-title`)
+                    this.HeaderSUElement.addClass(`calendar-header-cell-disabled`)
+                    this.HeaderSUElement.removeClass(`calendar-header-cell`)
+                    this.HeaderMOElement.addClass(`calendar-header-cell-disabled`)
+                    this.HeaderMOElement.removeClass(`calendar-header-cell`)
+                    this.HeaderTUElement.addClass(`calendar-header-cell-disabled`)
+                    this.HeaderTUElement.removeClass(`calendar-header-cell`)
+                    this.HeaderWEElement.addClass(`calendar-header-cell-disabled`)
+                    this.HeaderWEElement.removeClass(`calendar-header-cell`)
+                    this.HeaderTHElement.addClass(`calendar-header-cell-disabled`)
+                    this.HeaderTHElement.removeClass(`calendar-header-cell`)
+                    this.HeaderFRElement.addClass(`calendar-header-cell-disabled`)
+                    this.HeaderFRElement.removeClass(`calendar-header-cell`)
+                    this.HeaderSAElement.addClass(`calendar-header-cell-disabled`)
+                    this.HeaderSAElement.removeClass(`calendar-header-cell`)
+                    for (let dayElement of dayCells) { 
+                        dayElement.removeClass(`bounce-and-brighten`) 
+                        dayElement.removeClass(`calendar-past-cell`) 
+                        dayElement.removeClass(`calendar-cell`) 
+                        dayElement.removeClass(`calendar-cell-selected`) 
+                        dayElement.addClass(`calendar-disabled-cell`)
+                        dayElement.tabIndex = -1
+                    }
+                }
+            }
+            async createCalendar() {
+                let year = this.vars.year
+                let month = this.vars.month
+                let day = this.vars.day
+                let date = new Date(year, month, day)
+                let dayOfTheMonth = new Date(year, month, 1, 0, 0, 0, 0)
+                let rowCounter = 0
+                let emptyCellCounter = 0
+                const pad = (i) => { return (i < 10) ? `0` + i : i }
+                const addConvenienceMethods = (cell, date) => {
+                    ComponentLifecycle.addConvenienceMethodsToElement(cell)
+                    cell.date = new Date(date.toDateString())
+                    cell.getDate = () => { return cell.date }
+                    cell.getYear = () => { return cell.date.getFullYear() }
+                    cell.getMonth = () => { return cell.date.getMonth() }
+                    cell.getDay = () => { return cell.date.getDate() }
+                    cell.isPast = () => { return Calendar.isFirstDateBeforeSecondDate(cell.date, new Date()) }
+                    cell.select = async () => { 
+                        if (!this.enabled) { return }
+                        this.vars.selectedCell?.unselect()
+                        this.vars.selectedDay = cell.getDay()
+                        this.vars.selectedMonth = cell.getMonth()
+                        this.vars.selectedYear = cell.getYear() 
+                        this.vars.selectedCell = cell 
+                        this.vars.selectedCell.addClass(`calendar-cell-selected`)
+                        await Queue.broadcast(this.props.dateSelectedClickMessage, cell)
+                    }
+                    cell.unselect = async () => {  
+                        if (!this.enabled) { return }
+                        if (!this.vars.selectedCell) { return }
+                        if (this.vars.selectedCell !== cell) { return }
+                        cell.removeClass(`calendar-cell-selected`)
+                        this.vars.selectedDay = null
+                        this.vars.selectedMonth = null
+                        this.vars.selectedYear = null
+                        this.vars.selectedCell = null 
+                        await Queue.broadcast(this.props.dateUnselectedClickMessage, cell)
+                    }
+                    cell.isSelected = () => { return cell.getDay() === this.vars.selectedDay && cell.getMonth() === this.vars.selectedMonth && cell.getYear() === this.vars.selectedYear }
+                }
+                const addClickHandler = (cell) => { cell.addEventListener(`click`, (event) => { cell.select() }) }
+                const createRow = (parentElement) => {
+                    const row = document.createElement(`div`)
+
+                    ComponentLifecycle.addConvenienceMethodsToElement(row)
+                    row.id = `${this.id}Row${rowCounter}`
+                    row.addClass(`calendar-row`)
+                    parentElement.append(row)
+                    rowCounter++
+
+                    return row
+                }
+                const createEmptyCell = (parentElement) => {
+                    const emptyCell = document.createElement(`div`)
+
+                    ComponentLifecycle.addConvenienceMethodsToElement(emptyCell)
+                    emptyCell.id = `${this.id}EmptyCell${emptyCellCounter}`
+                    emptyCell.addClass(`calendar-empty-cell`)
+                    emptyCell.innerText = `.`
+                    parentElement.append(emptyCell)
+                    emptyCellCounter++
+
+                    return emptyCell
+                }
+                const createPastCell = (parentElement, date) => {
+                    const pastCell = document.createElement(`div`)
+
+                    pastCell.id = `${this.id}Cell_DayDDMMYYYY_${pad(date.getDate())}_${pad(date.getMonth() + 1)}_${date.getFullYear()}`
+                    addConvenienceMethods(pastCell, date)
+                    if (!this.props.pastDatesAreGray) { pastCell.tabIndex = 0 }
+                    if (this.props.pastDatesAreGray) { pastCell.addClass(`calendar-past-cell`) }
+                    else {
+                        pastCell.addClass(`calendar-cell`)
+                        pastCell.addClass(`bounce-and-brighten`)
+                        addClickHandler(pastCell)
+                    }
+                    pastCell.innerText = date.getDate()
+                    parentElement.append(pastCell)
+                    return pastCell
+                }
+                const createCell = (parentElement, date) => {
+                    const cell = document.createElement(`div`)
+
+                    cell.id = `${this.id}Cell_DayDDMMYYYY_${pad(date.getDate())}_${pad(date.getMonth() + 1)}_${date.getFullYear()}`
+                    addConvenienceMethods(cell, date)
+                    cell.tabIndex = 0
+                    cell.addClass(`calendar-cell`)
+                    cell.addClass(`bounce-and-brighten`)
+                    cell.innerText = date.getDate()
+                    addClickHandler(cell)
+                    parentElement.append(cell)
+                    return cell
+                }
+                const disablePrevMonth = () => {
+                    this.PrevMonthButton.enabled = true
+                    if (this.vars.year > this.vars.yearRange[0]) { return }
+                    if (this.vars.month !== 0) { return }
+                    this.PrevMonthButton.enabled = false
+                }
+                const disableNextMonth = () => {
+                    this.NextMonthButton.enabled = true
+                    if (this.vars.year < this.vars.yearRange[1]) { return }
+                    if (this.vars.month !== 11) { return }
+                    this.NextMonthButton.enabled = false
+                }
+
+                this.DaysElement.removeChildren()
+                this.vars.monthName = dayOfTheMonth.toLocaleString('default', { month: 'long' });
+
+                let currentRow = createRow(this.DaysElement)
+
+                // Add empty cells for the first row until the first day of the month
+                for (let loop = 0; loop < dayOfTheMonth.getDay(); loop++) { createEmptyCell(currentRow) }
+
+                // Cells with actual dates
+                while (dayOfTheMonth.getMonth() == month) {
+                    if (Calendar.isDateBeforeToday(dayOfTheMonth)) {
+                        createPastCell(currentRow, dayOfTheMonth)
+                    } else {
+                        createCell(currentRow, dayOfTheMonth)
+                    }
+                    const workingDate = dayOfTheMonth.getDate()
+                    const workingDay = dayOfTheMonth.getDay()
+
+                    if (workingDay % 7 == 6) { currentRow = createRow(this.DaysElement) }     // sunday, last day of week - newline
+                    dayOfTheMonth.setDate(workingDate + 1)
+                }
+
+                // Add empty cells after last days of month for the last row
+                const d = dayOfTheMonth.getDay()
+
+                if (d != 0) {
+                    for (let loop = d; loop < 7; loop++) { createEmptyCell(currentRow) }
+                }
+                // Set titles
+                this.MonthSelect.vars.selectTitle = this.vars.monthName
+                this.YearSelect.vars.selectTitle = this.vars.year
+                disablePrevMonth()
+                disableNextMonth()
+            }
+            async createMonthSelect() {
+                if (0 < this.MonthSelect.vars.content.length) { return }
+                for (let monthName of this.vars.monthNames) { 
+                    const clickMessage = `${this.id}${monthName}ClickMessage`
+                    const groupName = `${this.id}Months`
+                    const monthCallback = async (message) => {
+                        const monthIndex = this.MonthSelect.itemIndex(message)
+                        const monthName = message.vars.title
+
+                        if (monthIndex === -1) { return }
+                        this.vars.month = monthIndex
+                        this.vars.monthName = monthName
+                        await this.createCalendar()
+                    }
+
+                    await this.MonthSelect.appendString(monthName, clickMessage) 
+                    Queue.registerAsync(this, clickMessage, monthCallback)
+                }
+                this.MonthSelect.setTitle(this.vars.monthName)
+            }
+            async createYearSelect() {
+                if (0 < this.YearSelect.vars.content.length) { return }
+                for (let year = this.vars.yearRange[0]; year <= this.vars.yearRange[1]; year++) { 
+                    const clickMessage = `${this.id}${year}ClickMessage`
+                    const groupName = `${this.id}Years`
+                    const yearCallback = async (message) => {
+                        const yearIndex = this.YearSelect.itemIndex(message)
+                        const yearName = message.vars.title
+
+                        if (yearIndex === -1) { return }
+                        this.vars.year = parseInt(yearName)
+                        await this.createCalendar()
+                    }
+
+                    await this.YearSelect.appendString(`${year}`, clickMessage) 
+                    Queue.registerAsync(this, clickMessage, yearCallback)
+                }
+                this.YearSelect.setTitle(`${this.vars.year}`)
+            }
+            setSelectedCell() {
+                if (!this.vars.selectedDay || !this.vars.selectedMonth || !this.vars.selectedYear) { return }
+
+                const pad = (i) => { return (i < 10) ? "0" + i : i }
+                const day = this.vars.selectedDay
+                const month = this.vars.selectedMonth + 1
+                const year = this.vars.selectedYear
+                const selectedCellId = `${this.id}Cell_DayDDMMYYYY_${pad(day)}_${pad(month)}_${year}`
+                const selectedCell = document.getElementById(selectedCellId)
+                const allDayCells = this.getAllDayCells()
+                
+                for (let dayCell of allDayCells) { dayCell.unselect && dayCell.unselect() }
+                this.vars.selectedCell = selectedCell
+                selectedCell?.select()
+            }
+            async subtractMonth() {
+                event?.stopPropagation()
+
+                let date = new Date(this.vars.year, this.vars.month, 1, 0, 0, 0, 0)
+
+                date.setMonth(date.getMonth() - 1)
+                this.vars.year = date.getFullYear()
+                this.vars.month = date.getMonth()
+                await this.createCalendar()
+            }
+            async addMonth() {
+                event?.stopPropagation()
+
+                let date = new Date(this.vars.year, this.vars.month, 1, 0, 0, 0, 0)
+
+                date.setMonth(date.getMonth() + 1)
+                this.vars.year = date.getFullYear()
+                this.vars.month = date.getMonth()
+                await this.createCalendar()
+            }
+            getAllDayCells() {
+                const days = []
+
+                for (let rowElement of this.DaysElement.children) {
+                    for (let dayElement of rowElement.children) {
+                        days.push(dayElement)
+                    }
+                }
+                return days
+            }
+            async getData() {
+                return { name: this.id, value: { selectedDay: this.vars.selectedDay, selectedMonth: this.vars.selectedMonth, selectedYear: this.vars.selectedYear }}
+            }
+            props = {
+                pastDatesAreGray: true,
+                prevClickMessage: Messages.CALENDAR_PREV_MONTH,
+                prevMonthImageURL: `../images/themes/{theme}/previous.png`,
+                prevMonthDisabledImageURL: `../images/themes/{theme}/previous-disabled.png`,
+                nextClickMessage: Messages.CALENDAR_NEXT_MONTH,
+                nextMonthImageURL: `../images/themes/{theme}/next.png`,
+                nextMonthDisabledImageURL: `../images/themes/{theme}/next-disabled.png`,
+                dateSelectedClickMessage: Messages.CALENDAR_DATE_SELECTED,
+                dateUnselectedClickMessage: Messages.CALENDAR_DATE_UNSELECTED
+            }
+            vars = {
+                monthNames: [ `January`, `February`, `March`, `April`, `May`, `June`, `July`, `August`, `September`, `October`, `November`, `December`],
+                yearRange: [ new Date().getFullYear(), new Date().getFullYear() + 5 ],
+                year: new Date().getFullYear(),
+                month: new Date().getMonth(),
+                monthName: new Date(new Date().getFullYear(), new Date().getMonth(), 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' }),
+                day: new Date().getDate(),
+                selectedYear: new Date().getFullYear(),
+                selectedMonth: new Date().getMonth(),
+                selectedDay: new Date().getDate(),
+                selectedCell: null
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --calendar-card-display: flex;
+            --calendar-card-flex-direction: column;
+            --calendar-card-flex-justify-content: center;
+            --calendar-card-flex-align-items: center;
+            --calendar-card-width: 300px;
+            --calendar-card-z-index: inherit;
+            --calendar-card-overflow: hidden ;
+            --calendar-card-border-radius: 15px;
+            --calendar-card-padding: 5px;
+            --calendar-card-margin: 5px;
+
+            --calendar-row-list-display: flex;
+            --calendar-row-list-flex-direction: column;
+            --calendar-row-list-justify-content: center;
+            --calendar-row-list-align-items: center;
+            --calendar-row-list-width: 300px;
+            --calendar-row-list-z-index: inherit;
+
+            --calendar-display: flex;
+            --calendar-flex-direction: column;
+            --calendar-width: 300px;
+            --calendar-z-index: inherit;
+
+            --calendar-title-display: flex;
+            --calendar-title-flex-direction: row;
+            --calendar-title-flex-justify-content: space-between;
+            --calendar-title-flex-align-items: baseline;
+            --calendar-title-width: 290px;
+            --calendar-title-height: 30px;
+            --calendar-title-z-index: inherit;
+            --calendar-title-color: var(--text-color);
+            --calendar-title-text-align: center;
+            --calendar-title-font-family: var(--primary-font-family);
+            --calendar-title-font-size: var(--text-1-font-size);
+            --calendar-title-font-weight: var(--text-1-font-weight);
+            --calendar-title-margin-bottom: 10px;
+            --calendar-title-cursor: default;
+
+            --calendar-title-disabled-display: flex;
+            --calendar-title-disabled-flex-direction: row;
+            --calendar-title-disabled-flex-justify-content: space-between;
+            --calendar-title-disabled-flex-align-items: baseline;
+            --calendar-title-disabled-width: 290px;
+            --calendar-title-disabled-height: 30px;
+            --calendar-title-disabled-z-index: inherit;
+            --calendar-title-disabled-color: var(--disabled-text-color);
+            --calendar-title-disabled-text-align: center;
+            --calendar-title-disabled-font-family: var(--primary-font-family);
+            --calendar-title-disabled-font-size: var(--text-1-font-size);
+            --calendar-title-disabled-font-weight: var(--text-1-font-weight);
+            --calendar-title-disabled-margin-bottom: 10px;
+            --calendar-title-disabled-cursor: not-allowed;
+
+            --calendar-header-display: flex;
+            --calendar-header-flex-direction: row;
+            --calendar-header-flex-justify-content: space-between;
+            --calendar-header-flex-align-items: baseline;
+            --calendar-header-flex-wrap: nowrap;
+            --calendar-header-width: 290px;
+            --calendar-header-height: 30px;
+            --calendar-header-z-index: inherit;
+            --calendar-header-color: var(--text-color);
+            --calendar-header-background-color: var(--clear);
+            --calendar-header-text-align: center;
+            --calendar-header-font-family: var(--primary-font-family);
+            --calendar-header-font-size: var(--text-1-font-size);
+            --calendar-header-font-weight: var(--text-1-font-weight);
+            --calendar-header-cursor: default;
+
+            --calendar-row-display: flex;
+            --calendar-row-flex-direction: row;
+            --calendar-row-flex-justify-content: space-between;
+            --calendar-row-flex-align-items: baseline;
+            --calendar-row-flex-wrap: nowrap;
+            --calendar-row-width: 290px;
+            --calendar-row-height: 30px;
+            --calendar-row-z-index: inherit;
+
+            --calendar-header-cell-width: 30px;
+            --calendar-header-cell-height: 30px;
+            --calendar-header-cell-z-index: inherit;
+            --calendar-header-cell-color: var(--text-color);
+            --calendar-header-cell-background-color: var(--clear);
+            --calendar-header-cell-text-align: center;
+            --calendar-header-cell-font-family: var(--primary-font-family);
+            --calendar-header-cell-font-size: var(--text-1-font-size);
+            --calendar-header-cell-font-weight: var(--text-1-font-weight);
+            --calendar-header-cell-cursor: default;
+            --calendar-header-cell-padding: 3px;
+
+            --calendar-header-cell-disabled-width: 30px;
+            --calendar-header-cell-disabled-height: 30px;
+            --calendar-header-cell-disabled-z-index: inherit;
+            --calendar-header-cell-disabled-color: var(--disabled-text-color);
+            --calendar-header-cell-disabled-background-color: var(--clear);
+            --calendar-header-cell-disabled-text-align: center;
+            --calendar-header-cell-disabled-font-family: var(--primary-font-family);
+            --calendar-header-cell-disabled-font-size: var(--text-1-font-size);
+            --calendar-header-cell-disabled-font-weight: var(--text-1-font-weight);
+            --calendar-header-cell-disabled-cursor: not-allowed;
+            --calendar-header-cell-disabled-padding: 3px;
+
+            --calendar-cell-position: relative;
+            --calendar-cell-width: 30px;
+            --calendar-cell-height: 30px;
+            --calendar-cell-z-index: inherit;
+            --calendar-cell-color: var(--text-color);
+            --calendar-cell-background-color: var(--clear);
+            --calendar-cell-text-align: center;
+            --calendar-cell-font-family: var(--primary-font-family);
+            --calendar-cell-font-size: var(--text-1-font-size);
+            --calendar-cell-font-weight: var(--text-1-font-weight);
+            --calendar-cell-cursor: default;
+            --calendar-cell-padding: 3px;
+
+            --calendar-empty-cell-width: 30px;
+            --calendar-empty-cell-height: 30px;
+            --calendar-empty-cell-z-index: inherit;
+            --calendar-empty-cell-color: var(--text-color);
+            --calendar-empty-cell-background-color: var(--clear);
+            --calendar-empty-cell-text-align: center;
+            --calendar-empty-cell-font-family: var(--primary-font-family);
+            --calendar-empty-cell-font-size: var(--text-1-font-size);
+            --calendar-empty-cell-font-weight: var(--text-1-font-weight);
+            --calendar-empty-cell-cursor: not-allowed;
+            --calendar-empty-cell-padding: 3px;
+
+            --calendar-past-cell-width: 30px;
+            --calendar-past-cell-height: 30px;
+            --calendar-past-cell-z-index: inherit;
+            --calendar-past-cell-color: var(--disabled-text-color);
+            --calendar-past-cell-background-color: var(--clear);
+            --calendar-past-cell-text-align: center;
+            --calendar-past-cell-font-family: var(--primary-font-family);
+            --calendar-past-cell-font-size: var(--text-1-font-size);
+            --calendar-past-cell-font-weight: var(--text-1-font-weight);
+            --calendar-past-cell-cursor: not-allowed;
+            --calendar-past-cell-padding: 3px;
+
+            --calendar-disabled-cell-width: 30px;
+            --calendar-disabled-cell-height: 30px;
+            --calendar-disabled-cell-z-index: inherit;
+            --calendar-disabled-cell-color: var(--disabled-text-color);
+            --calendar-disabled-cell-background-color: var(--clear);
+            --calendar-disabled-cell-text-align: center;
+            --calendar-disabled-cell-font-family: var(--primary-font-family);
+            --calendar-disabled-cell-font-size: var(--text-1-font-size);
+            --calendar-disabled-cell-font-weight: var(--text-1-font-weight);
+            --calendar-disabled-cell-cursor: not-allowed;
+            --calendar-disabled-cell-padding: 3px;
+
+            --calendar-selected-cell-border-color: var(--text-color);
+            --calendar-selected-cell-border-width: 2px;
+            --calendar-selected-cell-border-style: solid;
+        }
+
+        .calendar-card {
+            display: var(--calendar-card-display);
+            flex-direction: var(--calendar-card-flex-direction);
+            justify-content: var(--calendar-card-flex-justify-content);
+            align-items: var(--calendar-card-flex-align-items);
+            width: var(--calendar-card-width);
+            z-index: var(--calendar-card-z-index);
+            overflow: var(--calendar-card-overflow);
+            border-radius: var(--calendar-card-border-radius);
+            padding: var(--calendar-card-padding);
+            margin: var(--calendar-card-margin);
+        }
+
+        .calendar-title {
+            display: var(--calendar-title-display);
+            flex-direction: var(--calendar-title-flex-direction);
+            justify-content: var(--calendar-title-flex-justify-content);
+            align-items: var(--calendar-title-flex-align-items);
+            width: var(--calendar-title-width);
+            height: var(--calendar-title-height);
+            z-index: var(--calendar-title-z-index);
+            color: var(--calendar-title-color);
+            text-align: var(--calendar-title-text-align);
+            font-family: var(--calendar-title-font-family);
+            font-size: var(--calendar-title-font-size);
+            font-weight: var(--calendar-title-font-weight);
+            margin-bottom: var(--calendar-title-margin-bottom);
+            cursor: var(--calendar-title-cursor);
+        }
+
+        .calendar-title-disabled {
+            display: var(--calendar-title-disabled-display);
+            flex-direction: var(--calendar-title-disabled-flex-direction);
+            justify-content: var(--calendar-title-disabled-flex-justify-content);
+            align-items: var(--calendar-title-disabled-flex-align-items);
+            width: var(--calendar-title-disabled-width);
+            height: var(--calendar-title-disabled-height);
+            z-index: var(--calendar-title-disabled-z-index);
+            color: var(--calendar-title-disabled-color);
+            text-align: var(--calendar-title-disabled-text-align);
+            font-family: var(--calendar-title-disabled-font-family);
+            font-size: var(--calendar-title-disabled-font-size);
+            font-weight: var(--calendar-title-disabled-font-weight);
+            margin-bottom: var(--calendar-title-disabled-margin-bottom);
+            cursor: var(--calendar-title-disabled-cursor);
+        }
+
+        .calendar {
+            display: var(--calendar-display);
+            flex-direction: var(--calendar-flex-direction);
+            width: var(--calendar-width);
+            z-index: var(--calendar-z-index);
+        }
+ 
+        .calendar-header {
+            display: var(--calendar-header-display);
+            flex-direction: var(--calendar-header-flex-direction);
+            justify-content: var(--calendar-header-flex-justify-content);
+            align-items: var(--calendar-header-flex-align-items);
+            flex-wrap: var(--calendar-header-flex-wrap);
+            width: var(--calendar-header-width);
+            height: var(--calendar-header-height);
+            z-index: var(--calendar-header-z-index);
+            color: var(--calendar-calendar-header-color);
+            background-color: var(--calendar-header-background-color);
+            text-align: var(--calendar-header-text-align);
+            font-family: var(--calendar-header-font-family);
+            font-size: var(--calendar-header-font-size);
+            font-weight: var(--calendar-header-font-weight);
+            cursor: var(--calendar-header-cursor);
+        }
+ 
+        .calendar-header-cell {
+            width: var(--calendar-header-cell-width);
+            height: var(--calendar-header-cell-height);
+            z-index: var(--calendar-header-cell-z-index);
+            color: var(--calendar-header-cell-color);
+            background-color: var(--calendar-header-cell-background-color);
+            text-align: var(--calendar-header-cell-text-align);
+            font-family: var(--calendar-header-cell-font-family);
+            font-size: var(--calendar-header-cell-font-size);
+            font-weight: var(--calendar-header-cell-font-weight);
+            cursor: var(--calendar-header-cell-cursor);
+            padding: var(--calendar-header-cell-padding);
+        }
+ 
+        .calendar-header-cell-disabled {
+            width: var(--calendar-header-cell-disabled-width);
+            height: var(--calendar-header-cell-disabled-height);
+            z-index: var(--calendar-header-cell-disabled-z-index);
+            color: var(--calendar-header-cell-disabled-color);
+            background-color: var(--calendar-header-cell-disabled-background-color);
+            text-align: var(--calendar-header-cell-disabled-text-align);
+            font-family: var(--calendar-header-cell-disabled-font-family);
+            font-size: var(--calendar-header-cell-disabled-font-size);
+            font-weight: var(--calendar-header-cell-disabled-font-weight);
+            cursor: var(--calendar-header-cell-disabled-cursor);
+            padding: var(--calendar-header-cell-disabled-padding);
+        }
+
+        .calendar-row-list {
+            display: var(--calendar-row-list-display);
+            flex-direction: var(--calendar-row-list-flex-direction);
+            justify-content: var(--calendar-row-list-justify-content);
+            align-items: var(--calendar-row-list-align-items);
+            width: var(--calendar-row-list-width);
+            z-index: var(--calendar-row-list-z-index);
+        }
+
+        .calendar-row {
+            display: var(--calendar-row-display);
+            flex-direction: var(--calendar-row-flex-direction);
+            justify-content: var(--calendar-row-flex-justify-content);
+            align-items: var(--calendar-row-flex-align-items);
+            flex-wrap: var(--calendar-row-flex-wrap);
+            width: var(--calendar-row-width);
+            height: var(--calendar-row-height);
+            z-index: var(--calendar-row-z-index);
+        }
+
+        .calendar-empty-cell {
+            width: var(--calendar-empty-cell-width);
+            height: var(--calendar-empty-cell-height);
+            z-index: var(--calendar-empty-cell-z-index);
+            color: var(--calendar-empty-cell-color);
+            background-color: var(--calendar-empty-cell-background-color);
+            text-align: var(--calendar-empty-cell-text-align);
+            font-family: var(--calendar-empty-cell-font-family);
+            font-size: var(--calendar-empty-cell-font-size);
+            font-weight: var(--calendar-empty-cell-font-weight);
+            cursor: var(--calendar-empty-cell-cursor);
+            padding: var(--calendar-empty-cell-padding);
+        }
+
+        .calendar-past-cell {
+            width: var(--calendar-past-cell-width);
+            height: var(--calendar-past-cell-height);
+            z-index: var(--calendar-past-cell-z-index);
+            color: var(--calendar-past-cell-color);
+            background-color: var(--calendar-past-cell-background-color);
+            text-align: var(--calendar-past-cell-text-align);
+            font-family: var(--calendar-past-cell-font-family);
+            font-size: var(--calendar-past-cell-font-size);
+            font-weight: var(--calendar-past-cell-font-weight);
+            cursor: var(--calendar-past-cell-cursor);
+            padding: var(--calendar-past-cell-padding);
+        }
+
+        .calendar-disabled-cell {
+            width: var(--calendar-disabled-cell-width);
+            height: var(--calendar-disabled-cell-height);
+            z-index: var(--calendar-disabled-cell-z-index);
+            color: var(--calendar-disabled-cell-color);
+            background-color: var(--calendar-disabled-cell-background-color);
+            text-align: var(--calendar-disabled-cell-text-align);
+            font-family: var(--calendar-disabled-cell-font-family);
+            font-size: var(--calendar-disabled-cell-font-size);
+            font-weight: var(--calendar-disabled-cell-font-weight);
+            cursor: var(--calendar-disabled-cell-cursor);
+            padding: var(--calendar-disabled-cell-padding);
+        }
+
+        .calendar-cell {
+            position: var(--calendar-cell-position);
+            width: var(--calendar-cell-width);
+            height: var(--calendar-cell-height);
+            z-index: var(--calendar-cell-z-index);
+            color: var(--calendar-cell-color);
+            background-color: var(--calendar-cell-background-color);
+            text-align: var(--calendar-cell-text-align);
+            font-family: var(--calendar-cell-font-family);
+            font-size: var(--calendar-cell-font-size);
+            font-weight: var(--calendar-cell-font-weight);
+            cursor: var(--calendar-cell-cursor);
+            padding: var(--calendar-cell-padding);
+        }
+
+        .calendar-cell-selected {
+            z-index: var(--calendar-selected-cell-z-index);
+            border-color: var(--calendar-selected-cell-border-color);
+            border-width: var(--calendar-selected-cell-border-width);
+            border-style: var(--calendar-selected-cell-border-style);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="calendar-card">
+            <div id="{id}TitleBar" class="calendar-title">
+                <include-html data-src="./html/components/img-button.html" data-id="{id}PrevMonthButton"
+                    data-props="{ size: `s`, clickMessage: `{prevClickMessage}` }"
+                    data-vars="{ imageURL: `{prevMonthImageURL}`, disabledImageURL: `{prevMonthDisabledImageURL}`, tooltipText: `Previous Month`, lazyLoad: true }">
+                </include-html>
+                <div id="{id}Title" class="flex-row"> 
+                    <include-html data-src="./html/components/select.html" data-id="{id}MonthSelect"
+                        data-props="{ groupName: `{id}MonthGroup` }">
+                    </include-html>
+                    <include-html data-src="./html/components/select.html" data-id="{id}YearSelect"
+                        data-props="{ groupName: `{id}YearGroup` }">
+                    </include-html>
+                </div>
+                <include-html data-src="./html/components/img-button.html" data-id="{id}NextMonthButton"
+                    data-props="{ size: `s`, clickMessage: `{nextClickMessage}` }"
+                    data-vars="{ imageURL: `{nextMonthImageURL}`, disabledImageURL: `{nextMonthDisabledImageURL}`, tooltipText: `Next Month`, lazyLoad: true }">
+                </include-html>
+            </div>
+            <div id="{id}Body" class="calendar">
+                <div id="{id}Header" class="calendar-header">
+                    <div id="{id}HeaderSU" class="calendar-header-cell">SU</div>
+                    <div id="{id}HeaderMO" class="calendar-header-cell">MO</div>
+                    <div id="{id}HeaderTU" class="calendar-header-cell">TU</div>
+                    <div id="{id}HeaderWE" class="calendar-header-cell">WE</div>
+                    <div id="{id}HeaderTH" class="calendar-header-cell">TH</div>
+                    <div id="{id}HeaderFR" class="calendar-header-cell">FR</div>
+                    <div id="{id}HeaderSA" class="calendar-header-cell">SA</div>
+                </div>
+                <div id="{id}Days" class="calendar-row-list">
+                </div>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

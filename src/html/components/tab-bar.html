@@ -1,0 +1,354 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/tab-bar.html
+        class TabBar extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/tab-bar.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async afterMount() {
+                await super.afterMount()
+                for (let title of this.vars.tabs) {
+                    const tabId = this.buildTabId(title)
+                    let tabHTML = `<div id="${tabId}"`
+                    const temp = document.createElement('div')
+                    const message = { tabBar: this, title }
+
+
+                    tabHTML += ` class="tab bounce-and-brighten"`
+                    tabHTML += ` tabindex="0"`
+                    tabHTML += ` onclick="if ($obj.isTabEnabled('${title}')) { $obj.setActiveTab('${title}') }"`
+                    tabHTML += ` onkeydown="if ($obj.isTabEnabled('${title}')) { $obj.onKeyDown(event) }"`
+                    tabHTML += ` onfocus="if ($obj.isTabEnabled('${title}')) { $obj.onFocus() }"`
+                    tabHTML += ` onblur="if ($obj.isTabEnabled('${title}')) { $obj.onBlur() }"`
+                    tabHTML += ` >${title}</div>`
+                    temp.innerHTML = tabHTML
+                    ComponentLifecycle.addConvenienceMethodsToElement(temp)
+                    ComponentLifecycle.setEventHandlers(temp, this.id)
+                    this.Element.appendChild(temp.firstChild)
+                    if (title ===  this.vars.tabs[0]) { await Queue.broadcast(Messages.SHOW_TAB, message )}
+                    else { await Queue.broadcast(Messages.HIDE_TAB, message )}
+                }
+                const activeTabName = this.vars.tabs[this.vars.activeTab]
+                const activeTabId = this.buildTabId(activeTabName)
+                const activeTabElement = document.getElementById(activeTabId)
+
+                activeTabElement?.classList.toggle(`active-tab`)
+                if (!this.vars.horizontal) { this.Element.replaceClass(`flex-row`, `flex-col`)}
+                if (!this.vars.tabsCentered) { this.Element.replaceClass(`flex-align-center`, `flex-align-start`)}
+
+                const disabledTabs = this.vars.disabledTabs
+
+                this.vars.disabledTabs = []
+                for (let disabledTab of disabledTabs) { this.disableTab(disabledTab) }
+                this.adjustActiveTab()
+
+                Queue.registerAsync(this, Loader.msgs.SITE_LOADED, async () => { 
+                    const activeTab = this.vars.tabs[this.vars.activeTab]
+                    const message = { tabBar: this, title: activeTab } 
+                    
+                    await Queue.broadcast(Messages.SHOW_TAB, message )
+                })
+            }
+            onKeyDown(event) { 
+                if (!this.enabled) { return }
+
+                const activeTab = this.getActiveTabName()
+                const activeTabElement = this.getActiveTabElement()
+
+                if (!activeTabElement.hasFocus()) { return }
+                if (!activeTabElement.isVisible()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    const message = { tabBar: this, title: activeTab }
+
+                    event?.stopPropagation()
+                    Queue.broadcast(Messages.FOCUS_TAB, message )
+                    return
+                }
+            }
+            onFocus() { 
+                const tabTitleElement = document.activeElement
+                const tabTitle = tabTitleElement?.innerText
+
+                if (tabTitle) { this.setActiveTab(tabTitle) }
+            }
+            onBlur() { }
+            async show() { 
+                await super.show()
+
+                for (let tabName of this.vars.tabs) {
+                    const tabElement = this.getTabElement(tabName)
+                    const rowOrCol = (!this.vars.horizontal)? `flex-row` : `flex-col`
+
+                    tabElement.removeClass(`display-none`)
+                    tabElement.addClass(rowOrCol)
+                }
+
+                const tabComponent = await this.getActiveTabComponent()
+
+                tabComponent.show()
+            }
+            async hide() {
+                await super.hide()
+                for (let tabName of this.vars.tabs) {
+                    const tabElement = this.getTabElement(tabName)
+                    const tabComponent = await this.getTabComponent(tabName)
+                    const rowOrCol = (!this.vars.horizontal)? `flex-row` : `flex-col`
+
+                    tabElement.removeClass(rowOrCol)
+                    tabElement.addClass(`display-none`)
+                    tabComponent.hide()
+                }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+                for (let tab of this.vars.tabs) {
+                    if (this.enabled) { await this.enableTab(tab) }
+                    else { await this.disableTab(tab) }
+                }
+            }          
+            async enableTab(name) { 
+                const disabledTabIndex = this.vars.disabledTabs.indexOf(name)
+
+                if (-1 === disabledTabIndex) { return }
+
+                const tabComponent = await this.getTabComponent(name)
+                const tabElement = this.getTabElement(name)
+                const tabIndex = this.getTabIndex(name)
+
+                tabComponent.unsuspend()
+                tabElement.removeClass(`disabled-tab`)
+                tabElement.addClass(`tab`)
+                tabElement.addClass(`bounce-and-brighten`)
+                tabElement.tabIndex = "0"
+                if (tabIndex === this.vars.activeTab) { this.setActiveTab(name) }
+                this.vars.disabledTabs.splice(disabledTabIndex, 1)
+            }
+            async disableTab(name) { 
+                const disabledTabIndex = this.vars.disabledTabs.indexOf(name)
+
+                if (-1 !== disabledTabIndex) { return }
+
+                const tabComponent = await this.getTabComponent(name)
+                const tabElement = this.getTabElement(name)
+                const tabIndex = this.getTabIndex(name)
+
+                tabComponent.suspend()
+                tabElement.addClass(`disabled-tab`)
+                tabElement.removeClass(`tab`)
+                tabElement.removeClass(`bounce-and-brighten`)
+                tabElement.removeClass(`active-tab`)
+                tabElement.tabIndex = "-1"
+                this.vars.disabledTabs.push(name)
+            }
+            isTabEnabled(name) { return -1 === this.vars.disabledTabs.indexOf(name) }        
+            setActiveTab(tabName) {
+                if (tabName === this.vars.tabs[this.vars.activeTab]) { return }
+                for (let loop = 0; loop < this.vars.tabs.length; loop++) {
+                    let previousActiveTabName = this.vars.tabs[this.vars.activeTab]
+                    let previousActiveTabId = this.buildTabId(previousActiveTabName)
+                    let previousActiveTabElement = document.getElementById(previousActiveTabId)
+                    let newActiveTabName = this.vars.tabs[loop]
+                    let newActiveTabId = this.buildTabId(newActiveTabName)
+                    let newActiveTabElement = document.getElementById(newActiveTabId)
+
+                    if (tabName !== this.vars.tabs[loop]) { 
+                        newActiveTabElement?.removeClass(`active-tab`)
+                        continue 
+                    }
+                    previousActiveTabElement?.removeClass(`active-tab`)
+                    newActiveTabElement?.addClass(`active-tab`)
+                    this.vars.activeTab = loop
+                    Queue.broadcast(Messages.HIDE_TAB, { tabBar: this, title: previousActiveTabName })
+                    Queue.broadcast(Messages.SHOW_TAB, { tabBar: this, title: newActiveTabName })
+                    Queue.broadcast(Messages.REFRESH, this )
+                }
+            }
+            adjustActiveTab() { 
+                let hasSetActiveTab = false 
+
+                if (0 <= this.vars.activeTab && this.vars.activeTab < this.vars.tabs.length && this.isTabEnabled(this.getActiveTabName())) { return }
+
+                for (let loop = 0; loop < this.vars.tabs.length; loop++) {
+                    const tabName = this.vars.tabs[loop]
+
+                    if (!this.isTabEnabled(tabName)) {
+                        const tabElement = this.getTabElement(name)
+
+                        tabElement?.removeClass(`active-tab`)
+                        continue 
+                    }
+                    if (!hasSetActiveTab) {
+                        this.setActiveTab(tabName)
+                        hasSetActiveTab = true
+                    }
+                }
+                if (!hasSetActiveTab) { this.vars.activeTab = -1 }
+            }
+            async getActiveTabComponent() { 
+                const tabComponent = await this.getTabComponent(this.getActiveTabName())
+
+                return tabComponent
+            }
+            getActiveTabName() { return this.vars.tabs[this.vars.activeTab] }
+            getActiveTab() { this.vars.activeTab }
+            getActiveTabElement() { 
+                const activeTab = this.getActiveTabName()
+                const activeTabId = this.buildTabId(activeTab)
+                const activeTabElement = document.getElementById(activeTabId)
+
+                return activeTabElement
+            }
+            buildTabId(name) { return `${this.id}Tab${name.replace(' ', '_')}` }
+            async getTabComponent(name) { 
+                const message = { tabBar: this, title: name }
+                const tabComponentArray = await Queue.call(Messages.GET_TAB, message)
+                const filterFalsey = (result, current) => { return (result)? result : current }
+                const tabComponent = tabComponentArray.reduce(filterFalsey)
+
+                return tabComponent
+            }
+            async getAllTabComponents() {
+                const tabComponents = []
+
+                for (let name of this.vars.tabs) {
+                    const tabComponent = await this.getTabComponent(name)
+
+                    if (tabComponent) { tabComponents.push(tabComponent) }
+                }
+                return tabComponents
+            }
+            getTabIndex(name) {
+                for (let loop = 0; loop < this.vars.tabs.length; loop++) {
+                    const tabName = this.vars.tabs[loop]
+
+                    if (tabName === name) { return loop }
+                }
+                return -1
+            }
+            getTabName(index) {
+                if (isNaN(index)) { 
+                    console.error(`TabBar.getTabName: Index must be a number. Index: ${index}`) 
+                    return
+                }
+                if (0 > index) { 
+                    console.error(`TabBar.getTabName: Index cannot be negative. Index: ${index}`) 
+                    return
+                }
+                if (this.vars.tabs.length <= index) { 
+                    console.error(`TabBar.getTabName: Index must be less than ${this.vars.tabs.length}. Index: ${index}`) 
+                    return
+                }
+                return this.vars.tabs[index]
+            }
+            getTabElement(name) { 
+                const tabId = this.buildTabId(name)
+                const tabElement = document.getElementById(tabId)
+
+                return tabElement
+            }
+            vars = {
+                tabs: [],
+                disabledTabs: [],
+                activeTab: 0,
+                horizontal: true,
+                tabsCentered: true
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --tab-position: relative;
+            --tab-display: flex;
+            --tab-justify-content: center;
+            --tab-align-items: center;
+            --tab-height: 20px;
+            --tab-z-index: inherit;
+            --tab-color: var(--text-color);
+            --tab-background-color: var(--clear);
+            --tab-text-align: center;
+            --tab-font-family: var(--primary-font-family);
+            --tab-font-size: var(--text-1-font-size);
+            --tab-font-weight: var(--text-1-font-weight);
+            --tab-white-space: nowrap;
+            --tab-cursor: default;
+            --tab-padding: var(--default-padding);
+            --tab-margin: var(--default-margin);
+            --tab-text-decoration: underline;
+
+            --tab-disabled-display: flex;
+            --tab-disabled-justify-content: center;
+            --tab-disabled-align-items: center;
+            --tab-disabled-height: 20px;
+            --tab-disabled-z-index: inherit;
+            --tab-disabled-color: var(--disabled-text-color);
+            --tab-disabled-background-color: var(--background-color);
+            --tab-disabled-text-align: center;
+            --tab-disabled-font-family: var(--primary-font-family);
+            --tab-disabled-font-size: var(--text-1-font-size);
+            --tab-disabled-font-weight: var(--text-1-font-weight);
+            --tab-disabled-white-space: nowrap;
+            --tab-disabled-cursor: not-allowed;
+            --tab-disabled-padding: var(--default-padding);
+            --tab-disabled-margin: var(--default-margin);
+            --tab-disabled-text-decoration: underline;
+
+            --tab-active-color: var(--text-color);
+            --tab-active-background-color: var(--primary-variant-color);
+            --tab-active-text-decoration: none;
+            --tab-active-white-space: nowrap;
+            --tab-active-border-radius: 5px 5px 0 0;
+        }        
+        .tab {
+            position: var(--tab-position);
+            display: var(--tab-display);
+            justify-content: var(--tab-justify-content);
+            align-items: var(--tab-align-items);
+            height: var(--tab-height);
+            z-index: var(--tab-z-index);
+            color: var(--tab-color);
+            background-color: var(--tab-background-color);
+            text-align: var(--tab-text-align);
+            text-decoration: var(--tab-text-decoration);
+            font-family: var(--tab-font-family);
+            font-size: var(--tab-font-size);
+            font-weight: var(--tab-font-weight);
+            white-space: var( --tab-white-space);
+            cursor: var(--tab-cursor);
+            padding: var(--tab-padding);
+            margin: var(--tab-margin);
+        }
+        .disabled-tab {
+            display: var(--tab-disabled-display);
+            justify-content: var(--tab-disabled-justify-content);
+            align-items: var(--tab-disabled-align-items);
+            height: var(--tab-disabled-height);
+            z-index: var(--tab-disabled-z-index);
+            color: var(--tab-disabled-color);
+            background-color: var(--tab-disabled-background-color);
+            text-align: var(--tab-disabled-text-align);
+            text-decoration: var(--tab-disabled-text-decoration);
+            font-family: var(--tab-disabled-font-family);
+            font-size: var(--tab-disabled-font-size);
+            font-weight: var(--tab-disabled-font-weight);
+            white-space: var( --tab-disabled-white-space);
+            cursor: var(--tab-disabled-cursor);
+            padding: var(--tab-disabled-padding);
+            margin: var(--tab-disabled-margin);
+        }
+        .active-tab {
+            color: var(--tab-active-color);
+            background-color: var(--tab-active-background-color);
+            text-decoration: var(--tab-active-text-decoration);
+            white-space: var( --tab-active-white-space);
+            border-radius: var(--tab-active-border-radius);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-center"></div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

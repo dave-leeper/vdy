@@ -1,0 +1,20 @@
+{
+    "parentId": "componentId",
+    "components": [
+        {
+            "src": "./html/components/text-button.html",
+            "id": "AnalyticsButton",
+            "props": {
+                "fillSpace": true,
+                "clickMessage": "SHOW_ANALYTICS"
+            },
+            "vars": {
+                "title": "Analytics"
+            },
+            "style": "width: 200px; height:50px;",
+            "disabled": false,
+            "children": [
+            ]
+        }
+    ]
+}

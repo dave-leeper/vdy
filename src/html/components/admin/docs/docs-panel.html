@@ -1,0 +1,191 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/docs/docs-panel.html
+        class DocsPanel extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/docs/docs-panel.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.displayDocMessage, async (json) => {
+                    await this.displayDoc(json)
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                this.TabPanelElement.hide()
+            }
+            async displayDoc(json) {
+                if (`js` === json.type) {
+                    if (0 === json.docs.length)  { Error(`No documentation found.`) }
+                    else  { await this.displayJSDoc(json.docs) }
+                } else if (`html` === json.type) {
+                    const isDocsEmpty = (json) => { return (!json.docs || !json.docs.name) }
+                    const isTestDocsEmpty = (json) => { return (!json.testDocs || !json.docs.testDocs) }
+
+                    if (isDocsEmpty(json) && isTestDocsEmpty(json))  { Error(`No documentation found.`) }
+                    if (!isDocsEmpty(json)) { await this.displayClassDoc(json.docs) }
+                    if (!isTestDocsEmpty(json)) { await this.displayClassTestDoc(json.testDocs) }
+                } else {
+                    this.DocAreaElement.innerText = `Invalid documentation data.`
+                }
+            }
+            async displayJSDoc(json) {
+                this.DocAreaElement.innerText += JSON.stringify(json) 
+            }
+            async displayClassDoc(json) {
+                const getStaticMethods = (json) => {
+                    const staticMethods = []
+
+                    for (let method of json.methods) {
+                        if (!method.isStatic) { continue }
+                        staticMethods.push(method)
+                    }
+                    return staticMethods
+                }
+                const getNonstaticMethods = (json) => {
+                    const methods = []
+
+                    for (let method of json.methods) {
+                        if (method.isStatic) { continue }
+                        methods.push(method)
+                    }
+                    return methods
+                }
+                const addMethods = async (methods, idFragment) => {
+                    for (let loop = 0; loop < methods.length; loop++) {
+                        const method = methods[loop]
+                        const id = `${this.id}${idFragment}Method${loop}`
+                        const newInclude = Component.createComponentInclude(`./html/components/admin/docs/docs-method.html`, id, method, null)
+
+                        if (ComponentLifecycle.objectRegistry.has(id)) {
+                            const methodObject = Component.getObject(id)
+
+                            await methodObject?.destroy()
+                        }
+                        this.MethodsParentElement.appendChild(newInclude)
+                        await Loader.loadIncludes()
+
+                        const methodObject = Component.getObject(id)
+
+                        await methodObject.load()
+                    }
+                }
+                const staticMethods = getStaticMethods(json)
+                const nonstaticMethods = getNonstaticMethods(json)
+
+                if (this.MethodsParentElement) { 
+                    await this.MethodsParentElement.destroyChildren() 
+                    this.MethodsParentElement.removeChildren()
+                }
+                this.vars.docName = json.name
+                this.vars.docExtends = json.extends
+                this.vars.docDescription = json.description
+                this.Description.vars.description = this.vars.docDescription
+                if (json.extends) { 
+                    this.SubtitleExtendsElement.show()
+                    this.SubtitleExtendsClassElement.show()
+                } else {
+                    this.SubtitleExtendsElement.hide()
+                    this.SubtitleExtendsClassElement.hide()
+                }
+                await addMethods(staticMethods, `Static`)
+                await addMethods(nonstaticMethods, `Object`)
+                Loader.loadIncludes()   
+                this.TabPanelElement.show()
+                await this.Description.show()
+                await this.MethodsTab.show()
+                
+            }
+            async displayClassTestDoc(json) {
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} displayDocMessage - The message sent when a document should be displayed.
+             */
+            props = {
+                displayDocMessage: `DISPLAY_DOC`,
+            }
+            /** 
+             * @member {Object}
+             * @name vars
+             * @property {string} docJSON - The documentation JSON downloaded from the server.
+             */
+            vars = {
+                docName: ``,
+                docExtends: ``,
+                docDescription: ``,
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --docs-panel-class-color: var(--primary-variant-color);
+            --docs-panel-keyword-color: var(--secondary-variant-color);
+        }
+
+        .docs-panel-class {
+            color: var(--docs-panel-class-color)
+        }
+        .docs-panel-keyword {
+            color: var(--docs-panel-keyword-color)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-start h100 w100 p-default m-default">
+            <section id="{id}DocArea" class="h100 flex-grow-5 m10">
+                <div id="{id}Header" class="flex-col">
+                    <div id="{id}Title" class="header-6">{docName}</div>
+                    <div id="{id}Subtitle" class="flex-row">
+                        <div id="{id}SubtitleName" class="docs-panel-class">{docName}</div>
+                        <div id="{id}SubtitleExtends" class="docs-panel-keyword m5-lr display-none">extends</div>
+                        <div id="{id}SubtitleExtendsClass" class="docs-panel-class">{docExtends}</div>
+                    </div>
+                    <include-html data-src="./html/components/admin/docs/docs-description.html" data-id="{id}Description"
+                        data-props="{ description: `{docDescription}` }"
+                        data-class="display-none">
+                    </include-html>
+                    <div id="{id}TabPanel" class="flex-col flex-align-start">
+                        <include-html data-src="./html/components/tab-bar.html" data-id="{id}TabBar"
+                            data-vars="{ tabs: [`Methods`, `Props`, `Vars`, `Tests`, `Samples`], activeTab: 0 }">
+                        </include-html>
+                        
+                        <include-html data-src="./html/components/tab.html" data-id="{id}MethodsTab"
+                            data-props="{ tabBarId: `{id}TabBar`, title: `Methods` }">
+                        </include-html>
+                        <slot-markup for-component-id="{id}MethodsTab" for-slot="{id}MethodsTabSlot">
+                            <div id="{id}MethodsParent"></div>
+                        </slot-markup>
+                        
+                        <include-html data-src="./html/components/tab.html" data-id="{id}PropsTab"
+                            data-props="{ tabBarId: `{id}TabBar`, title: `Props` }">
+                        </include-html>
+                        <include-html data-src="./html/components/admin/docs/docs-props.html" data-id="{id}Props"
+                            data-props="{ tabBarId: `{id}TabBar`, name: `Props` }">
+                        </include-html>
+                        
+                        <include-html data-src="./html/components/tab.html" data-id="{id}VarsTab"
+                            data-props="{ tabBarId: `{id}TabBar`, title: `Vars` }">
+                        </include-html>
+                        <include-html data-src="./html/components/admin/docs/docs-props.html" data-id="{id}Vars"
+                            data-props="{ tabBarId: `{id}TabBar`, name: `Vars` }">
+                        </include-html>
+                        
+                        <include-html data-src="./html/components/tab.html" data-id="{id}TestsTab"
+                            data-props="{ tabBarId: `{id}TabBar`, title: `Tests` }">
+                        </include-html>
+                        <include-html data-src="./html/components/admin/docs/docs-test.html" data-id="{id}Tests"
+                            data-props="{ tabBarId: `{id}TabBar`, name: `Tests` }">
+                        </include-html>
+                    </div>
+                </div>
+            </section>  
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

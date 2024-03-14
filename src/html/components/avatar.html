@@ -1,0 +1,146 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/avatar.html
+        class Avatar extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/avatar.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onChildrenMounted() { 
+                await super.onChildrenMounted()
+
+                const size = this.convertSizeToPixels()
+
+                this.Image.vars.width = size
+                this.Image.vars.height = size
+                this.Element.removeClass(`avatar-xs`)
+                this.Element.removeClass(`avatar-s`)
+                this.Element.removeClass(`avatar-m`)
+                this.Element.removeClass(`avatar-l`)
+                this.Element.removeClass(`avatar-xl`)
+                this.Element.removeClass(`avatar-xxl`)
+                this.Element.removeClass(`avatar-xxxl`)
+                if (`xs` === this.props.size.toLowerCase()) { this.Element.addClass(`avatar-xs`) }
+                else if (`s` === this.props.size.toLowerCase()) { this.Element.addClass(`avatar-s`) }
+                else if (`m` === this.props.size.toLowerCase()) { this.Element.addClass(`avatar-m`) }
+                else if (`l` === this.props.size.toLowerCase()) { this.Element.addClass(`avatar-l`) }
+                else if (`xl` === this.props.size.toLowerCase()) { this.Element.addClass(`avatar-xl`) }
+                else if (`xxl` === this.props.size.toLowerCase()) { this.Element.addClass(`avatar-xxl`) }
+                else if (`xxxl` === this.props.size.toLowerCase()) { this.Element.addClass(`avatar-xxxl`) }
+                this.Image.filterImage(this.enabled)
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+                this.Image.filterImage(this.enabled)
+            }
+            async getData() {
+                return { name: this.id, value: this.vars.imageURL }
+            }         
+            convertSizeToPixels() { 
+                if (`xs` === this.props.size) { return 12 }
+                if (`s` === this.props.size) { return 25 }
+                if (`m` === this.props.size) { return 50 }
+                if (`l` === this.props.size) { return 75 }
+                if (`xl` === this.props.size) { return 100 }
+                if (`xxl` === this.props.size) { return 150 }
+                if (`xxxl` === this.props.size) { return 200 }
+                return 0
+            }
+            props = { 
+                imageURL: ``,
+                size: `m`,
+            }
+            vars = {
+                tabIndex: -1
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --avatar-display: flex; 
+            --avatar-flex-direction: row;
+            --avatar-justify-content: center;
+            --avatar-align-items: center;
+            --avatar-z-index: inherit;
+            --avatar-overflow: hidden;
+            --avatar-pad: 0;
+            --avatar-margin: var(--default-margin);
+            --avatar-border-color: var(--default-border-color);
+            --avatar-border-width: var(--default-border-width);
+            --avatar-border-style: var(--default-border-style);
+            --avatar-border-radius: 50%;
+
+            --avatar-width-xs: 12px;
+            --avatar-height-xs: 12px;
+            --avatar-width-s: 25px;
+            --avatar-heigh-s: 25px;
+            --avatar-width-m: 50px;
+            --avatar-heigh-m: 50px;
+            --avatar-width-l: 75px;
+            --avatar-heigh-l: 75px;
+            --avatar-width-xl: 100px;
+            --avatar-heigh-xl: 100px;
+            --avatar-width-xxl: 150px;
+            --avatar-heigh-xxl: 150px;
+            --avatar-width-xxxl: 200px;
+            --avatar-heigh-xxxl: 200px;
+        }
+
+        .avatar {
+            display: var(--avatar-display); 
+            flex-direction: var(--avatar-flex-direction);
+            justify-content: var(--avatar-justify-content);
+            align-items: var(--avatar-align-items);
+            z-index: var(--avatar-z-index);
+            overflow: var(--avatar-overflow);
+            padding: var(--avatar-pad);
+            margin: var(--avatar-margin);
+            border-style: var(--avatar-border-style);
+            border-width: var(--avatar-border-width);
+            border-color: var(--avatar-border-color);
+            border-radius: var(--avatar-border-radius)
+        }
+        .avatar-xs {
+            width: var(--avatar-width-xs);
+            height: var(--avatar-height-xs);
+        }
+        .avatar-s {
+            width: var(--avatar-width-s);
+            height: var(--avatar-height-s);
+        }
+        .avatar-m {
+            width: var(--avatar-width-m);
+            height: var(--avatar-height-m);
+        }
+        .avatar-l {
+            width: var(--avatar-width-l);
+            height: var(--avatar-height-l);
+            overflow: var(--avatar-overflow);
+        }
+        .avatar-xl {
+            width: var(--avatar-width-xl);
+            height: var(--avatar-height-xl);
+        }
+        .avatar-xxl {
+            width: var(--avatar-width-xxl);
+            height: var(--avatar-height-xxl);
+        }
+        .avatar-xxxl {
+            width: var(--avatar-width-xxxl);
+            height: var(--avatar-height-xxxl);
+        }
+    </style>
+    <component-markup>
+        
+        <div id="{id}" class="avatar avatar-m">
+            <include-html data-src="./html/components/img.html" data-id="{id}Image"
+                data-props="{ hideAfterMount: false }"
+                data-vars="{ src: `{imageURL}`, lazyLoad: true, tabIndex: {tabIndex} }">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

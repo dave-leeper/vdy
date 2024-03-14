@@ -1,0 +1,154 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/snackbar.html
+        class Snackbar extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/snackbar.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async afterMount() { 
+                await super.afterMount()
+                const element = (this.Element)? this.Element : document.getElementById(this.id)
+
+                if (this.props.isError) { element.classList.toggle(`snackbar-error`) }
+            }
+            async show() {
+                await Queue.broadcast(Component.msgs.BEFORE_SHOW, this)
+                this.Element.innerText = this.vars.text
+                this.Element.classList.toggle(`show`)
+                setTimeout(() => { this.hide() }, 6000)
+                await Queue.broadcast(Component.msgs.AFTER_SHOW, this)
+            }
+            async hide() {
+                await Queue.broadcast(Component.msgs.BEFORE_HIDE, this)
+                this.Element.classList.toggle(`show`)
+                await Queue.broadcast(Component.msgs.AFTER_HIDE, this)
+            }
+            props = {
+                isError: false
+            }
+            vars = {
+                tabIndex: -1,
+                text: ``
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --snackbar-min-width: 100%;
+            --snackbar-color: var(--text-color);
+            --snackbar-background-color: var(--info-color);
+            --snackbar-padding: 10px;
+            --snackbar-margin: 10px;
+            --snackbar-text-align: center;
+            --snackbar-font-family: var(--primary-font-family);
+            --snackbar-font-size: var(--text-1-font-size);
+            --snackbar-font-weight: var(--text-1-font-weight);
+            --snackbar-border-color: var(--default-border-color);
+            --snackbar-border-width: var(--default-border-width);
+            --snackbar-border-style: var(--default-border-style);
+            --snackbar-border-radius: 0;
+            --snackbar-left: 0;
+            --snackbar-bottom: 30px;
+            --snackbar-z-index: var(--z-layer2);
+
+            --snackbar-error-min-width: 100%;
+            --snackbar-error-color: var(--text-color);
+            --snackbar-error-background-color: var(--error-color);
+            --snackbar-error-padding: 10px;
+            --snackbar-error-margin-left: 10px;
+            --snackbar-error-text-align: center;
+            --snackbar-error-font-family: var(--primary-font-family);
+            --snackbar-error-font-size: var(--text-1-font-size);
+            --snackbar-error-font-weight: var(--text-1-font-weight);
+            --snackbar-error-border-color: var(--text-color);
+            --snackbar-error-border-width: var(--default-border-width);
+            --snackbar-error-border-style: var(--default-border-style);
+            --snackbar-error-border-radius: 0;
+            --snackbar-error-left: 0;
+            --snackbar-error-bottom: 30px;
+            --snackbar-error-z-index: var(--z-layer2);
+        }
+
+        .snackbar {
+            visibility: hidden;
+            position: fixed;
+            min-width: var(--snackbar-min-width);
+            color: var(--snackbar-color);
+            background-color: var(--snackbar-background-color);
+            text-align: var(--snackbar-text-align);
+            font-family: var(--snackbar-font-family);
+            font-size: var(--snackbar-font-size);
+            font-weight: var(--snackbar-font-weight);
+            border-color: var(--snackbar-border-color);
+            border-width: var(--snackbar-border-width);
+            border-style: var(--snackbar-border-style);
+            border-radius: var(--snackbar-border-radius);
+            padding: var(--snackbar-padding);
+            margin: var(--snackbar-margin);
+            left: var(--snackbar-left);
+            bottom: var(--snackbar-bottom);
+            z-index: var(--snackbar-z-index);
+        }
+        .snackbar-error {
+            visibility: hidden;
+            position: fixed;
+            min-width: var(--snackbar-error-min-width);
+            color: var(--snackbar-error-color);
+            background-color: var(--snackbar-error-background-color);
+            text-align: var(--snackbar-error-text-align);
+            font-family: var(--snackbar-error-font-family);
+            font-size: var(--snackbar-error-font-size);
+            font-weight: var(--snackbar-error-font-weight);
+            border-color: var(--snackbar-error-border-color);
+            border-width: var(--snackbar-error-border-width);
+            border-style: var(--snackbar-error-border-style);
+            border-radius: var(--snackbar-error-border-radius);
+            padding: var(--snackbar-error-padding);
+            margin: var(--snackbar-error-margin);
+            left: var(--snackbar-error-left);
+            bottom: var(--snackbar-error-bottom);
+            z-index: var(--snackbar-error-z-index);
+        }
+
+        .snackbar.show {
+            visibility: visible;
+            -webkit-animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 5.5s;
+            animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 5.5s;
+        }
+
+        .snackbar-error.show {
+            visibility: visible;
+            -webkit-animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 5.5s;
+            animation: snackbar-fadein 0.5s, snackbar-fadeout 0.5s 5.5s;
+        }
+
+        @-webkit-keyframes snackbar-fadein {
+            from {bottom: 0; opacity: 0;} 
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes snackbar-fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @-webkit-keyframes snackbar-fadeout {
+            from {bottom: 30px; opacity: 1;} 
+            to {bottom: 0; opacity: 0;}
+        }
+
+        @keyframes snackbar-fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="snackbar" tabindex="{tabIndex}"></div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

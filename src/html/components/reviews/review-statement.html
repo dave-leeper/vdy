@@ -1,0 +1,84 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reviews/review-statement.html
+        class ReviewStatement extends Component { 
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/review-statement.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+
+                this.loadText()
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    const element = (this.Element)? this.Element : document.getElementById(this.id)
+
+                    if (message.tabBar.id !== `TabBar`) { return }
+                    if (message.title !== `Reviews`) { return }
+
+                    const reviewWrapperElement = document.getElementById(`ReviewWrapper`)
+
+                    reviewWrapperElement?.classList.remove(`display-none`)
+                    element.classList.remove(`display-none`)
+                })
+            }
+            async loadText () {
+                const response = await SIText.get()
+
+                if (200 === response.status) { 
+                    let textRecords = await response.json()
+                    for (let text of textRecords) {
+                        if (`reviews` === text.for) {
+                            this.vars.text = text.text
+                            break
+                        }
+                    }
+                } else { showError(`Error retrieving text. Status code ${response.status}.`) }
+            }
+            static reviewTextParagraph1 =  `A word about my service, my website is new, my service is not. The first 48 reviews were brought in from my Yelp ad and my Google Business page. `
+            static reviewTextParagraph2 =  `All of my initial reviews have been imported exactly as they were written and I'm unable to edit them. `
+            static reviewTextParagraph3 =  `As for my replies, I make mistakes, yes I'm human, so I'm able to edit my replies `
+            static reviewTextParagraph4 =  `Thanks so much for being here and I hope you like my reviews\n\n`
+            static reviewTextParagraph5 =  `Vince`
+            static reviewText = `${ReviewStatement.reviewTextParagraph1}${ReviewStatement.reviewTextParagraph2}${ReviewStatement.reviewTextParagraph3}${ReviewStatement.reviewTextParagraph4}${ReviewStatement.reviewTextParagraph5}`
+            vars = {
+                text: `${ReviewStatement.reviewText}`
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --review-statement-card-display: flex;
+            --review-statement-card-flex-direction: column;
+            --review-statement-card-pad: 5px;
+            --review-statement-card-margin: 5px;
+            --review-statement-card-border-style: solid;
+            --review-statement-card-border-width: 2px;
+            --review-statement-card-border-color: var(--blue-400);
+        }
+
+        .review-statement-card {
+            display: var(--review-card-display);
+            flex-direction: var(--review-statement-card-flex-direction);
+            padding: var(--review-statement-card-pad);
+            margin: var(--review-statement-card-margin);
+            border-style: var(--review-statement-card-border-style);
+            border-width: var(--review-statement-card-border-width);
+            border-color: var(--review-statement-card-border-color);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-start review-statement-card display-none">
+            <div id="{id}AvatarWrapper">
+                <include-html data-src="./html/components/avatar.html" data-id="{id}Avatar"
+                    data-props="{ imageURL: `https://s3-media0.fl.yelpcdn.com/buphoto/P5CU_mkQeRZtDwo6g9Vpeg/30s.jpg` }">
+                </include-html>
+            </div>
+            <div id="{id}Statment" class="text-1 margin-l-10 margin-b-10 whitespace-pre-wrap">{text}</div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

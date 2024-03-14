@@ -1,0 +1,227 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/docs/method.html
+        class Method extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                Component.createComponentInclude(`./html/components/admin/docs/method.html`, componentId, props, vars, classes, styles, attributes)
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                this.idStorage = []
+                Queue.registerAsync(this, `DOCS_PANEL_OBJECTS_BUILT`, async (objectsBuiltInfo) => {
+                    for (let objectInfo of objectsBuiltInfo) { this.idStorage.push(objectInfo.id) }
+                })
+            }
+            async destroy() { 
+                await super.destroy()
+
+                for (let id of this.idStorage) {
+                    const obj = Component.getObject(id)
+
+                    if (!obj) { return }
+                    await obj.Element?.destroyChildren()
+                    await obj.Element?.removeChildren()
+                    await obj.destroy()
+                }
+                this.idStorage = []
+             }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                await this.Description.show()
+            }
+            async loadMethod() { 
+                if (this.props.isStatic) { this.StaticElement.show() }
+                if (this.props.isAsync) { this.AsyncElement.show() }
+
+                const paramElement = document.createElement(`div`)
+                const paramsId = `${this.id}Params`
+
+                ComponentLifecycle.addConvenienceMethodsToElement(paramElement)
+                paramElement.id = paramsId
+                paramElement.addClass(`method-param`)
+                paramElement.innerText = `()`
+                this.ParametersElement.appendChild(paramElement)
+                this.ParametersElement.show()
+
+                if (0 === this.props.params.length) { this.ParameterDescriptions.hide()}
+                else {
+                    for (let loop = 0; loop < this.props.params.length; loop++) {
+                        const param = this.props.params[loop]
+
+                        if (0 === loop) { paramElement.innerText = `(` }
+                        paramElement.innerText += param.name
+                        if (loop < this.props.params.length - 1) { paramElement.innerText += `, ` }
+                        else { paramElement.innerText += `)` }
+                    }
+
+                    const paramDescriptionsSlotMarkup = document.createElement(`slot-markup`)
+                    const slotMarkupId = `${paramsId}SlotMarkup`
+
+                    paramDescriptionsSlotMarkup.id = slotMarkupId
+                    paramDescriptionsSlotMarkup.setAttribute(`for-component-id`, this.ParameterDescriptions.id)
+                    paramDescriptionsSlotMarkup.setAttribute(`for-slot`, `${this.ParameterDescriptions.id}Slot`)
+                    this.Element.appendChild(paramDescriptionsSlotMarkup)
+
+                    for (let loop = 0; loop < this.props.params.length; loop++) {
+                        const param = this.props.params[loop]
+                        const paramDetailElement = document.createElement(`div`)
+                        const detailRow1 = document.createElement(`div`)
+                        const nameElement = document.createElement(`div`)
+                        const typesElement = document.createElement(`div`)
+                        const optionalElement = document.createElement(`div`)
+                        const descriptionText = param.description.replace(/(?:\r\n|\r|\n)/g, ``)
+                        const descriptionProps = { formatFunctionRegistryName: `DESCRIPTION_FORMAT_FUNC` }
+                        const descriptionVars = { text: descriptionText }
+                        const moreId = `${slotMarkupId}Description${loop}`
+                        const newInclude = Component.createComponentInclude(`./html/components/more.html`, moreId, descriptionProps, descriptionVars)
+
+                        this.idStorage.push(moreId)
+
+                        ComponentLifecycle.addConvenienceMethodsToElement(paramDetailElement)
+                        ComponentLifecycle.addConvenienceMethodsToElement(detailRow1)
+                        ComponentLifecycle.addConvenienceMethodsToElement(nameElement)
+                        ComponentLifecycle.addConvenienceMethodsToElement(typesElement)
+                        ComponentLifecycle.addConvenienceMethodsToElement(optionalElement)
+
+                        paramDetailElement.addClass(`flex-col`)
+                        detailRow1.addClass(`flex-row`)
+                        nameElement.addClass(`method-method`)
+                        nameElement.addClass(`m10-r`)
+                        typesElement.addClass(`method-keyword`)
+                        typesElement.addClass(`m10-r`)
+                        if (!param.optional) { optionalElement.addClass(`display-none`) }
+                        else {
+                            optionalElement.addClass(`method-keyword`)
+                            optionalElement.addClass(`m10-r`)
+                        }
+
+                        paramDetailElement.id = `${slotMarkupId}${loop}`
+                        nameElement.id = `${slotMarkupId}$Name{loop}`
+                        typesElement.id = `${slotMarkupId}Types${loop}`
+                        optionalElement.id = `${slotMarkupId}Optional${loop}`
+
+                        nameElement.innerText = param.name
+                        typesElement.innerText = param.types
+                        optionalElement.innerText = `Optional`
+
+                        detailRow1.appendChild(nameElement)
+                        detailRow1.appendChild(typesElement)
+                        detailRow1.appendChild(optionalElement)
+                        paramDetailElement.appendChild(detailRow1)
+                        paramDetailElement.appendChild(newInclude)
+                        paramDescriptionsSlotMarkup.appendChild(paramDetailElement)
+                    }
+                    SlotManager.loadSlots()
+                }
+
+                if (0 === this.props.fires.length && 0 === this.props.listens.length) { this.Messages.hide() }
+                else {
+                    const messagesSlotMarkup = document.createElement(`slot-markup`)
+                    const messagesId = `${this.id}Messages`
+                    const slotMarkupId = `${messagesId}SlotMarkup`
+
+                    messagesSlotMarkup.id = slotMarkupId
+                    messagesSlotMarkup.setAttribute(`for-component-id`, this.Messages.id)
+                    messagesSlotMarkup.setAttribute(`for-slot`, `${this.Messages.id}Slot`)
+                    this.Element.appendChild(messagesSlotMarkup)
+
+                    const buildMessageElement = (tag, counter) => {
+                        const messageElement = document.createElement(`div`)
+                        const verbElement = document.createElement(`div`)
+                        const messageNameElement = document.createElement(`div`)
+
+                        ComponentLifecycle.addConvenienceMethodsToElement(messageElement)
+                        ComponentLifecycle.addConvenienceMethodsToElement(verbElement)
+                        ComponentLifecycle.addConvenienceMethodsToElement(messageNameElement)
+
+                        messageElement.addClass(`flex-row`)
+                        verbElement.addClass(`method-keyword`)
+                        verbElement.addClass(`m10-r`)
+                        messageNameElement.addClass(`method-method`)
+
+                        messageElement.id = `${slotMarkupId}${counter}`
+                        verbElement.id = `${slotMarkupId}Verb${counter}`
+                        messageNameElement.id = `${slotMarkupId}Name${counter}`
+
+                        verbElement.innerText = tag.type.toUpperCase().charAt(0) + tag.type.slice(1).toLowerCase()
+                        messageNameElement.innerText = tag.string
+
+                        messageElement.appendChild(verbElement)
+                        messageElement.appendChild(messageNameElement)
+                        return messageElement
+                    }
+
+                    for (let loop = 0; loop < this.props.fires.length; loop++) {
+                        const firesTag = this.props.fires[loop]
+                        const firesElement = buildMessageElement(firesTag, loop)
+
+                        messagesSlotMarkup.appendChild(firesElement)
+                    }
+                    for (let loop = 0; loop < this.props.listens.length; loop++) {
+                        const listensTag = this.props.listens[loop]
+                        const listensElement = buildMessageElement(listensTag, loop)
+
+                        messagesSlotMarkup.appendChild(listensElement)
+                    }
+                }
+                SlotManager.loadSlots()
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} name - The method name.
+             * @property {boolean} isStatic - Is the method static.
+             * @property {Array} params - An array of parameter descriptions, each having the parameters name, whether or not it is optional, and a description.
+             */
+            props = {
+                name: ``,
+                description: ``,
+                isStatic: false,
+                isAsync: false,
+                params: ``
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --method-method-color: var(--warn-color);
+            --method-keyword-color: var(--secondary-variant-color);
+            --method-param-color: var(--primary-text);
+        }
+
+        .method-method {
+            color: var(--method-method-color)
+        }
+        .method-keyword {
+            color: var(--method-keyword-color)
+        }
+        .method-param {
+            color: var(--method-param-color)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-col flex-align-start p-default m-default">
+            <div id="{id}Method" class="flex-row border-b-solid border-text border-1">
+                <div id="{id}Static" class="method-keyword display-none m5-r">static</div>
+                <div id="{id}Async" class="method-keyword m5-r display-none">async</div>
+                <div id="{id}Name" class="method-method">{name}</div>
+                <div id="{id}Parameters" class="flex-row display-none"></div>
+                <div id="{id}NameEnd" class="method-method"></div>
+            </div>
+            <include-html data-src="./html/components/accordion.html" data-id="{id}ParameterDescriptions"
+                data-vars="{ title: `Parameter Descriptions` }">
+            </include-html>
+            <include-html data-src="./html/components/accordion.html" data-id="{id}Messages"
+                data-vars="{ title: `Messages` }">
+            </include-html>
+            <include-html data-src="./html/components/more.html" data-id="{id}Description"
+                data-props="{ formatFunctionRegistryName: `DESCRIPTION_FORMAT_FUNC` }"
+                data-vars="{ text: `{description}` }">
+        </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

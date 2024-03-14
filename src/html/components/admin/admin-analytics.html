@@ -1,0 +1,77 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-analytics.html
+        class AdminAnalytics extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin-analytics.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    if (message.tabBar.id === `AdminTabBar`) {
+                        if (message.title === `Analytics`) { this.Element.show() }
+                        else { this.Element.hide() }
+                    }
+                })
+            }
+            async afterMount() {
+                await super.afterMount()
+                try {
+                    const response = await SIAnalytics.get()
+
+                    if (200 !== response.status) {
+                        if (401 === response.status) { window.location.href = `/login` }
+                        else { showError(`Error getting analytics. Status code ${response.status}.`) }
+                        return
+                    }
+
+                    const json = await response.json()
+                    const analytics = json.payload.response[0]
+
+                    Chart.defaults.color = `white`
+                    new Chart(this.CanvasElement, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Quote Requests', 'Quote Request Invalid Data', 'Quote Request Failed', 'Reservation Requests', 'Reservation Request Invalid Data', 'Reservation Request Failed', 'Home Page', 'Reservation Page', 'Photos Page', 'Reviews Page'],
+                            datasets: [{
+                                label: '# of Hits',
+                                data: [
+                                    analytics.quoteRequestCounter - 1000, 
+                                    analytics.quoteRequestInvalidDataCounter, 
+                                    analytics.quoteRequestFailedCounter, 
+                                    analytics.reservationRequestCounter - 1000, 
+                                    analytics.reservationRequestInvalidDataCounter, 
+                                    analytics.reservationRequestFailedCounter, 
+                                    analytics.homePageCounter, 
+                                    analytics.reservationPageCounter, 
+                                    analytics.photosPageCounter, 
+                                    analytics.reviewsPageCounter
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: { 
+                            scales: { y: { beginAtZero: true } },
+                        }
+                    })
+                } catch (e) {
+                    console.error(`Error getting analytics. ${JSON.stringify(e)}`)
+                }
+            } 
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="w100">
+            <canvas id="{id}Canvas" class="w100"></canvas>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+
+

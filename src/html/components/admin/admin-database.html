@@ -1,0 +1,191 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-database.html
+        class AdminDatabase extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin-database.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    if (message.tabBar.id === `AdminTabBar`) {
+                        if (message.title === `Database`) { this.Element.show() }
+                        else { this.Element.hide() }
+                    }
+                })
+            }
+            async afterMount() {
+                await super.afterMount()
+                try {
+                    const response = await SIDatabase.getDatabase()
+
+                    if (200 !== response.status) {
+                        if (401 === response.status) { window.location.href = `/login` }
+                        else { showError(`Error getting logs. Status code ${response.status}.`) }
+                        return
+                    }
+
+                    const text = await response.text()
+                    const json = JSON.parse(text)
+                    const database = json.payload.database
+
+                    JavascriptWebToken.storeCredentials(json.jwt)
+
+                    this.vars.database = database
+                    this.vars.admin = JSON.stringify(database.admin, null, 3)
+                    this.vars.analytics = JSON.stringify(database.analytics, null, 3)
+                    this.vars.news = JSON.stringify(database.news, null, 3)
+                    this.vars.photo = JSON.stringify(database.photo, null, 3)
+                    this.vars.quote = JSON.stringify(database.quote, null, 3)
+                    this.vars.reservation = JSON.stringify(database.reservation, null, 3)
+                    this.vars.review = JSON.stringify(database.review, null, 3)
+                    this.vars.text = JSON.stringify(database.text, null, 3)
+                    this.vars.user = JSON.stringify(database.user, null, 3)
+
+                    this.AdminElement.innerText = this.vars.admin
+                    this.AnalyticsElement.innerText = this.vars.analytics
+                    this.NewsElement.innerText = this.vars.news
+                    this.PhotoElement.innerText = this.vars.photo
+                    this.QuoteElement.innerText = this.vars.quote
+                    this.ReservationElement.innerText = this.vars.reservation
+                    this.ReviewElement.innerText = this.vars.review
+                    this.TextElement.innerText = this.vars.text
+                    this.UserElement.innerText = this.vars.user
+                } catch (e) {
+                    console.error(`Error getting database. ${JSON.stringify(e)}`)
+                }
+            } 
+            vars = {
+                log: ``,
+                database: null,
+                admin: ``,
+                analytics: ``,
+                news: ``,
+                photo: ``,
+                quote: ``,
+                reservation: ``,
+                review: ``,
+                text: ``,
+                user: ``
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --database-page-display: flex;
+            --database-page-flex-direction: column;
+            --database-page-width: 100%;
+            --database-page-background-color: var(--background-color);
+
+            --database-title-color: var(--primary-color);
+            --database-title-font-family: var(--primary-font-family);
+            --database-title-font-size: var(--header-6-font-size);
+            --database-title-font-weight: var(--header-6-font-weight);
+            --database-title-margin: 5px;
+
+            --database-data-width: 100%;
+            --database-data-height: 350px;
+            --database-data-color: var(--primary-color);
+            --database-data-background-color: var(--background-color);
+            --database-data-font-family: var(--primary-font-family);
+            --database-data-font-size: var(--text-1-font-size);
+            --database-data-font-weight: var(--text-1-font-weight);
+            --database-data-overflow: scroll;
+            --database-data-border-color: var(--default-border-color);
+            --database-data-border-width: var(--default-border-width);
+            --database-data-border-style: var(--default-border-style);
+            --database-data-border-radius: 50%;
+            --database-data-padding: 5px;
+            --database-data-margin: 5px;
+        }
+        [data-theme="grey-glass"] {
+            --database-page-display: flex;
+            --database-page-flex-direction: column;
+            --database-page-width: 100%;
+            --database-page-background-color: var(--grey-glass-4);
+
+            --database-title-color: var(--grey-glass-1);
+            --database-title-font-family: var(--primary-font-family);
+            --database-title-font-size: var(--header-6-font-size);
+            --database-title-font-weight: var(--header-6-font-weight);
+            --database-title-margin: 5px;
+
+            --database-data-width: 100%;
+            --database-data-height: 350px;
+            --database-data-color: var(--grey-glass-1);
+            --database-data-background-color: var(--grey-glass-5);
+            --database-data-font-family: var(--primary-font-family);
+            --database-data-font-size: var(--text-1-font-size);
+            --database-data-font-weight: var(--text-1-font-weight);
+            --database-data-overflow: scroll;
+            --database-data-border-color: var(--grey-glass-2);
+            --database-data-border-width: var(--default-border-width);
+            --database-data-border-style: var(--default-border-style);
+            --database-data-border-radius: 25px;
+            --database-data-padding: 5px;
+            --database-data-margin: 5px;
+        }
+
+        .database-page {
+            display: var(--database-page-display);
+            flex-direction: var(--database-page-flex-direction);
+            width: var(--database-page-width);
+            background-color: var(--database-page-background-color);
+        }
+        .database-title {
+            color: var(--database-title-color);
+            font-family: var(--database-title-font-family);
+            font-size: var(--database-title-font-size);
+            font-weight: var(--database-title-font-weight);
+            margin: var(--database-title-margin);
+        }
+        .database-data {
+            width: var(--database-data-width);
+            height: var(--database-data-height);
+            color: var(--database-data-color);
+            background-color: var(--database-data-background-color);
+            font-family: var(--database-data-font-family);
+            font-size: var(--database-data-font-size);
+            font-weight: var(--database-data-font-weight);
+            overflow: var(--database-data-overflow);
+            color: var(--database-data-border-color);
+            border-width: var(--database-data-border-width);
+            border-style: var(--database-data-border-style);
+            border-radius: var(--database-data-border-radius);
+            padding: var(--database-data-padding);
+            margin: var(--database-data-margin);
+        }
+        
+    </style>
+    <component-markup>
+        <div id="{id}" class="display-none">
+            <div id="{id}Content" class="database-page">
+                <div id="{id}AdminTitle" class="database-title">Admin</div>
+                <div id="{id}Admin" class="database-data">{admin}</div>
+                <div id="{id}AnalyticsTitle" class="database-title">Analytics</div>
+                <div id="{id}Analytics" class="database-data">{analytics}</div>
+                <div id="{id}NewsTitle" class="database-title">News</div>
+                <div id="{id}News" class="database-data">{news}</div>
+                <div id="{id}PhotoTitle" class="database-title">Photo</div>
+                <div id="{id}Photo" class="database-data">{photo}</div>
+                <div id="{id}QuoteTitle" class="database-title">Quote</div>
+                <div id="{id}Quote" class="database-data">{quote}</div>
+                <div id="{id}ReservationTitle" class="database-title">Reservation</div>
+                <div id="{id}Reservation" class="database-data">{reservation}</div>
+                <div id="{id}ReviewTitle" class="database-title">Review</div>
+                <div id="{id}Review" class="database-data">{review}</div>
+                <div id="{id}TextTitle" class="database-title">Text</div>
+                <div id="{id}Text" class="database-data">{text}</div>
+                <div id="{id}UserTitle" class="database-title">User</div>
+                <div id="{id}User" class="database-data">{user}</div>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+
+

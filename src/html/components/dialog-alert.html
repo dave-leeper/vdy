@@ -1,0 +1,156 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/dialog-alert.html
+        class DialogAlert extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/dialog-alert.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.clickMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.ok(true)
+                })
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`dialogType` !== message.member) { return }
+
+                    this.updateTitleAppearance()
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                this.updateTitleAppearance()
+                this.OkButton.focus()
+            }
+            updateTitleAppearance() {
+                this.TitleElement.classList.remove(`dialog-alert-standard-title`)
+                this.TitleElement.classList.remove(`dialog-alert-info-title`)
+                this.TitleElement.classList.remove(`dialog-alert-warn-title`)
+                this.TitleElement.classList.remove(`dialog-alert-error-title`)
+                this.TitleElement.classList.remove(`dialog-alert-success-title`)
+
+                if (`info` === this.vars.dialogType) { this.TitleElement.classList.add(`dialog-alert-info-title`) }
+                else if (`warn` === this.vars.dialogType) { this.TitleElement.classList.add(`dialog-alert-warn-title`) }
+                else if (`error` === this.vars.dialogType) { this.TitleElement.classList.add(`dialog-alert-error-title`) }
+                else if (`success` === this.vars.dialogType) { this.TitleElement.classList.add(`dialog-alert-success-title`) }
+                else { this.TitleElement.classList.add(`dialog-alert-standard-title`) }
+            }
+            props = {
+                dialogId: `AlertDialog`,
+                clickMessage: `ALERT_BUTTON_OK`
+            }
+            vars = {
+                alertTitle: `Alert`,
+                message: ``,
+                dialogType: `standard`  // info, warn, error, success
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --dialog-alert-display: flex;
+            --dialog-alert-flex-direction: column;
+            --dialog-alert-justify-content: center;
+            --dialog-alert-cursor: default;
+            --dialog-alert-padding: 10px;
+            --dialog-alert-margin: 10px;
+
+            --dialog-alert-title-color: var(--text-color);
+            --dialog-alert-title-standard-background-color: var(--clear);
+            --dialog-alert-title-info-background-color: var(--info-color);
+            --dialog-alert-title-warn-background-color: var(--warn-color);
+            --dialog-alert-title-error-background-color: var(--error-color);
+            --dialog-alert-title-success-background-color: var(--success-color);
+            --dialog-alert-title-text-align: center;
+            --dialog-alert-title-font-family: var(--primary-font-family);
+            --dialog-alert-title-font-size: var(--header-6-font-size);
+            --dialog-alert-title-font-weight: var(--header-6-font-weight);
+
+            --dialog-alert-message-color: flex;
+            --dialog-alert-message-color: var(--text-color);
+            --dialog-alert-message-background-color: var(--clear);
+            --dialog-alert-message-padding: 10px 0;
+            --dialog-alert-message-margin: 10px 0;
+            --dialog-alert-message-text-align: left;
+            --dialog-alert-message-font-family: var(--primary-font-family);
+            --dialog-alert-message-font-size: var(--text-1-font-size);
+            --dialog-alert-message-font-weight: var(--text-1-font-weight);
+            --dialog-alert-message-white-space: pre-wrap;
+        }
+
+        .dialog-alert {
+            display: var(--dialog-alert-display);
+            flex-direction: var(--dialog-alert-flex-direction);
+            justify-content: var(--dialog-alert-justify-content);
+        }
+
+        .dialog-alert-standard-title {
+            color: var(--dialog-alert-title-color);
+            background-color: var(--dialog-alert-title-standard-background-color);
+            text-align: var(--dialog-alert-title-text-align);
+            font-family: var(--dialog-alert-title-font-family);
+            font-size: var(--dialog-alert-title-font-size);
+            font-weight: var(--dialog-alert-title-font-weight);
+        }
+        .dialog-alert-info-title {
+            color: var(--dialog-alert-title-color);
+            background-color: var(--dialog-alert-title-info-background-color);
+            text-align: var(--dialog-alert-title-text-align);
+            font-family: var(--dialog-alert-title-font-family);
+            font-size: var(--dialog-alert-title-font-size);
+            font-weight: var(--dialog-alert-title-font-weight);
+        }
+        .dialog-alert-warn-title {
+            color: var(--dialog-alert-title-color);
+            background-color: var(--dialog-alert-title-warn-background-color);
+            text-align: var(--dialog-alert-title-text-align);
+            font-family: var(--dialog-alert-title-font-family);
+            font-size: var(--dialog-alert-title-font-size);
+            font-weight: var(--dialog-alert-title-font-weight);
+        }
+        .dialog-alert-error-title {
+            color: var(--dialog-alert-title-color);
+            background-color: var(--dialog-alert-title-error-background-color);
+            text-align: var(--dialog-alert-title-text-align);
+            font-family: var(--dialog-alert-title-font-family);
+            font-size: var(--dialog-alert-title-font-size);
+            font-weight: var(--dialog-alert-title-font-weight);
+        }
+        .dialog-alert-success-title {
+            color: var(--dialog-alert-title-color);
+            background-color: var(--dialog-alert-title-success-background-color);
+            text-align: var(--dialog-alert-title-text-align);
+            font-family: var(--dialog-alert-title-font-family);
+            font-size: var(--dialog-alert-title-font-size);
+            font-weight: var(--dialog-alert-title-font-weight);
+        }
+
+        .dialog-alert-message {
+            color: var(--dialog-alert-message-color);
+            background-color: var(--dialog-alert-message-background-color);
+            padding: var(--dialog-alert-message-padding);
+            margin: var(--dialog-alert-message-margin);
+            text-align: var(--dialog-alert-message-text-align);
+            font-family: var(--dialog-alert-message-font-family);
+            font-size: var(--dialog-alert-message-font-size);
+            font-weight: var(--dialog-alert-message-font-weight);
+            white-space: var(--dialog-alert-message-white-space);
+
+        }
+    </style>
+    <component-markup>
+        <div id="{id}Wrapper" class="dialog-alert">
+            <div id="{id}Title" class="dialog-alert-title">{alertTitle}</div>
+            <div id="{id}Message" class="dialog-alert-message">{message}</div>
+            <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                data-props="{ isDefault: true, clickMessage: `{clickMessage}` }"
+                data-vars="{ title: `Ok` }">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

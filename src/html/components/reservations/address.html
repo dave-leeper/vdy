@@ -1,0 +1,214 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reservations/address.html
+        class Address extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/address.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onChildrenMounted() {
+                await super.onChildrenMounted()
+                const testState = async () => {
+                    let results = []
+                    const states = [`AZ`]
+
+                    assert(states.includes(this.State.SelectElement.value),                        `Field '${this.State.props.label}' is a valid state code.`, results, false)
+                    return results
+                }
+                const testDate = {
+                    name: `Date not in the past`,
+                    description: `Ensure date is not in the past.`,
+                    test: async () => {
+                        let results = []
+                        function dateIsNotBeforeToday(date) {
+                            let today = new Date()
+
+                            today.setHours(0, 0, 0, 0)
+                            return date >= today
+                        }
+
+                        let parts = this.Date.TextFieldElement.value.split("-")
+                        let day = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10))
+                        assert(dateIsNotBeforeToday(day),                                       `Field '${this.Date.props.label}' cannot be in the past.`, results, false)
+                        return results
+                    }
+                }
+                const testTime = {
+                    name: `Time is not in the past`,
+                    description: `Ensure time is not in the past.`,
+                    test: async () => {
+                        let results = []
+                        function timeIsNotBeforeToday(date) {
+                            const today = new Date()
+
+                            return date >= today
+                        }
+
+                        let dateParts = this.Date.TextFieldElement.value.split("-")
+                        let timeParts = this.Time.TextFieldElement.value.split(":")
+                        let day = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10), parseInt(timeParts[0], 10), parseInt(timeParts[1], 10))
+                        assert(timeIsNotBeforeToday(day),                                       `Field '${this.Time.props.label}' cannot be in the past.`, results, false)
+                        return results
+                    }
+                }
+
+                this.Date.vars.customValidationTests.push(testDate)
+                this.Time.vars.customValidationTests.push(testTime)
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                
+                this.State.setTitle(`AZ (Arizona)`)
+            }
+            clearData() {
+                this.Address.TextFieldElement.value = ''
+                this.Address2.TextFieldElement.value = ''
+                this.City.TextFieldElement.value = ''
+                this.State.setTitle(`AZ (Arizona)`)
+                this.Zip.TextFieldElement.value = ''
+                this.Date.TextFieldElement.value = ''
+                this.Time.TextFieldElement.value = ''
+            }
+            setIndexes(firstIndex) {
+                /*
+                this.Address.TextFieldElement.tabIndex = firstIndex
+                this.Address2.TextFieldElement.tabIndex = firstIndex + 1
+                this.City.TextFieldElement.tabIndex = firstIndex + 2
+                this.State.vars.tabIndex = firstIndex + 3
+                this.Zip.TextFieldElement.tabIndex = firstIndex + 4
+                this.Date.TextFieldElement.tabIndex = firstIndex + 5
+                this.Date.DatePicker.Element.tabIndex = firstIndex + 6
+                this.Time.TextFieldElement.tabIndex = firstIndex + 7
+                this.Time.TimePicker.Element.tabIndex = firstIndex + 8
+                */
+                this.Address.TextFieldElement.tabIndex = 0
+                this.Address2.TextFieldElement.tabIndex = 0
+                this.City.TextFieldElement.tabIndex = 0
+                this.State.vars.tabIndex = 0
+                this.Zip.TextFieldElement.tabIndex = 0
+                this.Date.TextFieldElement.tabIndex = 0
+                this.Date.DatePicker.Element.tabIndex = 0
+                this.Time.TextFieldElement.tabIndex = 0
+                this.Time.TimePicker.Element.tabIndex = 0
+            }
+            getFieldCount() { if (this.vars.shortForm) { return 5 } else { return 9 }}
+            setShortForm() {
+                this.vars.shortForm = true
+                this.Date.Element.classList.add(`display-none`)
+                this.Time.Element.classList.add(`display-none`)
+            }
+            async getData() {
+                await this.Address.validate(false)
+                await this.City.validate(false)
+                await this.Zip.validate(false)
+                if (!this.Address.isValid()) { return null }
+                if (!this.City.isValid()) { return null }
+                if (!this.Zip.isValid()) { return null }
+                if (!this.vars.shortForm) {
+                    await this.Date.validate(false)
+                    await this.Time.validate(false)
+                    if (!this.Date.isValid()) { return null }
+                    if (!this.Time.isValid()) { return null }
+                }
+
+                const address = this.Address.TextFieldElement.value
+                const address2 = this.Address2.TextFieldElement.value
+                const city = this.City.TextFieldElement.value
+                const state = this.State.getTitle()
+                const zip = this.Zip.TextFieldElement.value
+                const date = this.Date?.TextFieldElement?.value
+                const time = this.Time?.TextFieldElement?.value
+
+                return { address, address2, city, state, zip, date, time }
+            }
+            async getInvalidFields() {
+                const invalidFields = []
+
+                await this.Address.validate(false)
+                if (!this.Address.vars.valid) { invalidFields.push(this.Address) }
+                await this.Address2.validate(false)
+                // if (!this.Address2.vars.valid) { invalidFields.push(this.Address2) }
+                await this.City.validate(false)
+                if (!this.City.isValid()) { invalidFields.push(this.City) }
+                await this.Zip.validate(false)
+                if (!this.Zip.isValid()) { invalidFields.push(this.Zip) }
+                if (!this.vars.shortForm) {
+                    await this.Date.validate(false)
+                    if (!this.Date.isValid()) { invalidFields.push(this.Date) }
+                    await this.Time.validate(false)
+                    if (!this.Time.isValid()) { invalidFields.push(this.Time) }
+                }
+                return invalidFields
+            }
+            showInvalidBorder(show) {
+                this.Address.vars.showInvalidBorder = show
+                this.Address2.vars.showInvalidBorder = show
+                this.City.vars.showInvalidBorder = show
+                this.Zip.vars.showInvalidBorder = show
+                this.Date.vars.showInvalidBorder = show
+                this.Time.vars.showInvalidBorder = show
+                this.Address.showInvalid()
+                this.Address2.showInvalid()
+                this.City.showInvalid()
+                this.Zip.showInvalid()
+                this.Date.showInvalid()
+                this.Time.showInvalid()
+            }
+            props = {
+                title: ``
+            }
+            vars = {
+                shortForm: false
+            }
+        }
+    </script>
+    <style>
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background-color: var(--blue-gray-50);
+        }
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background-color: var(--blue-gray-50);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}">
+            <div>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}Address"
+                    data-props="{ name: `Address`, placeholder: `Address`, label: `Address`, labelWidth: `115px`, labelAboveField: false, required: true, minlength: 2, maxlength: 75, tabIndex: 0, showValidationErrors: `snackbar` }"
+                    data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}Address2"
+                    data-props="{ name: `Address2`, placeholder: `Apt, Suite, etc.`, label: `Address 2`, labelWidth: `115px`, labelAboveField: false, required: false, maxlength: 75, tabIndex: 0, showValidationErrors: `snackbar` }"
+                    data-vars="{ type: `text` }"
+                    data-style-text-field="border-width: 0">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}City"
+                    data-props="{ name: `City`, placeholder: `City`, label: `City`, labelWidth: `115px`, labelAboveField: false, required: true, minlength: 2, maxlength: 50, tabindex: 0, showValidationErrors: `snackbar` }"
+                    data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/select.html" data-id="{id}State"
+                    data-props="{ groupName: `{id}StateGroup`, label: `State`, labelWidth: `115px`, name: `{id}State`, dataList: `{id}StateList` }">
+                </include-html>
+                <datalist id="{id}StateList">
+                    <option id="{id}StateList0" value="AZ (Arizona)"></option>
+                </datalist>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}Zip"
+                    data-props="{ name: `Zip`, placeholder: `Zip`, labelWidth: `115px`, label: `Zip`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabIndex: 0, showValidationErrors: `snackbar` }"
+                    data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}Date"
+                    data-props="{ name: `Date`, label: `Date`, labelWidth: `115px`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabIndex: 0, showValidationErrors: `snackbar` }"
+                    data-vars="{ type: `date` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}Time"
+                    data-props="{ name: `Time`, label: `Time`, labelWidth: `115px`, labelAboveField: false, required: true, tabIndex: 0, showValidationErrors: `snackbar` }"
+                    data-vars="{ type: `time` }">
+                </include-html>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

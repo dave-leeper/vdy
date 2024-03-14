@@ -1,0 +1,49 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/tab.html
+        class Tab extends SlottedComponent {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/tab.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    if (message.tabBar.id !== this.props.tabBarId) { return }
+                    if (message.title !== this.props.title) { return }
+                    this.show()
+                })
+                Queue.registerAsync(this, Messages.HIDE_TAB, async (message) => {
+                    if (message.tabBar.id !== this.props.tabBarId) { return }
+                    if (message.title !== this.props.title) { return }
+                    this.Element?.addClass(`display-none`)
+                })
+                Queue.register(this, Messages.FOCUS_TAB, (message) => {
+                    if (message.tabBar.id !== this.props.tabBarId) { return }
+                    if (message.title !== this.props.title) { return }
+                    this.focus()
+                })
+                Queue.register(this, Messages.GET_TAB, (message) => {
+                    if (message.tabBar.id !== this.props.tabBarId) { return null }
+                    if (message.title !== this.props.title) { return null }
+                    return this
+                })
+            }
+            props = {
+                tabBarId: ``,
+                title: ``
+            }     
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="display-none w100 h100">
+            <component-slot id="{id}Slot"></component-slot>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

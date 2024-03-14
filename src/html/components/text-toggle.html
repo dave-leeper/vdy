@@ -1,0 +1,257 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/text-toggle.html
+        class TextToggle extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/text-toggle.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                if (this.props.groupName) { Component.addToGroup(this.props.groupName, this) }
+            }
+            async onChildrenMounted() { 
+                await super.onChildrenMounted()
+                if (this.props.round) { this.Element.classList.add(`text-toggle-round`) }
+                else { this.Element.classList.remove(`text-toggle-round`) }
+                if (this.props.underline) { this.Element.classList.add(`text-toggle-underline`) }
+                else { this.Element.classList.remove(`text-toggle-underline`) }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+                this.setStyles()
+            }
+            setStyles() {
+                if (this.enabled) {
+                    if (-1 === this.vars.tabIndex && -1 !== this.vars.disabledTabIndex) { 
+                        this.vars.tabIndex = this.vars.disabledTabIndex 
+                        this.vars.disabledTabIndex = -1
+                    }
+                    if (this.vars.checked) { 
+                        this.Element.addClass(`text-toggle-active`) 
+                        this.Element.removeClass(`text-toggle`) 
+                    } else { 
+                        this.Element.removeClass(`text-toggle-active`) 
+                        this.Element.addClass(`text-toggle`) 
+                    }
+                    this.Element.removeClass(`text-toggle-disabled`)
+                    this.Element.addClass(`bounce-and-brighten`)
+                } else if (!this.Element.classList.contains(`display-none`)) {
+                    this.vars.disabledTabIndex = this.vars.tabIndex
+                    this.vars.tabIndex = -1
+                    this.Element.removeClass(`text-toggle`)
+                    this.Element.removeClass(`text-toggle-active`)
+                    this.Element.addClass(`text-toggle-disabled`)
+                    this.Element.removeClass(`bounce-and-brighten`)
+                }
+            }
+            isChecked() { return this.vars.checked }
+            check(checked) { 
+                if (checked === this.vars.checked) { return }
+                if (!this.enabled) { return }
+                if (!this.Element.isVisible()) { return }
+                this.vars.checked = checked
+                this.setStyles()
+                if (checked) { 
+                    this.updateGroup() 
+                    Queue.broadcast(this.props.clickMessage, this)
+                }
+            }
+            onKeyDown(event) { 
+                if (!this.enabled) { return }
+                if (!this.Element.hasFocus()) { return }
+                if (!this.Element.isVisible()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    event?.stopPropagation()
+                    this.onClick() 
+                    return
+                }
+
+                if (`ArrowRight` == event?.key && `ArrowLeft` == event?.key) { return }
+
+                const groupName = Component.isInGroup(this)
+                const index = Component.groupIndexOf(this)
+                const groupObjects = Component.getGroupObjects(groupName)
+
+                if (-1 === index) { return }
+                if (!groupObjects || 0 === groupObjects.length) { return }
+
+                const isUsable = (obj) => {
+                    if (null === obj) { return false }
+                    if (obj.isVisible && !obj.isVisible()) { return false }
+                    else if (obj.Element?.isVisible && !obj.Element.isVisible()) { return false }
+                    if (!obj.enabled) {
+                        if (!obj.getAttribute || `true` !== obj.getAttribute(`enabled`)) { return false }
+                    } 
+                    return true
+                }
+                const getNextIndex = (currentIndex, groupObjects, eventKey) => {
+                    if (`ArrowRight` === eventKey || `ArrowDown` === eventKey) { return (groupObjects.length - 1 === currentIndex)? 0 : currentIndex + 1 }
+                    if (`ArrowLeft` === eventKey || `ArrowUp` === eventKey) { return (0 === currentIndex)? groupObjects.length - 1 : currentIndex - 1 }
+                    return currentIndex
+                }
+                let newIndex = getNextIndex(index, groupObjects, event?.key)
+                const originalNewIndex = newIndex
+                let newObject = Component.getGroupObjectAt(groupName, newIndex)
+
+                while (!isUsable(newObject)) {
+                    newIndex = getNextIndex(newIndex, groupObjects, event?.key)
+                    if (newIndex === originalNewIndex) { 
+                        newObject = null
+                        break 
+                    }
+                    newObject = Component.getGroupObjectAt(groupName, newIndex)
+                }
+
+                if (!newObject) { return }
+                newObject.focus()
+                event?.stopPropagation()
+            }
+            focus() { this.Element.focus() }
+            async getData() {
+                if (this.vars.checked) { return { name: this.props.groupName, value: this.props.groupValue }}
+                return null
+            }
+            props = {
+                clickMessage: Messages.ON_CLICK,
+                underline: true,
+                round: false,
+                groupName: ``,
+                groupValue: ``,
+                groupIndex: ``
+            }
+            vars = {
+                title: ``,
+                tabIndex: 0,
+                disabledTabIndex: -1,
+                tooltipText: ``,
+                extraData: ``,
+                checked: false
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --text-toggle-position: relative;
+            --text-toggle-display: flex;
+            --text-toggle-justify-content: center;
+            --text-toggle-align-items: center;
+            --text-toggle-z-index: inherit;
+            --text-toggle-color: var(--text-color);
+            --text-toggle-background-color: var(--clear);
+            --text-toggle-text-align: center;
+            --text-toggle-font-family: var(--primary-font-family);
+            --text-toggle-font-size: var(--text-1-font-size);
+            --text-toggle-font-weight: var(--text-1-font-weight);
+            --text-toggle-white-space: nowrap;
+            --text-toggle-cursor: default;
+            --text-toggle-padding: var(--default-padding);
+            --text-toggle-margin: var(--default-margin);
+
+            --text-toggle-round-border-radius: 5px 5px 0 0;
+
+            --text-toggle-text-decoration: underline;
+
+            --text-toggle-active-position: relative;
+            --text-toggle-active-display: flex;
+            --text-toggle-active-justify-content: center;
+            --text-toggle-active-align-items: center;
+            --text-toggle-active-z-index: inherit;
+            --text-toggle-active-color: var(--background-color);
+            --text-toggle-active-background-color: var(--text-color);
+            --text-toggle-active-text-align: center;
+            --text-toggle-active-text-decoration: none;
+            --text-toggle-active-font-family: var(--primary-font-family);
+            --text-toggle-active-font-size: var(--text-1-font-size);
+            --text-toggle-active-font-weight: var(--text-1-font-weight);
+            --text-toggle-active-white-space: nowrap;
+            --text-toggle-active-cursor: default;
+            --text-toggle-active-padding: var(--default-padding);
+            --text-toggle-active-margin: var(--default-margin);
+
+            --text-toggle-disabled-display: flex;
+            --text-toggle-disabled-justify-content: center;
+            --text-toggle-disabled-align-items: center;
+            --text-toggle-disabled-z-index: inherit;
+            --text-toggle-disabled-color: var(--disabled-text-color);
+            --text-toggle-disabled-background-color: var(--clear);
+            --text-toggle-disabled-text-align: center;
+            --text-toggle-disabled-text-decoration: none;
+            --text-toggle-disabled-font-family: var(--primary-font-family);
+            --text-toggle-disabled-font-size: var(--text-1-font-size);
+            --text-toggle-disabled-font-weight: var(--text-1-font-weight);
+            --text-toggle-disabled-white-space: nowrap;
+            --text-toggle-disabled-cursor: not-allowed;
+            --text-toggle-disabled-padding: var(--default-padding);
+            --text-toggle-disabled-margin: var(--default-margin);
+        }
+
+        .text-toggle {
+            position: var(--text-toggle-position);
+            display: var(--text-toggle-display);
+            justify-content: var(--text-toggle-justify-content);
+            align-items: var(--text-toggle-align-items);
+            z-index: var(--text-toggle-z-index);
+            color: var(--text-toggle-color);
+            background-color: var(--text-toggle-background-color);
+            text-align: var(--text-toggle-text-align);
+            font-family: var(--text-toggle-font-family);
+            font-size: var(--text-toggle-font-size);
+            font-weight: var(--text-toggle-font-weight);
+            white-space: var(--text-toggle-white-space);
+            cursor: var(--text-toggle-cursor);
+            padding: var(--text-toggle-padding);
+            margin: var(--text-toggle-margin);
+        }
+        .text-toggle-active {
+            position: var(--text-toggle-active-position);
+            display: var(--text-toggle-active-display);
+            justify-content: var(--text-toggle-active-justify-content);
+            align-items: var(--text-toggle-active-align-items);
+            z-index: var(--text-toggle-active-z-index);
+            color: var(--text-toggle-active-color);
+            background-color: var(--text-toggle-active-background-color);
+            text-align: var(--text-toggle-active-text-align);
+            text-decoration: var(--text-toggle-active-text-decoration);
+            font-family: var(--text-toggle-active-font-family);
+            font-size: var(--text-toggle-active-font-size);
+            font-weight: var(--text-toggle-active-font-weight);
+            white-space: var(--text-toggle-active-white-space);
+            cursor: var(--text-toggle-active-cursor);
+            padding: var(--text-toggle-active-padding);
+            margin: var(--text-toggle-active-margin);
+        }
+        .text-toggle-disabled {
+            position: var(--text-toggle-disabled-position);
+            display: var(--text-toggle-disabled-display);
+            justify-content: var(--text-toggle--disabledjustify-content);
+            align-items: var(--text-toggle-disabled-align-items);
+            z-index: var(--text-toggle-disabled-z-index);
+            color: var(--text-toggle-disabled-color);
+            background-color: var(--text-toggle-disabled-background-color);
+            text-align: var(--text-toggle-disabled-text-align);
+            text-decoration: var(--text-toggle-disabled-text-decoration);
+            font-family: var(--text-toggle-disabled-font-family);
+            font-size: var(--text-toggle-disabled-font-size);
+            font-weight: var(--text-toggle-disabled-font-weight);
+            white-space: var(--text-toggle-disabled-white-space);
+            cursor: var(--text-toggle-disabled-cursor);
+            padding: var(--text-toggle-disabled-padding);
+            margin: var(--text-toggle-disabled-margin);
+        }
+        .text-toggle-round {
+            border-radius: var(--text-toggle-round-border-radius);
+        }
+        .text-toggle-underline {
+            text-decoration: var(--text-toggle-text-decoration);
+        }
+    </style>
+    <component-markup>
+        <span id="{id}" class="text-toggle bounce-and-brighten" title="{tooltipText}" tabindex="{tabIndex}" onkeydown="$obj.onKeyDown(event)" onfocus="$obj.check(true)">{title}</span>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

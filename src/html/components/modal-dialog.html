@@ -1,0 +1,105 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/modal-dialog.html
+        class ModalDialog extends SlottedComponent {
+            async afterMount() {
+                await super.afterMount()
+                if (!this.props.okVisible) { this.OkElement.remove() }
+                if (!this.props.cancelVisible) { this.CancelElement.remove() }
+            }
+            show() {
+                const element = (this.Element)? this.Element : document.getElementById(this.id)
+
+                element.show() 
+            }
+            hide() { 
+                const element = (this.Element)? this.Element : document.getElementById(this.id)
+
+                element.hide() 
+            }
+            onCancel(event) { 
+                event?.stopPropagation()
+                Queue.broadcast(Messages.MODAL_CANCEL, this) 
+            }
+            onOk(event) { 
+                event?.stopPropagation()
+                Queue.broadcast(Messages.MODAL_OK, this) 
+            }
+            props = {
+                okLabel: `Ok`,
+                cancelLabel: `Cancel`,
+                okVisible: true,
+                cancelVisible: false
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --modal-position: fixed;
+            --modal-width: 100%;
+            --modal-height: 100%;
+            --modal-left: 0;
+            --modal-top: 0;
+            --modal-z-index: 10;
+            --modal-overflow: auto;
+            --modal-cursor: default;
+
+            --modal-content-background-color: var(--background-color);
+            --modal-content-width: 90%;
+            --modal-content-padding: 5px;
+            --modal-content-margin: 20px;
+            --modal-content-border-width: var(--default-border-width);
+            --modal-content-border-style: var(--default-border-style);
+            --modal-content-border-color: var(--default-border-color);
+            --modal-content-border-radius: var(0);
+
+            --modal-close-color: var(--primary-variant-color);
+            --modal-close-font-family: var(--primary-font-family);
+            --modal-close-font-size: var(--header-1-font-size);
+            --modal-close-font-weight: var(--header-1-font-weight);
+            --modal-close-margin-top: -10px;
+
+            --modal-close-hover-color: var(--primary-variant-color);
+            --modal-close-hover-text-decoration: none;
+            --modal-close-hover-font-cursor: default;
+        }
+
+        .modal {
+            position: var(--modal-position);
+            background-color: rgb(0,0,0);
+            background-color: var(--modal-background-color);
+            width: var(--modal-width);
+            height: var(--modal-height);
+            left: var(--modal-left);
+            top: var(--modal-top);
+            z-index: var(--modal-z-index);
+            overflow: var(--modal-overflow);
+            cursor: var(--modal-cursor);
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: var(--modal-content-background-color);
+            width: var(--modal-content-width);
+            padding: var(--modal-content-padding);
+            margin: var(--modal-content-margin);
+            border-width: var(--modal-content-border-width);
+            border-style: var(--modal-content-border-style);
+            border-color: var(--modal-content-border-color);
+            border-radius: var(--modal-content-border-radius);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-col flex-align-center modal t0 l0 r0 b0 w100 h100 display-none">
+            <div id="{id}ContentWrapper" class="flex-col flex-align-center modal-content">
+                <component-slot id="{id}Slot">DEFAULT CONTENT FOR {id}</component-slot>
+                <div id="{id}Buttons" class="flex-row flex-end">
+                    <div id="{id}Cancel" class="vdy-button flex-align-self-end" onclick="$obj.onCancel(event)">{cancelLabel}</div>
+                    <div id="{id}Ok" class="vdy-button flex-align-self-end" onclick="$obj.onOk(event)">{okLabel}</div>
+                </div>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

@@ -1,0 +1,372 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/menu-item.html
+        class MenuItem extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/menu-item.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                if (this.props.groupName) { Component.addToGroup(this.props.groupName, this) }
+                this.visible = true
+                this.originalTabIndex = this.vars.tabIndex
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    if (this.vars.selected) { 
+                        this.Element.addClass(`menu-item-selected`) 
+                        this.Element.removeClass(`menu-item`) 
+                        this.TitleElement.addClass(`menu-item-title-selected`)
+                        this.TitleElement.removeClass(`menu-item-title`)
+                    }
+                    else { 
+                        this.Element.removeClass(`menu-item-selected`) 
+                        this.Element.addClass(`menu-item`) 
+                        this.TitleElement.removeClass(`menu-item-title-selected`)
+                        this.TitleElement.addClass(`menu-item-title`)
+                    }
+                    this.Element.tabIndex = this.originalTabIndex
+                    this.Element.removeClass(`menu-item-disabled`)
+                    this.Element.addClass(`bounce-and-brighten`)
+                    this.TitleElement.removeClass(`menu-item-title-disabled`)
+                } else {
+                    this.Element.tabIndex = -1
+                    this.Element.removeClass(`menu-item-selected`)
+                    this.Element.removeClass(`menu-item`)
+                    this.Element.addClass(`menu-item-disabled`)
+                    this.Element.removeClass(`menu-item`)
+                    this.Element.removeClass(`bounce-and-brighten`)
+                    this.TitleElement.addClass(`menu-item-title-disabled`)
+                    this.TitleElement.removeClass(`menu-item-title`)
+                    this.TitleElement.removeClass(`menu-item-title-selected`)
+                }
+            }
+            async onClick(event) { 
+                if (!this.canFocus()) { return }
+                this.select(!!(event?.shiftKey), !!(event?.ctrlKey || event?.metaKey))
+                event?.stopPropagation()
+                await Queue.broadcast(this.props.clickMessage, this) 
+                await Queue.broadcast(Messages.DROPDOWN_CLOSE, this) 
+            }
+            async onKeyDown(event) { 
+                if (!this.canFocus()) { return }
+                if (!this.Element.hasFocus()) { return }
+                if (!this.Element.isVisible()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    await this.onClick(event) 
+                    return
+                }
+
+                if (`ArrowRight` !== event?.key && `ArrowLeft` !== event?.key && `ArrowDown` !== event?.key && `ArrowUp` !== event?.key) { return }
+
+                const groupName = Component.isInGroup(this)
+                const index = Component.groupIndexOf(this)
+                const groupObjects = Component.getGroupObjects(groupName)
+
+                if (-1 === index) { return }
+                if (!groupObjects || 0 === groupObjects.length) { return }
+
+                const isUsable = (obj) => {
+                    if (null === obj) { return false }
+                    if (obj.isVisible && !obj.isVisible()) { return false }
+                    else if (obj.Element?.isVisible && !obj.Element.isVisible()) { return false }
+                    if (!obj.enabled) {
+                        if (!obj.getAttribute || `true` !== obj.getAttribute(`enabled`)) { return false }
+                    } 
+                    return true
+                }
+                const getNextIndex = (currentIndex, groupObjects, eventKey) => {
+                    if (`ArrowRight` === eventKey || `ArrowDown` === eventKey) { return (groupObjects.length - 1 === currentIndex)? 0 : currentIndex + 1 }
+                    if (`ArrowLeft` === eventKey || `ArrowUp` === eventKey) { return (0 === currentIndex)? groupObjects.length - 1 : currentIndex - 1 }
+                    return currentIndex
+                }
+                let newIndex = getNextIndex(index, groupObjects, event?.key)
+                const originalNewIndex = newIndex
+                let newObject = Component.getGroupObjectAt(groupName, newIndex)
+
+                while (!isUsable(newObject)) {
+                    newIndex = getNextIndex(newIndex, groupObjects, event?.key)
+                    if (newIndex === originalNewIndex) { 
+                        newObject = null
+                        break 
+                    }
+                    newObject = Component.getGroupObjectAt(groupName, newIndex)
+                }
+
+                if (!newObject) { return }
+                newObject.focus()
+                event?.stopPropagation()
+            }
+            onFocus() { if (this.props.selectOnFocus) { this.select(false, false, false) }}
+            onBlur() { }
+            async wait() {
+                if (this.isWaiting()) { return }
+                await super.wait()
+
+                const id = `${this.id}Waiting`
+                const vars = { width: 20, height: 20 }
+                const newInclude = Component.createComponentInclude(`./html/components/loading.html`, id, null, vars)
+
+                this.TitleElement.hide()
+                this.Element.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async unwait() {
+                if (!this.isWaiting()) { return }
+
+                const id = `${this.id}Waiting`
+                const waitingObj = Component.getObject(id)
+
+                this.TitleElement.show()
+                await super.unwait()
+                if (!waitingObj) { return }
+                await waitingObj.destroy()
+            }
+            async loadingBegin() { 
+                if (this.isLoading()) { return }
+                if (!this.isEnabled()) { return }
+                await super.loadingBegin()
+                this.Element.removeClass(`menu-item`)
+                this.Element.removeClass(`menu-item-selected`)
+                this.Element.addClass(`menu-item-loading`)
+            }
+            async loadingEnd() { 
+                if (!this.isLoading()) { return }
+                if (!this.isEnabled()) { return }
+                if (this.vars.selected) { this.Element.addClass(`menu-item-selected`) } 
+                else { this.Element.addClass(`menu-item`) }
+                this.Element.removeClass(`menu-item-loading`)
+                await super.loadingEnd()
+            }
+            select(shiftKey, ctrlKey, doNotBroadcast) {
+                if (!this.canFocus()) { return }
+                if (this.vars.selected) { return }
+                if (shiftKey) { this.vars.selectType = `extend` }
+                else if (ctrlKey) { this.vars.selectType = `add` }
+                else { this.vars.selectType = `anchor` }
+                if (!doNotBroadcast) { Queue.broadcast(Messages.ITEM_BEFORE_SELECT, this) }
+                this.vars.selected = true
+                this.Element.addClass(`menu-item-selected`)
+                this.Element.removeClass(`menu-item`)
+                this.TitleElement.addClass(`menu-item-title-selected`)
+                this.TitleElement.removeClass(`menu-item-title`)
+                this.updateGroup()
+                if (!doNotBroadcast) { Queue.broadcast(Messages.ITEM_AFTER_SELECT, this) }
+            }
+            unselect() {
+                if (!this.canFocus()) { return }
+                this.vars.selectType = `none`
+                Queue.broadcast(Messages.ITEM_BEFORE_UNSELECT, this)
+                this.vars.selected = false
+                this.Element.removeClass(`menu-item-selected`)
+                this.Element.addClass(`menu-item`)
+                this.TitleElement.removeClass(`menu-item-title-selected`)
+                this.TitleElement.addClass(`menu-item-title`)
+                Queue.broadcast(Messages.ITEM_AFTER_UNSELECT, this)
+            }
+            check(checked) {
+                if (checked) { this.select(false, false, false) }
+                else { this.unselect() }
+            }
+            isSelected() { return this.vars.selected }
+            getSelectType() { return this.vars.selectType }
+            setSelectType(selectType) { this.vars.selectType = selectType }
+            async getData() {
+                if (this.isSelected()) { return { name: this.id, value: this.vars.title }}
+                return null
+            }
+            props = {
+                clickMessage: Messages.ON_CLICK,
+                groupName: ``,
+                groupValue: ``,
+                groupIndex: ``,
+                selectOnFocus: true
+            }
+            vars = {
+                selected: false,
+                selectType: `none`,
+                title: ``,
+                tabIndex: -1
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --menu-item-position: relative;
+            --menu-item-display: flex;
+            --menu-item-flex-direction: row;
+            --menu-item-justify-content: flex-start;
+            --menu-item-align-items: flex-start;
+            --menu-item-z-index: inherit;
+            --menu-item-width: 100%;
+            --menu-item-height: 25px;
+            --menu-item-background-color: var(--background-color);
+            --menu-item-cursor: default;
+            --menu-item-padding: var(--default-padding);
+            --menu-item-margin: var(--default-margin);
+
+            --menu-item-loading-background-color: var(--clear);
+            --menu-item-loading-background: linear-gradient(270deg, #cdd4d2, #626564);
+            --menu-item-loading-background-size: 400% 400%;
+            --menu-item-loading-animation: AnimationName 4s ease infinite;
+
+            --menu-item-selected-position: relative;
+            --menu-item-selected-display: flex;
+            --menu-item-selected-flex-direction: row;
+            --menu-item-selected-justify-content: flex-start;
+            --menu-item-selected-align-items: flex-start;
+            --menu-item-selected-z-index: inherit;
+            --menu-item-selected-width: 100%;
+            --menu-item-selected-height: 25px;
+            --menu-item-selected-background-color: var(--primary-variant-color);
+            --menu-item-selected-cursor: default;
+            --menu-item-selected-padding: var(--default-padding);
+            --menu-item-selected-margin: var(--default-margin);
+
+            --menu-item-disabled-z-index: inherit;
+            --menu-item-disabled-background-color: var(--disabled-background-color);
+            --menu-item-disabled-cursor: not-allowed;
+            --menu-item-disabled-padding: var(--default-padding);
+            --menu-item-disabled-margin: var(--default-margin);
+            --menu-item-disabled-border-color: none;
+            --menu-item-disabled-border-width: 0;
+            --menu-item-disabled-border-style: none;
+            --menu-item-disabled-border-radius: 0;
+
+            --menu-item-title-width: 100%;
+            --menu-item-title-z-index: inherit;
+            --menu-item-title-color: var(--text-color);
+            --menu-item-title-background-color: var(--background-color);
+            --menu-item-title-cursor: default;
+            --menu-item-title-text-align: left;
+            --menu-item-title-font-family: var(--primary-font-family);
+            --menu-item-title-font-size: var(--text-1-font-size);
+            --menu-item-title-font-weight: var(--text-1-font-weight);
+
+            --menu-item-title-disabled-width: 100%;
+            --menu-item-title-disabled-z-index: inherit;
+            --menu-item-title-disabled-color: var(--disabled-text-color);
+            --menu-item-title-disabled-cursor: not-allowed;
+
+            --menu-item-title-selected-width: 100%;
+            --menu-item-title-selected-z-index: inherit;
+            --menu-item-title-selected-color: var(--text-color);
+            --menu-item-title-selected-cursor: default;
+        }
+
+        [data-theme="grey-glass"] {
+            --menu-item-background-color: var(--clear);
+            --menu-item-title-background-color: var(--clear);
+        }
+
+        .menu-item {
+            position: var(--menu-item-position);
+            display: var(--menu-item-display);
+            flex-direction: var(--menu-item-flex-direction);
+            justify-content: var(--menu-item-justify-content);
+            align-items: var(--menu-item-align-items);
+            min-width: var(--menu-item-minimum-width);
+            height: var(--menu-item-height);
+            z-index: var(--menu-item-z-index);
+            background-color: var(--menu-item-background-color);
+            padding: var(--menu-item-padding);
+            margin: var(--menu-item-margin);
+        }
+        .menu-item-selected {
+            position: var(--menu-item-selected-position);
+            display: var(--menu-item-selected-display);
+            flex-direction: var(--menu-item-selected-flex-direction);
+            justify-content: var(--menu-item-selected-justify-content);
+            align-items: var(--menu-item-selected-align-items);
+            min-width: var(--menu-item-selected-minimum-width);
+            height: var(--menu-item-selected-height);
+            z-index: var(--menu-item-selected-z-index);
+            background-color: var(--menu-item-selected-background-color);
+            padding: var(--menu-item-selected-padding);
+            margin: var(--menu-item-selected-margin);
+        }
+        .menu-item-disabled {
+            position: var(--menu-item-position);
+            display: var(--menu-item-display);
+            flex-direction: var(--menu-item-flex-direction);
+            justify-content: var(--menu-item-justify-content);
+            align-items: var(--menu-item-align-items);
+            min-width: var(--menu-item-minimum-width);
+            height: var(--menu-item-height);
+            z-index: var(--menu-item-disabled-z-index);
+            background-color: var(--menu-item-disabled-background-color);
+            cursor: var(--menu-item-disabled-cursor);
+            padding: var(--menu-item-disabled-padding);
+            margin: var(--menu-item-disabled-margin);
+            border-color: var(--menu-item-disabled-border-color);
+            border-width: var(--menu-item-disabled-border-width);
+            border-style: var(--menu-item-disabled-border-style);
+            border-radius: var(--menu-item-disabled-border-radius);
+        }
+        .menu-item-loading {
+            position: var(--menu-item-position);
+            display: var(--menu-item-display);
+            flex-direction: var(--menu-item-flex-direction);
+            justify-content: var(--menu-item-justify-content);
+            align-items: var(--menu-item-align-items);
+            min-width: var(--menu-item-minimum-width);
+            height: var(--menu-item-height);
+            z-index: var(--menu-item-z-index);
+            background-color: var(--menu-item-loading-background-color);
+            background: var(--menu-item-loading-background);
+            background-size: var(--menu-item-loading-background-size);
+            animation: var(--menu-item-loading-animation);
+            -webkit-animation: var(--menu-item-loading-animation);
+            -moz-animation: var(--menu-item-loading-animation);
+            padding: var(--menu-item-padding);
+            margin: var(--menu-item-margin);
+        }
+ 
+        .menu-item-title {
+            width: var(--menu-item-title-width);
+            z-index: var(--menu-item-title-z-index);
+            color: var(--menu-item-title-color);
+            background-color: var(--menu-item-title-background-color);
+            text-align: var(--menu-item-title-text-align);
+            font-family: var(--menu-item-title-font-family);
+            font-size: var(--menu-item-title-font-size);
+            font-weight: var(--menu-item-title-font-weight);
+            cursor: var(--menu-item-title-cursor)
+        }
+
+        .menu-item-title-selected {
+            width: var(--menu-item-title-selected-width);
+            z-index: var(--menu-item-title-selected-z-index);
+            color: var(--menu-item-title-selected-color);
+            text-align: var(--menu-item-title-text-align);
+            font-family: var(--menu-item-title-font-family);
+            font-size: var(--menu-item-title-font-size);
+            font-weight: var(--menu-item-title-font-weight);
+            cursor: var(--menu-item-title-selected-cursor)
+        }
+
+        .menu-item-title-disabled {
+            width: var(--menu-item-title-disabled-width);
+            z-index: var(--menu-item-title-disabled-z-index);
+            color: var(--menu-item-title-disabled-color);
+            text-align: var(--menu-item-title-text-align);
+            font-family: var(--menu-item-title-font-family);
+            font-size: var(--menu-item-title-font-size);
+            font-weight: var(--menu-item-title-font-weight);
+            cursor: var(--menu-item-title-disabled-cursor)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="menu-item bounce-and-brighten" tabindex="{tabIndex}" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)" onfocus="$obj.onFocus()" onblur="$obj.onBlur()">
+            <div id="{id}Title" class="menu-item-title">{title}</div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

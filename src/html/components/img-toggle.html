@@ -1,0 +1,241 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/img-toggle.html
+        class ImgToggle extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/img-toggle.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                if (this.props.groupName) { Component.addToGroup(this.props.groupName, this) }
+            }
+            async onChildrenMounted() { 
+                await super.onChildrenMounted()
+
+                const size = this.convertSizeToPixels()
+
+                if (size) { 
+                    this.Image.vars.width = size
+                    this.Image.vars.height = size
+                    this.DisabledImage.vars.width = size
+                    this.DisabledImage.vars.height = size
+                }
+
+                if (this.props.round) { this.Element.classList.add(`image-toggle-round`) }
+                else { this.Element.classList.remove(`image-toggle-round`) }
+
+                const checked = this.vars.checked
+
+                this.vars.checked = !checked
+                this.check(checked)
+                this.show()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    if (-1 === this.vars.tabIndex && -1 !== this.vars.disabledTabIndex) { 
+                        this.vars.tabIndex = this.vars.disabledTabIndex 
+                        this.vars.disabledTabIndex = -1
+                    }
+                    this.Element.classList.add(`image-toggle`)
+                    this.Element.classList.remove(`image-toggle-disabled`)
+                    this.Element.classList.add(`bounce-and-brighten`)
+                    this.Image.Element.classList.remove(`display-none`)
+                    this.DisabledImage.Element.classList.add(`display-none`)
+                } else {
+                    this.vars.disabledTabIndex = this.vars.tabIndex
+                    this.vars.tabIndex = -1
+                    if (!this.Element.classList.contains(`display-none`)) {
+                        this.Element.classList.remove(`image-toggle`)
+                        this.Element.classList.add(`image-toggle-disabled`)
+                        this.Element.classList.remove(`bounce-and-brighten`)
+                        this.Image.Element.classList.add(`display-none`)
+                        this.DisabledImage.Element.classList.remove(`display-none`)
+                    }
+                }
+            }
+            onFocus() { if (this.props.checkOnFocus) { this.check(true) }}
+            async show() { 
+                await super.show()
+                this.Element.classList.add(`image-toggle`)
+                this.Element.classList.remove(`display-none`)
+                if (this.enabled) {
+                    this.Image.show()
+                    this.DisabledImage.hide()
+                } else {
+                    this.Image.hide()
+                    this.DisabledImage.show()
+                }
+            }
+            async hide() { 
+                await super.hide()
+                this.Element.classList.remove(`image-toggle`)
+                this.Element.classList.add(`display-none`)
+                this.Image.hide()
+                this.DisabledImage.hide()
+            }
+            isChecked() { return this.vars.checked }
+            check(checked) { 
+                if (checked === this.vars.checked) { return }
+                if (!this.enabled) { return }
+                if (!this.Element.isVisible()) { return }
+                this.vars.checked = checked
+                if (this.isChecked()) { 
+                    this.Image.vars.src = this.vars.imageURL2
+                } else { 
+                    this.Image.vars.src = this.vars.imageURL
+                }
+                if (checked) { this.updateGroup() }
+            }
+            onClick(event) { 
+                if (!this.enabled) { return }
+                if (this.vars.checked && this.props.groupName) { return }
+                event?.stopPropagation()
+                this.check(!this.vars.checked)
+                Queue.broadcast(this.props.clickMessage, this) 
+            }
+            onKeyDown(event) { 
+                if (!this.enabled) { return }
+                if (!this.Element.hasFocus()) { return }
+                if (!this.Element.isVisible()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    event?.stopPropagation()
+                    this.onClick() 
+                    return
+                }
+
+                if (`ArrowRight` == event?.key && `ArrowLeft` == event?.key) { return }
+
+                const groupName = Component.isInGroup(this)
+                const index = Component.groupIndexOf(this)
+                const groupObjects = Component.getGroupObjects(groupName)
+
+                if (-1 === index) { return }
+                if (!groupObjects || 0 === groupObjects.length) { return }
+
+                const isUsable = (obj) => {
+                    if (null === obj) { return false }
+                    if (obj.isVisible && !obj.isVisible()) { return false }
+                    else if (obj.Element?.isVisible && !obj.Element.isVisible()) { return false }
+                    if (!obj.enabled) {
+                        if (!obj.getAttribute || `true` !== obj.getAttribute(`enabled`)) { return false }
+                    } 
+                    return true
+                }
+                const getNextIndex = (currentIndex, groupObjects, eventKey) => {
+                    if (`ArrowRight` === eventKey || `ArrowDown` === eventKey) { return (groupObjects.length - 1 === currentIndex)? 0 : currentIndex + 1 }
+                    if (`ArrowLeft` === eventKey || `ArrowUp` === eventKey) { return (0 === currentIndex)? groupObjects.length - 1 : currentIndex - 1 }
+                    return currentIndex
+                }
+                let newIndex = getNextIndex(index, groupObjects, event?.key)
+                const originalNewIndex = newIndex
+                let newObject = Component.getGroupObjectAt(groupName, newIndex)
+
+                while (!isUsable(newObject)) {
+                    newIndex = getNextIndex(newIndex, groupObjects, event?.key)
+                    if (newIndex === originalNewIndex) { 
+                        newObject = null
+                        break 
+                    }
+                    newObject = Component.getGroupObjectAt(groupName, newIndex)
+                }
+
+                if (!newObject) { return }
+                newObject.focus()
+                event?.stopPropagation()
+            }
+            focus() { this.Element.focus() }
+            convertSizeToPixels() { 
+                if (`xs` === this.props.size) { return 12 }
+                if (`s` === this.props.size) { return 25 }
+                if (`m` === this.props.size) { return 50 }
+                if (`l` === this.props.size) { return 75 }
+                if (`xl` === this.props.size) { return 100 }
+                if (`xxl` === this.props.size) { return 150 }
+                if (`xxxl` === this.props.size) { return 200 }
+                return 0
+            }
+            async getData() {
+                if (this.vars.checked) { return { name: this.props.groupName, value: this.props.groupValue }}
+                return null
+            }
+            props = {
+                clickMessage: Messages.ON_CLICK,
+                size: `m`,
+                round: false,
+                groupName: ``,
+                groupValue: ``,
+                checkOnFocus: true
+            }
+            vars = {
+                tabIndex: 0,
+                disabledTabIndex: -1,
+                imageURL: ``,
+                imageURL2: ``,
+                disabledImageURL: ``,
+                tooltipText: ``,
+                extraData: ``,
+                checked: false
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --image-toggle-position: relative;
+            --image-toggle-display: flex;
+            --image-toggle-justify-content: center;
+            --image-toggle-align-items: center;
+            --image-toggle-z-index: inherit;
+            --image-toggle-background-color: var(--clear);
+            --image-toggle-cursor: default;
+            --image-toggle-padding: 0;
+
+            --image-toggle-disabled-background-color: var(--clear);
+            --image-toggle-disabled-cursor: not-allowed;
+            --image-toggle-disabled-padding: 0;
+        }
+
+        .image-toggle {
+            position: var(--image-toggle-position);
+            display: var(--image-toggle-display);
+            justify-content: var(--image-toggle-justify-content);
+            align-items: var(--image-toggle-align-items);
+            z-index: var(--image-toggle-z-index);
+            background-color: var(--image-toggle-background-color);
+            cursor: var(--image-toggle-cursor);
+            padding: var(--image-toggle-padding);
+        }
+        .image-toggle-disabled {
+            position: var(--image-toggle-position);
+            display: var(--image-toggle-display);
+            justify-content: var(--image-toggle-justify-content);
+            align-items: var(--image-toggle-align-items);
+            z-index: var(--image-toggle-z-index);
+            background-color: var(--image-toggle-disabled-background-color);
+            cursor: var(--image-toggle-disabled-cursor);
+            padding: var(--image-toggle-disabled-padding);
+        }
+        .image-toggle-round {
+            border-radius: 50%;
+            overflow: hidden;
+        }
+    </style>
+    <component-markup>
+        <span id="{id}" class="image-toggle bounce-and-brighten" title="{tooltipText}" tabindex="{tabIndex}" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)" onfocus="$obj.onFocus()">
+            <include-html data-src="./html/components/img.html" data-id="{id}Image"
+                data-props="{ hideAfterMount: false }"
+                data-vars="{ src: `{imageURL}`, lazyLoad: true, width: 50, height: 50 }">
+            </include-html>
+            <include-html data-src="./html/components/img.html" data-id="{id}DisabledImage"
+                data-vars="{ src: `{disabledImageURL}`, lazyLoad: true, width: 50, height: 50 }">
+            </include-html>
+        </span>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

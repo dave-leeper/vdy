@@ -1,0 +1,394 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reservations/reservations.html
+        class Reservations extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/reservations.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, Component.msgs.DESCENDANTS_MOUNTED, (message) => {
+                    if (!message.id || message.id !== this.id ) { return }
+                    this.resetIndexes()
+                })
+                Queue.register(this, `BOOKING`, async (message) => { 
+                    if (!this.props.forBooking) { return }
+                    await this.sendReservationRequest() 
+                })
+                Queue.register(this, `QUOTE`, async (message) => { 
+                    if (this.props.forBooking) { return }
+                    await this.sendQuoteRequest() 
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                this.resetIndexes()
+                this.setDefaultData()
+                if (this.props.forBooking) { this.QuoteButton.hide() }
+                else { this.BookingButton.hide() }
+
+                const testDropoffDateAfterPickupDate = {
+                    name: `Dropoff Date After Pickup Date`,
+                    description: `Ensure Dropoff Date After Pickup Date.`,
+                    test: async () => {
+                        let results = []
+                        const dropoffAirport = this.DropoffLocation.isAirportVisible()
+                        const pickupAirport = this.PickupLocation.isAirportVisible()
+                        const dropoffDateValue = (dropoffAirport)? this.DropoffLocation.AirportInfo.ArrivalDate.Element.value : this.DropoffLocation.AddressInfo.Date.Element.value
+                        const pickupDateValue = (pickupAirport)? this.PickupLocation.AirportInfo.ArrivalDate.Element.value : this.PickupLocation.AddressInfo.Date.Element.value
+                        const dropoffDateParts = dropoffDateValue.split("-")
+                        const pickupDateParts = pickupDateValue.split("-")
+                        const dropoffDate = new Date(parseInt(dropoffDateParts[0], 10), parseInt(dropoffDateParts[1], 10) - 1, parseInt(dropoffDateParts[2], 10))
+                        const pickupDate = new Date(parseInt(pickupDateParts[0], 10), parseInt(pickupDateParts[1], 10) - 1, parseInt(pickupDateParts[2], 10))
+                        const dropoffDateLabel = (dropoffAirport)? this.DropoffLocation.AirportInfo.ArrivalDate.props.label : this.DropoffLocation.AddressInfo.Date.props.label
+                        const pickupDatelabel = (pickupAirport)? this.PickupLocation.AirportInfo.ArrivalDate.props.label : this.PickupLocation.AddressInfo.Date.props.label
+
+                        assert(pickupDate <= dropoffDate,                                                `Field '${dropoffDateLabel}' is not before pickup '${pickupDatelabel}'.`, results, false)
+                        return results
+                    }
+                }
+                const testDropoffTimeAfterPickupTime = {
+                    name: `Dropoff Time After Pickup Time`,
+                    description: `Ensure Dropoff Time After Pickup Time.`,
+                    test: async () => {
+                        let results = []
+                        const dropoffAirport = this.DropoffLocation.isAirportVisible()
+                        const pickupAirport = this.PickupLocation.isAirportVisible()
+                        const dropoffDateValue = (dropoffAirport)? this.DropoffLocation.AirportInfo.ArrivalDate.Element.value : this.DropoffLocation.AddressInfo.Date.Element.value
+                        const pickupDateValue = (pickupAirport)? this.PickupLocation.AirportInfo.ArrivalDate.Element.value : this.PickupLocation.AddressInfo.Date.Element.value
+                        const dropoffTimeValue = (dropoffAirport)? this.DropoffLocation.AirportInfo.EstimatedArrivalTime.Element.value : this.DropoffLocation.AddressInfo.Time.Element.value
+                        const pickupTimeValue = (pickupAirport)? this.PickupLocation.AirportInfo.EstimatedArrivalTime.Element.value : this.PickupLocation.AddressInfo.Time.Element.value
+                        const dropoffDateParts = dropoffDateValue.split("-")
+                        const pickupDateParts = pickupDateValue.split("-")
+                        const dropoffTimeParts = dropoffTimeValue.split(":")
+                        const pickupTimeParts = pickupTimeValue.split(":")
+                        const dropoffDate = new Date(parseInt(dropoffDateParts[0], 10), parseInt(dropoffDateParts[1], 10) - 1, parseInt(dropoffDateParts[2], 10), parseInt(dropoffTimeParts[0], 10), parseInt(dropoffTimeParts[1], 10))
+                        const pickupDate = new Date(parseInt(pickupDateParts[0], 10), parseInt(pickupDateParts[1], 10) - 1, parseInt(pickupDateParts[2], 10), parseInt(pickupTimeParts[0], 10), parseInt(pickupTimeParts[1], 10))
+                        const dropoffTimeLabel = (dropoffAirport)? this.DropoffLocation.AirportInfo.EstimatedArrivalTime.props.label : this.DropoffLocation.AddressInfo.Time.props.label
+                        const pickupTimelabel = (pickupAirport)? this.PickupLocation.AirportInfo.EstimatedArrivalTime.props.label : this.PickupLocation.AddressInfo.Time.props.label
+
+                        if (dropoffDateValue === pickupDateValue) {
+                            assert(pickupDate <= dropoffDate,                                                `Field '${dropoffTimeLabel}' is not before pickup '${pickupTimelabel}'.`, results, false)
+                        }
+                        return results
+                    }
+                }
+
+                this.DropoffLocation.AirportInfo.ArrivalDate.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
+                this.DropoffLocation.AddressInfo.Date.vars.customValidationTests.push(testDropoffDateAfterPickupDate)
+                this.DropoffLocation.AirportInfo.EstimatedArrivalTime.vars.customValidationTests.push(testDropoffTimeAfterPickupTime)
+                this.DropoffLocation.AddressInfo.Time.vars.customValidationTests.push(testDropoffTimeAfterPickupTime)
+            }
+            onBlur(event) { this.updateSpecialInstructions() }
+            onInput(event) { this.updateSpecialInstructions() }
+            focus() { this.FirstName.focus() }
+            updateSpecialInstructions() {
+                const textarea = this.SpecialInstructionsTextElement
+
+                this.vars.specialInstructions = textarea.value
+            }
+            resetIndexes() {
+                this.PickupLocation.setIndexes(4)
+                this.DropoffLocation.setIndexes(4 + this.PickupLocation.getFieldCount())
+                this.SpecialInstructionsTextElement.tabIndex = 0 // 4 + this.PickupLocation.getFieldCount() + this.DropoffLocation.getFieldCount()
+            }
+            setDefaultData() {
+                const today = new Date()
+                const currentYear = today.getFullYear()
+                let currentMonth = today.getMonth() + 1
+                let currentDayOfTheMonth = today.getDate()
+                let currentHour = today.getHours()
+                const currentMinute = today.getMinutes() < 10 ? `0` + today.getMinutes() : today.getMinutes()
+                const AmPm = today.getHours() >= 12 ? `PM` : `AM`
+
+                currentMonth = currentMonth < 10 ? "0" + currentMonth : currentMonth
+                currentDayOfTheMonth = currentDayOfTheMonth < 10 ? "0" + currentDayOfTheMonth : currentDayOfTheMonth
+                currentHour = currentHour < 10 ? "0" + currentHour : currentHour
+
+                const currentDate = `${currentYear}-${currentMonth}-${currentDayOfTheMonth}`
+                const currentTime = `${currentHour}:${currentMinute}`
+
+                this.PickupLocation.AirportInfo.ArrivalDate.vars.value = currentDate
+                this.PickupLocation.AirportInfo.EstimatedArrivalTime.vars.value = currentTime
+                this.PickupLocation.AddressInfo.Date.vars.value = currentDate
+                this.PickupLocation.AddressInfo.Time.vars.value = currentTime
+            }
+            async getCustomerType() {
+                const newCustomer = await this.NewCustomer.getData()
+                const returningCustomer = await this.ReturningCustomer.getData()
+                const customerType = newCustomer? `New` : returningCustomer? `Returning` : null
+
+                return customerType
+            }
+            async isCustomerTypeValid() { 
+                const customerType = await this.getCustomerType()
+
+                return !!customerType
+            }
+            async showInvalidCustomerType() {
+                const isValid = await this.isCustomerTypeValid()
+
+                if (isValid) { this.CustomerTypeWrapperElement.removeClass(`customer-type-invalid`) }
+                else { this.CustomerTypeWrapperElement.addClass(`customer-type-invalid`) }
+            }
+            async getData() {
+                const pickupLocationData = await this.PickupLocation.getData()
+                const dropoffLocationData = await this.DropoffLocation.getData()
+                const isCustomerTypeValid = await this.isCustomerTypeValid()
+
+                this.showInvalidCustomerType()
+                if (!pickupLocationData || !dropoffLocationData) { return null }
+                if (!this.FirstName.isValid()) { return null }
+                if (!this.LastName.isValid()) { return null }
+                if (!this.MobileNumber.isValid()) { return null }
+                if (!isCustomerTypeValid) { return null }
+
+                const date = dateAsMMDDYYY()
+                const time = timeAsHHMMSS()
+                const firstName = this.FirstName.getValue()
+                const lastName = this.LastName.getValue()
+                const mobileNumber = this.MobileNumber.getValue()
+                const customerType = await this.getCustomerType()
+                const pickupLocation = pickupLocationData
+                const dropoffLocation = dropoffLocationData
+                const specialInstructions = this.SpecialInstructionsTextElement.innerHTML
+                
+                return { firstName, lastName, mobileNumber, customerType, pickupLocation, dropoffLocation, specialInstructions, date, time }
+            }
+            async getInvalidFields() {
+                let invalidFields = []
+                const pickupLocatioInvalidFields = await this.PickupLocation.getInvalidFields()
+                const dropoffLocatioInvalidFields = await this.DropoffLocation.getInvalidFields()
+                const customerType = await this.getCustomerType()
+
+                await this.FirstName.validate()
+                if (!this.FirstName.vars.valid) { invalidFields.push(this.FirstName) }
+                await this.LastName.validate()
+                if (!this.LastName.vars.valid) { invalidFields.push(this.LastName) }
+                await this.MobileNumber.validate()
+                if (!this.MobileNumber.vars.valid) { invalidFields.push(this.MobileNumber) }
+                if (!customerType) { 
+                    invalidFields.push(this.NewCustomerLabel) 
+                    invalidFields.push(this.ReturningCustomerLabel) 
+                }
+                invalidFields = invalidFields.concat(pickupLocatioInvalidFields)
+                invalidFields = invalidFields.concat(dropoffLocatioInvalidFields)
+                return invalidFields
+            }
+            showInvalidBorder(show) {
+                this.FirstName.vars.showInvalidBorder = show
+                this.LastName.vars.showInvalidBorder = show
+                this.MobileNumber.vars.showInvalidBorder = show
+                this.FirstName.showInvalid()
+                this.LastName.showInvalid()
+                this.MobileNumber.showInvalid()
+                this.showInvalidCustomerType()
+
+                this.PickupLocation.showInvalidBorder(show)
+                this.DropoffLocation.showInvalidBorder(show)
+            }
+            async sendReservationRequest () {
+                if (this.isWaiting()) { return }
+                await this.BookingButton.wait()
+                await SIAnalytics.incrementReservationRequestCounter()
+
+                const reservationRequest = await this.getData()
+
+                if (!reservationRequest) {
+                    const invalidFields = await this.getInvalidFields()
+                    const invalidFieldNames = invalidFields.map((invalidField) => { return invalidField.props.label})
+
+                    this.showInvalidBorder(true)
+                    for (let invalidField of invalidFields) { invalidField.showInvalid && invalidField.showInvalid() }
+                    await SIAnalytics.incrementReservationRequestInvalidDataCounter()
+                    Error(`The following fields are invalid: ${invalidFieldNames.join(", ")}\n\nPlease correct these errors and retry. `, `Error`)
+                    await this.BookingButton.unwait()
+                    return
+                }
+
+                const response =  await SIReservations.add(reservationRequest)
+ 
+                if (200 === response.status) {                    
+                    Success(`Your reservation request has been sent.\n\nNote: All requests are sent to a real person for processing, not a computer. Please submit just once and give us time to respond. If you have any questions, PLEASE CALL us at (602) 545 8557`, `Success`)
+                    
+                } else {
+                    const errMsg = await response.text()
+
+                    Error(`Error: ${errMsg}`, 'Error')
+                    await SIAnalytics.incrementReservationRequestFailedCounter()
+                }
+                await this.BookingButton.unwait()
+            }
+            async sendQuoteRequest () {
+                if (this.isWaiting()) { return }
+                await this.QuoteButton.wait()
+                await SIAnalytics.incrementQuoteRequestCounter()
+
+                await this.getInvalidFields()
+                const quoteRequest = await this.getData()
+
+                if (!quoteRequest) {
+                    const invalidFields = await this.getInvalidFields()
+                    const invalidFieldNames = invalidFields.map((invalidField) => { return invalidField.props.label})
+
+                    this.showInvalidBorder(true)
+                    for (let invalidField of invalidFields) { invalidField.showInvalid && invalidField.showInvalid() }
+                    Error(`The following fields are invalid: ${invalidFieldNames.join(", ")}\n\nPlease correct these errors and retry. `, `Error`)
+                    await SIAnalytics.incrementQuoteRequestInvalidDataCounter()
+                    this.QuoteButton.unwait()
+                    return
+                }
+                
+                const response = await SIQuotes.add(quoteRequest)
+ 
+                if (200 === response.status) {                    
+                    Success(`Your quote request has been sent.\n\nNote: All requests are sent to a real person for processing, not a computer. Please submit just once and give us time to respond. If you have any questions, PLEASE CALL us at (602) 545 8557`, `Success`)
+                } else {
+                    const errMsg = await response.text()
+
+                    Error(`Error: ${errMsg}`, 'Error')
+                    await SIAnalytics.incrementQuoteRequestFailedCounter()
+                }
+                this.QuoteButton.unwait()
+            }
+            props = {
+                forBooking: true
+            }
+            vars = {
+                specialInstructions: ``,
+                sendingReservationRequest: false,
+                sendingQuoteRequest: false,
+                customerNote: `Note: All requests are sent to a real person for processing, not a computer. Please submit just once and give us time to respond. If you have any questions, PLEASE CALL us at (602) 545 8557`
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --reservation-card-display: flex;
+            --reservation-card-flex-direction: column;
+            --reservation-card-pad: 5px;
+            --reservation-card-margin: 5px;
+            --reservation-card-border-style: solid;
+            --reservation-card-border-width: 2px;
+            --reservation-card-border-color: var(--default-border-color);
+
+            --customer-type-invalid-border-style: var(--default-border-style);
+            --customer-type-invalid-border-width: var(--default-border-width);
+            --customer-type-invalid-border-color: var(--error-color);
+            --customer-type-invalid-border-radius: var(--default-border-radius);
+
+            --special-instructions-width: 100%;
+            --special-instructions-height: 100px;
+            --special-instructions-color: var(--blue-gray-900);
+            --special-instructions-text-align: left;
+            --special-instructions-white-space: pre-wrap;
+            --special-instructions-family: var(--secondary-font-family);
+            --special-instructions-font-size: var(--text-1-font-size);
+            --special-instructions-font-weight: font-weight: var(--text-1-font-weight);
+            --special-instructions-pad: 5px;
+
+        }
+
+        .reservation-card {
+            display: var(--reservation-card-display);
+            flex-direction: var(--reservation-card-flex-direction);
+            padding: var(--reservation-card-pad);
+            margin: var(--reservation-card-margin);
+            border-style: var(--reservation-card-border-style);
+            border-width: var(--reservation-card-border-width);
+            border-color: var(--reservation-card-border-color);
+        }
+        .customer-type-invalid {
+            border-style: var(--customer-type-invalid-border-style);
+            border-width: var(--customer-type-invalid-border-width);
+            border-color: var(--customer-type-invalid-border-color);
+            border-radius: var(--customer-type-invalid-border-radius);
+        }
+        .special-instructions {
+            width: var(--special-instructions-width);
+            height: var(--special-instructions-height);
+            color: var(--special-instructions-color);
+            text-align: var(--special-instructions-text-align);
+            white-space: var(--special-instructions-white-space);
+            font-family: var(--special-instructions-font-family);
+            font-size: var(--special-instructions-font-size);
+            font-weight: var(--special-instructions-font-weight);
+            padding: var(--special-instructions-pad)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="margin-10 display-none">
+            <section id ="{id}Note" class="reservation-card">{customerNote}</section>
+            <section id="{id}PersonalInfo" class="reservation-card">
+                <h2 id="{id}AboutYouTitle" class="header-6">About You</h2>
+                <div id="{id}FirstNameLastNamePhoneNumber" class="flex-row-m-col p-b-10">
+                    <include-html data-src="./html/components/text-field.html" data-id="{id}FirstName"
+                        data-props="{ name: `FirstName`, placeholder: `First Name`, label: `First Name`, labelAboveField: false, required: true, minlength: 2, autofocus: true, showValidationErrors: `snackbar` }"
+                        data-vars="{ type: `text`, tabIndex: 0 }">
+                    </include-html>
+                    <include-html data-src="./html/components/text-field.html" data-id="{id}LastName"
+                        data-props="{ name: `LastName`, placeholder: `Last Name`, label: `Last Name`, labelAboveField: false, required: true, showValidationErrors: `snackbar` }"
+                        data-vars="{ type: `text`, tabIndex: 0 }">
+                    </include-html>
+                    <include-html data-src="./html/components/text-field.html" data-id="{id}MobileNumber"
+                        data-props="{ name: `MobileNumber`, placeholder: `Mobile Number`, label: `Mobile Number`, labelAboveField: false, required: true, size: 14, minlength: 10, maxlength: 14, showValidationErrors: `snackbar` }"
+                        data-vars="{ type: `tel`, tabIndex: 0 }">
+                    </include-html>
+                    <div id="{id}CustomerTypeWrapper" class="flex-row flex-start w50 m10-l">
+                        <div class="flex-row flex-space-between flex-align-center bounce-and-brighten relative m10-l">
+                            <include-html data-src="./html/components/img-toggle.html" data-id="{id}NewCustomer"
+                                data-props="{ groupName: `{id}CustomerTypeGroup`, size: `xs`, clickMessage: `{id}NEW_CUSTOMER` }"
+                                data-vars="{ checked: false, tabIndex: 0, imageURL: `../images/themes/{theme}/radio.png`,
+                                    imageURL2: `../images/themes/{theme}/radio-selected.png`, disabledImageURL: `../images/themes/{theme}/radio-disabled.png` }"
+                                data-class="m10-l">
+                            </include-html>
+                            <include-html data-src="./html/components/label.html" data-id="{id}NewCustomerLabel"
+                                data-props="{ label: `New Customer`, for: `{id}NewCustomer` }"
+                                onclick="Component.getObject(`{id}NewCustomer`).onClick(event)">
+                            </include-html>
+                        </div>
+                        <div class="flex-row flex-space-between flex-align-center bounce-and-brighten relative">
+                            <include-html data-src="./html/components/img-toggle.html" data-id="{id}ReturningCustomer"
+                                data-props="{ groupName: `{id}CustomerTypeGroup`, size: `xs`, clickMessage: `{id}RETURNING_CUSTOMER` }"
+                                data-vars="{ checked: false, tabIndex: 0, imageURL: `../images/themes/{theme}/radio.png`,
+                                    imageURL2: `../images/themes/{theme}/radio-selected.png`, disabledImageURL: `../images/themes/{theme}/radio-disabled.png` }"
+                                data-class="m15-l">
+                            </include-html>
+                            <include-html data-src="./html/components/label.html" data-id="{id}ReturningCustomerLabel"
+                                data-props="{ label: `Returning Customer`, for: `{id}ReturningCustomer` }"
+                                onclick="Component.getObject(`{id}ReturningCustomer`).onClick(event)">
+                            </include-html>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div id="{id}LocationWrapper" class="flex-row-m-col">
+                <include-html data-src="./html/components/reservations/location.html" data-id="{id}PickupLocation"
+                    data-props="{ title: `Pickup` }">
+                </include-html>
+                <include-html data-src="./html/components/reservations/location.html" data-id="{id}DropoffLocation"
+                    data-props="{ title: `Dropoff` }">
+                </include-html>
+            </div>
+            <div id="{id}SpecialInstructions" class="reservation-card">
+                <h2 id="{id}SpecialInstructionsTitle" class="header-6 margin-l-5 margin-b-5">Special Instructions</h2>
+                <textarea id="{id}SpecialInstructionsText" name="SpecialInstructions" class="special-instructions relative bounce-and-brighten" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="0">{specialInstructions}</textarea>
+            </div>
+            <div class="flex-row flex-center w100">
+                <include-html data-src="./html/components/button.html" data-id="{id}BookingButton"
+                    data-props="{ isDefault: true, clickMessage: `BOOKING` }"
+                    data-vars="{ title: `Request a Booking` }">
+                </include-html>
+                <include-html data-src="./html/components/button.html" data-id="{id}QuoteButton"
+                    data-props="{ isDefault: true, clickMessage: `QUOTE` }"
+                    data-vars="{ title: `Get a Quote` }">
+                </include-html>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

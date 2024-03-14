@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TEST STYLES</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+      function initializeApp() {
+        //# sourceURL=html/components/test.html
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          await Loader.siteLoaded()
+          Queue.register(this, `SELECT_STYLE`, (message) => { Theme.theme = message.SelectElement.value })
+        })
+      }
+
+      function setCSSDefaults() {
+        // Theme.theme = 'grey-glass'
+        Theme.theme = 'light'
+      }
+      setCSSDefaults()
+      initializeApp()
+    </script>
+  </head>
+  <body class="margin-5">
+    <div>
+      <include-html data-src="./html/components/select-html.html" data-id="SelectTheme"
+        data-props="{ selectMessage: `SELECT_STYLE`, options: [{value: `light`, text: `Light`}, {value: `grey-glass`, text: `Grey`}, {value: `dark`, text: `Dark`}] }">
+      </include-html>
+    </div>
+    <div class="flex-row">
+      <div class="w150px h75px bg-background primary-text">bg-background and primary-text</div>
+      <div class="w150px h75px bg-secondary-background secondary-text">bg-secondary-background and secondary-text</div>
+      <div class="w150px h75px bg-background alt-text">bg-background and alt-text</div>
+      <div class="w150px h75px bg-secondary-background alt-text">bg-secondary-background and alt-text</div>
+    </div>
+    <div class="flex-row">
+      <div class="w150px h75px bg-primary primary-text">bg-primary and primary-text</div>
+      <div class="w150px h75px bg-primary-variant primary-text">bg-primary-variant and primary-text</div>
+      <div class="w150px h75px bg-secondary secondary-text">bg-secondary and secondary-text</div>
+      <div class="w150px h75px bg-secondary-variant secondary-text">bg-secondary-variant and secondary-text</div>
+    </div>
+    <div class="flex-row">
+      <div class="w150px h75px bg-success primary-text">bg-success and primary-text</div>
+      <div class="w150px h75px bg-success secondary-text">bg-success and secondary-text</div>
+      <div class="w150px h75px bg-success alt-text">bg-success and alt-text</div>
+    </div>
+    <div class="flex-row">
+      <div class="w150px h75px bg-error primary-text">bg-error and primary-text</div>
+      <div class="w150px h75px bg-error secondary-text">bg-error and secondary-text</div>
+      <div class="w150px h75px bg-error alt-text">bg-error and alt-text</div>
+    </div>
+    <div class="flex-row">
+      <div class="w150px h75px bg-warn primary-text">bg-warn and primary-text</div>
+      <div class="w150px h75px bg-warn secondary-text">bg-warn and secondary-text</div>
+      <div class="w150px h75px bg-warn alt-text">bg-warn and alt-text</div>
+    </div>
+    <div class="flex-row">
+      <div class="w150px h75px bg-info primary-text">bg-info and primary-text</div>
+      <div class="w150px h75px bg-info secondary-text">bg-info and secondary-text</div>
+      <div class="w150px h75px bg-info alt-text">bg-info and alt-text</div>
+    </div>
+</body>
+</html>

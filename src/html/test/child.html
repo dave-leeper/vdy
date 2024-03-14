@@ -1,0 +1,16 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/test/child.html
+        class Child extends Component { 
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}">
+            <include-html data-src="./html/test/grandchild.html" data-id="{id}Grandchild"></include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

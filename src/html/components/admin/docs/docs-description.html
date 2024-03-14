@@ -1,0 +1,137 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/docs/docs-description.html
+        class DocsDescription extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/docs/docs-description.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                if (!Registry.isRegistered(`DESCRIPTION_FORMAT_FUNC`)) { Registry.register(`DESCRIPTION_FORMAT_FUNC`, this.buildElement.bind(this)) }
+                Queue.register(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`description` !== message.member) { return }
+
+                    this.Description.setText(this.vars.description)
+                })
+            }
+            async buildElement(parent, text, idFragment) {
+                const element = document.createElement(`span`)
+
+                if (!text || 0 === text.length) { return element }
+
+                let workingText = text
+                let linkIndex = workingText.indexOf(`{@link`)
+                let endLinkIndex = 0
+                let linkCounter = 0
+                let foundLink = false
+                const objectsBuiltInfo = []
+
+                ComponentLifecycle.addConvenienceMethodsToElement(element)
+                parent.appendChild(element)
+                while (-1 !== linkIndex) {
+                    const snippet = workingText.substring(0, linkIndex)
+                    const snippetElement = document.createElement(`span`)
+
+                    ComponentLifecycle.addConvenienceMethodsToElement(snippetElement)
+                    element.appendChild(snippetElement)
+                    snippetElement.innerText = snippet
+                    endLinkIndex = linkIndex
+                    while (`}` !==  workingText.charAt(endLinkIndex)) { 
+                        endLinkIndex++
+                        if (endLinkIndex >= workingText.length) { break }
+                    }
+
+                    const getLinkData = (text, firstChar, secondChar) => {
+                        const linkSplit = text.split(firstChar)
+
+                        if (2 > linkSplit.length) { return null }
+                        if (-1 === linkSplit[1].indexOf(secondChar)) { return null }
+
+                        const link = linkSplit[1].substring(0, linkSplit[1].indexOf(secondChar))
+
+                        return link
+                    }
+                    const fullLinkText = workingText.substring(linkIndex + 6, endLinkIndex).trim()
+                    const link = getLinkData(fullLinkText, `(`, `)`)
+                    const linkName = getLinkData(fullLinkText, `[`, `]`)
+                    const id = `${idFragment}LinkTo${linkName}${linkCounter}`
+                    const props = { clickMessage: id, alignTitle: `left` }
+                    const vars = { extraData: fullLinkText, title: linkName }
+                    const styles = [{ name: `data-style`, value: `display: inline; position: static;` }, { name: `data-style-title`, value: `display: inline; position: static;` }]
+                    const newInclude = Component.createComponentInclude(`./html/components/text-button.html`, id, props, vars, null, styles)
+                    const thisId = this.id
+                    const onClick = async () => {
+                        const response = await SIDocs.getDoc(link)
+
+                        if (200 !== response.status) { 
+                            showError(`Error getting documentation for ${docName}. Status code ${response.status}.`) 
+                            return null
+                        }
+
+                        const text = await response.text()
+                        const json = JSON.parse(text)
+
+                        await this.displayDoc(json)
+                    }
+
+                    element.appendChild(newInclude)
+                    await Loader.loadIncludes()
+
+                    const linkComponent = Component.getObject(id)
+
+                    Queue.registerAsync(linkComponent, id, onClick)
+                    objectsBuiltInfo.push({ id })
+
+                    workingText = workingText.substring(endLinkIndex + 1)
+                    linkIndex = workingText.indexOf(`{@link`)
+                    foundLink = true
+                }
+
+                const finalElement = document.createElement(`span`)
+
+                ComponentLifecycle.addConvenienceMethodsToElement(finalElement)
+                element.appendChild(finalElement)
+                finalElement.innerText = workingText
+                if (0 < objectsBuiltInfo.length) { await Queue.broadcast(`DOCS_PANEL_OBJECTS_BUILT`, objectsBuiltInfo) }
+
+                return element
+            }
+            /** 
+             * @member {Object}
+             * @name vars
+             * @property {string} description - The description.
+             */
+             vars = {
+                description: ``
+            }
+
+        }
+    </script>
+    <style>
+        :root {
+            --docs-panel-class-color: var(--primary-variant-color);
+            --docs-panel-keyword-color: var(--secondary-variant-color);
+        }
+
+        .docs-panel-class {
+            color: var(--docs-panel-class-color)
+        }
+        .docs-panel-keyword {
+            color: var(--docs-panel-keyword-color)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="">
+            <include-html data-src="./html/components/more.html" data-id="{id}Description"
+                data-props="{ formatFunctionRegistryName: `DESCRIPTION_FORMAT_FUNC` }"
+                data-vars="{ text: `{description}` }">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

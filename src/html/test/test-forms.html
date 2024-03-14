@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TEST MISC</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/platform.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/snackbar.js"></script>
+    <script type="text/javascript" src="./js/client/dialog.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+      //# sourceURL=html/components/text.html
+      function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => {
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          await Loader.siteLoaded()
+
+          Queue.register(this, `SELECT_STYLE`, (message) => { Theme.theme = message.SelectElement.value })
+          Queue.register(this, `SUBMIT1_CANCELLED`, (message) => { Alert(`SUBMIT1_CANCELLED`) })
+          Queue.register(this, `AFTER_SUBMIT1`, (message) => { Alert(`Response status: ${message.getResponse().status}`) })
+          Queue.register(this, `SUBMIT2_CANCELLED`, (message) => { Alert(`SUBMIT2_CANCELLED`) })
+          Queue.register(this, `AFTER_SUBMIT2`, (message) => { Alert(`Response status: ${message.getResponse().status}`) })
+          Queue.register(this, `SUBMIT3_CANCELLED`, (message) => { Alert(`SUBMIT3_CANCELLED`) })
+          Queue.register(this, `AFTER_SUBMIT3`, (message) => { Alert(`Response status: ${message.getResponse().status}`) })
+
+          const form3 = Component.getObject(`Form3`)
+          const form3Test = {
+            name: `Form3`,
+            description: `Ensure number field 1 is less than number field 2.`,
+            test: async () => {
+                let results = []
+                const numberField1 = Component.getObject(`NumberField1`)
+                const numberField2 = Component.getObject(`NumberField2`)
+                const number1 = numberField1.vars.value
+                const number2 = numberField2.vars.value
+
+                assert(number1 < number2,                            `Field '${numberField1.props.label}' must be less than field '${numberField2.props.label}''.`, results, false)
+                return results
+            }
+          }
+
+          form3.vars.customValidationTests.push(form3Test)
+
+          document.getElementById("Body").addEventListener("keydown", (event) => { 
+            if (`Enter` !== event?.key && ` ` !== event?.key) { return }
+            Queue.broadcast(Messages.DOCUMENT_DEFAULT_ACTION, event)
+          })
+        })
+      }
+
+      function setCSSDefaults() {
+        // Theme.theme = 'grey-glass'
+        Theme.theme = 'light'
+      }
+      setCSSDefaults()
+      initializeApp()
+    </script>
+  </head>
+  <body id="Body" class="margin-5 bg-grey-e">
+    <include-html data-src="./html/components/select-html.html" data-id="SelectTheme"
+      data-props="{ selectMessage: `SELECT_STYLE`, options: [{value: `light`, text: `Light`}, {value: `grey-glass`, text: `Grey`}, {value: `dark`, text: `Dark`}] }">
+    </include-html>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/form.html" data-id="Form1"
+        data-props="{ beforeSubmitClickMessage: `BEFORE_SUBMIT1` }">
+      </include-html>
+      <slot-markup for-component-id="Form1" for-slot="Form1Slot">
+        <div>
+          <include-html data-src="./html/components/submit-button.html" data-id="SubmitButton1"
+            data-props="{ url: `https://www.vincedrivesyou.com/ping`, method: `GET`, isDefault: false, beforeSubmitClickMessage: `BEFORE_SUBMIT1`,
+                afterSubmitClickMessage: `AFTER_SUBMIT1`, submitCancelledMessage: `SUBMIT1_CANCELLED` }"
+            data-vars="{ title: `Submit` }">
+          </include-html>
+        </div>
+      </slot-markup>
+
+      <include-html data-src="./html/components/form.html" data-id="Form2"
+        data-props="{ beforeSubmitClickMessage: `BEFORE_SUBMIT2` }">
+      </include-html>
+      <slot-markup for-component-id="Form2" for-slot="Form2Slot">
+        <div>
+          <include-html data-src="./html/components/text-field.html" data-id="TextField1"
+            data-props="{ name: `TextField1`, placeholder: `Text Field 1`, label: `Text Field 1`, labelAboveField: false, required: true,
+                autocomplete: true, showValidationErrors: `inline`, labelWidth: `100px` }"
+            data-vars="{ type: `text` }">
+          </include-html>
+          <include-html data-src="./html/components/submit-button.html" data-id="SubmitButton2"
+            data-props="{ url: `ping`, method: `GET`, isDefault: false, beforeSubmitClickMessage: `BEFORE_SUBMIT2`, afterSubmitClickMessage: `AFTER_SUBMIT2`,
+                submitCancelledMessage: `SUBMIT2_CANCELLED` }"
+            data-vars="{ title: `Submit` }">
+          </include-html>
+        </div>
+      </slot-markup>
+
+      <include-html data-src="./html/components/form.html" cdata-id="Form3"
+        data-props="{ beforeSubmitClickMessage: `BEFORE_SUBMIT3` }">
+      </include-html>
+      <slot-markup for-component-id="Form3" for-slot="Form3Slot">
+        <div>
+          <include-html data-src="./html/components/text-field.html" data-id="NumberField1"
+            data-props="{ name: `NumberField1`, placeholder: `Number Field 1`, label: `Number Field 1`, labelAboveField: false, required: true,
+                autocomplete: true, showValidationErrors: `inline`, labelWidth: `110px` }"
+            data-vars="{ type: `number` }">
+          </include-html>
+          <include-html data-src="./html/components/text-field.html" data-id="NumberField2"
+            data-props="{ name: `NumberField2`, placeholder: `Number Field 2`, label: `Number Field 2`, labelAboveField: false, required: true,
+                autocomplete: true, showValidationErrors: `inline`, labelWidth: `110px` }"
+            data-vars="{ type: `number` }">
+          </include-html>
+          <include-html data-src="./html/components/submit-button.html" data-id="SubmitButton3"
+            data-props="{ url: `ping`, method: `GET`, isDefault: true, beforeSubmitClickMessage: `BEFORE_SUBMIT3`, afterSubmitClickMessage: `AFTER_SUBMIT3`,
+                submitCancelledMessage: `SUBMIT3_CANCELLED` }"
+            data-vars="{ title: `Submit` }">
+          </include-html>
+        </div>
+      </slot-markup>
+    </div>
+  </body>
+</html>

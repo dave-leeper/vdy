@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TEST DATE AND TIME</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/dialog.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+      function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          await Loader.siteLoaded()
+          document.getElementById("Body").addEventListener("keydown", (event) => { 
+            if (`Enter` !== event?.key && ` ` !== event?.key) { return }
+            Queue.broadcast(Messages.DOCUMENT_DEFAULT_ACTION, event)
+          })
+          document.getElementById("Body").addEventListener("keydown", (event) => { 
+            if (`Escape` !== event?.key) { return }
+            Queue.broadcast(Messages.DOCUMENT_ESCAPE, event)
+          })
+          document.getElementById("Body").addEventListener("focusin", (event) => { 
+            const hasFocus = event.target
+            const hasFocusId = hasFocus?.id
+            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId))? Component.getObject(hasFocusId) : null
+            const hasFocusValue = (hasFocusComponent)? hasFocusComponent : null
+            const lostFocus = event.relatedTarget
+            const lostFocusId = lostFocus?.id
+            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId))? Component.getObject(lostFocusId) : null
+            const lostFocusValue = (lostFocusComponent)? lostFocusComponent : event.relatedTarget
+
+            if (!hasFocusComponent) { return }
+            Queue.broadcast(Messages.FOCUS_IN, { lostFocus: lostFocusValue, hasFocus: hasFocusValue })
+          })
+          document.getElementById("Body").addEventListener("focusout", (event) => { 
+            const hasFocus = event.relatedTarget
+            const hasFocusId = hasFocus?.id
+            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId))? Component.getObject(hasFocusId) : null
+            const hasFocusValue = (hasFocusComponent)? hasFocusComponent : event.relatedTarget
+            const lostFocus = event.target
+            const lostFocusId = lostFocus?.id
+            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId))? Component.getObject(lostFocusId) : null
+            const lostFocusValue = (lostFocusComponent)? lostFocusComponent : null
+
+            if (!lostFocusValue) { return }
+            Queue.broadcast(Messages.FOCUS_OUT, { lostFocus: lostFocusValue, hasFocus: hasFocusValue })
+          })
+          Queue.register(this, `SELECT_STYLE`, (message) => { Theme.theme = message.SelectElement.value })
+          Queue.registerAsync(this, Messages.CALENDAR_PREV_MONTH, async (message) => { alert(`PREV`) })
+          Queue.registerAsync(this, Messages.CALENDAR_NEXT_MONTH, async (message) => { alert(`NEXT`) })
+          Queue.registerAsync(this, Messages.CALENDAR_DATE_SELECTED, async (message) => { alert(`SELECTED ${message.id}`) })
+          Queue.registerAsync(this, `CALENDAR_DIALOG`, async (message) => { 
+            const date = await CalendarDialog(new Date()) 
+            alert(JSON.stringify(date))
+          })
+          Queue.registerAsync(this, `TIME_DIALOG`, async (message) => { 
+            const time = await TimeDialog(new Date()) 
+            alert(JSON.stringify(time))
+          })
+        })
+      }
+
+      function setCSSDefaults() {
+        // Theme.theme = 'grey-glass'
+        Theme.theme = 'light'
+      }
+      setCSSDefaults()
+      initializeApp()
+    </script>
+  </head>
+  <body id="Body" class="margin-5 bg-grey-e">
+    <include-html data-src="./html/components/select-html.html" data-id="SelectTheme"
+      data-props="{ selectMessage: `SELECT_STYLE`, options: [{value: `light`, text: `Light`}, {value: `grey-glass`, text: `Grey`}, {value: `dark`, text: `Dark`}] }">
+    </include-html>
+
+    <div class="flex-row flex-align-start">
+      <div class="flex-col border">
+        <div>Default</div>
+        <include-html data-src="./html/components/calendar.html" data-id="Calendar">
+        </include-html>
+      </div>
+      <div class="flex-col border">
+        <div>Past Not Disabled</div>
+        <include-html data-src="./html/components/calendar.html" data-id="Calendar2"
+          data-props="{ pastDatesAreGray: false }">
+        </include-html>
+      </div>
+    </div>
+    <div class="flex-row flex-align-start">
+      <div class="flex-col border">
+        <div>Past Date</div>
+        <include-html data-src="./html/components/calendar.html" data-id="Calendar3"
+          data-props="{ pastDatesAreGray: false }"
+          data-vars="{ year: 1888, month: 6, day: 14 }">
+        </include-html>
+      </div>
+      <div class="flex-col border">
+        <div>Disabled</div>
+        <include-html data-src="./html/components/calendar.html" data-id="Calendar4" disabled>
+        </include-html>
+      </div>
+    </div>
+    <div class="flex-row flex-align-start">
+      <include-html data-src="./html/components/text-button.html" data-id="CalendarDialogButton"
+        data-props="{ clickMessage: `CALENDAR_DIALOG` }"
+        data-vars="{ title: `Calendar Dialog` }">
+      </include-html>
+      <include-html data-src="./html/components/text-button.html" data-id="TimeDialogButton"
+        data-props="{ clickMessage: `TIME_DIALOG` }"
+        data-vars="{ title: `Time Dialog` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row flex-align-start">
+      <include-html data-src="./html/components/time.html" data-id="Time">
+      </include-html>
+    </div>
+
+  </body>
+</html>

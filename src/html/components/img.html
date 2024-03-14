@@ -1,0 +1,160 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/img.html
+        class Img extends Component { 
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/img.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            static async getImageWidthAndHeight (imgURL) {
+                return new Promise( ( resolve, reject ) => {
+                    const img = new Image()
+
+                    img.onload = () => { resolve({ width: img.width, height: img.height })}
+                    img.onerror = () => { reject( null )}
+                    img.src = Theme.updateTheme(imgURL)
+                })
+            }
+            static async ratioImageSizeFromFixedHeight (imgURL, height) {
+                return new Promise( ( resolve, reject ) => {
+                    const img = new Image()
+
+                    img.onload = () => { 
+                        const ratio = height / img.height
+                        const ratioWidth = Math.floor(img.width * ratio)
+                        const ratioHeight = Math.floor(img.height * ratio)
+
+                        resolve({ width: ratioWidth, height: ratioHeight }) 
+                    }
+                    img.onerror = () => { reject( null )}
+                    img.src = Theme.updateTheme(imgURL)
+                })
+            }
+            static async ratioImageSizeFromFixedWidth (imgURL, width) {
+                return new Promise( ( resolve, reject ) => {
+                    const img = new Image()
+
+                    img.onload = () => { 
+                        const ratio = width / img.width
+                        const ratioWidth = Math.floor(img.width * ratio)
+                        const ratioHeight = Math.floor(img.height * ratio)
+
+                        resolve({ width: ratioWidth, height: ratioHeight }) 
+                    }
+                    img.onerror = () => { reject( null )}
+                    img.src = Theme.updateTheme(imgURL)
+                })
+            }
+            async initialize(id) {
+                await super.initialize(id)
+
+                this.originalData = {}
+                this.originalData.src = this.vars.src
+                this.vars.src = Theme.updateTheme(this.originalData.src)
+                Queue.registerAsync(this, Messages.AFTER_THEME_CHANGED, async (message) => {
+                    this.Element.src = Theme.updateTheme(this.originalData.src)
+                })
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`src` !== message.member) { return }
+                    this.Element.src = this.modifySrcForTheme()
+                })
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`width` !== message.member) { return }
+                    this.Element.width = this.vars.width
+                })
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`height` !== message.member) { return }
+                    this.Element.height = this.vars.height
+                })
+            }
+            async afterMount() {
+                await super.afterMount()
+                 
+                const resizeImg = () => {
+                    if (!this.Element) { return }
+                    if (this.vars.width) { this.Element.width = this.vars.width }
+                    if (this.vars.height) { this.Element.height = this.vars.height }
+                }               
+
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => { 
+                    if (this !== message.componentObject) { return }
+                    if (`width` !== message.member && `height` !== message.member) { return }
+                    resizeImg() 
+                })
+                resizeImg()
+
+                if (this.vars.lazyLoading) { this.Element.setAtribute(`loading`, `lazy`) }
+                else { this.Element.setAttribute(`loading`, `eager`) }
+                if (this.vars.src) { this.Element.src = this.modifySrcForTheme() }
+                if (this.props.hideAfterMount) { this.hide() }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) { this.filterImage(true) }
+                else { this.filterImage(false) }
+            }
+            async show() { 
+                if (this.vars.src) { super.show() }
+                else { this.hide() }
+            }
+            async hide() { 
+                super.hide()
+            }
+            setSrc(src) { this.vars.src = src }
+            setWidth(width) { this.vars.width = width }
+            setHeight(height) { this.vars.height = height }
+            filterImage(remove) {
+                if (remove) { this.Element.removeClass(`img-filter`) }
+                else { this.Element.addClass(`img-filter`) } 
+            }
+            setSourceFromFile(file) { 
+                this.vars.src = URL.createObjectURL(file)
+                this.Element.src = this.vars.src
+            }
+            modifySrcForTheme() {
+                if (!this.vars.src) { return this.vars.src }
+                if (-1 === this.vars.src.indexOf(Theme.themeTag)) { return this.vars.src }
+                this.originalData.src = this.vars.src
+                return Theme.updateTheme(this.originalData.src)
+            }
+            async getData() {
+                return { name: this.id, value: this.vars.src }
+            }
+            props = {
+                hideAfterMount: true
+            }
+            vars = {
+                tabIndex: -1,
+                src: ``,
+                lazyLoad: true,
+                width: 100,
+                height: 100
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --img-z-index: inherit;
+            --img-filter: opacity(30%);
+        }
+
+        .img {
+            z-index: var(--img-z-index);
+        }
+
+        .img-filter {
+            filter: var(--img-filter);
+        }
+    </style>
+    <component-markup>  
+        <img id="{id}" width="{width}" height="{height}" class="img" tabIndex="{tabIndex}">
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

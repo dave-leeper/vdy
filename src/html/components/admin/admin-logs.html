@@ -1,0 +1,160 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-logs.html
+        class AdminLogs extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin-logs.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    if (message.tabBar.id === `AdminTabBar`) {
+                        if (message.title === `Logs`) { this.Element.show() }
+                        else { this.Element.hide() }
+                    }
+                })
+            }
+            async afterMount() {
+                await super.afterMount()
+                try {
+                    const logResponse = await SILogs.getLog()
+
+                    if (200 !== logResponse.status) {
+                        if (401 === logResponse.status) { window.location.href = `/login` }
+                        else { showError(`Error getting logs. Status code ${logResponse.status}.`) }
+                        return
+                    }
+
+                    const logText = await logResponse.text()
+
+                    this.vars.log = logText
+                    this.LogElement.innerText = logText
+
+                    const errResponse = await SILogs.getErrors()
+
+                    if (200 !== errResponse.status) {
+                        if (401 === errResponse.status) { window.location.href = `/login` }
+                        else { showError(`Error getting logs. Status code ${errResponse.status}.`) }
+                        return
+                    }
+
+                    const errText = await errResponse.text()
+
+                    this.vars.errors = errText
+                    this.ErrorsElement.innerText = errText
+                    
+                } catch (e) {
+                    console.error(`Error getting logs. ${JSON.stringify(e)}`)
+                }
+            } 
+            vars = {
+                log: ``,
+                errors: ``
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --admin-logs-page-display: flex;
+            --admin-logs-page-flex-direction: column;
+            --admin-logs-page-width: 100%;
+            --admin-logs-page-background-color: var(--background-color);
+
+            --admin-logs-title-color: var(--primary-color);
+            --admin-logs-title-font-family: var(--primary-font-family);
+            --admin-logs-title-font-size: var(--header-6-font-size);
+            --admin-logs-title-font-weight: var(--header-6-font-weight);
+            --admin-logs-title-margin: 5px;
+
+            --admin-logs-data-width: 100%;
+            --admin-logs-data-height: 350px;
+            --admin-logs-data-color: var(--primary-color);
+            --admin-logs-data-background-color: var(--background-color);
+            --admin-logs-data-font-family: var(--primary-font-family);
+            --admin-logs-data-font-size: var(--text-1-font-size);
+            --admin-logs-data-font-weight: var(--text-1-font-weight);
+            --admin-logs-data-overflow: scroll;
+            --admin-logs-data-border-color: var(--default-border-color);
+            --admin-logs-data-border-width: var(--default-border-width);
+            --admin-logs-data-border-style: var(--default-border-style);
+            --admin-logs-data-border-radius: 50%;
+            --admin-logs-data-padding: 5px;
+            --admin-logs-data-margin: 5px;
+        }
+        [data-theme="grey-glass"] {
+            --admin-logs-page-display: flex;
+            --admin-logs-page-flex-direction: column;
+            --admin-logs-page-width: 100%;
+            --admin-logs-page-background-color: var(--grey-glass-4);
+
+            --admin-logs-title-color: var(--grey-glass-1);
+            --admin-logs-title-font-family: var(--primary-font-family);
+            --admin-logs-title-font-size: var(--header-6-font-size);
+            --admin-logs-title-font-weight: var(--header-6-font-weight);
+            --admin-logs-title-margin: 5px;
+
+            --admin-logs-data-width: 100%;
+            --admin-logs-data-height: 350px;
+            --admin-logs-data-color: var(--grey-glass-1);
+            --admin-logs-data-background-color: var(--grey-glass-5);
+            --admin-logs-data-font-family: var(--primary-font-family);
+            --admin-logs-data-font-size: var(--text-1-font-size);
+            --admin-logs-data-font-weight: var(--text-1-font-weight);
+            --admin-logs-data-overflow: scroll;
+            --admin-logs-data-border-color: var(--grey-glass-2);
+            --admin-logs-data-border-width: var(--default-border-width);
+            --admin-logs-data-border-style: var(--default-border-style);
+            --admin-logs-data-border-radius: 25px;
+            --admin-logs-data-padding: 5px;
+            --admin-logs-data-margin: 5px;
+        }
+
+        .admin-logs-page {
+            display: var(--admin-logs-page-display);
+            flex-direction: var(--admin-logs-page-flex-direction);
+            width: var(--admin-logs-page-width);
+            background-color: var(--admin-logs-page-background-color);
+        }
+        .admin-logs-title {
+            color: var(--admin-logs-title-color);
+            font-family: var(--admin-logs-title-font-family);
+            font-size: var(--admin-logs-title-font-size);
+            font-weight: var(--admin-logs-title-font-weight);
+            margin: var(--admin-logs-title-margin);
+        }
+        .admin-logs-data {
+            width: var(--admin-logs-data-width);
+            height: var(--admin-logs-data-height);
+            color: var(--admin-logs-data-color);
+            background-color: var(--admin-logs-data-background-color);
+            font-family: var(--admin-logs-data-font-family);
+            font-size: var(--admin-logs-data-font-size);
+            font-weight: var(--admin-logs-data-font-weight);
+            overflow: var(--admin-logs-data-overflow);
+            color: var(--admin-logs-data-border-color);
+            border-width: var(--admin-logs-data-border-width);
+            border-style: var(--admin-logs-data-border-style);
+            border-radius: var(--admin-logs-data-border-radius);
+            padding: var(--admin-logs-data-padding);
+            margin: var(--admin-logs-data-margin);
+        }
+        
+    </style>
+    <component-markup>
+        <div id="{id}" class="display-none">
+            <div id="{id}Content" class="admin-logs-page">
+                <div id="{id}LogTitle" class="admin-logs-title">Log</div>
+                <div id="{id}Log" class="admin-logs-data">{log}</div>
+                <div id="{id}ErrorsTitle" class="admin-logs-title">Errors</div>
+                <div id="{id}Errors" class="admin-logs-data">{errors}</div>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+
+

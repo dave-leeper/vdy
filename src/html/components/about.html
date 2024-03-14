@@ -1,0 +1,175 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/about.html
+        /** 
+         * Presents 'About' text pulled from the database.
+         * @class 
+         */
+        class About extends Component {
+            /**
+             * Creates a component.
+             * @async
+             * @static
+             * @function
+             * @name create
+             * @param {Object} parent The parent element for the component. This is a normal HTML DOM element.
+             * @param {string} componentId The id of the new component. Ids must be unique to each object. The component's object and 
+             * root element will have the same id. Child elements of the root element will use the id as the base of their own ids, 
+             * extending it with descriptive text that indicates the child element's purpose. A component object can be retrieved by id 
+             * using Component.getObject(id). Once the object is retrieved, its root element can be accessed using obj.Element. See the 
+             * documentation for the {@link [Component](./src/js/client/component.js)} class for additional information on the structure of Components and how 
+             * they relate to DOM elements.
+             * @param {Object} [props] Props values used to build the component.  Once the component has been initialized, props cannot be
+             * changed. See the class props documentation for details on the props that can be passed.
+             * @param {Object} [vars] Var values used to build the component. See the class vars documentation for details on the vars that
+             * can be passed.
+             * @param {string} [classes] Additional classes to apply to the component. The format is an array of data-classes.
+             * Each data-class is a name/value pair. The name 'data-class' applies to the root element of the component. 
+             * The name data-class-[id] applies to the element of the component whose id ends with [id]. Finally, each data-
+             * class provides a string containing the classes to be applied to the corresponding element. 
+             * Example: [{ name: 'data-class', value: 'display-none' }, { name: 'data-class-wrapper', value: 'display-none' }]
+             * @param {string} [styles] Additional styles to apply to the component. The format is an array of data-styles.
+             * Each data-style is a name/value pair. The name 'data-style' applies to the root element of the component. 
+             * The name data-style-[id] applies to the element of the component whose id ends with [id]. Finally, each data-
+             * style provides a string containing the styles to be applied to the corresponding element. 
+             * Example: [{ name: 'data-style', value: 'width: 20px; height:20px' }, { name: 'data-style-wrapper', value: 'color: red' }]
+             * @param {string} [attributes] Additional attributes to apply to the component. Attributes are only applied to 
+             * the root element of a component. Example: 'disabled: true; value: xyz;'.
+             */
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/about.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            /**
+             * Initializes a component's object. This method is called automatically by the framework code.
+             * 
+             * When overriding this method, super.initialize(id) MUST be called. 
+             * 
+             * Once initialization is complete, the object's props can no longer be modified.
+             *
+             * At the beginning of an object's initialization, Component.msgs.BEFORE_INITIALIZATION
+             * is broadcast on the Queue with the object being initialized as the data. At the end of an object's initialization
+             * Component.msgs.AFTER_INITIALIZATION is broadcast on the Queue with the object being initialized as the data. 
+             * @async
+             * @override
+             * @function
+             * @name initialize
+             * @param {string} id The id of the new component. Ids must be unique to each object. The component's object and root element
+             * will have the same id. Child elements of the root element will use the id as the base of their own ids, extending it with 
+             * descriptive text that indicates the child element's purpose. A component object can be retrieved by id using Component.getObject(id). 
+             * Once the object is retrieved, its root element can be accessed using obj.Element. See the documentation for the {@link [Component](./src/js/client/component.js)} 
+             * Component class for additional information on the structure of Components and how they relate to DOM elements.
+             * @fires Component.msgs.BEFORE_INITIALIZATION
+             * @fires Component.msgs.AFTER_INITIALIZATION
+             * @listens Messages.SHOW_TAB
+             */
+             async initialize(id) {
+                await super.initialize(id)
+                this.loadText()
+                Queue.register(this, Messages.SHOW_TAB, (message) => {
+                    if (message.tabBar.id !== `TabBar`) { return }
+                    if (message.title !== `Home`) {
+                        this.Element.addClass(`display-none`)
+                        return 
+                    }
+                    this.Element.removeClass(`display-none`)
+                })
+            }
+            /** 
+             * Retrieves the 'about' text from the database. If the retrieval fails an error message is displayed.
+             * @async
+             * @function
+             * @name loadText
+             */
+            async loadText () {
+                const response = await SIText.get()
+
+                if (200 === response.status) { 
+                    let textRecords = await response.json()
+                    for (let text of textRecords) {
+                        if (`about` === text.for) {
+                            this.vars.text = text.text
+                            break
+                        }
+                    }
+                } else { showError(`Error retrieving text. Status code ${response.status}.`) }
+            }
+           /** 
+            * Variable data.
+            * @member {Object}
+            * @name vars
+            * @property {string} text The about text retrieved from the database. Defaults to an empty string.
+            */
+            vars = {
+                text: ``
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --about-width: 75%;
+            --about-color: var(--text-color);
+            --about-margin-top: 10px;
+            --about-font-family: var(--primary-font-family);
+            --about-font-size: var(--text-1-font-size);
+            --about-font-weight: var(--text-1-font-weight);
+            --about-white-space: pre-wrap;
+            --about-overflow-x: visible;
+            --about-overflow-y: auto;
+        }
+        .about {
+            width: var(--about-width);
+            color: var(--about-color);
+            margin-top: var(--about-margin-top);
+            font-family: var(--about-font-family);
+            font-size: var(--about-font-size);
+            font-weight: var(--about-font-weight);
+            white-space: var(--about-white-space);
+            overflow-x: var(--about-overflow-x);
+            overflow-y: var(--about-overflow-y);
+        }
+    </style>
+    <script data-is-test="true">
+        const testSuite = {
+            name: `About Test Suite`,
+            description: `Test About.`,
+            tests: [ 
+            {
+                name: `Test Print id`,
+                description: `Print id to console.`,
+                test: async () => {
+                    let results = []
+
+                    assert(true, `Test ran successfully.`, results, false)
+                    return results
+                }
+            }]
+        }
+        return testSuite
+    </script>
+    <script data-is-sample="true">
+        const samples = {
+            name: `About Sample Suite`,
+            description: `Demonstrate About.`,
+            samples: [ 
+            {
+                name: `Test Print id`,
+                description: `Print id to console.`,
+                test: async () => {
+                    let results = []
+
+                    assert(true, `Test ran successfully.`, results, false)
+                    return results
+                }
+            }]
+        }
+        return samples
+    </script>
+    <component-markup>
+        <span id="{id}" class="about">{text}</span>
+    </component-markup>
+</custom-component>
+
+

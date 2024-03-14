@@ -1,0 +1,109 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/docs/props.html
+        class Props extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                Component.createComponentInclude(`./html/components/admin/docs/props.html`, componentId, props, vars, classes, styles, attributes)
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.displayDocMessage, async (json) => {
+                    this.vars.json = json
+                })
+                Queue.register(this, Messages.SHOW_TAB, (message) => {
+                    if (message.tabBar.id !== this.props.tabBarId) { return }
+                    if (`PROPS` !== message.title?.toUpperCase()) {
+                        this.Element.addClass(`display-none`)
+                        return 
+                    }
+                    this.Element.removeClass(`display-none`)
+                    this.load()
+                })
+            }
+            load() { 
+                this.PropsParentElement.removeChildren()
+                if (!this.vars.json || !this.vars.json.docs || !this.vars.json.docs.name) { return }
+
+                const properties = (`PROPS` !== this.props.name?.toUpperCase())? this.vars.json?.props.properties : this.vars.json?.vars.properties
+
+                if (!properties || 0 === properties.length) { return }
+                for (let loop = 0; loop < properties.length; loop++) {
+                    const property = classData.props.properties[loop]
+                    const propElement = document.createElement(`div`)
+                    const propNameElement = document.createElement(`div`)
+                    const propTypeElement = document.createElement(`div`)
+                    const propDescriptionElement = document.createElement(`div`)
+                    const properIdBase = `${this.id}${this.props.name}`
+
+                    ComponentLifecycle.addConvenienceMethodsToElement(propElement)
+                    ComponentLifecycle.addConvenienceMethodsToElement(propNameElement)
+                    ComponentLifecycle.addConvenienceMethodsToElement(propTypeElement)
+                    ComponentLifecycle.addConvenienceMethodsToElement(propDescriptionElement)
+
+                    propElement.id = `${properIdBase}${loop}`
+                    propNameElement.id = `${properIdBase}Name${loop}`
+                    propTypeElement.id = `${properIdBase}Type${loop}`
+                    propDescriptionElement.id = `${properIdBase}Description${loop}`
+
+                    propNameElement.innerText = property.name
+                    propTypeElement.innerText = property.type
+                    propDescriptionElement.innerText = property.description
+
+                    propElement.addClass(`flex-row`)
+                    propNameElement.addClass(`props-name`)
+                    propTypeElement.addClass(`props-type`)
+                    propDescriptionElement.addClass(`props-description`)
+                    
+                    this.PropsParentElement.appendChild(propElement)
+                    propElement.appendChild(propNameElement)
+                    propElement.appendChild(propTypeElement)
+                    propElement.appendChild(propDescriptionElement)
+                }
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} name - Can be Props or Vars, depending on what this object is being used to describe.
+             */
+             props = {
+                name: `Props`,     // Vars
+                tabBarId: ``
+            }
+            /** 
+             * @member {Object}
+             * @name vars
+             * @property {Object} json - JSON that describes the current document.
+             */
+             vars = {
+                json: null
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --props-name-color: var(--secondary-variant-color);
+            --props-type-color: var(--primary-variant-color);
+            --props-description-color: var(--primary-text);
+        }
+
+        .props-name {
+            color: var(--props-keyword-color)
+        }
+        .props-type {
+            color: var(--props-type-color)
+        }
+        .props-description {
+            color: var(--props-description-color)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-col flex-align-start p-default m-default">
+            <div id="{id}Name">{name}</div>
+            <div id="{id}PropsParent" class="flex-col"></div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

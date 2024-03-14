@@ -1,0 +1,254 @@
+
+<custom-component>
+    <script>
+        //# sourceURL=html/components/drawer.html
+        class Drawer extends SlottedComponent {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/drawer.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+
+                Queue.registerAsync(this, this.props.openClickMessage, async (message) => { 
+                    this.open() 
+                })
+                Queue.registerAsync(this, this.props.closeClickMessage, async (message) => { 
+                    this.close() 
+                })
+                Queue.register(this, Messages.FOCUS_OUT, (message) => {
+                    if (this.CloseButton !== message.lostFocus) { return }
+
+                    const children = this.slotChildComponents
+
+                    if (0 === children.length) { return false }
+                    children[0].focus()
+                })
+
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                if (`left` === this.props.location?.toLowerCase()) {
+                    this.Element.removeClass(`drawer-wrapper-right`)
+                    this.Element.addClass(`drawer-wrapper-left`)
+                } else {
+                    this.Element.addClass(`drawer-wrapper-right`)
+                    this.Element.removeClass(`drawer-wrapper-left`)
+                }
+                this.close()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    this.OpenButton.enabled = true
+                } else {
+                    this.OpenButton.enabled = false
+                    this.close()
+                }
+            }
+            async open() {
+                await Queue.broadcast(Messages.DRAWER_BEFORE_OPENED, this)
+                this.Element.style.width = this.props.contentWidth
+                this.Element.addClass(`drawer-wrapper-open`)
+                this.Element.removeClass(`drawer-wrapper-closed`)
+                if (`left` === this.props.location?.toLowerCase()) {
+                    this.Element.addClass(`drawer-wrapper-left-open`)
+                    this.Element.removeClass(`drawer-wrapper-left`)
+                } else {
+                    this.Element.addClass(`drawer-wrapper-right-open`)
+                    this.Element.removeClass(`drawer-wrapper-right`)
+                }
+                this.DrawerElement.addClass(`drawer-border-open`)
+                this.DrawerElement.removeClass(`drawer-border-closed`)
+                this.DrawerElement.addClass(`drawer-border-open`)
+                this.DrawerElement.style.width = this.props.contentWidth
+                this.OpenButton.hide()
+                this.CloseButton.show()
+
+                const childComponents = this.slotChildComponents
+
+                if (0 === childComponents.length) { this.CloseButton.focus() }
+                else { childComponents[0].focus() }
+                await Queue.broadcast(Messages.DRAWER_AFTER_OPENED, this)
+            }
+            async close() {
+                await Queue.broadcast(Messages.DRAWER_BEFORE_CLOSED, this)
+                this.Element.style.width = `35px`
+                this.Element.removeClass(`drawer-wrapper-open`)
+                this.Element.addClass(`drawer-wrapper-closed`)
+                if (`left` === this.props.location?.toLowerCase()) {
+                    this.Element.removeClass(`drawer-wrapper-left-open`)
+                    this.Element.addClass(`drawer-wrapper-left`)
+                } else {
+                    this.Element.removeClass(`drawer-wrapper-right-open`)
+                    this.Element.addClass(`drawer-wrapper-right`)
+                }
+                this.DrawerElement.removeClass(`drawer-border-open`)
+                this.DrawerElement.addClass(`drawer-border-closed`)
+                this.DrawerElement.style.width = `0`
+                this.OpenButton.show()
+                this.CloseButton.hide()
+                this.OpenButton.focus()
+                await Queue.broadcast(Messages.DRAWER_AFTER_CLOSED, this)
+            }
+            isOpen() { return this.Element.hasClass(`drawer-wrapper-open`) }
+            props = {
+                location: `right`,
+                contentWidth: `250px`,
+                openClickMessage: `DRAWER_OPEN`,
+                closeClickMessage: `DRAWER_CLOSE`
+            }
+            vars = {
+                tabIndex: 0,
+                openImageURL: `../images/themes/{theme}/hamburger.png`,
+                openTooltipText: `Open Drawer`,
+                disabledOpenImageURL: `../images/themes/{theme}/hamburger-disabled.png`,
+                closeImageURL: `../images/themes/{theme}/close.png`,
+                closeTooltipText: `Close Drawer`,
+                disabledCloseImageURL: `../images/themes/{theme}/close-disabled.png`,
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --drawer-wrapper-position: absolute;
+            --drawer-wrapper-open-height: 100%;
+            --drawer-wrapper-closed-height: 35px;
+            --drawer-wrapper-top: 0;
+            --drawer-wrapper-left: 0;
+            --drawer-wrapper-left-open: 0;
+            --drawer-wrapper-right: 10px;
+            --drawer-wrapper-right-open: 0;
+            --drawer-wrapper-z-index: var(--z-layer1);
+            --drawer-wrapper-overflow-x: hidden; 
+            --drawer-wrapper-overflow-y: hidden; 
+            --drawer-wrapper-transition: all 0.5s ease-out;
+
+            --drawer-wrapper-open-border-color: var(--default-border-color);
+            --drawer-wrapper-open-border-width: var(--default-border-width);
+            --drawer-wrapper-open-border-style: var(--default-border-style);
+            --drawer-wrapper-open-z-index: var(--z-layer1a);
+
+            --drawer-transition: all 0.5s ease-out;
+
+            --drawer-open-button-position: absolute;
+            --drawer-open-button-z-index: inherit;
+            --drawer-open-button-cursor: default;
+            --drawer-open-button-padding: var(--default-padding);
+            --drawer-open-button-margin: var(--default-margin);
+
+            --drawer-close-button-z-index: inherit;
+            --drawer-close-button-cursor: default;
+            --drawer-close-button-padding: var(--default-padding);
+            --drawer-close-button-margin: var(--default-margin);
+
+            --drawer-height: 100%;
+            --drawer-z-index: inherit;
+            --drawer-background-color: var(--background-color);
+            --drawer-overflow-x: hidden; 
+            --drawer-overflow-y: hidden; 
+            --drawer-padding-top: 5px; 
+            --drawer-padding-top-small-screen: 15px;
+        }
+        .drawer-wrapper {
+            position: var(--drawer-wrapper-position);
+            top: var(--drawer-wrapper-top);
+            z-index: var(--drawer-wrapper-z-index);
+            overflow-x: var(--drawer-wrapper-overflow-x); 
+            overflow-y: var(--drawer-wrapper-overflow-y); 
+            transition: var(--drawer-wrapper-transition); 
+        }
+        .drawer-wrapper-open {
+            height: var(--drawer-wrapper-open-height);
+            z-index: var(--drawer-wrapper-open-z-index);
+       }
+        .drawer-wrapper-closed {
+            height: var(--drawer-wrapper-closed-height);
+        }
+        .drawer-wrapper-left {
+            left: var(--drawer-wrapper-left);
+        }
+        .drawer-wrapper-left-open {
+            left: var(--drawer-wrapper-left-open);
+            border-right-color: var(--drawer-wrapper-open-border-color);
+            border-right-width: var(--drawer-wrapper-open-border-width);
+            border-right-style: var(--drawer-wrapper-open-border-style);
+        }
+        .drawer-wrapper-right {
+            right: var(--drawer-wrapper-right);
+        }
+        .drawer-wrapper-right-open {
+            right: var(--drawer-wrapper-right-open);
+            border-left-color: var(--drawer-wrapper-open-border-color);
+            border-left-width: var(--drawer-wrapper-open-border-width);
+            border-left-style: var(--drawer-wrapper-open-border-style);
+        }
+
+        .drawer-open-button {
+            position: var(--drawer-open-button-position);
+            z-index: var(--drawer-open-button-z-index);
+            cursor: var(--drawer-open-button-cursor);
+            padding: var(--drawer-open-button-padding);
+            margin: var(--drawer-open-button-margin);
+        }
+
+        .drawer-close-button {
+            z-index: var(--drawer-close-button-z-index);
+            cursor: var(--drawer-close-button-cursor);
+            padding: var(--drawer-close-button-padding);
+            margin: var(--drawer-close-button-margin);
+        }
+
+        .drawer {
+            height: var(--drawer-height);
+            z-index: var(--drawer-z-index);
+            background-color: var(--drawer-background-color);
+            overflow-x: var(--drawer-overflow-x);
+            overflow-y: var(--drawer-overflow-y);
+            padding-top: var(--drawer-padding-top); 
+            transition: var(--drawer-transition); 
+        }
+        .drawer-hidden {
+            height: var(--drawer-height);
+            z-index: var(--drawer-z-index);
+            background-color: var(--drawer-background-color);
+            overflow-x: var(--drawer-overflow-x); 
+            padding-top: var(--drawer-padding-top); 
+            transition: var(--drawer-transition); 
+        }
+
+        @media screen and (max-height: 450px) {
+            .drawer {padding-top: var(--drawer-padding-top-small-screen);}
+            .drawer a {font-size: var(--drawer-a-font-size-small-screen);}
+        }
+    </style>
+    <component-markup>
+        <span id="{id}" class="drawer-wrapper drawer-wrapper-closed drawer-wrapper-right">
+            <span id="{id}OpenButtonWrapper" class="drawer-open-button">
+                <include-html data-src="./html/components/img-button.html" data-id="{id}OpenButton"
+                    data-props="{ clickMessage: `{openClickMessage}`, size: `s` }"
+                    data-vars="{ imageURL: `{openImageURL}`, disabledImageURL: `{disabledOpenImageURL}`, tooltipText: `{openTooltipText}`, tabIndex: {tabIndex} }">
+                </include-html>
+            </span>
+            <nav id="{id}Drawer" class="drawer-hidden">
+                <div id="{id}Header" class="w100 h30px p5-r">
+                    <div id="{id}ClosButtonWrapper" class="float-right w25px" >
+                        <include-html data-src="./html/components/img-button.html" data-id="{id}CloseButton"
+                            data-props="{ clickMessage: `{closeClickMessage}`, size: `s` }"
+                            data-vars="{ imageURL: `{closeImageURL}`, disabledImageURL: `{disabledCloseImageURL}`, tooltipText: `{closeTooltipText}` }">
+                        </include-html>
+                    </div>
+                </div>
+
+                <component-slot id="{id}Slot"></component-slot>
+            </nav>
+        </span>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+
+

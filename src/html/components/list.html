@@ -1,0 +1,410 @@
+<custom-component>
+    <!--
+    The List class supports adding ListItem and MenuItem objects. Other objects can be added so long as the meet
+    the following requirements:
+    * Provide a "selected" state which can be queried with a method call to isSelected()
+    * Before changing their internal selected state to true, broadcast a Messages.ITEM_BEFORE_SELECT message.
+    * Provide a "selectType" state which can be queried with a method call to getSelectType(). The selectType
+    *   state supports "anchor", indicating all other selected items should be unselected, "extend", indicating
+    *   all items between the anchor select and this item should also be selected, and "add", indicating this 
+    *   item is added to the items selected in the list. When the list's props.multiselect is set to false the
+    *   selectType is ignored and all selections are treated as an "anchor" select.
+    * Provide a select() method and an unselect() method to select and unselect the item.
+    * Provide a getData() method to obtain the item's name and value as JSON. If the item is not selected, getData()
+    *   should return null.
+    -->
+    <script>
+        //# sourceURL=html/components/list.html
+        class List extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/list.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, Messages.ON_CLICK, async (message) => {
+                    if (message.id !== this.AddButton.id) { return }
+                    this.onAddClicked()
+                })
+                Queue.registerAsync(this, Messages.ITEM_BEFORE_SELECT, async (message) => {
+                    this.select(message)
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                if (this.props.canAdd) { this.AddButton.show() }
+                else { this.AddButton.hide() }
+                this.WrapperElement.style.height = this.props.height
+                await this.loadListItems()
+                await this.loadDataList()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    for (let item of this.vars.content) { item.unsuspend() }
+                    this.AddButton.enabled = true
+                    this.TitleElement.addClass(`list-title`)
+                    this.TitleElement.removeClass(`list-title-disabled`)
+                } else {
+                    for (let item of this.vars.content) { item.suspend() }
+                    this.AddButton.enabled = false
+                    this.TitleElement.removeClass(`list-title`)
+                    this.TitleElement.addClass(`list-title-disabled`)
+                }
+            }
+            async suspend() { 
+                for (let item of this.vars.content) { await item.suspend() }
+                await this.AddButton.suspend()
+                await super.suspend()
+            }
+            async unsuspend() { 
+                for (let item of this.vars.content) { await item.unsuspend() }
+                await this.AddButton.unsuspend()
+                await super.unsuspend()
+            }
+            async show() {
+                await super.show()
+                await this.AddButton.show()
+                for (let item of this.vars.content) { item.show() }
+                this.Element.addClass(`list`)
+                this.Element.removeClass(`display-none`)
+            }
+            async hide() {
+                await super.hide()
+                await this.AddButton.hide()
+                for (let item of this.vars.content) { item.hide() }
+                this.Element.removeClass(`list`)
+                this.Element.addClass(`display-none`)
+            }
+            get length() { return this.vars.content.length }
+            onAddClicked() { Queue.broadcast(this.props.addMessage, this) }
+            async loadListItems() {
+                if (!this.props.listItems || 0 === this.props.listItems.length) { return }
+                for (let loop = 0; loop < this.props.listItems.length; loop++) {
+                    const startingItem = this.props.listItems[loop]
+                    const clickMessage = startingItem.props.clickMessage? startingItem.props.clickMessage : Messages.ON_CLICK
+                    const props = startingItem.props
+                    const vars = startingItem.vars
+                    let newInclude = null
+                    let itemId = ``
+
+                    props.clickMessage = clickMessage
+                    props.groupName = this.props.groupName
+                    if (`ListItem` === startingItem.type) {
+                        itemId = `${this.id}ListItem${loop}`
+                        newInclude = Component.createComponentInclude(`./html/components/list-item.html`, itemId, props, vars)
+                    } else {
+                        itemId = `${this.id}MenuItem${loop}`
+                        newInclude = Component.createComponentInclude(`./html/components/menu-item.html`, itemId, props, vars)
+                    }
+                    await this.appendIncludeItem(newInclude, itemId)
+                    Queue.register(this, clickMessage, (message) => {
+                        if (message.id !== itemId) { return }
+                        this.select(message)
+                        this.vars.selectTitle = message.vars.title
+                        this.close()
+                    })
+                }
+            }
+            async loadDataList() {
+                if (!this.props.dataList || !this.props.dataList.length) { return }
+
+                const list = document.getElementById(this.props.dataList)
+
+                if (!list) { return }
+                for (let child of list.children) {
+                    if (`option` !== child.tagName.toLowerCase()) { return }
+
+                    const value = child.getAttribute(`value`)
+
+                    await this.appendString(value)
+                }
+            }
+            async appendString(str, clickMessage) {
+                const count = this.vars.content.length
+                const id = `${this.id}MenuItem${count}`
+                const msg = (clickMessage)? clickMessage : str
+                const props = { clickMessage: msg, selectOnFocus: false }
+                const vars = { title: str, tabIndex: 0 }
+                const newInclude = Component.createComponentInclude(`./html/components/menu-item.html`, id, props, vars)
+
+                await this.appendIncludeItem(newInclude, id)
+            }
+            async appendIncludeItem(includeItem, id) {
+                this.ContentElement.appendChild(includeItem)
+                await Loader.loadIncludes()
+
+                const itemObj = Component.getObject(id)
+
+                this.appendItem(itemObj)
+            }
+            appendItem(item) {
+                this.ContentElement.appendChild(item.Element)
+                this.vars.content.push(item)
+            }
+            async removeItemAt(index, destroy) {
+                if (isNaN(index)) { 
+                    console.error(`List.removeItemAt: Index must be a number. Index: ${index}`) 
+                    return
+                }
+                if (0 > index) { 
+                    console.error(`List.removeItemAt: Index cannot be negative. Index: ${index}`) 
+                    return
+                }
+                if (this.vars.content.length <= index) { 
+                    console.error(`List.removeItemAt: Index must be less than ${this.vars.content.length}. Index: ${index}`) 
+                    return
+                }
+
+                const objectToRemove = this.vars.content[index]
+
+                if (destroy && Component.isObjectRegistered(objectToRemove.id)) { 
+                    await ComponentLifecycle.destroyComponentObject(objectToRemove.id) 
+                }
+                this.vars.content.splice(index, 1)
+            }
+            async removeAllItems(destroy) {
+                let length = this.vars.content.length
+                let count = 0;
+
+                while (this.vars.content.length > 0) { 
+                    await this.removeItemAt(0, destroy)
+                    count++
+                    if (count >= length) { break }
+                }
+            }
+            anchorIndex() {
+                for (let loop = 0; loop < this.vars.content.length; loop++) {
+                    const contentItem = this.vars.content[loop]
+
+                    if (`anchor` === contentItem.getSelectType()) { return this.itemIndex(contentItem) }
+                }
+                return -1
+            }            
+            itemIndex(item) {
+                for (let loop = 0; loop < this.vars.content.length; loop++) {
+                    const contentItem = this.vars.content[loop]
+
+                    if (item === contentItem) { return loop }
+                }
+                return -1
+            }
+            select(item) {
+                const anchorIndex = this.anchorIndex()
+                const itemIndex = this.itemIndex(item)
+
+                if (this.props.multiselect && -1 !== anchorIndex && `extend` === item.getSelectType()) {
+                    const minIndex = Math.min(anchorIndex, itemIndex)
+                    const maxIndex = Math.max(anchorIndex, itemIndex)
+                    let selectCount = 0
+
+                    for (let loop = 0; loop < this.vars.content.length; loop++) {
+                        const loopItem = this.vars.content[loop]
+                        const isSelected = loopItem.isSelected()
+
+                        if (!loopItem.enabled) { continue }
+                        if (loop < minIndex || loop > maxIndex) {
+                            if (loopItem.isSelected && isSelected) { loopItem.unselect && loopItem.unselect() }
+                            continue
+                        }
+                        if (0 === selectCount && -1 === anchorIndex) { loopItem.setSelectType(`anchor`) }
+                        else { 
+                            if (anchorIndex === loop) {
+                                if (!isSelected) { loopItem.select(false, false, true) } 
+                                loopItem.setSelectType(`anchor`) 
+                            } else {
+                                if (!loopItem.isSelected()) { loopItem.select(true, false, true)}
+                                loopItem.setSelectType(`extend`) 
+                            }
+                        }
+                        selectCount++
+                    }
+                } else if (this.props.multiselect && `add` === item.getSelectType()) {
+                      item.select(false, true, true) 
+                } else {
+                    if (-1 === itemIndex) { return }
+                    for (let loop = 0; loop < this.vars.content.length; loop++) { 
+                        if (loop === itemIndex) { continue }
+
+                        const loopItem = this.vars.content[loop]
+
+                        if (!loopItem.enabled) { continue }
+                        if (loopItem.isSelected()) { loopItem.unselect() }
+                    }
+                }
+            }
+            async getSelectedItems() {
+                const selectedItems = []
+
+                for (let item of this.vars.content) {
+                    if (!item.isSelected || !item.isSelected() || !item.getData) { continue }
+                    selectedItems.push(item)
+                }
+                return selectedItems
+            }
+            async getData() {
+                const items = await this.getSelectedItems()
+                const data = []
+
+                for (let item of items) {
+                    const itemData = await item.getData()
+
+                    if (!itemData) { continue }
+                    data.push(itemData)
+                }
+                return { name: this.id, value: data }
+            }
+
+            props = {
+                title: `List`,
+                multiselect: false,
+                canAdd: false,
+                addImageURL: `../images/themes/{theme}/add.png`,
+                disabledAddImageURL: `../images/themes/{theme}/add-disabled.png`,
+                addMessage: Messages.LIST_ITEM_ADD,
+                height: `300px`,
+                listItems: ``,
+                dataList: ``
+            }
+            vars = {
+                tabIndex: 0,
+                content: [],
+                addTooltipText: `Add`
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --list-display: flex;
+            --list-flex-direction: column;
+            --list-width: 100;
+            --list-height: 100;
+            --list-z-index: inherit;
+            --list-background-color: var(--background-color);
+            --list-margin: var(--default-margin);
+            --list-padding: var(--default-padding);
+            --list-overflow-x: auto;
+            --list-overflow-y: none;
+            --list-border-color: var(--default-border-color);
+            --list-border-width: var(--default-border-width);
+            --list-border-style: var(--default-border-style);
+            --list-border-radius: var(--default-border-radius);
+
+            --list-header-display: flex;
+            --list-header-flex-direction: row;
+            --list-header-flex-justify-content: space-between;
+            --list-header-z-index: inherit;
+            --list-header-background-color: inherit;
+            --list-header-margin: 0 0 var(--default-margin) 0;
+
+            --list-title-z-index: inherit;
+            --list-title-color: var(--text-color);
+            --list-title-disabled-color: var(--disabled-text-color);
+            --list-title-padding: var(--default-padding);
+            --list-title-margin: var(--default-margin);
+            --list-title-cursor: default;
+            --list-title-font-family: var(--primary-font-family);
+            --list-title-font-size: var(--text-1-font-size);
+            --list-title-font-weight: var(--text-1-font-weight);
+            --list-title-background-color: var(--background-color);
+
+            --list-button-z-index: inherit;
+            --list-button-cursor: var(--button-cursor);
+
+            --list-content-display: flex;
+            --list-content-flex-direction: column;
+            --list-content-width: 100%;
+            --list-content-z-index: inherit;
+
+            --list-content-wrapper-width: 100%;
+            --list-content-wrapper-z-index: inherit;
+            --list-content-wrapper-overflow-x: auto;
+            --list-content-wrapper-overflow-y: scroll;
+        }
+
+        .list {
+            display: var(--list-display);
+            flex-direction: var(--list-flex-direction);
+            width: var(--list-width);
+            height: var(--list-height);
+            z-index: var(--list-z-index);
+            background-color: var(--list-background-color);
+            margin: var(--list-margin);
+            padding: var(--list-padding);
+            overflow-x: var(--list-overflow-x);
+            overflow-y: var(--list-overflow-y);
+            border-color: var(--list-border-color);
+            border-width: var(--list-border-width);
+            border-style: var(--list-border-style);
+            border-radius: var(--list-border-radius);
+        }
+
+        .list-header {
+            display: var(--list-header-display);
+            flex-direction: var(--list-header-flex-direction);
+            justify-content: var(--list-header-flex-justify-content);
+            z-index: var(--list-header-z-index);
+            background-color: var(--list-header-background-color);
+            margin: var(--list-header-margin);
+        }
+
+        .list-title {
+            flex-grow: 10;
+            z-index: var(--list-title-z-index);
+            color: var(--list-title-color);
+            padding: var(--list-title-padding);
+            margin: var(--list-title-margin);
+            cursor: var(--list-title-cursor);
+            font-family: var(--list-title-font-family);
+            font-size: var(--list-title-font-size);
+            font-weight: var(--list-title-font-weight);
+        }
+
+        .list-title-disabled {
+            flex-grow: 10;
+            z-index: var(--list-title-z-index);
+            color: var(--list-title-disabled-color);
+            padding: var(--list-title-padding);
+            margin: var(--list-title-margin);
+            cursor: var(--list-title-cursor);
+            font-family: var(--list-title-font-family);
+            font-size: var(--list-title-font-size);
+            font-weight: var(--list-title-font-weight);
+        }
+
+        .list-content {
+            display: var(--list-content-display);
+            flex-direction: var(--list-content-flex-direction);
+            width: var(--list-content-width);
+            z-index: var(--list-content-z-index);
+            overflow-x: var(--list-content-overflow-x);
+            overflow-y: var(--list-content-overflow-y);
+        }
+
+        .list-content-wrapper {
+            width: var(--list-content-wrapper-width);
+            z-index: var(--list-content-wrapper-z-index);
+            overflow-x: var(--list-content-wrapper-overflow-x);
+            overflow-y: var(--list-content-wrapper-overflow-y);
+        }
+    </style>
+    <component-markup>
+        <article id="{id}" class="list" tabindex="{tabIndex}">
+            <section id="{id}Header" class="list-header">
+                <section id="{id}Title" class="list-title">{title}</section>
+                <include-html data-src="./html/components/img-button.html" data-id="{id}AddButton"
+                    data-props="{ size: `s` }"
+                    data-vars="{ imageURL: `{addImageURL}`, disabledImageURL: `{disabledAddImageURL}`, tooltipText: `{addTooltipText}` }">
+                </include-html>
+            </section>
+            <div id="{id}Wrapper" class="list-content-wrapper">
+                <section id="{id}Content" class="list-content"></section>
+            </div>
+        </article>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

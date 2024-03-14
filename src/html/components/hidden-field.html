@@ -1,0 +1,43 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/hidden-field.html
+        class HiddenField extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/hidden-field.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`value` !== message.member) { return }
+                    this.Element.value = this.vars.value
+                    this.Element.innerText = this.vars.value
+                })
+            }
+            async getData() {
+                return { name: this.props.name, value: this.vars.value }
+            }
+            props = {
+                name: ``,
+            }
+            vars = {
+                value: ``
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <input 
+            id="{id}" 
+            type="hidden" 
+            name="{name}"
+            value="{value}"
+        >
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

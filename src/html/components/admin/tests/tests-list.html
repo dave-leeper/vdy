@@ -1,0 +1,173 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/tests/tests-list.html
+        class TestsList extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/tests/test-list.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            static getTestName(path) {
+                const pathWithoutBase = path.replace(`./html/components/`, ``).replace(`./js/client/test/`, ``)
+                const index2 = pathWithoutBase.lastIndexOf('.')
+                const intialTestName = pathWithoutBase.substr(0, index2)
+
+                const camelCaseTestName = intialTestName.toLowerCase().replace(/[-_][a-z0-9]/g, (group) => group.slice(-1).toUpperCase())
+                const testName = camelCaseTestName.charAt(0).toUpperCase() + camelCaseTestName.slice(1)
+
+                return testName
+            }
+            /**
+             * Initializes a component's object. This method is called automatically by the framework code.
+             * 
+             * When overriding this method, super.initialize(id) MUST be called. 
+             * 
+             * Once initialization is complete, the object's props can no longer be modified.
+             *
+             * At the beginning of an object's initialization, Component.msgs.BEFORE_INITIALIZATION
+             * is broadcast on the Queue with the object being initialized as the data. At the end of an object's initialization
+             * Component.msgs.AFTER_INITIALIZATION is broadcast on the Queue with the object being initialized as the data. 
+             * @async
+             * @override
+             * @function
+             * @name initialize
+             * @param {string} id The id of the new component. Ids must be unique to each object. The component's object and root element
+             * will have the same id. Child elements of the root element will use the id as the base of their own ids, extending it with 
+             * descriptive text that indicates the child element's purpose. A component object can be retrieved by id using Component.getObject(id). 
+             * Once the object is retrieved, its root element can be accessed using obj.Element. See the documentation for the {@link [Component](./src/js/client/component.js)} 
+             * Component class for additional information on the structure of Components and how they relate to DOM elements.
+             * @fires Component.msgs.BEFORE_INITIALIZATION
+             * @fires Component.msgs.AFTER_INITIALIZATION
+             * @listens this.props.runTestsClickMessage
+             */
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.runTestsClickMessage, async (message) => {
+                    await this.runTests()
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                await this.loadTests()
+            }
+            async loadTests() {
+                const json = await this.fetchTests()
+
+                if (json?.payload?.tests?.js) { await this.buildTestCheckboxes(`javascript`, `JS`, json.payload.tests.js, this.JSElement) }
+                if (json?.payload?.tests?.html) { await this.buildTestCheckboxes(`component`, `HTML`, json.payload.tests.html, this.HTMLElement) }
+            }
+            async fetchTests() {
+                const response = await SITesting.getList()
+                if (200 !== response.status) { 
+                    Error(`Error getting testing data. Status code ${response.status}.`) 
+                    return null
+                }
+
+                const text = await response.text()
+                const json = JSON.parse(text)
+
+                return json
+            }
+            async buildTestCheckboxes(name, idFragment, tests, parent) {
+                const allTests = [`All ${name} tests.`].concat(tests)
+
+                for (let loop = 0; loop < allTests.length; loop++) {
+                    const test = allTests[loop]
+                    const testName = TestsList.getTestName(test)
+                    const id = `Test${idFragment}${loop}`
+                    const props = {
+                        label: testName,
+                        name: testName,
+                        value: testName,  
+                        clickMessage: id
+                    }
+                    const correctName = (0 === loop)? test.replace(`/`, ``).replace(`.`, ``) : test
+                    const vars = { extraData: correctName }
+                    const newInclude = Component.createComponentInclude(`./html/components/checkbox.html`, id, props, vars)
+                    const onClick = async(message) => {
+                        const toggleAllCheckboxes = (element) => {                            
+                            for (let checkbox of element.children) {
+                                if (checkbox.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                                const checkboxObj = Component.getObject(checkbox.id)
+
+                                if (checkboxObj.vars.checked !== message.vars.checked) { checkboxObj.toggleCheck() }
+                            }
+                        }
+                        const hasCheck = (element) => {                            
+                            for (let checkbox of element.children) {
+                                if (checkbox.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                                const checkboxObj = Component.getObject(checkbox.id)
+
+                                if (checkboxObj.vars.checked) { return true }
+                            }
+                            return false
+                        }
+
+                        if (`All javascript tests` === message.vars.extraData) { toggleAllCheckboxes(this.JSElement) }
+                        if (`All component tests` === message.vars.extraData) { toggleAllCheckboxes(this.HTMLElement) }
+                        if (hasCheck(this.JSElement) || hasCheck(this.HTMLElement)) { this.RunButton.enabled = true  }
+                        else { this.RunButton.enabled = false }
+                    }
+
+                    Queue.registerAsync(this, id, onClick)
+                    parent.appendChild(newInclude)
+                    await Loader.loadIncludes()
+                }
+            }
+            async runTests() {
+                const getSelectedTests = (element) => {
+                    const selectedTests = []
+
+                    for (let checkbox of element.children) {
+                        if (checkbox.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                        const checkboxObj = Component.getObject(checkbox.id)
+
+                        if (checkboxObj.vars.checked) { selectedTests.push(checkboxObj) }
+                    }
+                    return selectedTests
+                }
+
+                const selectedJavascriptTests = getSelectedTests(this.JSElement)
+                const selectedHTMLTests = getSelectedTests(this.HTMLElement)
+
+                for (let selectedJavascriptTest of selectedJavascriptTests) { await Queue.broadcast(this.props.runJSTestMessage, selectedJavascriptTest.vars.extraData) }
+                for (let selectedHTMLTest of selectedHTMLTests) { await Queue.broadcast(this.props.runHTMLTestMessage, selectedHTMLTest.vars.extraData) }
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} runTestsClickMessage - The message that is broadcast when the Run Tests button is used. Defaults to Messages.ON_CLICK.
+             * @property {string} runJSTestMessage - The message that is broadcast when a Javascript test is to be executed. Defaults to RUN_JS_TEST.
+             * @property {string} runHTMLTestMessage - The message that is broadcast when an HTML test is to be executed. Defaults to RUN_HTML_TEST.
+             * @readonly
+             */
+            props = {
+                runTestsClickMessage: Messages.ON_CLICK,
+                runJSTestMessage: `RUN_JS_TEST`,
+                runHTMLTestMessage: `RUN_HTML_TEST`
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <section id="{id}ListAndButtonWrapper" class="flex-col">
+            <div id="{id}ButtonWrapper" class="p-default m-default">
+                <include-html data-src="./html/components/button.html" data-id="{id}RunButton" disabled
+                    data-props="{ clickMessage: `{runTestsClickMessage}` }"
+                    data-vars="{ title: `Run Tests` }">
+                </include-html>
+            </div>
+            <div id="{id}List" class="flex-col h100 overflow-y-scroll">
+                <div id="{id}JS" class="header-6 hmax50 overflow-y-scroll">Javascript Tests</div>
+                <div id="{id}HTML" class="header-6 hmax50 m15-t overflow-y-scroll">Component Tests</div>
+            </div>
+        </section>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

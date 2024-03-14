@@ -1,0 +1,94 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/file-selector.html
+        class FileSelector extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/file-selector.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async afterMount() { 
+                await super.afterMount()
+
+                if (this.props.name) { this.FileSelectorElement.setAttribute(`name`, this.props.name) } else { this.FileSelectorElement.removeAttribute(`name`) }
+                if (this.props.disabled) { this.FileSelectorElement.setAttribute(`disabled`, true) } else { this.FileSelectorElement.removeAttribute(`disabled`) }
+                if (this.props.labelAboveField) { this.Element.setAttribute(`class`, `flex-col`) } else { this.Element.setAttribute(`class`, `flex-row`) }
+            }
+            setSelectedFiles(event) { 
+                const target = event.target || window.event.srcElement
+                const files = target.files
+
+                this.vars.selectedFiles = files
+                Queue.broadcast(Messages.FILE_SELECTED, { event, component: this })
+            }
+            async getData() {
+                return { name: this.id, value: this.vars.selectedFiles }
+            }
+            props = {
+                acceptedFileTypes: `image/jpeg, image/png, image/jpg, image/gif`,
+                label: ``,
+                tabIndex: 0,
+                labelAboveField: false,
+            }
+            vars = {
+                selectedFiles: ``
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --file-selector-z-index: default;
+            --file-selector-color: var(--text-color);
+            --file-selector-background-color: var(--background-color);
+            --file-selector-font-family: var(--primary-font-family);
+            --file-selector-font-size: var(--text-2-font-size);
+            --file-selector-font-weight: var(--header-1-font-weight);
+            --file-selector-cursor: default;
+            --file-selector-padding: none;
+            --file-selector-margin: 5px;
+            --file-selector-border-color: hidden;
+            --file-selector-border-width: 0;
+            --file-selector-border-style: none;
+            --file-selector-border-radius: 0px;
+        }
+        [data-theme="grey-glass"] {
+            --file-selector-color: var(--grey-glass-1);
+            --file-selector-background-color: var(--grey-glass-4);
+            --file-selector-font-family: var(--primary-font-family);
+            --file-selector-font-size: var(--text-2-font-size);
+            --file-selector-font-weight: var(--header-1-font-weight);
+            --file-selector-cursor: default;
+            --file-selector-padding: none;
+            --file-selector-margin: 5px;
+            --file-selector-border-color: var(--grey-glass-2);
+            --file-selector-border-width: 1px;
+            --file-selector-border-style: solid;
+            --file-selector-border-radius: 25px;
+        }
+        
+        input::file-selector-button {
+            z-index: var(--file-selector-z-index);
+            color: var(--file-selector-color);
+            background-color: var(--file-selector-background-color);
+            --file-selector-font-family: var(--primary-font-family);
+            --file-selector-font-size: var(--text-1-font-size);
+            --file-selector-font-weight: var(--text-1-font-weight);
+            --file-selector-cursor: default;
+            --file-selector-padding: none;
+            --file-selector-margin: 3px;
+            --file-selector-border-color: var(--grey-glass-2);
+            --file-selector-border-width: 1px;
+            --file-selector-border-style: solid;
+            --file-selector-border-radius: 25px;
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-col">
+            <label id="{id}Label" for="{name}" class="text-field-label">{label}</label>
+            <input id="{id}FileSelector" type="file" accept="{acceptedFileTypes}" onchange="$obj.setSelectedFiles(event)" tabindex="{tabIndex}">
+        </div>    
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

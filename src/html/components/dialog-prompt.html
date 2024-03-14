@@ -1,0 +1,111 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/dialog-prompt.html
+        class DialogPrompt extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/dialog-prompt.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.clickMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.ok(this.Prompt.vars.value)
+                })
+                Queue.register(this, this.props.cancelMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.cancel(false)
+                })
+            }
+        }
+        props = {
+            dialogId: `PromptDialog`,
+            clickMessage: `PROMPT_BUTTON_OK`,
+            cancelMessage: `PROMPT_BUTTON_CANCEL`
+        }
+        vars = {
+            alertTitle: `Prompt`,
+            prompt: `Prompt`,
+            defaultValue: ``,
+            message: ``
+        }
+    </script>
+    <style>
+        :root {
+            --dialog-prompt-display: flex;
+            --dialog-prompt-flex-direction: column;
+            --dialog-prompt-justify-content: center;
+            --dialog-prompt-cursor: default;
+            --dialog-prompt-padding: 10px;
+            --dialog-prompt-margin: 10px;
+
+            --dialog-prompt-title-color: var(--text-color);
+            --dialog-prompt-title-background-color: var(--clear);
+            --dialog-prompt-title-text-align: center;
+            --dialog-prompt-title-font-family: var(--primary-font-family);
+            --dialog-prompt-title-font-size: var(--header-6-font-size);
+            --dialog-prompt-title-font-weight: var(--header-6-font-weight);
+
+            --dialog-prompt-message-color: flex;
+            --dialog-prompt-message-color: var(--text-color);
+            --dialog-prompt-message-background-color: var(--clear);
+            --dialog-prompt-message-padding: 10px 0;
+            --dialog-prompt-message-margin: 10px 0;
+            --dialog-prompt-message-text-align: left;
+            --dialog-prompt-message-font-family: var(--primary-font-family);
+            --dialog-prompt-message-font-size: var(--text-1-font-size);
+            --dialog-prompt-message-font-weight: var(--text-1-font-weight);
+            --dialog-prompt-message-white-space: pre-wrap;
+        }
+
+        .dialog-prompt {
+            display: var(--dialog-prompt-display);
+            flex-direction: var(--dialog-prompt-flex-direction);
+            justify-content: var(--dialog-prompt-justify-content);
+        }
+
+        .dialog-prompt-title {
+            color: var(--dialog-prompt-title-color);
+            background-color: var(--dialog-prompt-title-background-color);
+            text-align: var(--dialog-prompt-title-text-align);
+            font-family: var(--dialog-prompt-title-font-family);
+            font-size: var(--dialog-prompt-title-font-size);
+            font-weight: var(--dialog-prompt-title-font-weight);
+        }
+
+        .dialog-prompt-message {
+            color: var(--dialog-prompt-message-color);
+            background-color: var(--dialog-prompt-message-background-color);
+            padding: var(--dialog-prompt-message-padding);
+            margin: var(--dialog-prompt-message-margin);
+            text-align: var(--dialog-prompt-message-text-align);
+            font-family: var(--dialog-prompt-message-font-family);
+            font-size: var(--dialog-prompt-message-font-size);
+            font-weight: var(--dialog-prompt-message-font-weight);
+            white-space: var(--dialog-prompt-message-white-space);
+
+        }
+    </style>
+    <component-markup>
+        <div id="{id}Wrapper" class="dialog-prompt">
+            <div id="{id}Title" class="dialog-prompt-title">{alertTitle}</div>
+            <div id="{id}Message" class="dialog-prompt-message">{message}</div>
+            <include-html data-src="./html/components/text-field.html" data-id="{id}Prompt"
+                data-props="{ name: `Prompt`, label: `{prompt}`, labelAboveField: true, required: true, tabIndex: 1, showValidationErrors: `none` }"
+                data-vars="{ type: `text`, value: `{defaultValue}` }">
+            </include-html>
+            <div id="{id}ButtonWrapper" class="flex-row">
+                <include-html data-src="./html/components/button.html" data-id="{id}CancelButton"
+                    data-props="{ isDefault: false, clickMessage: `{cancelMessage}` }"
+                    data-vars="{ title: `Cancel` }">
+                </include-html>
+                <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                    data-props="{ isDefault: true, clickMessage: `{clickMessage}` }"
+                    data-vars="{ title: `Ok` }">
+                </include-html>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

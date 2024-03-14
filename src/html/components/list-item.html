@@ -1,0 +1,419 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/list-item.html
+        class ListItem extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+
+                if (this.props.canClick && this.enabled) { 
+                    this.Element.addClass(`bounce-and-brighten`)
+                    this.Element.tabIndex = 0
+                } else { 
+                    this.Element.removeClass(`bounce-and-brighten`) 
+                    this.Element.tabIndex = -1
+                }
+                if (this.props.canView || this.props.canEdit || this.props.canDelete) { this.ControlsElement.removeClass(`display-none`) }
+                else { this.ControlsElement.addClass(`display-none`) }
+                if (this.props.canView) { this.ViewButton.show() }
+                else { this.ViewButton.hide() }
+                if (this.props.canEdit) { this.EditButton.show() }
+                else { this.EditButton.hide() }
+                if (this.props.canDelete) { this.DeleteButton.show() }
+                else { this.DeleteButton.hide() }
+
+                if (this.vars.imageURL) {
+                    const imageSize = await Img.ratioImageSizeFromFixedHeight(this.vars.imageURL, this.vars.imageHeight)
+
+                    this.vars.imageWidth = imageSize.width
+                    this.Image.vars.width = imageSize.width
+                    this.vars.imageHeight = imageSize.height
+                    this.Image.vars.height = imageSize.height
+                    this.ImageWrapperElement.addClass(`list-item-image-wrapper`)
+                } else {
+                    this.Image.vars.width = 0
+                    this.Image.vars.height = 0
+                    this.Image.hide()
+                    this.ImageWrapperElement.removeClass(`list-item-image-wrapper`)
+                }
+             }
+             async onEnabled() { 
+                await super.onEnabled()
+
+                this.Image.enabled= this.enabled
+                this.ViewButton.enabled= this.enabled
+                this.EditButton.enabled= this.enabled
+                this.DeleteButton.enabled= this.enabled
+                if (this.enabled) {
+                    if (this.vars.selected) { 
+                        this.TitleElement.addClass(`list-item-title-selected`) 
+                        this.TitleElement.removeClass(`list-item-title`) 
+                    }
+                    else { 
+                        this.TitleElement.removeClass(`list-item-title-selected`) 
+                        this.TitleElement.addClass(`list-item-title`) 
+                    }
+                    this.Element.removeClass(`list-item-disabled`) 
+                    this.Element.addClass(`bounce-and-brighten`)
+                    if (this.props.canClick) { this.Element.tabIndex = 0 }
+                    else { this.Element.tabIndex = -1 }
+                    this.TitleElement.removeClass(`list-item-title-disabled`)
+                } else {
+                    this.Element.tabIndex = -1
+                    this.TitleElement.addClass(`list-item-title-disabled`)
+                    this.TitleElement.removeClass(`list-item-title`)
+                    this.TitleElement.removeClass(`list-item-title-selected`)
+                }
+            }
+            onClick(event) { 
+                if (!this.enabled) { return }
+                if (!this.props.canClick) { return }
+                this.select(event?.shiftKey, event?.ctrlKey || event?.metaKey)
+                event?.stopPropagation()
+                Queue.broadcast(this.props.clickMessage, this) 
+            }
+            onViewClicked() { 
+                this.select(false, false)
+                Queue.broadcast(this.props.viewMessage, this) 
+            }
+            onEditClicked() { 
+                this.select(false, false)
+                Queue.broadcast(this.props.editMessage, this) 
+            }
+            onDeleteClicked() { Queue.broadcast(this.props.deleteMessage, this) }
+            onKeyDown(event) { 
+                if (!this.canFocus()) { return }
+                if (!this.Element.hasFocus()) { return }
+                if (!this.Element.isVisible()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    this.onClick(event) 
+                    return
+                }
+
+                if (`ArrowRight` !== event?.key && `ArrowLeft` !== event?.key && `ArrowDown` !== event?.key && `ArrowUp` !== event?.key) { return }
+
+                const groupName = Component.isInGroup(this)
+                const index = Component.groupIndexOf(this)
+                const groupObjects = Component.getGroupObjects(groupName)
+
+                if (-1 === index) { return }
+                if (!groupObjects || 0 === groupObjects.length) { return }
+
+                const isUsable = (obj) => {
+                    if (null === obj) { return false }
+                    if (obj.canFocus()) { return false }
+                    return true
+                }
+                const getNextIndex = (currentIndex, groupObjects, eventKey) => {
+                    if (`ArrowRight` === eventKey || `ArrowDown` === eventKey) { return (groupObjects.length - 1 === currentIndex)? 0 : currentIndex + 1 }
+                    if (`ArrowLeft` === eventKey || `ArrowUp` === eventKey) { return (0 === currentIndex)? groupObjects.length - 1 : currentIndex - 1 }
+                    return currentIndex
+                }
+                let newIndex = getNextIndex(index, groupObjects, event?.key)
+                const originalNewIndex = newIndex
+                let newObject = Component.getGroupObjectAt(groupName, newIndex)
+
+                while (!isUsable(newObject)) {
+                    newIndex = getNextIndex(newIndex, groupObjects, event?.key)
+                    if (newIndex === originalNewIndex) { 
+                        newObject = null
+                        break 
+                    }
+                    newObject = Component.getGroupObjectAt(groupName, newIndex)
+                }
+
+                if (!newObject) { return }
+                newObject.focus()
+                event?.stopPropagation()
+            }
+            async wait() {
+                if (this.isWaiting()) { return }
+                if (!this.isEnabled()) { return }
+                await super.wait()
+
+                const id = `${this.id}Waiting`
+                const vars = { width: 20, height: 20 }
+                const newInclude = Component.createComponentInclude(`./html/components/loading.html`, id, null, vars)
+
+                this.ImageWrapperElement.hide()
+                this.TitleElement.hide()
+                this.ControlsElement.hide()
+                this.Element.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async unwait() {
+                if (!this.isWaiting()) { return }
+                if (!this.isEnabled()) { return }
+
+                const id = `${this.id}Waiting`
+                const waitingObj = Component.getObject(id)
+
+                this.ImageWrapperElement.show()
+                this.TitleElement.show()
+                this.ControlsElement.show()
+                await super.unwait()
+                if (!waitingObj) { return }
+                await waitingObj.destroy()
+            }
+            async loadingBegin() { 
+                if (this.isLoading()) { return }
+                if (!this.isEnabled()) { return }
+                await super.loadingBegin()
+                this.Element.removeClass(`list-item`)
+                this.Element.addClass(`list-item-loading`)
+            }
+            async loadingEnd() { 
+                if (!this.isLoading()) { return }
+                if (!this.isEnabled()) { return }
+                this.Element.addClass(`list-item`)
+                this.Element.removeClass(`list-item-loading`)
+                await super.loadingEnd()
+            }
+            select(shiftKey, ctrlKey, doNotBroadcast) {
+                if (!this.enabled) { return }
+                if (this.vars.selected) { return this.unselect() }
+                if (shiftKey) { this.vars.selectType = `extend` }
+                else if (ctrlKey) { this.vars.selectType = `add` }
+                else { this.vars.selectType = `anchor` }
+                if (!doNotBroadcast) { Queue.broadcast(Messages.ITEM_BEFORE_SELECT, this) }
+                this.vars.selected = true
+                this.TitleElement.addClass(`list-item-title-selected`)
+                this.TitleElement.removeClass(`list-item-title`)
+                if (!doNotBroadcast) { Queue.broadcast(Messages.ITEM_AFTER_SELECT, this) }
+            }
+            unselect() {
+                if (!this.enabled) { return }
+                this.vars.selectType = `none`
+                Queue.broadcast(Messages.ITEM_BEFORE_UNSELECT, this)
+                this.vars.selected = false
+                this.TitleElement.removeClass(`list-item-title-selected`)
+                this.TitleElement.addClass(`list-item-title`)
+                Queue.broadcast(Messages.ITEM_AFTER_UNSELECT, this)
+            }
+            isSelected() { return this.vars.selected }
+            getSelectType() { return this.vars.selectType }
+            setSelectType(selectType) { this.vars.selectType = selectType }
+            async getData() {
+                if (this.isSelected()) { return { name: this.id, value: this.vars.title }}
+                return null
+            }
+            props = {
+                canClick: false,
+                clickMessage: Messages.ON_CLICK,
+                canView: false,
+                viewMessage: Messages.LIST_ITEM_VIEW,
+                canEdit: false,
+                editMessage: Messages.LIST_ITEM_EDIT,
+                canDelete: false,
+                deleteMessage: Messages.LIST_ITEM_DELETE,
+                buttonWidth: 20,
+                buttonHeight: 20,
+                selectOnFocus: false
+            }
+            vars = {
+                selected: false,
+                selectType: `none`,
+                imageURL: ``,
+                disabledImageURL: ``,
+                imageWidth: 50,
+                imageHeight: 50,
+                title: `List Item`,
+                viewImageURL: `../images/themes/{theme}/eye-open.png`,
+                disabledViewImageURL: `../images/themes/{theme}/eye-open-disabled.png`,
+                viewTooltipText: `View`,
+                editImageURL: `../images/themes/{theme}/edit.png`,
+                disabledEditImageURL: `../images/themes/{theme}/edit-disabled.png`,
+                editTooltipText: `Edit`,
+                deleteImageURL: `../images/themes/{theme}/delete.png`,
+                disabledDeleteImageURL: `../images/themes/{theme}/delete-disabled.png`,
+                deleteTooltipText: `Delete`,
+                extraData: ``,
+                tabIndex: -1
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --list-item-position: relative;
+            --list-item-display: flex;
+            --list-item-flex-direction: row;
+            --list-item-flex-justify-content: space-between;
+            --list-item-flex-align-content: center;
+            --list-item-width: 100;
+            --list-item-height: 100;
+            --list-item-z-index: inherit;
+            --list-item-background-color: var(--background-color);
+            --list-item-padding: var(--default-padding);
+            --list-item-margin: var(--default-margin);
+            --list-item-overflow-x: auto;
+            --list-item-overflow-y: visible;
+
+            --list-item-loading-background-color: var(--clear);
+            --list-item-loading-background: linear-gradient(270deg, #cdd4d2, #626564);
+            --list-item-loading-background-size: 400% 400%;
+            --list-item-loading-animation: AnimationName 4s ease infinite;
+
+            --list-item-image-cell-grow: 0;
+            --list-item-image-cell-shrink: 0;
+            --list-item-image-cell-width: 50px;
+            --list-item-image-z-index: inherit;
+            --list-item-image-overflow: hidden;
+            --list-item-image-padding: var(--default-padding);
+            --list-item-image-margin: var(--default-margin);
+
+            --list-item-title-width: 100%;
+            --list-item-title-height: 100%;
+            --list-item-title-z-index: inherit;
+            --list-item-title-color: var(--text-color);
+            --list-item-title-disabled-color: var(--disabled-text-color);
+            --list-item-title-selected-color: var(--text-color);
+            --list-item-title-cursor: default;
+            --list-item-title-disabled-cursor: not-allowed;
+            --list-item-title-font-family: var(--primary-font-family);
+            --list-item-title-font-size: var(--text-1-font-size);
+            --list-item-title-font-weight: var(--text-1-font-weight);
+            --list-item-title-background-color: var(--clear);
+            --list-item-title-selected-background-color: var(--primary-variant-color);
+            --list-item-title-text-align: left;
+            --list-item-title-align-self: flex-start;
+
+            --list-item-controls-display: flex;
+            --list-item-controls-flex-direction: row;
+            --list-item-controls-flex-justify-content: space-around;
+            --list-item-controls-flex: 0 0 auto;
+            --list-item-controls-width: 85px;
+            --list-item-controls-height: 100%;
+            --list-item-controls-z-index: inherit;
+            --list-item-controls-background-color: var(--clear);
+        }
+
+        .list-item {
+            position: var(--list-item-position);
+            display: var(--list-item-display);
+            flex-direction: var(--list-item-flex-direction);
+            justify-content: var(--list-item-flex-justify-content);
+            align-items: var(--list-item-flex-align-content);
+            width: var(--list-item-width);
+            height: var(--list-item-height);
+            z-index: var(--list-item-z-index);
+            background-color: var(--list-item-background-color);
+            padding: var(--list-item-padding);
+            margin: var(--list-item-margin);
+            overflow-x: var(--list-item-overflow-x);
+            overflow-y: var(--list-item-overflow-y);
+        }
+        .list-item-loading {
+            position: var(--list-item-position);
+            display: var(--list-item-display);
+            flex-direction: var(--list-item-flex-direction);
+            justify-content: var(--list-item-flex-justify-content);
+            align-items: var(--list-item-flex-align-content);
+            width: var(--list-item-width);
+            height: var(--list-item-height);
+            z-index: var(--list-item-z-index);
+            background-color: var(--list-item-loading-background-color);
+            background: var(--list-item-loading-background);
+            background-size: var(--list-item-loading-background-size);
+            animation: var(--list-item-loading-animation);
+            -webkit-animation: var(--list-item-loading-animation);
+            -moz-animation: var(--list-item-loading-animation);
+            padding: var(--list-item-padding);
+            margin: var(--list-item-margin);
+            overflow-x: var(--list-item-overflow-x);
+            overflow-y: var(--list-item-overflow-y);
+        }
+
+        .list-item-image-wrapper {
+            padding-right: var(--list-item-image-padding);
+            margin-right: var(--list-item-image-margin);
+        }
+
+        .list-item-image {
+            flex-grow: var(--list-item-image-cell-grow);
+            flex-shrink: var(--list-item-image-cell-shrink);
+            flex-basis: var(--list-item-image-cell-width);
+            z-index: var(--list-item-image-z-index);
+            overflow: var(--list-item-image-overflow);
+        }
+
+        .list-item-title {
+            width: var(--list-item-title-width);
+            height: var(--list-item-title-height);
+            z-index: var(--list-item-title-z-index);
+            color: var(--list-item-title-color);
+            background-color: var(--list-item-title-background-color);
+            cursor: var(--list-item-title-cursor);
+            text-align: var(--list-item-title-text-align);
+            align-self: var(--list-item-title-align-self);
+            font-family: var(--list-item-title-font-family);
+            font-size: var(--list-item-title-font-size);
+            font-weight: var(--list-item-title-font-weight);
+        }
+        .list-item-title-selected {
+            width: var(--list-item-title-width);
+            height: var(--list-item-title-height);
+            z-index: var(--list-item-title-z-index);
+            color: var(--list-item-title-selected-color);
+            background-color: var(--list-item-title-selected-background-color);
+            cursor: var(--list-item-title-cursor);
+            text-align: var(--list-item-title-text-align);
+            align-self: var(--list-item-title-align-self);
+            font-family: var(--list-item-title-font-family);
+            font-size: var(--list-item-title-font-size);
+            font-weight: var(--list-item-title-font-weight);
+        }
+        .list-item-title-disabled {
+            z-index: var(--list-item-title-z-index);
+            color: var(--list-item-title-disabled-color);
+            cursor: var(--list-item-title-disabled-cursor);
+            text-align: var(--list-item-title-text-align);
+            align-self: var(--list-item-title-align-self);
+            font-family: var(--list-item-title-font-family);
+            font-size: var(--list-item-title-font-size);
+            font-weight: var(--list-item-title-font-weight);
+            background-color: var(--list-item-title-background-color);
+        }
+
+        .list-item-controls {
+            display: var(--list-item-controls-display);
+            flex-direction: var(--list-item-controls-flex-direction);
+            justify-content: var(--list-item-controls-flex-justify-content);
+            flex: var(--list-item-controls-flex);
+            height: var(--list-item-controls-height);
+            z-index: var(--list-item-controls-z-index);
+            background-color: var(--list-item-controls-background-color);
+        }
+    </style>
+    <component-markup>
+        <section id="{id}" class="list-item" tabindex="{tabIndex}" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)" >
+            <div id="{id}ImageWrapper" class="list-item-image-wrapper">
+                <include-html data-src="./html/components/img.html" data-id="{id}Image"
+                    data-props="{ hideAfterMount: false }"
+                    data-vars="{ src: `{imageURL}`, lazyLoad: true, width: 50, height: 50 }">
+                </include-html>
+            </div>
+            <div id="{id}Title" class="list-item-title">{title}</div>
+            <div id="{id}Controls" class="list-item-controls display-none">
+                <include-html data-src="./html/components/img-button.html" data-id="{id}ViewButton"
+                    data-props="{ size: `s`, clickMessage: `{viewMessage}` }"
+                    data-vars="{ imageURL: `{viewImageURL}`, disabledImageURL: `{disabledViewImageURL}`, tooltipText: `{viewTooltipText}`, extraData: `{extraData}` }">
+                </include-html>
+                <include-html data-src="./html/components/img-button.html" data-id="{id}EditButton"
+                    data-props="{ size: `s`, clickMessage: `{editMessage}` }"
+                    data-vars="{ imageURL: `{editImageURL}`, disabledImageURL: `{disabledEditImageURL}`, tooltipText: `{editTooltipText}`, extraData: `{extraData}` }">
+                </include-html>
+                <include-html data-src="./html/components/img-button.html" data-id="{id}DeleteButton"
+                    data-props="{ size: `s`, clickMessage: `{deleteMessage}` }"
+                    data-vars="{ imageURL: `{deleteImageURL}`, disabledImageURL: `{disabledDeleteImageURL}`, tooltipText: `{deleteTooltipText}`, extraData: `{extraData}` }">
+                </include-html>
+            </div>
+        </section>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

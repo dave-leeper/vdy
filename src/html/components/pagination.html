@@ -1,0 +1,378 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/pagination.html
+        class Pagination extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/pagination.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.firstClickMessage, (message) => { 
+                    if (this.FirstPageButton !== message) { return }
+                    this.setCurrentPage(0) 
+                })
+                Queue.register(this, this.props.prevClickMessage, (message) => { 
+                    if (this.PrevPageButton !== message) { return }
+                    this.setCurrentPage(this.getCurrentPage() - 1) 
+                })
+                Queue.register(this, this.props.nextClickMessage, (message) => { 
+                    if (this.NextPageButton !== message) { return }
+                    this.setCurrentPage(this.getCurrentPage() + 1) 
+                })
+                Queue.register(this, this.props.lastClickMessage, (message) => { 
+                    if (this.LastPageButton !== message) { return }
+                    this.setCurrentPage(this.getPageCount() - 1) 
+                })
+                Queue.register(this, this.props.pageNumberClickMessage, (message) => { 
+                    const pageButtons = this.getPageButtonsAsArray(false)
+
+                    if (!pageButtons.includes(message)) { return }
+
+                    const buttonTitle = message.getTitle()
+                    const pageNumber = parseInt(buttonTitle) - 1
+                    this.setCurrentPage(pageNumber) 
+                })
+            }
+            async afterMount() { 
+                await super.afterMount()
+                if (this.vars.horizontal) { 
+                    this.Element.addClass(`pagination-horizontal`)
+                    this.Element.removeClass(`pagination-vertical`)
+                } else {
+                    this.Element.removeClass(`pagination-horizontal`)
+                    this.Element.addClass(`pagination-vertical`)
+                }
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+
+                const self = this
+                const buttons = this.getPageButtonsAsArray(false)
+                const addConvenienceMethodsToPageButton = (button) => {
+                    button.isCurrentPage = () => { return (self.getCurrentPage() + 1 === button.getTitle())}
+                    button.highlight = () => { 
+                        button.Element.addClass(`circle-background`) 
+                    }
+                    button.unhighlight = () => { 
+                        button.Element.removeClass(`circle-background`) 
+                    }
+                } 
+                const squarePageButton = (button) => {
+                    button.Element.style.width = `27px`
+                    button.Element.style.height = `27px`
+                }
+
+                for (let button of buttons) { 
+                    addConvenienceMethodsToPageButton(button) 
+                    squarePageButton(button) 
+                }
+                if (this.vars.horizontal) { 
+                    this.FirstPageButton.Element.removeClass(`pagination-vertical-arrow-button`)
+                    this.PrevPageButton.Element.removeClass(`pagination-vertical-arrow-button`)
+                    this.NextPageButton.Element.removeClass(`pagination-vertical-arrow-button`)
+                    this.LastPageButton.Element.removeClass(`pagination-vertical-arrow-button`)
+                } else {
+                    this.FirstPageButton.Element.addClass(`pagination-vertical-arrow-button`)
+                    this.PrevPageButton.Element.addClass(`pagination-vertical-arrow-button`)
+                    this.NextPageButton.Element.addClass(`pagination-vertical-arrow-button`)
+                    this.LastPageButton.Element.addClass(`pagination-vertical-arrow-button`)
+                }
+
+                this.setPages()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                const buttons = this.getPageButtonsAsArray(true)
+
+                for (let button of buttons) { button.enabled = this.enabled }
+                this.setPages()
+            }
+            async show() { 
+                await super.show()
+
+                const rowOrCol = (!this.vars.horizontal)? `pagination-horizontal` : `pagination-vertical`
+
+                this.Element.removeClass(`display-none`)
+                this.Element.addClass(rowOrCol)
+            }
+            async hide() {
+                await super.hide()
+                
+                this.Element.addClass(`display-none`)
+                this.Element.removeClass(`pagination-horizontal`)
+                this.Element.removeClass(`pagination-vertical`)
+            }
+            showEllipses() {
+                this.Ellipse1Element.show()
+                this.Ellipse2Element.show()
+                this.Ellipse3Element.show()
+                this.Ellipse4Element.show()
+            }
+            hideEllipses() {
+                this.Ellipse1Element.hide()
+                this.Ellipse2Element.hide()
+                this.Ellipse3Element.hide()
+                this.Ellipse4Element.hide()
+            }
+            focus() { this.FirstPageButton.focus() }
+            setPages() {
+                const pageButtonsWithArrows = this.getPageButtonsAsArray(true)
+                const pageButtons = this.getPageButtonsAsArray(false)
+
+                this.showEllipses()
+                if (6 > this.getPageCount()) {
+                    this.hideEllipses()
+                    this.GoToPageButton1.setTitle(1)
+                    this.GoToPageButton2.setTitle(2)
+                    this.GoToPageButton3.setTitle(3)
+                    this.GoToPageButton4.setTitle(4)
+                    this.GoToPageButton5.setTitle(5)
+                    if (5 > this.getPageCount()){ 
+                        this.GoToPageButton5.hide()
+                        if (4 > this.props.pageCount){ 
+                            this.GoToPageButton4.hide()
+                            if (3 > this.props.pageCount){ 
+                                this.GoToPageButton3.hide()
+                                if (2 > this.props.pageCount){ 
+                                    this.hide()
+                                }
+                            }
+                        }
+                    }
+                } else if (10 >= this.getPageCount()){
+                    let buttonTitle = this.vars.currentPage - 2
+ 
+                    this.hideEllipses()
+                    while (0 > buttonTitle) { buttonTitle++ }
+                    while (this.props.pageCount - 1 < buttonTitle + 4) { buttonTitle-- }
+                    this.GoToPageButton1.setTitle(buttonTitle + 1)
+                    this.GoToPageButton2.setTitle(buttonTitle + 2)
+                    this.GoToPageButton3.setTitle(buttonTitle + 3)
+                    this.GoToPageButton4.setTitle(buttonTitle + 4)
+                    this.GoToPageButton5.setTitle(buttonTitle + 5)
+                } else {
+                    const oneQuarter = Math.floor(this.getPageCount() / 4)
+                    const oneThird = Math.floor(this.getPageCount() / 3)
+                    const oneHalf = Math.floor(this.getPageCount() / 2)
+                    const twoThirds = oneThird * 2
+                    const threeQuarters = oneQuarter * 3
+                    const currentPage = this.getCurrentPage()
+                    const currentPageInLowerThird = currentPage <= oneThird
+                    const currentPageInMiddleThird = currentPage > oneThird && currentPage <= twoThirds
+
+                    if (currentPageInLowerThird) {
+                        this.Ellipse1Element.hide()
+                        this.Ellipse2Element.hide()
+
+                        if (0 === currentPage) {
+                            this.GoToPageButton1.setTitle(1)
+                            this.GoToPageButton2.setTitle(2)
+                            this.GoToPageButton3.setTitle(3)
+                        } else {
+                            this.GoToPageButton1.setTitle(currentPage)
+                            this.GoToPageButton2.setTitle(currentPage + 1)
+                            this.GoToPageButton3.setTitle(currentPage + 2)
+                        }
+                        this.GoToPageButton4.setTitle(oneHalf)
+                        this.GoToPageButton5.setTitle(threeQuarters)
+                    } else if (currentPageInMiddleThird) {
+                        this.Ellipse2Element.hide()
+                        this.Ellipse3Element.hide()
+                        this.GoToPageButton1.setTitle(oneQuarter)
+                        this.GoToPageButton2.setTitle(currentPage)
+                        this.GoToPageButton3.setTitle(currentPage + 1)
+                        this.GoToPageButton4.setTitle(currentPage + 2)
+                        this.GoToPageButton5.setTitle(threeQuarters)
+                    } else {
+                        this.Ellipse3Element.hide()
+                        this.Ellipse4Element.hide()
+                        this.GoToPageButton1.setTitle(oneQuarter)
+                        this.GoToPageButton2.setTitle(oneHalf)
+                        if (this.getPageCount() - 1 === currentPage) {
+                            this.GoToPageButton3.setTitle(this.getPageCount() - 2)
+                            this.GoToPageButton4.setTitle(this.getPageCount() - 1)
+                            this.GoToPageButton5.setTitle(this.getPageCount())
+                        } else {
+                            this.GoToPageButton3.setTitle(currentPage)
+                            this.GoToPageButton4.setTitle(currentPage + 1)
+                            this.GoToPageButton5.setTitle(currentPage + 2)
+                        }
+                    }
+                }
+
+                for (let button of pageButtonsWithArrows) { button.enabled = true }
+                for (let button of pageButtons) { if (button.isCurrentPage()) { button.highlight() } else { button.unhighlight() }}
+
+                if (this.enabled) {
+                    if (0 === this.getCurrentPage()) {
+                        this.FirstPageButton.enabled = false
+                        this.PrevPageButton.enabled = false
+                    } else if (this.getPageCount() - 1 === this.getCurrentPage()) {
+                        this.NextPageButton.enabled = false
+                        this.LastPageButton.enabled = false
+                    }
+                }
+            }
+            getPageCount() { return this.props.pageCount }
+            getCurrentPage() { return this.vars.currentPage }
+            setCurrentPage(page) { 
+                if (page == this.vars.currentPage) { return }
+                Queue.broadcast(this.props.PAGINATION_BEFORE_NEW_PAGE, this)                 
+                this.vars.currentPage = page
+                this.setPages()
+                Queue.broadcast(this.props.PAGINATION_AFTER_NEW_PAGE, this)                 
+            }
+            getPageButtonsAsArray(includeArrowButtons = false) { 
+                const result = []
+
+                if (includeArrowButtons) {
+                    result.push(this.FirstPageButton)
+                    result.push(this.PrevPageButton)
+                } 
+                result.push(this.GoToPageButton1)
+                result.push(this.GoToPageButton2)
+                result.push(this.GoToPageButton3)
+                result.push(this.GoToPageButton4)
+                result.push(this.GoToPageButton5)
+                if (includeArrowButtons) {
+                    result.push(this.NextPageButton)
+                    result.push(this.LastPageButton)
+                } 
+
+                return result
+            }
+            async getData() {
+                if (this.vars.checked) { return {name: this.props.groupName, value: this.props.groupValue }}
+                return null
+            }
+            props = {
+                pageNumberClickMessage: Messages.ON_CLICK,
+                firstClickMessage: Messages.PAGINATION_FIRST,
+                firstPageImageURL: `../images/themes/{theme}/first.png`,
+                firstPageDisabledImageURL: `../images/themes/{theme}/first-disabled.png`,
+                prevClickMessage: Messages.PAGINATION_PREV,
+                prevPageImageURL: `../images/themes/{theme}/previous.png`,
+                prevPageDisabledImageURL: `../images/themes/{theme}/previous-disabled.png`,
+                nextClickMessage: Messages.PAGINATION_NEXT,
+                nextPageImageURL: `../images/themes/{theme}/next.png`,
+                nextPageDisabledImageURL: `../images/themes/{theme}/next-disabled.png`,
+                lastClickMessage: Messages.PAGINATION_LAST,
+                lastPageImageURL: `../images/themes/{theme}/last.png`,
+                lastPageDisabledImageURL: `../images/themes/{theme}/last-disabled.png`,
+                pageCount: 0
+            }
+            vars = {
+                currentPage: 0,
+                horizontal: true
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --pagination-position: relative;
+            --pagination-background-color: var(--background-color);
+            --pagination-padding: var(--default-padding);
+            --pagination-margin: var(--default-margin);
+            --pagination-border-color: var(--default-border-color);
+            --pagination-border-width: var(--default-border-width);
+            --pagination-border-style: var(--default-border-style);
+            --pagination-border-radius: var(--default-border-radius);
+            --pagination-box-shadow: var(--default-box-shadow);
+            
+            --pagination-horizontal-display: flex;
+            --pagination-horizontal-flex-direction: row;
+
+            --pagination-vertical-display: flex;
+            --pagination-vertical-flex-direction: column;
+            --pagination-vertical-width: 45px;
+
+            --pagination-vertical-arrow-button-transform: rotate(90deg);
+        }
+        [data-theme="grey-glass"] {
+            --pagination-background-color: var(--grey-glass-trans-4);
+        }
+
+        .pagination{
+            position: var(--pagination-position);
+            background-color: var(--pagination-background-color);
+            padding: var(--pagination-padding);
+            margin: var(--pagination-margin);
+            border-color: var(--pagination-border-color);
+            border-width: var(--pagination-border-width);
+            border-style: var(--pagination-border-style);
+            border-radius: var(--pagination-border-radius);
+            box-shadow: var(--pagination-box-shadow);
+        }
+        .pagination-horizontal{
+            display: var(--pagination-horizontal-display);
+            flex-direction: var(--pagination-horizontal-flex-direction);
+        }
+        .pagination-vertical{
+            display: var(--pagination-vertical-display);
+            flex-direction: var(--pagination-vertical-flex-direction);
+            width: var(--pagination-vertical-width);
+        }
+        .pagination-vertical-arrow-button{
+            transform: var(--pagination-vertical-arrow-button-transform);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="pagination pagination-horizontal bounce-and-brighten">
+            <include-html data-src="./html/components/img-button.html" data-id="{id}FirstPageButton"
+                data-props="{ size: `s`, clickMessage: `{firstClickMessage}` }"
+                data-vars="{ imageURL: `{firstPageImageURL}`, disabledImageURL: `{firstPageDisabledImageURL}`, tooltipText: `First Page`, lazyLoad: true }"
+                data-class="m3 p3">
+            </include-html>
+            <include-html data-src="./html/components/img-button.html" data-id="{id}PrevPageButton"
+                data-props="{ size: `s`, clickMessage: `{prevClickMessage}` }"
+                data-vars="{ imageURL: `{prevPageImageURL}`, disabledImageURL: `{prevPageDisabledImageURL}`, tooltipText: `Previous Page`, lazyLoad: true }"
+                data-class="m3 p3">
+            </include-html>
+            <include-html data-src="./html/components/text-button.html" data-id="{id}GoToPageButton1"
+                data-props="{ clickMessage: `{pageNumberClickMessage}` }"
+                data-vars="{ title: `1`}"
+                data-class-title="m3 p3">
+            </include-html>
+            <div id="{id}Ellipse1" class="center-text">…</div>
+            <include-html data-src="./html/components/text-button.html" data-id="{id}GoToPageButton2"
+                data-props="{ clickMessage: `{pageNumberClickMessage}` }"
+                data-vars="{ title: `2`}"
+                data-class-title="m3 p3">
+            </include-html>
+            <div id="{id}Ellipse2" class="center-text">…</div>
+            <include-html data-src="./html/components/text-button.html" data-id="{id}GoToPageButton3"
+                data-props="{ clickMessage: `{pageNumberClickMessage}` }"
+                data-vars="{ title: `3`}"
+                data-class-title="m3 p3">
+            </include-html>
+            <div id="{id}Ellipse3" class="center-text">…</div>
+            <include-html data-src="./html/components/text-button.html" data-id="{id}GoToPageButton4"
+                data-props="{ clickMessage: `{pageNumberClickMessage}` }"
+                data-vars="{ title: `4`}"
+                data-class-title="m3 p3">
+            </include-html>
+            <div id="{id}Ellipse4" class="center-text">…</div>
+            <include-html data-src="./html/components/text-button.html" data-id="{id}GoToPageButton5"
+                data-props="{ clickMessage: `{pageNumberClickMessage}` }"
+                data-vars="{ title: `5`}"
+                data-class-title="m3 p3">
+            </include-html>
+            <include-html data-src="./html/components/img-button.html" data-id="{id}NextPageButton"
+                data-props="{ size: `s`, clickMessage: `{nextClickMessage}` }"
+                data-vars="{ imageURL: `{nextPageImageURL}`, disabledImageURL: `{nextPageDisabledImageURL}`, tooltipText: `Next Page`, lazyLoad: true }"
+                data-class="m3 p3">
+            </include-html>
+            <include-html data-src="./html/components/img-button.html" data-id="{id}LastPageButton"
+                data-props="{ size: `s`, clickMessage: `{lastClickMessage}` }"
+                data-vars="{ imageURL: `{lastPageImageURL}`, disabledImageURL: `{lastPageDisabledImageURL}`, tooltipText: `Last Page`, lazyLoad: true }"
+                data-class="m3 p3">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

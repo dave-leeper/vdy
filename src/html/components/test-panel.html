@@ -1,0 +1,270 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/test-panel.html
+        class TestPanel extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/test-panel.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                await this.loadTests()
+            }
+            async fetchTests() {
+                const response = await SITesting.getList()
+                if (200 !== response.status) { 
+                    showError(`Error getting testing data. Status code ${response.status}.`) 
+                    return null
+                }
+
+                const text = await response.text()
+                const json = JSON.parse(text)
+
+                return json
+            }
+            getTestName(path) {
+                const pathWithoutBase = path.replace(`./html/components/`, ``).replace(`./js/client/test/`, ``)
+                const index2 = pathWithoutBase.lastIndexOf('.')
+                const intialTestName = pathWithoutBase.substr(0, index2)
+
+                const camelCaseTestName = intialTestName.toLowerCase().replace(/[-_][a-z0-9]/g, (group) => group.slice(-1).toUpperCase())
+                const testName = camelCaseTestName.charAt(0).toUpperCase() + camelCaseTestName.slice(1)
+
+                return testName
+            }
+            async buildTestCheckboxes(name, idFragment, tests, parent) {
+                const allTests = [`All ${name} tests.`].concat(tests)
+
+                for (let loop = 0; loop < allTests.length; loop++) {
+                    const test = allTests[loop]
+                    const testName = this.getTestName(test)
+                    const id = `Test${idFragment}${loop}`
+                    const props = {
+                        label: testName,
+                        name: testName,
+                        value: testName,  
+                        clickMessage: id
+                    }
+                    const correctName = (0 === loop)? test.replace(`/`, ``).replace(`.`, ``) : test
+                    const vars = { extraData: correctName }
+                    const newInclude = Component.createComponentInclude(`./html/components/checkbox.html`, id, props, vars)
+                    const onClick = async(message) => {
+                        const toggleAllCheckboxes = (element) => {                            
+                            for (let checkbox of element.children) {
+                                if (checkbox.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                                const checkboxObj = Component.getObject(checkbox.id)
+
+                                if (checkboxObj.vars.checked !== message.vars.checked) { checkboxObj.toggleCheck() }
+                            }
+                        }
+                        const hasCheck = (element) => {                            
+                            for (let checkbox of element.children) {
+                                if (checkbox.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                                const checkboxObj = Component.getObject(checkbox.id)
+
+                                if (checkboxObj.vars.checked) { return true }
+                            }
+                            return false
+                        }
+
+                        if (`All javascript tests` === message.vars.extraData) { toggleAllCheckboxes(this.JSElement) }
+                        if (`All component tests` === message.vars.extraData) { toggleAllCheckboxes(this.HTMLElement) }
+                        if (hasCheck(this.JSElement) || hasCheck(this.HTMLElement)) { this.RunButton.enabled = true  }
+                        else { this.RunButton.enabled = false }
+                    }
+
+                    Queue.registerAsync(this, id, onClick)
+                    parent.appendChild(newInclude)
+                    await Loader.loadIncludes()
+                }
+            }
+            async loadTests() {
+                const json = await this.fetchTests()
+
+                Queue.registerAsync(this, this.props.runTestsClickMessage, (message) => { 
+                    if (message !== this.RunButton) { return }
+                    this.runTests()
+                })
+                Queue.registerAsync(this, TestPanel.msgs.DISABLE_RUN_BUTTON, (message) => { this.RunButton.enabled = false })
+                if (json?.payload?.tests?.js) { await this.buildTestCheckboxes(`javascript`, `JS`, json.payload.tests.js, this.JSElement) }
+                if (json?.payload?.tests?.html) { await this.buildTestCheckboxes(`component`, `HTML`, json.payload.tests.html, this.HTMLElement) }
+            }
+            async runTests() {
+                const getSelectedTests = (element) => {
+                    const selectedTests = []
+
+                    for (let checkbox of element.children) {
+                        if (checkbox.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                        const checkboxObj = Component.getObject(checkbox.id)
+
+                        if (checkboxObj.vars.checked) { selectedTests.push(checkboxObj) }
+                    }
+                    return selectedTests
+                }
+                const clearOldTests = async (parent) => {
+                    for (let loop = parent.children.length - 1; loop >= 0; loop-- ) {
+                        const child = parent.children[loop]
+
+                        if (!child) { continue }
+                        await clearOldTests(child)
+                        if (child.id.startsWith(`-ComponentBeginMarker`)) { continue }
+                        if (!child.id.endsWith(`SuiteAccordion`) && !child.id.endsWith(`TestAccordion`) && !child.id.endsWith(`TestListItem`)) { continue }
+                        
+                        const component = Component.getObject(child.id)
+
+                        await component.destroy()
+                    }
+                }
+                const clearComponent = async () => {
+                    for (let loop = this.TestingDOMElement.children.length - 1; loop >= 0; loop-- ) {
+                        const child = this.TestingDOMElement.children[loop]
+
+                        if (!child) { continue }
+                        if (child.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                        const component = Component.getObject(child.id)
+
+                        await component.destroy()
+                    }
+                }
+
+                const selectedJavascriptTests = getSelectedTests(this.JSElement)
+                const selectedHTMLTests = getSelectedTests(this.HTMLElement)
+
+                await clearOldTests(this.CardTestingResultsElement)
+                for (let selectedJavascriptTest of selectedJavascriptTests) { await this.runJavascriptTest(selectedJavascriptTest.vars.extraData) }
+                for (let selectedHTMLTest of selectedHTMLTests) { await this.runHTMLTest(selectedHTMLTest.vars.extraData) }
+                clearComponent()
+            }
+            async runJavascriptTest(test) {
+                const module = await import(test)
+                const testSuite = module.getTestSuite()
+                const results = await suite(testSuite)
+                const testName = this.getTestName(test)
+
+                await this.displayTestSuiteResults(testName, results)
+            }
+            async runHTMLTest(test) {
+                if (`All component tests` === test) { return }
+
+                const testName = this.getTestName(test)
+                const id = `${this.id}${testName}`
+                const props = null
+                const vars = null
+                const classes = null
+                const styles = null
+                const attributes = `data-tests: true`
+                const newInclude = Component.createComponentInclude(test, id, props, vars, classes, styles, attributes)
+
+                this.TestingDOMElement.appendChild(newInclude)
+                await Loader.loadIncludes()
+
+                const objToBeTested = Component.getObject(id)
+                const testSuite = objToBeTested.getTests()
+                const results = await suite(testSuite)
+
+                await this.displayTestSuiteResults(testName, results)
+            }
+            async displayTestSuiteResults(name, suiteResults) {
+                this.CardTestingResultsElement.hide()
+                const id = `${this.id}${name}SuiteAccordion`
+                const props = null
+                const extraImageURL = suiteResults.passed? `../images/themes/{theme}/good.png` : `../images/themes/{theme}/bad.png`
+                const vars = { title: `${name} Test Suite`, extraImageURL }
+                const classes = null
+                const styles = null
+                const attributes = null
+                const newInclude = Component.createComponentInclude(`./html/components/accordion.html`, id, props, vars, classes, styles, attributes)
+                let testCount = 0
+
+                this.CardTestingResultsElement.appendChild(newInclude)
+                await Loader.loadIncludes()
+
+                const slotMarkup = document.createElement(`slot-markup`)
+
+                slotMarkup.id = `${id}SlotMarkup`
+                slotMarkup.setAttribute(`for-component-id`, id)
+                slotMarkup.setAttribute(`for-slot`, `${id}Slot`)
+                this.CardTestingResultsElement.appendChild(slotMarkup)
+
+                for (let test of suiteResults.nodes) {
+                    const testId = `${this.id}${name}${testCount}TestAccordion`
+                    const props = null
+                    const extraImageURL = test.passed? `../images/themes/{theme}/good.png` : `../images/themes/{theme}/bad.png`
+                    const vars = { title: `${test.name}`, extraImageURL }
+                    const classes = null
+                    const styles = [{ name: `data-style`, value: `width: 98%` }]
+                    const attributes = null
+                    const newInclude = Component.createComponentInclude(`./html/components/accordion.html`, testId, props, vars, classes, styles, attributes)
+                    const testSlotMarkup = document.createElement(`slot-markup`)
+
+                    slotMarkup.appendChild(newInclude)
+                    await Loader.loadIncludes()
+
+                    testSlotMarkup.id = `${testId}SlotMarkup`
+                    testSlotMarkup.setAttribute(`for-component-id`, testId)
+                    testSlotMarkup.setAttribute(`for-slot`, `${testId}Slot`)
+                    this.CardTestingResultsElement.appendChild(testSlotMarkup)
+
+                    for (let loop = 0; loop < test.results.length; loop++) {
+                        const assertion = test.results[loop]
+                        const errorDiv = document.createElement(`div`)
+                        const assertionId = `${this.id}${name}${testCount}_${loop}TestListItem`
+                        const props = { canView: true }
+                        const viewImageURL = assertion.passed? `../images/themes/{theme}/good.png` : `../images/themes/{theme}/bad.png`
+                        const vars = { title: `${assertion.description}`, viewImageURL }
+                        const classes = null
+                        const styles = null
+                        const attributes = null
+                        const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, assertionId, props, vars, classes, styles, attributes)
+
+                        testSlotMarkup.appendChild(newInclude)
+                        await Loader.loadIncludes()
+                    }
+                    testCount++
+                }
+                SlotManager.loadSlots()
+                this.CardTestingResultsElement.show()
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} runTestsClickMessage - The message that is broadcast when the Run Tests button is used. Defaults to Messages.ON_CLICK.
+             * @readonly
+             */
+            props = {
+                runTestsClickMessage: Messages.ON_CLICK
+            }
+
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row p-default m-default">
+            <section id="{id}TestListAndButtonWrapper" class="flex-col">
+                <div id="{id}ButtonWrapper" class="p-default m-default">
+                    <include-html data-src="./html/components/button.html" data-id="{id}RunButton" disabled
+                        data-props="{ clickMessage: `RUN_TESTS` }"
+                        data-vars="{ title: `Run Tests` }">
+                    </include-html>
+                </div>
+                <div id="{id}TestList" class="flex-col h100 overflow-y-scroll">
+                    <div id="{id}JS" class="header-6 hmax50 overflow-y-scroll">Javascript Tests</div>
+                    <div id="{id}HTML" class="header-6 hmax50 m15-t overflow-y-scroll">Component Tests</div>
+                </div>
+            </section>
+            <section id="{id}TestingWorkspace" class="flex-row p-5 m15-t">
+                <div id="{id}CardTestingResults" class="w33 h100 w600px overflow-x-auto"></div>
+                <div id="{id}TestingDOM" class="w5 h5"></div>
+              </section>  
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

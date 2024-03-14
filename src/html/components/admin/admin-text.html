@@ -1,0 +1,185 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-text.html
+        class AdminText extends Component {
+          static async create(parent, componentId, props, vars, classes, styles, attributes) {
+              const newInclude = Component.createComponentInclude(`./html/components/admin-text.html`, componentId, props, vars, classes, styles, attributes)
+              
+              parent.appendChild(newInclude)
+              await Loader.loadIncludes()
+          }
+          async initialize(id) {
+            await super.initialize(id)
+  
+            Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+              if (message.tabBar.id === `AdminTabBar`) {
+                if (message.title === `Text`) { this.showText() }
+                else { this.hideText() }
+              }
+            })
+            Queue.registerAsync(this, `TEXT_LIST_ITEM_EDIT`, async (message) => {
+                if (`about` === message.vars.extraData.for) { this.vars.dialogTitle = `Edit About Text` }
+                else { this.vars.dialogTitle = `Edit Review Text` }
+                this.clearDialogText()
+                this.setDialogText(this.getTextById(message.vars.extraData))
+                this.TextDialog.showModal()
+            })
+            Queue.registerAsync(this, `TEXT_DIALOG_OK`, async (message) => {
+                this.updateText()
+            })
+            Queue.register(this, `ADMIN_TEXT_CANCEL`, (message) => { this.cancelDialog() })
+            Queue.register(this, `ADMIN_TEXT_OK`, (message) => { this.closeDialog() })
+          }
+          async showText() {
+            try {
+              const response = await SIText.get()
+  
+              if (200 !== response.status) { 
+                showError(`Error getting text. Status code ${response.status}.`) 
+                return
+              }
+  
+              let text = await response.text() 
+  
+              this.vars.text = JSON.parse(text).reverse()
+              for (let loop = 0; loop < this.vars.text.length; loop++) {
+                const text = this.vars.text[loop]
+                const textId = `${this.TextList.id}ContentText${loop}`
+                const propsObj =  { 
+                  canClick: true,
+                  clickMessage: `TEXT_LIST_ITEM_EDIT`,
+                  canEdit: true,
+                  editMessage: `TEXT_LIST_ITEM_EDIT`
+                }
+                const imageName = (`about` === text.for)? `info.png` : `star-empty.png`
+                const varsObj =  { 
+                  imageURL: Theme.updateTheme(`../images/themes/{theme}/${imageName}`),
+                  title: (`about` === text.for)? `About Text` : `Review Text`,
+                  extraData: text.id
+                }
+                const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, textId, propsObj, varsObj)
+  
+                await this.TextList.appendIncludeItem(newInclude, textId)
+              }
+              this.Element.classList.remove(`display-none`)
+            } catch (e) {
+              console.error(`Error loading text. ${JSON.stringify(e)}`)
+            }
+          }
+          async hideText() {
+            await this.TextList.removeAllItems(true)
+            this.vars.text = []
+            this.Element.classList.add(`display-none`)
+          }
+          clearDialogText() {
+              this.Text.vars.value = ``
+              // TODO: Should not have to set Element value after setting vars.value
+              this.Text.TextAreaElement.value = ``
+              this.RecordId.vars.value = ``
+          }
+          setDialogText(text) {
+              this.Text.vars.value = text.text
+              // TODO: Should not have to set Element value after setting vars.value
+              this.Text.TextAreaElement.value = text.text
+              this.RecordId.vars.value = text.id
+          }
+          async validateDialogText() {
+              await this.Text.validate()
+              if (!this.Text.vars.valid) {
+                  showError(`${this.Text.props.name} is invalid.`)
+                  return false
+              }
+              return true
+          }
+          getDialogText() {
+              const text = {
+                  text: this.Text.TextAreaElement.value,
+                  id: this.RecordId.vars.value
+              }
+              
+              return text 
+          }        
+          async updateText() {
+            const vaidationResult = await this.validateDialogText()
+  
+            if (!vaidationResult) { return }
+  
+            const text = this.getDialogText()
+            const response = await SIText.update(text.text, text.id)
+  
+            if (200 !== response.status) {
+              if (401 === response.status) { window.location.href = `/login` }
+              else { showError(`Error updating text. Status code ${response.status}.`) }
+              return
+            }
+            await this.hideText()
+            await this.showText()
+  
+            const content = await response.json()
+  
+            JavascriptWebToken.storeCredentials(content.jwt)
+            showInfo(`Text updated.`)
+          }
+          closeDialog() {
+            this.TextDialog.ok(0)
+          }
+          cancelDialog() {
+            this.TextDialog.cancel()
+          }
+          getTextById(id) {
+              for (let text of this.vars.text) {
+                if (text.id === id) return text
+              }
+              return null
+          }        
+          vars = {
+            text: [],
+            dialogTitle: `Edit About Text`
+          }
+      }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="w100 display-none">
+            <div id="{id}TextList" class="w100 h100">
+                <include-html data-src="./html/components/list.html" data-id="{id}TextList"
+                  data-props="{ title: `Text`, canAdd: false }">
+                </include-html>
+            </div>
+
+            <include-html data-src="./html/components/dialog.html" data-id="{id}TextDialog"
+              data-props="{ okMessage: `TEXT_DIALOG_OK`, cancelMessage: `TEXT_DIALOG_CANCEL` }">
+            </include-html>
+            <slot-markup for-component-id="{id}TextDialog" for-slot="{id}TextDialogSlot">
+                <span id="{id}" class="flex-col flex-center w90 h350px m5">
+                    <div id="{id}DialogTitle" class="m7-t m10-b w100 center-text">{dialogTitle}</div>
+                    <div id="{id}TextSpacing" class="h350px">
+                        <include-html data-src="./html/components/text-area.html" data-id="{id}Text"
+                          data-props="{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 1500,
+                            cols: 50, rows: 12, tabIndex: 3, showValidationErrors: `snackbar` }"
+                          data-vars="{ type: `text` }">
+                        </include-html>
+                    </div>
+                    <include-html data-src="./html/components/hidden-field.html" data-id="{id}RecordId"
+                      data-props="{ name: `RecordId` }">
+                    </include-html>
+                    <div id="{id}ButtonWrapper" class="flex-row flex-end w100 m5">
+                      <div id="{id}ButtonWrapper" class="flex-row flex-end w100 m5">
+                        <include-html data-src="./html/components/button.html" data-id="{id}CancelButton"
+                          data-props="{ clickMessage: `ADMIN_TEXT_CANCEL` }"
+                          data-vars="{ title: `Cancel` }">
+                        </include-html>
+                        <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                          data-props="{ isDefault: true, clickMessage: `ADMIN_TEXT_OK` }"
+                          data-vars="{ title: `Save` }">
+                        </include-html>
+                      </div>
+                    </div>
+                </span>    
+            </slot-markup>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+  </custom-component>

@@ -1,0 +1,199 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/coverflow.html
+        class Coverflow extends SlottedComponent {
+            async afterMount() {
+                await super.afterMount()
+                this.setupCarousel()
+            }
+            setupCarousel() {
+                // Take dataset array and append items to container
+                this.vars.data.forEach((item, index) => {
+                    const coverflowItem = item.src ? document.createElement('img') : document.createElement('div')
+
+                    this.ContainerElement.append(coverflowItem)
+                    
+                    // Add item attributes
+                    coverflowItem.className = `coverflow-item coverflow-item-${index + 1}`
+                    coverflowItem.src = item.src
+                    coverflowItem.setAttribute('loading', 'lazy')
+                    // Used to keep track of coverflow items, infinite items possible in coverflow however min 5 items required
+                    coverflowItem.setAttribute('data-index', `${index + 1}`)
+                });
+
+                this.vars.options.forEach((option) => {
+                    const btn = document.createElement('button')
+                    const axSpan = document.createElement('span')
+
+                    // Add accessibilty spans to button
+                    axSpan.innerText = option
+                    axSpan.className = 'ax-hidden'
+                    btn.append(axSpan)
+
+                    // Add button attributes
+                    btn.className = `coverflow-control coverflow-control-${option}`
+                    btn.setAttribute('data-name', option)
+
+                    // Add coverflow control options
+                    this.ControlsElement.append(btn)
+                });
+
+                // After rendering coverflow to our DOM, setup coverflow controls' event listeners
+                this.setControls()
+
+                // Set container property
+                this.vars.container = this.ContainerElement
+            }
+            setControls() {
+                const controlsChildren = this.ControlsElement.children
+                const controls = [...controlsChildren]
+
+                controls.forEach(control => {
+                    control.onclick = (event) => {
+                        event.preventDefault();
+
+                        // Manage control actions, update our coverflow data first then with a callback update our DOM
+                        this.controlManager(control.dataset.name)
+                    }
+                })
+            }
+            controlManager(control) {
+                if (control === 'previous') { return this.previous() }
+                if (control === 'next')  { return this.next() }
+                if (control === 'add') { return this.add() }
+                if (control === 'play') { return this.play() }
+
+                return
+            }
+            previous() {
+                // Update order of items in data array to be shown in coverflow
+                this.vars.data.unshift(this.vars.data.pop())
+
+                // Push the first item to the end of the array so that the previous item is front and center
+                this.vars.inView.push(this.vars.inView.shift())
+
+                // Update the css class for each coverflow item in view
+                this.vars.inView.forEach((item, index) => {
+                    this.vars.container.children[index].className = `coverflow-item coverflow-item-${item}`
+                })
+
+                // Using the first 5 items in data array update content of coverflow items in view
+                this.vars.data.slice(0, 5).forEach((data, index) => {
+                    document.querySelector(`.coverflow-item-${index + 1}`).src = data.src
+                })
+            }
+            next() {
+                // Update order of items in data array to be shown in coverflow
+                this.vars.data.push(this.vars.data.shift())
+
+                // Take the last item and add it to the beginning of the array so that the next item is front and center
+                this.vars.inView.unshift(this.vars.inView.pop())
+
+                // Update the css class for each coverflow item in view
+                this.vars.inView.forEach((item, index) => {
+                    this.vars.container.children[index].className = `coverflow-item coverflow-item-${item}`
+                })
+
+                // Using the first 5 items in data array update content of coverflow items in view
+                this.vars.data.slice(0, 5).forEach((data, index) => {
+                    document.querySelector(`.coverflow-item-${index + 1}`).src = data.src
+                })
+            }
+            add() {
+                const newItem = {
+                    'id': '',
+                    'src': '',
+                }
+                const lastItem = this.vars.data.length
+                const lastIndex = this.vars.data.findIndex(item => item.id == lastItem)
+                
+                // Assign properties for new coverflow item
+                Object.assign(newItem, {
+                    id: `${lastItem + 1}`,
+                    src: `http://fakeimg.pl/300/?text=${lastItem + 1}`
+                })
+
+                // Then add it to the "last" item in our coverflowData
+                this.vars.data.splice(lastIndex + 1, 0, newItem)
+
+                // Shift coverflow to display new item
+                this.next()
+            }
+            play() {
+                const playBtn = document.querySelector('.coverflow-control-play')
+                const startPlaying = () => this.next()
+
+                if (playBtn.classList.contains('playing')) {
+                    // Remove class to return to play button state/appearance
+                    playBtn.classList.remove('playing')
+
+                    // Remove setInterval
+                    clearInterval(this.vars.playState);
+                    this.vars.playState = null
+                } else {
+                    // Add class to change to pause button state/appearance
+                    playBtn.classList.add('playing')
+
+                    // First run initial next method
+                    this.next()
+
+                    // Use play state prop to store interval ID and run next method on a 1.5 second interval
+                    this.vars.playState = setInterval(startPlaying, 1500)
+                }
+            }
+            vars = { 
+                prevImageURL: `../images/themes/{theme}/previous.png`,
+                prevTooltipText: `Previous`,
+                prevClickMessage: `COVERFLOW_PREV`,
+                nextImageURL: `../images/themes/{theme}/next.png`,
+                nextTooltipText: `Next`,
+                nextClickMessage: `COVERFLOW_NEXT`,
+                container: null,
+                playState: null,
+                inView: [1, 2, 3, 4, 5],
+                options: ['previous', 'add', 'play', 'next'],
+                data: [
+                    {
+                        'id': '1',
+                        'src': 'http://fakeimg.pl/300/?text=1',
+                    },
+                    {
+                        'id': '2',
+                        'src': 'http://fakeimg.pl/300/?text=2',
+                    },
+                    {
+                        'id': '3',
+                        'src': 'http://fakeimg.pl/300/?text=3',
+                    },
+                    {
+                        'id': '4',
+                        'src': 'http://fakeimg.pl/300/?text=4',
+                    },
+                    {
+                        'id': '5',
+                        'src': 'http://fakeimg.pl/300/?text=5',
+                    }
+                ]
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <section id="{id}" class="flex-col">
+            <div id="{id}Container" class="flex-row"></div>
+            <div id="{id}Controls" class="flex-row">
+                <include-html data-src="./html/components/img-button.html" data-id="{id}PrevButton"
+                    data-props="{ clickMessage: `{prevClickMessage}`, size: `s` }"
+                    data-vars="{ imageURL: `{prevImageURL}`, tooltipText: `{prevTooltipText}` }">
+                </include-html>
+                <include-html data-src="./html/components/img-button.html" data-id="{id}NextButton"
+                    data-props="{ clickMessage: `{nextClickMessage}`, size: `s` }"
+                    data-vars="{ imageURL: `{nextImageURL}`, tooltipText: `{nextTooltipText}` }">
+                </include-html>
+            </div>
+        </section>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

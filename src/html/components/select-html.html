@@ -1,0 +1,183 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/select-html.html
+        class SelectHTML extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/select-html.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async afterMount() {
+                await super.afterMount()
+                if (this.props.labelAboveField) { this.Element.addClass(`flex-col`) } 
+                else { this.Element.addClass(`flex-row`) }
+                this.setOptions()
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    this.Element.addClass(`bounce-and-brighten`)
+                    this.SelectElement.removeAttribute(`disabled`)
+                    this.LabelElement.removeClass(`select-html-label-disabled`)
+                    this.LabelElement.addClass(`select-html-label`)
+                } else {
+                    this.Element.removeClass(`bounce-and-brighten`)
+                    this.SelectElement.setAttribute(`disabled`, true)
+                    this.LabelElement.addClass(`select-html-label-disabled`)
+                    this.LabelElement.removeClass(`select-html-label`)
+                }
+            }
+            setOptions() {
+                this.SelectElement.removeChildren()
+                for (let loop = 0; loop < this.props.options.length; loop++) {
+                    const optionData = this.props.options[loop]
+                    let option = document.createElement(`option`)
+                    const optionId = `${this.id}Option${loop}`
+
+                    option.id = optionId
+                    option.classList.add(`option`)
+                    option.value = optionData.value
+                    option.innerText = optionData.text
+                    if (0 === loop) { option.setAttribute(`selected`, true) }
+                    this.SelectElement.appendChild(option)
+                }
+            }
+            getSelectedOption() {
+                const newSelection = this.SelectElement.value
+
+                for (let loop = 0; loop < this.SelectElement.children.length; loop++) {
+                    const child = this.SelectElement.children[loop]
+                    const childValue = child.getAttribute(`value`)
+                    const childText = child.innerText
+
+                    if (newSelection === childValue) { return { index: loop, value: childValue, text: childText }}
+                }
+                return null
+            }
+            onSelectionChanged(event) { 
+                event?.stopPropagation()
+                Queue.broadcast(this.props.selectMessage, this )
+            }
+            async getData() {
+                return { name: this.props.name, value: this.getSelectedOption() }
+            }
+            props = {
+                selectMessage: Messages.OPTION_SELECTED,
+                label: ``,
+                name: ``,
+                options: [],
+                labelAboveField: false,
+                tabIndex: 0
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --select-html-wrapper-position: relative;
+
+            --select-html-z-index: inherit;
+            --select-html-color: var(--text-color);
+            --select-html-background-color: var(--background-color);
+            --select-html-padding: 0 10px 0 0;
+            --select-html-margin: 3px;
+            --select-html-cursor: default;
+            --select-html-font-family: var(--primary-font-family);
+            --select-html-font-size: var(--text-1-font-size);
+            --select-html-font-weight: var(--text-1-font-weight);
+
+            --select-html-label-z-index: inherit;
+            --select-html-label-color: var(--text-color);
+            --select-html-label-disabled-color: var(--disabled-text-color);
+            --select-html-label-padding: var(--default-padding);
+            --select-html-label-margin: var(--default-margin);
+            --select-html-label-cursor: default;
+            --select-html-label-font-family: var(--primary-font-family);
+            --select-html-label-font-size: var(--text-2-font-size);
+            --select-html-label-font-weight: var(--header-1-font-weight);
+            --select-html-label-background-color: var(--background-color);
+            --select-html-label-border-color: hidden;
+            --select-html-label-border-width: 0;
+            --select-html-label-border-style: none;
+            --select-html-label-border-radius: 0px;
+            
+            --option-z-index: inherit;
+            --option-color: var(--text-color);
+            --option-background-color: var(--background-color);
+            --option-padding: 0 10px 0 0;
+            --option-margin: 3px;
+            --option-cursor: default;
+            --option-font-family: var(--primary-font-family);
+            --option-font-size: var(--text-1-font-size);
+            --option-font-weight: var(--text-1-font-weight);
+        }
+
+        .select-html-wrapper {
+            position: var(--select-html-wrapper-position);
+        }
+
+        .select-html {
+            z-index: var(--select-html-z-index);
+            color: var(--select-html-color);
+            background-color:  var(--select-html-background-color);
+            padding:  var(--select-html-padding);
+            margin:  var(--select-html-margin);
+            cursor:  var(--select-html-cursor);
+            font-family: var(--select-html-font-family);
+            font-size: var(--select-html-font-size);
+            font-weight: var(--select-html-font-weight);
+        }
+
+        .select-html-label {
+            z-index: var(--select-html-label-z-index);
+            color: var(--select-html-label-color);
+            padding: var(--select-html-label-padding);
+            margin: var(--select-html-label-margin);
+            cursor: var(--select-html-label-cursor);
+            font-family: var(--select-html-label-font-family);
+            font-size: var(--select-html-label-font-size);
+            font-weight: var(--select-html-label-font-weight);
+            background-color: var(--select-html-label-background-color);
+            border-color: var(--select-html-label-border-color);
+            border-width: var(--select-html-label-border-width);
+            border-style: var(--select-html-label-border-style);
+            border-radius: var(--select-html-label-border-radius);
+        }
+        .select-html-label-disabled {
+            z-index: var(--select-html-label-z-index);
+            color: var(--select-html-label-disabled-color);
+            padding: var(--select-html-label-padding);
+            margin: var(--select-html-label-margin);
+            cursor: var(--select-html-label-cursor);
+            font-family: var(--select-html-label-font-family);
+            font-size: var(--select-html-label-font-size);
+            font-weight: var(--select-html-label-font-weight);
+            background-color: var(--select-html-label-background-color);
+            border-color: var(--select-html-label-border-color);
+            border-width: var(--select-html-label-border-width);
+            border-style: var(--select-html-label-border-style);
+            border-radius: var(--select-html-label-border-radius);
+        }
+
+        .option {
+            z-index: var(--option-z-index);
+            color: var(--option-color);
+            background-color: var(--option-background-color);
+            padding: var(--option-padding);
+            margin: var(--option-margin);
+            cursor: var(--option-cursor);
+            font-family: var(--option-font-family);
+            font-size: var(--option-font-size);
+            font-weight: var(--option-font-weight);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="select-html-wrapper bounce-and-brighten">
+            <label id="{id}Label" for="{id}" class="select-html-label">{label}</label>
+            <select id="{id}Select" name="{name}" class="select-html" tabindex="{tabIndex}" onchange="$obj.onSelectionChanged(event)"></select>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

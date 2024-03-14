@@ -1,0 +1,172 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/text-more.html
+        class TextMore extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/text-more.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.clickMessage, (component) => {
+                    if (this.ReadMore !== component) { return }
+                    this.readMore()
+                })
+            }
+            async onDescendantsMounted() { 
+                await super.onDescendantsMounted()
+
+                const updateMoreText = () => {
+                    if (!this.textShouldBeTruncated()) { this.ReadMore.hide() } 
+                }
+
+                window.requestAnimationFrame(updateMoreText)
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                this.ReadMore.enabled = this.enabled
+                if (this.enabled) { 
+                    this.TextElement.classList.remove(`text-more-disabled`)
+                    this.TextElement.classList.add(`text-more`)
+                } else {
+                    this.TextElement.classList.remove(`text-more`)
+                    this.TextElement.classList.add(`text-more-disabled`)
+                }
+            }
+            textShouldBeTruncated() {                
+                if (this.TextElement.offsetHeight < this.TextElement.scrollHeight) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+            readMore() {
+                if (this.vars.readMore === this.ReadMore.vars.title) { 
+                    const newHeight = this.TextElement.scrollHeight + 10
+                    this.ReadMore.vars.title = this.vars.readLess
+                    this.TextElement.style.height = `${newHeight}px`
+                }
+                else { 
+                    this.ReadMore.vars.title = this.vars.readMore
+                    this.TextElement.style.height = this.props.defaultHeight
+                }
+                this.TextElement.classList.toggle(`text-more-line-clamp-4`)
+            }
+            setText(text) { this.vars.text = text }
+            getText() { return this.vars.text }
+            async getData() {
+                return { name: this.id, value: this.vars.text }
+            }
+            props = {
+                clickMessage: Messages.ON_CLICK,
+                defaultHeight: `4em`,
+            }
+            vars = {
+                text: `Text`,
+                tabIndex: 0,
+                readMore: `Read More`,
+                readLess: `Read Less`
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --text-more-width: 100%;
+            --text-more-height: 4em;
+            --text-more-z-index: inherit;
+            --text-more-color: var(--text-color);
+            --text-more-white-space: pre-wrap;
+            --text-more-overflow-wrap: break-word;
+            --text-more-pad: 5px;
+            --text-more-margin: 5px;
+            --text-more-cursor: default;
+            --text-more-border-color: var(--default-border-color);
+            --text-more-border-width: var(--default-border-width);
+            --text-more-border-style: var(--default-border-style);
+            --text-more-border-radius: var(--default-border-radius);
+            --text-more-font-family: var(--primary-font-family);
+            --text-more-font-size: var(--text-1-font-size);
+            --text-more-font-weight: var(--text-1-font-weight);
+
+            --text-more-disabled-height: 4em;
+            --text-more-disabled-z-index: inherit;
+            --text-more-disabled-color: var(--disabled-text-color);
+            --text-more-disabled-white-space: pre-wrap;
+            --text-more-disabled-overflow-wrap: break-word;
+            --text-more-disabled-pad: 5px;
+            --text-more-disabled-margin: 5px;
+            --text-more-disabled-cursor: not-allowed;
+            --text-more-disabled-border-color: var(--disabled-text-color);
+            --text-more-disabled-border-width: var(--default-border-width);
+            --text-more-disabled-border-style: var(--default-border-style);
+            --text-more-disabled-border-radius: var(--default-border-radius);
+            --text-more-disabled-font-family: var(--primary-font-family);
+            --text-more-disabled-font-size: var(--text-1-font-size);
+            --text-more-disabled-font-weight: var(--text-1-font-weight);
+        }
+        [data-theme="grey-glass"] {
+            --text-more-border-radius: 20px;
+
+            --text-more-disabled-border-radius: 20px;
+        }
+
+
+        .text-more-line-clamp-4 {
+            overflow:       hidden;
+            display:        -webkit-box;
+            line-clamp:    4;  /* truncate to 4 lines */
+        }
+
+        .text-more {
+            width: var(--text-more-width);
+            height: var(--text-more-height);
+            z-index: var(--text-more-z-index);
+            color: var(--text-more-color);
+            white-space: var(--text-more-white-space);
+            overflow-wrap: var(--text-more-overflow-wrap);
+            padding: var(--text-more-pad);
+            margin: var(--text-more-margin);
+            cursor: var(--text-more-cursor);
+            border-style: var(--text-more-border-style);
+            border-width: var(--text-more-border-width);
+            border-color: var(--text-more-border-color);
+            border-radius: var(--text-more-border-radius);
+            font-family: var(--text-more-font-family);
+            font-size: var(--text-more-font-size);
+            font-weight: var(--text-more-font-weight);
+        }
+
+        .text-more-disabled {
+            width: var(--text-more-width);
+            height: var(--text-more-disabled-height);
+            z-index: var(--text-more-disabled-z-index);
+            color: var(--text-more-disabled-color);
+            white-space: var(--text-more-disabled-white-space);
+            overflow-wrap: var(--text-more-disabled-overflow-wrap);
+            padding: var(--text-more-disabled-pad);
+            margin: var(--text-more-disabled-margin);
+            cursor: var(--text-more-disabled-cursor);
+            border-style: var(--text-more-disabled-border-style);
+            border-width: var(--text-more-disabled-border-width);
+            border-color: var(--text-more-disabled-border-color);
+            border-radius: var(--text-more-disabled-border-radius);
+            font-family: var(--text-more-disabled-font-family);
+            font-size: var(--text-more-disabled-font-size);
+            font-weight: var(--text-more-disabled-font-weight);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-col margin-b-20 w100">
+            <div id="{id}Text" class="text-more-line-clamp-4 text-more">{text}</div>
+            <include-html data-src="./html/components/text-button.html" data-id="{id}ReadMore"
+                data-props="{ clickMessage: `{clickMessage}` }"
+                data-vars="{ title: `{readMore}`, tabIndex: {tabIndex} }">
+            </include-html>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

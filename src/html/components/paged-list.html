@@ -1,0 +1,75 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/paged-list.html
+        class PagedList extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/paged-list.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.pageNumberClickMessage, async (message) => { 
+                    const buttonTitle = message.getTitle()
+                    const pageNumber = parseInt(buttonTitle) - 1
+                    await this.setCurrentPage(pageNumber) 
+                })
+            }
+            async afterMount() {
+                await super.afterMount()
+                await this.setCurrentPage(0)
+            }
+            async setCurrentPage(pageNumber) {
+                const pageId = `${this.id}Page${pageNumber}`
+                let page = document.getElementById(pageId)
+
+                for (let existingPage of this.Element.children) { existingPage.hide() }
+                if (!page) {
+                    page = document.createElement(`div`)
+                    ComponentLifecycle.addConvenienceMethodsToElement(page)
+                    page.id = pageId
+                    this.Element.append(page)
+                    for (let loop = 0; loop < this.props.pageSize; loop++) {
+                        const placeholderId = `${this.id}Page${pageNumber}Placeholder${loop}`
+                        const props = { width: this.props.placeholderWidth, height: this.props.placeholderHeight }
+                        const newInclude = Component.createComponentInclude(`./html/components/placeholder.html`, placeholderId, props, null)
+
+                        page.appendChild(newInclude)
+                        await Loader.loadIncludes()
+                    }
+                }
+                page.show()
+            }
+            getPage(pageNumber) {
+                if (pageNumber > this.props.pageCount) { return null }
+
+                const pageId = `${this.id}Page${pageNumber}`
+
+                return document.getElementById(pageId)
+            }
+            replaceItem(pageNumber, itemNumber, newItem) {
+                const page = this.getPage(pageNumber)
+                const oldItem = page?.children[itemNumber]
+
+                if (!page || !oldItem || !newItem) { return }
+                page.replaceChild(newItem, oldItem)
+            }
+            props = {
+                pageNumberClickMessage: Messages.ON_CLICK,
+                placeholderWidth: 0,
+                placeholderHeight: 0,
+                pageCount: 0,
+                pageSize: 0
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}">
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

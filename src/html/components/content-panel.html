@@ -1,0 +1,63 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/content-panel.html
+        class ContentPanel extends SlottedComponent {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/content-panel.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            initialize(id) {
+                super.initialize(id)
+
+                const callback = () => { 
+                    Queue.register(this, Drawer.msgs.DRAWER_BEFORE_OPENED, (drawer) => { this.Element.style.marginLeft = drawer.props.contentWidth })
+                    Queue.register(this, Button.msgs.BUTTON_CLICKED, (button) => { 
+                        if (`ButtonLogin` !== button.id) { return }
+
+                        const slotId = `${this.id}Slot`
+
+                        if (this.isSlotted(`${this.id}Slot`)) { this.unslot(slotId) }
+                        SlottedComponent.loadSlotFromInclude(this.Element, slotId, `./html/components/login/login.html`, `LoginPanel`, null, null)
+                    })
+                    Queue.register(this, Drawer.msgs.LOGIN_USER_LOGGED_OUT, (drawer) => { 
+                        alert(`LOGIN_USER_LOGGED_OUT`)
+                        if (this.isSlotted(`${this.id}Slot`)) { this.unslot(`${this.id}Slot}`) }
+                    })
+                    Queue.register(this, ImgurMenu.msgs.IMGUR_MENU_ALBUM, (drawer) => {
+                        alert(`IMGUR_MENU_ALBUM`)
+                        if (this.isSlotted(`${this.id}Slot`)) { this.unslot(`${this.id}Slot}`) }
+                    })
+                    Queue.register(this, ImgurMenu.msgs.IMGUR_MENU_IMAGE, (drawer) => {
+                        alert(`IMGUR_MENU_IMAGE`)
+                        if (this.isSlotted(`${this.id}Slot`)) { this.unslot(`${this.id}Slot}`) }
+                    })
+                }
+
+                Queue.register(this, Loader.msgs.SITE_LOADED, callback)
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --content-panel-width: 100%;
+            --content-panel-height: 100%;
+            --content-panel-z-index: inherit;
+            --content-panel-transition: margin-left 0.5s;
+        }
+        .content-panel {
+            width: var(--content-panel-width);
+            height: var(--content-panel-height);
+            z-index: var(--content-panel-z-index);
+            transition: var(--content-panel-transition);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="w100 h100">
+            <component-slot id="{id}Slot"></component-slot>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

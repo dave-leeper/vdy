@@ -1,0 +1,328 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-users.html
+        class AdminUsers extends Component {
+          static async create(parent, componentId, props, vars, classes, styles, attributes) {
+              const newInclude = Component.createComponentInclude(`./html/components/admin-users.html`, componentId, props, vars, classes, styles, attributes)
+              
+              parent.appendChild(newInclude)
+              await Loader.loadIncludes()
+          }
+          async initialize(id) {
+            await super.initialize(id)
+  
+            Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+              if (message.tabBar.id === `AdminTabBar`) {
+                if (message.title === `Users`) { 
+                  if (0 === this.UsersList.vars.content.length) { await this.showUsers() }
+                } else { await this.hideUsers() }
+              }
+            })
+            Queue.registerAsync(this, `USERS_LIST_ITEM_ADD`, async (message) => {
+              this.vars.dialogTitle = `Add User`
+              this.clearDialogUser()
+              this.UserDialog.show()
+            })
+            Queue.registerAsync(this, `USERS_LIST_ITEM_EDIT`, async (message) => {
+              this.vars.dialogTitle = `Edit User`
+              this.clearDialogUser()
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              this.setDialogUser(JSON.parse(message.vars.extraData))
+              this.UserDialog.showModal()
+            })
+            Queue.registerAsync(this, `USERS_LIST_ITEM_DELETE`, async (message) => {
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              await this.deleteUser(JSON.parse(message.vars.extraData))
+            })
+            Queue.registerAsync(this, `USER_DIALOG_OK`, async (message) => {
+              if (`Add User` === this.vars.dialogTitle) { await this.saveUser()}
+              else { await this.updateUser()}
+            })
+            Queue.registerAsync(this, Messages.FILE_SELECTED, async (message) => {
+                if (message.component !== this.FileSelector) { return }
+  
+                const file = message.component.vars.selectedFiles[0]
+  
+                this.Preview.setSourceFromFile(file)
+            })
+            Queue.register(this, `ADMIN_USER_CANCEL`, (message) => { this.cancelDialog() })
+            Queue.register(this, `ADMIN_USER_OK`, (message) => { this.closeDialog() })
+          }
+          async showUsers() {
+            try {
+              const response = await SIUsers.get()
+  
+              if (200 !== response.status) { 
+                showError(`Error getting users. Status code ${response.status}.`) 
+                return
+              }
+  
+              let users = await response.text() 
+  
+              this.vars.users = JSON.parse(users).reverse()
+              for (let loop = 0; loop < this.vars.users.length; loop++) {
+                const user = this.vars.users[loop]
+                const userId = `${this.UsersList.id}ContentUsers${loop}`
+                const userImagePath = user.image?.startsWith(`http`)? user.image : `../images/${user.image}`
+                const userImage = user.image? userImagePath : Theme.updateTheme(`../images/themes/{theme}/generic-avatar.png`)
+                const propsObj =  { 
+                  canClick: true,
+                  clickMessage: `USERS_LIST_ITEM_EDIT`,
+                  canView: true,
+                  viewMessage: `USERS_LIST_ITEM_EDIT`,
+                  canEdit: true,
+                  editMessage: `USERS_LIST_ITEM_EDIT`,
+                  canDelete: true,
+                  deleteMessage: `USERS_LIST_ITEM_DELETE`
+                }
+                const varsObj =  { 
+                  imageURL: userImage,
+                  title: user.userName,
+                  extraData: cleanStringify(user)
+                }
+                const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, userId, propsObj, varsObj)
+  
+                await this.UsersList.appendIncludeItem(newInclude, userId)
+              }
+              this.Element.classList.remove(`display-none`)
+            } catch (e) {
+              console.error(`Error loading users. ${JSON.stringify(e)}`)
+            }
+          }
+          async hideUsers() {
+            await this.UsersList.removeAllItems(true)
+            this.vars.users = []
+            this.Element.classList.add(`display-none`)
+          }
+          clearDialogUser() {
+              this.FileSelector.Element.value = ``
+              this.UserName.vars.value = ``
+              this.Password.vars.value = ``
+              this.FirstName.vars.value = ``
+              this.LastName.vars.value = ``
+              this.Title.vars.value = ``
+              this.IsAdmin.CheckboxElement.checked = false
+              this.RecordId.vars.value = ``
+          }
+          setDialogUser(user) {
+              this.FileSelector.Element.value = ``
+              this.UserName.vars.value = user.userName              
+              this.Password.vars.value = user.password
+              this.FirstName.vars.value = user.name.first
+              this.LastName.vars.value = user.name.last
+              this.Title.vars.value = user.title
+              this.IsAdmin.CheckboxElement.checked = user.roles.includes('Admin')
+              this.RecordId.vars.value = user.id
+
+              this.UserName.TextFieldElement.value = user.userName
+              this.Password.TextFieldElement.value = user.password
+              this.FirstName.TextFieldElement.value = user.name.first
+              this.LastName.TextFieldElement.value = user.name.last
+              this.Title.TextFieldElement.value = user.title
+            }
+          async validateDialogUser() {
+            if (!this.FileSelector.vars.selectedFile) {
+                  showError(`File name is invalid.`)
+                  return false
+              }
+              await this.UserName.validate(false)
+              if (!this.UserName.vars.valid) {
+                  showError(`userName is invalid.`)
+                  return false
+              }
+              await this.Password.validate(false)
+              if (!this.Password.vars.valid) {
+                  showError(`Password is invalid.`)
+                  return false
+              }
+              await this.PasswordAgain.validate(false)
+              if (!this.PasswordAgain.vars.valid) {
+                  showError(`Second password is invalid.`)
+                  return false
+              }
+              if (this.Password.vars.value !== this.PasswordAgain.vars.value) {
+                  showError(`Passords do not match.`)
+                  return false
+              }
+              await this.FirstName.validate(false)
+              if (!this.FirstName.vars.valid) {
+                  showError(`First name is invalid.`)
+                  return false
+              }
+              await this.LastName.validate(false)
+              if (!this.LastName.vars.valid) {
+                  showError(`Last name is invalid.`)
+                  return false
+              }
+              await this.Title.validate()
+              if (!this.Title.vars.valid) {
+                  showError(`${this.Title.props.name} is invalid.`)
+                  return false
+              }
+              return true
+          }
+          getDialogUser() {
+              const user = {
+                  file: this.FileSelector.vars.selectedFiles[0],
+                  title: this.Title.TextFieldElement.value,
+                  userName: this.UserName.TextFieldElement.value,
+                  password: this.Password.TextFieldElement.value,
+                  name: {
+                    first: this.FirstName.TextFieldElement.value,
+                    last: this.LastName.TextFieldElement.value
+                  },
+                  title: this.Title.TextFieldElement.value,
+                  roles: (this.IsAdmin.CheckboxElement.checked)? [`Admin`] : [],
+                  id: this.RecordId.Element.value
+              }
+              
+              return user 
+          }        
+          async saveUser() {
+            const vaidationResult = await this.validateDialogUser()
+  
+            if (!vaidationResult) { return }
+            
+            const user = this.getDialogUser()
+            const response = await SIUsers.add(user.userName, user.password, user.roles, user.title, user.name.first, user.name.last, user.file)
+  
+            if (200 !== response.status) {
+                showError(`Error adding user. Status code ${response.status}.`)
+                return
+            }
+            const content = await response.json()
+  
+            await this.hideUsers()
+            await this.showUsers()
+            JavascriptWebToken.storeCredentials(content.jwt)
+            showInfo(`User added.`)
+          }      
+          async updateUser() {
+            const vaidationResult = await this.validateDialogUser()
+  
+            if (!vaidationResult) { return }
+  
+            const user = this.getDialogUser()
+            const response = await SIUsers.update(user.userName, user.password, user.roles, user.title, user.name.first, user.name.last, user.file, user.id)
+  
+            if (200 !== response.status) {
+              if (401 === response.status) { window.location.href = `/login` }
+              else { showError(`Error updating user. Status code ${response.status}.`) }
+              return
+            }
+            await this.hideUsers()
+            await this.showUsers()
+  
+            const content = await response.json()
+  
+            JavascriptWebToken.storeCredentials(content.jwt)
+            showInfo(`User updated.`)
+          }
+          async deleteUser(user) {
+            if (!confirm(`Delete user ${user.userName}?`)) { return }
+            
+            const response = await SIUsers.remove(user.id)
+  
+            if (200 !== response.status) {
+                showError(`Error deleting user. Status code ${response.status}.`)
+                return
+            }
+  
+            await this.hideUsers()
+            await this.showUsers()
+            showInfo(`User deleted.`)
+          }
+          closeDialog() {
+            this.UserDialog.ok(0)
+          }
+          cancelDialog() {
+            this.UserDialog.cancel()
+          }
+          vars = {
+            users: [],
+            dialogTitle: `Edit User`
+          }
+      }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="w100 display-none">
+            <div id="{id}Users" class="w100 h100">
+              <include-html data-src="./html/components/list.html" data-id="{id}UsersList"
+                data-props="{ title: `Users`, canAdd: true, addMessage: `USERS_LIST_ITEM_ADD` }">
+              </include-html>
+            </div>
+
+            <include-html data-src="./html/components/dialog.html" data-id="{id}UserDialog"
+              data-props="{ okMessage: `USER_DIALOG_OK`, cancelMessage: `USER_DIALOG_CANCEL` }">
+            </include-html>
+            <slot-markup for-component-id="{id}UserDialog" for-slot="{id}UserDialogSlot">
+              <span id="{id}DialogContent" class="flex-col flex-center gap-5px w90 h500px m5">
+                <div id="{id}DialogTitle" class="m7-t m10-b w100 center-text">{dialogTitle}</div>
+                <include-html data-src="./html/components/file-selector.html" data-id="{id}FileSelector"
+                  data-props="{ label: `Image` }">
+                </include-html>
+                <div id="{id}PreviewWrapper" class="flex-row">
+                  <include-html data-src="./html/components/label.html" data-id="{id}PreviewLabel"
+                    data-props="{ label: `Preview`, for: `{id}Preview` }">
+                  </include-html>
+                  <include-html data-src="./html/components/img.html" data-id="{id}Preview"
+                    data-props="{ hideAfterMount: false }">
+                  </include-html>
+                </div>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}UserName"
+                  data-props="{ name: `userName`, placeholder: `User Name`, label: `User Name`, labelAboveField: false, required: true, size: 25,
+                    minlength: 2, maxlength: 25, tabIndex: 2, showValidationErrors: `snackbar`, labelWidth: `145px` }"
+                  data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}Password"
+                  data-props="{ name: `Password`, label: `Password`, labelAboveField: false, required: true, size: 20,  minlength: 5, maxlength: 20,
+                    tabIndex: 3, showValidationErrors: `snackbar`, labelWidth: `145px` }"
+                  data-vars="{ type: `password` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}PasswordAgain"
+                  data-props="{ name: `ReenterPassword`, label: `Re-enter Password`, labelAboveField: false, required: true, size: 20,
+                    minlength: 5, maxlength: 20, tabIndex: 4, showValidationErrors: `snackbar`, labelWidth: `145px` }"
+                  data-vars="{ type: `password` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}FirstName"
+                  data-props="{ name: `FirstName`, label: `First Name`, labelAboveField: false, required: true, size: 25, 
+                    minlength: 2, maxlength: 25, tabIndex: 5, showValidationErrors: `snackbar`, labelWidth: `145px` }"
+                  data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}LastName"
+                  data-props="{ name: `LastName`, label: `Last Name`, labelAboveField: false, required: true, size: 25, minlength: 1, maxlength: 25,
+                    tabIndex: 6, showValidationErrors: `snackbar`, labelWidth: `145px` }"
+                  data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/text-field.html" data-id="{id}Title"
+                  data-props="{ name: `Title`, label: `Title`, labelAboveField: false, required: true, size: 25,  minlength: 2, maxlength: 25, tabIndex: 7, showValidationErrors: `snackbar`, labelWidth: `145px` }"
+                  data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/checkbox.html" data-id="{id}IsAdmin"
+                  data-props="{ label: `Is Admin?`, name: `IsAdmin`, tabIndex: 5 }"
+                  checked="false">
+                </include-html>
+                <include-html data-src="./html/components/hidden-field.html" data-id="{id}RecordId"
+                  data-props="{ name: `RecordId` }">
+                </include-html>
+                <div id="{id}ButtonWrapper" class="flex-row flex-end w100 m5">
+                  <div id="{id}ButtonWrapper" class="flex-row flex-end w100 m5">
+                    <include-html data-src="./html/components/button.html" data-id="{id}CancelButton"
+                      data-props="{ clickMessage: `ADMIN_USER_CANCEL` }"
+                      data-vars="{ title: `Cancel` }">
+                    </include-html>
+                    <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                      data-props="{ isDefault: true, clickMessage: `ADMIN_USER_OK` }"
+                      data-vars="{ title: `Save` }">
+                    </include-html>
+                  </div>
+                </div>
+              </span>    
+            </slot-markup>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+  </custom-component>

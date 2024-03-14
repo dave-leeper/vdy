@@ -1,0 +1,311 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reviews/review-dialog.html
+        class ReviewDialog extends Component {
+            /**
+             * Creates a new review dialog component instance.
+             * 
+             * Appends a new component include to the parent element to render the dialog.
+             * Loads the included components after appending to the DOM.
+             * @async
+             * @static
+             * @function
+             * @name create
+             * @param {Object} parent The parent element for the component. This is a normal HTML DOM element.
+             * @param {string} componentId The id of the new component. Ids must be unique to each object. The component's object and 
+             * root element will have the same id. Child elements of the root element will use the id as the base of their own ids, 
+             * extending it with descriptive text that indicates the child element's purpose. A component object can be retrieved by id 
+             * using Component.getObject(id). Once the object is retrieved, its root element can be accessed using obj.Element. See the 
+             * documentation for the {@link [Component](./src/js/client/component.js)} class for additional information on the structure of Components and how 
+             * they relate to DOM elements.
+             * @param {Object} [props] Props values used to build the component.  Once the component has been initialized, props cannot be
+             * changed. See the class props documentation for details on the props that can be passed.
+             * @param {Object} [vars] Var values used to build the component. See the class vars documentation for details on the vars that
+             * can be passed.
+             * @param {string} [classes] Additional classes to apply to the component. The format is an array of data-classes.
+             * Each data-class is a name/value pair. The name 'data-class' applies to the root element of the component. 
+             * The name data-class-[id] applies to the element of the component whose id ends with [id]. Finally, each data-
+             * class provides a string containing the classes to be applied to the corresponding element. 
+             * Example: [{ name: 'data-class', value: 'display-none' }, { name: 'data-class-wrapper', value: 'display-none' }]
+             * @param {string} [styles] Additional styles to apply to the component. The format is an array of data-styles.
+             * Each data-style is a name/value pair. The name 'data-style' applies to the root element of the component. 
+             * The name data-style-[id] applies to the element of the component whose id ends with [id]. Finally, each data-
+             * style provides a string containing the styles to be applied to the corresponding element. 
+             * Example: [{ name: 'data-style', value: 'width: 20px; height:20px' }, { name: 'data-style-wrapper', value: 'color: red' }]
+             * @param {string} [attributes] Additional attributes to apply to the component. Attributes are only applied to 
+             * the root element of a component. Example: 'disabled: true; value: xyz;'.
+             */
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/review-dialog.html`, componentId, props, vars, classes, styles, attributes)
+
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+
+                this.originalData = {}
+                this.originalData.reviewImageURL = this.vars.reviewImageURL
+                this.vars.reviewImageURL = Theme.updateTheme(this.originalData.reviewImageURL)
+                Queue.registerAsync(this, Messages.AFTER_THEME_CHANGED, async (message) => {
+                    this.vars.reviewImageURL = Theme.updateTheme(this.originalData.reviewImageURL)
+                })
+
+                Queue.register(this, Component.msgs.AFTER_MOUNT, (component) => { 
+                    const id = this.id
+                    const reviewHeaderEditableId = `${id}ReviewHeader`
+                    const firstNameId = `${reviewHeaderEditableId}EditableFirstName`
+                    const lastNameId = `${reviewHeaderEditableId}EditableLastName`
+                    const cityId = `${reviewHeaderEditableId}EditableCity`
+                    const stateId = `${reviewHeaderEditableId}EditableState`
+                    const avatarURLId = `${reviewHeaderEditableId}AvatarURL`
+
+                    if (firstNameId === component.id) { this.firstNameField = component }
+                    else if (lastNameId === component.id) { this.lastNameField = component }
+                    else if (cityId === component.id) { this.cityField = component }
+                    else if (stateId === component.id) { this.stateField = component }
+                    else if (avatarURLId === component.id) { this.avatarURLField = component }
+                })
+            }
+            async afterMount() {
+                const element = document.getElementById(this.id)
+
+                Queue.register(this, Component.msgs.NEW_VALID_DATA, (message) => { 
+                    if (`FirstName` === message.component.props.name) {
+                        this.vars.reviewFirstName = message.text
+                    } else if (`LastName` === message.component.props.name) {
+                        this.vars.reviewLastName = message.text
+                    } else if (`City` === message.component.props.name) {
+                        this.vars.reviewCity = message.text
+                    } else if (`State` === message.component.props.name) {
+                        this.vars.reviewState = message.text
+                    } else if (`AvatarURL` === message.component.props.name) {
+                        this.vars.reviewImageURL = message.text
+                    }
+                })
+                
+                Queue.register(this, Messages.NEW_STAR_RATING, (message) => {
+                    if (message.component !== this.Stars) { return }
+                    this.vars.reviewRating = message.rating
+                })
+                await super.afterMount()
+            }
+            /**
+             * Updates the review text when the review text input loses focus.
+             * @function
+             * @name onBlur
+             * @param {string} event The HTML event being handled.
+             */
+            onBlur(event) { this.updateReview() }
+            /**
+             * Updates the review text when the review input loses focus.
+             * @function
+             * @name onInput
+             * @param {Object} event The HTML event being handled.
+             */
+            onInput(event) { this.updateReview() }
+            /**
+             * Shows the review dialog modal overlay on the page by 
+             * removing the 'display-none' class and adding the 
+             * 'display-block' class to the component's root element.
+             * @function
+             * @name show
+             * @async
+             * @override
+             */
+            async show() {
+                await super.show()
+                this.Element.setAttribute(`class`, `display-block`)
+            }
+            /**
+             * Hides the review dialog modal overlay on the page by 
+             * adding the 'display-none' class and removing the 
+             * 'display-block' class from the component's root element.
+             * Destroys the component.
+             * @function
+             * @name hide
+             * @async
+             * @override
+             */
+            async hide() {
+                await super.hide()
+                this.Element.setAttribute(`class`, `display-none`)
+                await this.destroy()
+            }
+            /**
+             * Hides the review dialog modal overlay on the page when the 
+             * hide button is clicked. Stops event propagation, calls the 
+             * hide() method, and destroys the component.
+             * @function
+             * @name hideClicked
+             * @async
+             */
+            async hideClicked(event) {
+                event?.stopPropagation()
+                await this.hide()
+            }
+            /**
+             * Saves a new review when the save button is clicked. 
+             * 
+             * Validates required review fields. Sanitizes review data. 
+             * Constructs a review object. Sends the review data to the server.  
+             * Updates the review list if successful. Shows success or error messages.
+             * Hides the dialog on completion.
+             * @function
+             * @name save
+             * @param {Object} event The HTML event being handled.
+             */
+            async save(event) {
+                event?.stopPropagation()
+                if (!this.firstNameField || !this.lastNameField || !this.cityField || !this.stateField || !this.avatarURLField) {
+                    showError(`Error getting review data.`)
+                    return
+                }
+                if (!this.firstNameField.vars.valid) {
+                    showError(`${this.firstNameField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.lastNameField.vars.valid) {
+                    showError(`${this.lastNameField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.cityField.vars.valid) {
+                    showError(`${this.cityField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.stateField.vars.valid) {
+                    showError(`${this.stateField.props.name} is invalid.`)
+                    return
+                }
+                if (!this.avatarURLField.vars.valid) {
+                    showError(`${this.avatarURLField.props.name} is invalid.`)
+                    return
+                }
+                if (5 > this.ReviewTextElement.value.length) {
+                    showError(`Review text is required and must be at least 5 characters.`)
+                    return
+                }
+
+                let reviewDate = new Date()
+                const dd = String(reviewDate.getDate())
+                const mm = String(reviewDate.getMonth() + 1) //January is 0!
+                const yyyy = reviewDate.getFullYear()
+
+                reviewDate = mm + '/' + dd + '/' + yyyy
+
+                const first = DOMPurify.sanitize(this.firstNameField.getValue())
+                const last = DOMPurify.sanitize(this.lastNameField.getValue())
+                const city = DOMPurify.sanitize(this.cityField.getValue())
+                const state = DOMPurify.sanitize(this.stateField.getValue())
+                const reviewText = DOMPurify.sanitize(this.ReviewTextElement.value).trim()
+                const stars = this.Stars.getStars()
+                const image = DOMPurify.sanitize(this.ReviewHeader.AvatarURL.getValue())
+                const review = {
+                    image,
+                    name: { first, last },
+                    city,
+                    state,
+                    date: reviewDate,
+                    review: reviewText,
+                    stars,
+                    usefulCount: 0,
+                    funnyCount: 0,
+                    coolCount: 0
+                }
+                const server = Registry.get(`Server`)
+                const url = `${server}add-review`
+                const headers = {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Origin': `${server}`
+                }
+                const body = JSON.stringify(review)
+                const requestData = {
+                    method: 'POST',
+                    headers,
+                    body
+                }
+                const response = await fetch(url, requestData)
+
+                if (200 === response.status) {
+                    const content = await response.json()
+                    const reviewList = Component.getObject(`ReviewList`)
+
+                    review.id = content.payload.newId
+                    reviewList.addNewReview(review)
+                    JavascriptWebToken.storeCredentials(content.jwt)
+                    showInfo(`Review added.`)
+                } else {
+                    showError(`Error adding review. Status code ${response.status}.`)
+                }
+                this.hide()
+            }
+            vars = {
+                reviewImageURL: `./images/themes/{theme}/generic-avatar.png`,
+                reviewFirstName: ``,
+                reviewLastName: ``,
+                reviewCity: ``,
+                reviewState: ``,
+                reviewDate: ``,
+                review: ` `,
+                reviewRating: 5,
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --photo-cursor: default;
+
+            --photo-hover-border-radius: 15px;
+
+            --review-text-width: 100%;
+            --review-text-height: 100px;
+            --review-text-color: var(--blue-gray-900);
+            --review-text-text-align: left;
+            --review-text-white-space: pre-wrap;
+            --review-text-font-family: var(--secondary-font-family);
+            --review-text-font-size: var(--caption-1-font-size);
+            --review-text-font-weight: font-weight: var(--caption-1-font-weight)
+        }
+        .review-text {
+            width: var(--review-text-width);
+            height: var(--review-text-height);
+            color: var(--review-text-color);
+            text-align: var(--review-text-text-align);
+            white-space: var(--review-text-white-space);
+            font-family: var(--review-text-font-family);
+            font-size: var(--review-text-font-size);
+            font-weight: var(--review-text-font-weight);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="display-none" onclick="$obj.hide(event)">
+              <div id="{id}Frame" class="h525px" onclick="event.stopPropagation()">
+                <div class="h200px">
+                    <include-html data-src="./html/components/stars.html" data-id="{id}Stars"
+                        data-props="{ editable: true }"
+                        data-vars="{ rating: {reviewRating} }">
+                    </include-html>
+                    <include-html data-src="./html/components/reviews/review-header-editable.html" data-id="{id}ReviewHeader"
+                        data-vars="{ imageURL: `{reviewImageURL}`, firstName: `{reviewFirstName}`, lastName: `{reviewLastName}`, 
+                            city: `{reviewCity}`, state: `{reviewState}`, date: `{reviewDate}`}">
+                    </include-html>
+                </div>
+                <div class="flex-col margin-b-5 margin-t-20">
+                    <h3 id="{id}ReviewTitle" class="subtitle-2">Review</h3>
+                    <textarea id="{id}ReviewText" name="review" class="review-text" onblur="$obj.onBlur(event)" oninput="$obj.onInput(event)" tabindex="0">{review}</textarea>
+                </div>
+                <div id="{id}Buttons" class="flex-row flex-wrap flex-end margin-t-10">
+                    <div id="{id}CancelButton" class="vdy-button" onclick="$obj.hide(event)">
+                        <div id="{id}CancelButtonText" class="margin-1">Cancel</div> 
+                    </div>
+                    <div id="{id}SaveButton" class="vdy-button" onclick="$obj.save(event)">
+                        <div id="{id}SaveButtonText" class="margin-1">Save</div> 
+                    </div>
+                </div>    
+            </div>
+          </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

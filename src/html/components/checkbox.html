@@ -1,0 +1,165 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/checkbox.html
+        class Checkbox extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/checkbox.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.clickMessage, (message) => { 
+                    this.vars.checked = this.CheckboxElement.checked
+                })
+            }
+            async afterMount() { 
+                await super.afterMount()
+
+                this.CheckboxElement.checked = this.vars.checked
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    this.Element.classList.add(`bounce-and-brighten`)
+                    this.CheckboxElement.classList.remove(`checkbox-disabled`)
+                    this.CheckboxElement.classList.add(`checkbox`)
+                    this.CheckboxElement.disabled = false
+                    this.LabelElement.classList.remove(`checkbox-label-disabled`)
+                    this.LabelElement.classList.add(`checkbox-label`)
+                } else {
+                    this.Element.classList.remove(`bounce-and-brighten`)
+                    this.CheckboxElement.classList.add(`checkbox-disabled`)
+                    this.CheckboxElement.classList.remove(`checkbox`)
+                    this.CheckboxElement.disabled = true
+                    this.LabelElement.classList.add(`checkbox-label-disabled`)
+                    this.LabelElement.classList.remove(`checkbox-label`)
+                }
+            }
+            onClick(event) { 
+                if (!this.canFocus()) { return }
+                event?.stopPropagation()
+                Queue.broadcast(this.props.clickMessage, this) 
+            }
+            toggleCheck() {
+                if (!this.canFocus()) { return }
+                this.vars.checked = !this.vars.checked
+                this.CheckboxElement.checked = !this.CheckboxElement.checked
+                this.onClick()
+            }
+            async getData() {
+                return { name: this.props.name, value: this.vars.checked }
+            }
+            props = {
+                label: ``,
+                name: ``,
+                value: ``,
+                tabIndex: 0,
+                clickMessage: Messages.ON_CLICK
+            }
+            vars = {
+                checked: false,
+                extraData: null
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --checkbox-wrapper-position: relative;
+            --checkbox-wrapper-display: flex;
+            --checkbox-wrapper-flex-direction: row;
+            --checkbox-wrapper-z-index: inherit;
+
+            --checkbox-z-index: inherit;
+            --checkbox-color: var(--text-color);
+            --checkbox-background-color: var(--clear);
+            --checkbox-padding: 0 10px 0 0;
+            --checkbox-margin: 3px;
+            --checkbox-cursor: default;
+
+            --checkbox-disabled-z-index: inherit;
+            --checkbox-disabled-color: var(--disabled-text-color);
+            --checkbox-disabled-background-color: var(--disabled-background-color);
+            --checkbox-disabled-padding: 0 10px 0 0;
+            --checkbox-disabled-margin: 3px;
+            --checkbox-disabled-cursor: not-allowed;
+
+            --checkbox-label-z-index: inherit;
+            --checkbox-label-color: var(--text-color);
+            --checkbox-label-background-color: var(--clear);
+            --checkbox-label-padding: 3px;
+            --checkbox-label-margin: 3px;
+            --checkbox-label-cursor: default;
+            --checkbox-label-font-family: var(--primary-font-family);
+            --checkbox-label-font-size: var(--text-1-font-size);
+            --checkbox-label-font-weight: var(--text-1-font-weight);
+
+            --checkbox-label-disabled-z-index: inherit;
+            --checkbox-label-disabled-color: var(--disabled-text-color);
+            --checkbox-label-disabled-background-color: var(--disabled-background-color);
+            --checkbox-label-disabled-padding: 3px;
+            --checkbox-label-disabled-margin: 3px;
+            --checkbox-label-disabled-cursor: not-allowed;
+            --checkbox-label-disabled-font-family: var(--primary-font-family);
+            --checkbox-label-disabled-font-size: var(--text-1-font-size);
+            --checkbox-label-disabled-font-weight: var(--text-1-font-weight);
+        }
+
+        .checkbox-wrapper {
+            position: var(--checkbox-wrapper-position);
+            display: var(--checkbox-wrapper-display);
+            flex-direction: var(--checkbox-wrapper-flex-direction);
+            z-index: var(--checkbox-wrapper-z-index);
+        }
+
+        .checkbox {
+            z-index: var(--checkbox-z-index);
+            color: var(--checkbox-color);
+            background-color:  var(--checkbox-background-color);
+            padding:  var(--checkbox-padding);
+            margin:  var(--checkbox-margin);
+            cursor:  var(--checkbox-cursor);
+        }
+        .checkbox-disabled {
+            z-index: var(--checkbox-disabled-z-index);
+            color: var(--checkbox-disabled-color);
+            background-color: var(--checkbox-disabled-background-color);
+            padding: var(--checkbox-disabled-padding);
+            margin: var(--checkbox-disabled-margin);
+            cursor: var(--checkbox-disabled-cursor);
+        }
+
+        .checkbox-label {
+            z-index: var(--checkbox-label-z-index);
+            color: var(--checkbox-label-color);
+            background-color:  var(--checkbox-label-background-color);
+            padding:  var(--checkbox-label-padding);
+            margin:  var(--checkbox-label-margin);
+            cursor:  var(--checkbox-label-cursor);
+            font-family: var(--checkbox-label-font-family);
+            font-size: var(--checkbox-label-font-size);
+            font-weight: var(--checkbox-label-font-weight);
+        }
+        .checkbox-label-disabled {
+            z-index: var(--checkbox-label-disabled-z-index);
+            color: var(--checkbox-label-disabled-color);
+            background-color:  var(--checkbox-label-disabled-background-color);
+            padding:  var(--checkbox-label-disabled-padding);
+            margin:  var(--checkbox-label-disabled-margin);
+            cursor:  var(--checkbox-label-disabled-cursor);
+            font-family: var(--checkbox-label-disabled-font-family);
+            font-size: var(--checkbox-label-disabled-font-size);
+            font-weight: var(--checkbox-label-disabled-font-weight);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="checkbox-wrapper bounce-and-brighten">
+            <input id="{id}Checkbox" class="checkbox" type="checkbox" name="{name}" value="{value}" checked="{checked}" onclick="$obj.onClick(event)" tabindex="{tabIndex}">
+            <label id="{id}Label" for="{id}Checkbox" class="checkbox-label" >{label}</label>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

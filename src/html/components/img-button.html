@@ -1,0 +1,187 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/img-button.html
+        class ImgButton extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/img-button.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onChildrenMounted() { 
+                await super.onChildrenMounted()
+
+                const size = this.convertSizeToPixels()
+
+                if (size) { 
+                    this.Image.vars.width = size
+                    this.Image.vars.height = size
+                    this.DisabledImage.vars.width = size
+                    this.DisabledImage.vars.height = size
+                    this.Element.style.width = `${size}px`
+                    this.Element.style.height = `${size}px`
+                }
+
+                if (this.props.round) { this.Element.classList.add(`image-button-round`) }
+                else { this.Element.classList.remove(`image-button-round`) }
+
+                this.show()
+            }
+            async onEnabled() { 
+                if (!this.isVisible()) { return }
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    if (-1 === this.vars.tabIndex && -1 !== this.vars.disabledTabIndex) { 
+                        this.vars.tabIndex = this.vars.disabledTabIndex 
+                        this.vars.disabledTabIndex = -1
+                    }
+                    this.Element.classList.add(`image-button`)
+                    this.Element.classList.remove(`image-button-disabled`)
+                    this.Element.classList.add(`bounce-and-brighten`)
+                    this.Image.Element.classList.remove(`display-none`)
+                    this.DisabledImage.Element.classList.add(`display-none`)
+                } else {
+                    this.vars.disabledTabIndex = this.vars.tabIndex
+                    this.vars.tabIndex = -1
+                    this.Element.classList.remove(`image-button`)
+                    this.Element.classList.add(`image-button-disabled`)
+                    this.Element.classList.remove(`bounce-and-brighten`)
+                    this.Image.Element.classList.add(`display-none`)
+                    this.DisabledImage.Element.classList.remove(`display-none`)
+                }
+            }
+            onClick(event) { 
+                if (!this.canFocus()) { return }
+                Queue.broadcast(this.props.clickMessage, this) 
+                event?.stopPropagation()
+            }
+            onKeyDown(event) { 
+                if (!this.canFocus() || !this.Element.hasFocus()) { return }
+                if ((`Enter` === event?.key || ` ` === event?.key) && this.Element.hasFocus()) {
+                    event?.stopPropagation()
+                    this.onClick() 
+                }
+            }
+            async show() { 
+                await super.show()
+                this.Element.classList.add(`image-button`)
+                this.Element.classList.remove(`display-none`)
+                if (this.enabled) {
+                    this.Image.show()
+                    this.DisabledImage.hide()
+                } else {
+                    this.Image.hide()
+                    this.DisabledImage.show()
+                }
+            }
+            async hide() { 
+                await super.hide()
+                this.Element.classList.remove(`image-button`)
+                this.Element.classList.add(`display-none`)
+                this.Image.Element.classList.add(`display-none`)
+                this.DisabledImage.Element.classList.add(`display-none`)
+            }
+            async wait() {
+                if (this.isWaiting()) { return }
+                await super.wait()
+
+                const id = `${this.id}Waiting`
+                const vars = { width: 20, height: 20 }
+                const newInclude = Component.createComponentInclude(`./html/components/loading.html`, id, null, vars)
+
+                this.Image.hide()
+                this.DisabledImage.hide()
+                this.Element.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async unwait() {
+                if (!this.isWaiting()) { return }
+
+                const id = `${this.id}Waiting`
+                const waitingObj = Component.getObject(id)
+
+                this.onEnabled()
+                await super.unwait()
+                if (!waitingObj) { return }
+                await waitingObj.destroy()
+                
+            }
+            convertSizeToPixels() { 
+                if (`xs` === this.props.size) { return 12 }
+                if (`s` === this.props.size) { return 25 }
+                if (`m` === this.props.size) { return 50 }
+                if (`l` === this.props.size) { return 75 }
+                if (`xl` === this.props.size) { return 100 }
+                if (`xxl` === this.props.size) { return 150 }
+                if (`xxxl` === this.props.size) { return 200 }
+                return 0
+            }
+            props = {
+                clickMessage: Messages.ON_CLICK,
+                size: `m`,
+                round: false
+            }
+            vars = {
+                tabIndex: 0,
+                disabledTabIndex: -1,
+                imageURL: ``,
+                disabledImageURL: ``,
+                tooltipText: ``,
+                extraData: null
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --image-button-position: relative;
+            --image-button-display: flex;
+            --image-button-justify-content: center;
+            --image-button-align-items: center;
+            --image-button-z-index: inherit;
+            --image-button-background-color: var(--clear);
+            --image-button-cursor: default;
+
+            --image-button-disabled-background-color: var(--disabled-background-color);
+            --image-button-disabled-cursor: not-allowed;
+        }
+
+        .image-button {
+            position: var(--image-button-position);
+            display: var(--image-button-display);
+            justify-content: var(--image-button-justify-content);
+            align-items: var(--image-button-align-items);
+            z-index: var(--image-button-z-index);
+            background-color: var(--image-button-background-color);
+            cursor: var(--image-button-cursor);
+        }
+        .image-button-disabled {
+            position: var(--image-button-position);
+            display: var(--image-button-display);
+            justify-content: var(--image-button-justify-content);
+            align-items: var(--image-button-align-items);
+            z-index: var(--image-button-z-index);
+            background-color: var(--image-button-disabled-background-color);
+            cursor: var(--image-button-disabled-cursor);
+        }
+        .image-button-round {
+            border-radius: 50%;
+            overflow: hidden;
+        }
+    </style>
+    <component-markup>
+        <span id="{id}" class="image-button bounce-and-brighten" title="{tooltipText}" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)" tabindex="{tabIndex}">
+            <include-html data-src="./html/components/img.html" data-id="{id}Image"
+                data-props="{ hideAfterMount: false }"
+                data-vars="{ src: `{imageURL}`, lazyLoad: true, width: 50, height: 50 }">
+            </include-html>
+            <include-html data-src="./html/components/img.html" data-id="{id}DisabledImage"
+                data-props="{ hideAfterMount: false }"
+                data-vars="{ src: `{disabledImageURL}`, lazyLoad: true, width: 50, height: 50 }">
+            </include-html>
+        </span>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

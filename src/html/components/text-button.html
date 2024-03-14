@@ -1,0 +1,203 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/text-button.html
+        class TextButton extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/text-button.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async onChildrenMounted() { 
+                await super.onChildrenMounted()
+                if (this.props.underline) { this.Element.addClass(`text-button-underline`) }
+                else { this.Element.removeClass(`text-button-underline`) }
+                if (`center` === this.props.alignTitle.toLowerCase()) { this.Element.addClass(`text-button-align-center`) }
+                else if (`left` === this.props.alignTitle.toLowerCase()) { this.Element.addClass(`text-button-align-left`) }
+                else if (`right` === this.props.alignTitle.toLowerCase()) { this.Element.addClass(`text-button-align-right`) }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.Element.classList.contains(`display-none`)) { return }
+                if (this.enabled) {
+                    if (-1 === this.vars.tabIndex && -1 !== this.vars.disabledTabIndex) { 
+                        this.vars.tabIndex = this.vars.disabledTabIndex 
+                        this.vars.disabledTabIndex = -1
+                    }
+                    this.Element.removeClass(`text-button-disabled`)
+                    this.Element.addClass(`text-button`)
+                    this.Element.addClass(`bounce-and-brighten`)
+                    this.TitleElement.removeClass(`text-button-title-disabled`)
+                    this.TitleElement.addClass(`text-button-title`)
+                } else {
+                    this.vars.disabledTabIndex = this.vars.tabIndex
+                    this.vars.tabIndex = -1
+                    this.Element.addClass(`text-button-disabled`)
+                    this.Element.removeClass(`text-button`)
+                    this.Element.removeClass(`bounce-and-brighten`)
+                    this.TitleElement.addClass(`text-button-title-disabled`)
+                    this.TitleElement.removeClass(`text-button-title`)
+                }
+            }
+            onClick(event) { 
+                if (!this.enabled) { return }
+                event?.stopPropagation()
+                Queue.broadcast(this.props.clickMessage, this) 
+            }
+            onKeyDown(event) { 
+                if (!this.enabled) { return }
+                if ((`Enter` === event?.key || ` ` === event?.key) && this.Element.hasFocus()) {
+                    event?.stopPropagation()
+                    this.onClick() 
+                }
+            }
+            async show() {
+                await super.show()
+                this.Element.addClass(`text-button`)
+                this.Element.addClass(`bounce-and-brighten`)
+                this.Element.removeClass(`display-none`)
+            }
+            async hide() {
+                await super.hide()
+                this.Element.removeClass(`text-button`)
+                this.Element.removeClass(`bounce-and-brighten`)
+                this.Element.addClass(`display-none`)
+            }
+            async wait() {
+                if (this.isWaiting()) { return }
+                await super.wait()
+
+                const id = `${this.id}Waiting`
+                const vars = { width: 20, height: 20 }
+                const newInclude = Component.createComponentInclude(`./html/components/loading.html`, id, null, vars)
+
+                this.TitleElement.hide()
+                this.Element.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async unwait() {
+                if (!this.isWaiting()) { return }
+
+                const id = `${this.id}Waiting`
+                const waitingObj = Component.getObject(id)
+
+                this.TitleElement.show()
+                await super.unwait()
+                if (!waitingObj) { return }
+                await waitingObj.destroy()
+            }
+            getTitle() { return this.vars.title }
+            setTitle(title) { this.vars.title = title }
+            props = {
+                clickMessage: Messages.ON_CLICK,
+                alignTitle: `center`,           // left, right
+                underline: true,
+            }
+            vars = {
+                title: ``,
+                tabIndex: 0,
+                disabledTabIndex: -1,
+                extraData: null
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --text-button-position: relative;
+            --text-button-display: flex;
+            --text-button-flex-direction: row;
+            --text-button-z-index: inherit;
+            --text-button-background-color: var(--clear);
+            --text-button-cursor: default;
+            --text-button-padding: 3px;
+            --text-button-margin: 0 auto;
+
+            --text-button-text-decoration: underline;
+
+            --text-button-disabled-z-index: inherit;
+            --text-button-disabled-background-color: var(--disabled-background-color);
+            --text-button-disabled-cursor: not-allowed;
+            --text-button-disabled-padding: 3px;
+            --text-button-disabled-margin: 0 auto;
+
+            --text-button-title-z-index: inherit;
+            --text-button-title-color: var(--text-color);
+            --text-button-title-cursor: default;
+            --text-button-title-text-align: center;
+            --text-button-title-font-family: var(--primary-font-family);
+            --text-button-title-font-size: var(--text-1-font-size);
+            --text-button-title-font-weight: var(--text-1-font-weight);
+
+            --text-button-title-disabled-z-index: inherit;
+            --text-button-title-disabled-color: var(--disabled-text-color);
+            --text-button-title-disabled-cursor: not-allowed;
+        }
+
+        .text-button {
+            position: var(--text-button-position);
+            display: var(--text-button-display);
+            flex-direction: var(--text-button-flex-direction);
+
+            z-index: var(--text-button-z-index);
+            background-color: var(--text-button-background-color);
+            padding: var(--text-button-padding);
+            margin: var(--text-button-margin);
+        }
+
+        .text-button-disabled {
+            position: var(--text-button-position);
+            display: var(--text-button-display);
+            flex-direction: var(--text-button-flex-direction);
+
+            z-index: var(--text-button-disabled-z-index);
+            background-color: var(--clear);
+            cursor: var(--text-button-disabled-cursor);
+            padding: var(--text-button-disabled-padding);
+            margin: var(--text-button-disabled-margin);
+        }
+
+        .text-button-title {
+            z-index: var(--text-button-title-z-index);
+            color: var(--text-button-title-color);
+            text-align: var(--text-button-title-text-align);
+            font-family: var(--text-button-title-font-family);
+            font-size: var(--text-button-title-font-size);
+            font-weight: var(--text-button-title-font-weight);
+            cursor: var(--text-button-title-cursor)
+        }
+
+        .text-button-title-disabled {
+            z-index: var(--text-button-title-disabled-z-index);
+            color: var(--text-button-title-disabled-color);
+            text-align: var(--text-button-title-text-align);
+            font-family: var(--text-button-title-font-family);
+            font-size: var(--text-button-title-font-size);
+            font-weight: var(--text-button-title-font-weight);
+            cursor: var(--text-button-title-disabled-cursor)
+        }
+
+        .text-button-underline {
+            text-decoration: var(--text-button-text-decoration);
+        }
+
+        .text-button-align-center {
+            justify-content: center;
+        }
+        .text-button-align-left {
+            justify-content: flex-start;
+        }
+        .text-button-align-right {
+            justify-content: flex-end;
+        }
+
+    </style>
+    <component-markup>
+        <span id="{id}" class="text-button bounce-and-brighten" tabindex="{tabIndex}" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)">
+            <span id="{id}Title" class="text-button-title">{title}</span>
+        </span>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

@@ -1,0 +1,272 @@
+<custom-component>
+  <script>
+      //# sourceURL=html/components/admin/admin-news.html
+      class AdminNews extends Component {
+        static async create(parent, componentId, props, vars, classes, styles, attributes) {
+            const newInclude = Component.createComponentInclude(`./html/components/admin-news.html`, componentId, props, vars, classes, styles, attributes)
+            
+            parent.appendChild(newInclude)
+            await Loader.loadIncludes()
+        }
+        async initialize(id) {
+          await super.initialize(id)
+
+          Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+            if (message.tabBar.id === `AdminTabBar`) {
+              if (message.title === `News`) { this.showNews() }
+            }
+          })
+          Queue.registerAsync(this, Messages.HIDE_TAB, async (message) => {
+            if (message.tabBar.id === `AdminTabBar`) {
+              if (message.title === `News`) { this.hideNews() }
+            }
+          })
+          Queue.registerAsync(this, `NEWS_LIST_ITEM_ADD`, async (message) => {
+            this.vars.dialogTitle = `Add News`
+            this.clearDialogNews()
+            this.NewsDialog.show()
+          })
+          Queue.registerAsync(this, `NEWS_LIST_ITEM_EDIT`, async (message) => {
+            this.vars.dialogTitle = `Edit News`
+            this.clearDialogNews()
+            message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+            this.setDialogNews(JSON.parse(message.vars.extraData))
+            this.NewsDialog.showModal()
+          })
+          Queue.registerAsync(this, `NEWS_LIST_ITEM_DELETE`, async (message) => {
+            message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+            await this.deleteNews(JSON.parse(message.vars.extraData))
+          })
+          Queue.registerAsync(this, `NEWS_DIALOG_OK`, async (message) => {
+            if (`Add News` === this.vars.dialogTitle) { await this.saveNews()}
+            else { await this.updateNews()}
+          })
+          Queue.registerAsync(this, Messages.FILE_SELECTED, async (message) => {
+              if (message.component !== this.FileSelector) { return }
+
+              const file = message.component.vars.selectedFiles[0]
+
+              this.Preview.setSourceFromFile(file)
+          })
+          Queue.register(this, `ADMIN_NEWS_CANCEL`, (message) => { this.cancelDialog() })
+          Queue.register(this, `ADMIN_NEWS_OK`, (message) => { this.closeDialog() })
+        }
+        async showNews() {          
+          try {
+            const response = await SINews.get()
+
+            if (200 !== response.status) { 
+              showError(`Error getting news. Status code ${response.status}.`) 
+              return
+            }
+
+            let news = await response.text() 
+
+            this.vars.news = JSON.parse(news).reverse()
+            for (let loop = 0; loop < this.vars.news.length; loop++) {
+              const news = this.vars.news[loop]
+              const newsId = `${this.NewsList.id}ContentNews${loop}`
+              const propsObj =  { 
+                canClick: true,
+                clickMessage: `NEWS_LIST_ITEM_EDIT`,
+                canEdit: true,
+                editMessage: `NEWS_LIST_ITEM_EDIT`,
+                canDelete: true,
+                deleteMessage: `NEWS_LIST_ITEM_DELETE`
+              }
+              const varsObj =  { 
+                imageURL: `../images/${news.file}`,
+                title: news.title,
+                editTooltipText: `Edit News Item`,
+                deleteTooltipText: `Delete News Item`,
+                extraData: cleanStringify(news)
+              }
+              const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, newsId, propsObj, varsObj)
+
+              await this.NewsList.appendIncludeItem(newInclude, newsId)
+            }
+            this.Element.classList.remove(`display-none`)
+          } catch (e) {
+            console.error(`Error loading news. ${JSON.stringify(e)}`)
+          }
+        }
+        async hideNews() {
+          await this.NewsList.removeAllItems(true)
+          this.vars.news = []
+          this.Element.classList.add(`display-none`)
+        }
+        clearDialogNews() {
+            this.FileSelector.Element.value = ``
+            this.Title.vars.value = ``
+            this.Title.vars.value = ``
+            this.Text.vars.value = ``
+            this.Text.vars.value = ``
+            this.RecordId.vars.value = ``
+        }
+        setDialogNews(newsItem) {
+            this.FileSelector.Element.value = ``
+            this.Title.vars.value = newsItem.title
+            this.Title.TextAreaElement.value = newsItem.title
+            this.Text.vars.value = newsItem.text
+            // TODO: Should not have to set Element value after setting vars.value
+            this.Text.TextAreaElement.value = newsItem.text
+            this.RecordId.vars.value = newsItem.id
+        }
+        async validateDialogNews() {
+            if (!this.FileSelector.vars.selectedFiles) {
+                showError(`File name is invalid.`)
+                return false
+            }
+            await this.Title.validate()
+            if (!this.Title.vars.valid) {
+                showError(`${this.Title.props.name} is invalid.`)
+                return false
+            }
+            await this.Text.validate()
+            if (!this.Text.vars.valid) {
+                showError(`${this.Text.props.name} is invalid.`)
+                return false
+            }
+            return true
+        }
+        getDialogNews() {
+            const news = {
+                file: this.FileSelector.vars.selectedFiles[0],
+                title: this.Title.TextAreaElement.value,
+                text: this.Text.TextAreaElement.value,
+                id: this.RecordId.Element.value
+            }
+            
+            return news 
+        }        
+        async saveNews() {
+          const vaidationResult = await this.validateDialogNews()
+
+          if (!vaidationResult) { return }
+          
+          const news = this.getDialogNews()
+          const response = await SINews.add(news.file, news.title, news.text)
+
+          if (200 !== response.status) {
+              showError(`Error adding news. Status code ${response.status}.`)
+              return
+          }
+          const content = await response.json()
+
+          await this.hideNews()
+          await this.showNews()
+          JavascriptWebToken.storeCredentials(content.jwt)
+          showInfo(`News added.`)
+        }      
+        async updateNews() {
+          const vaidationResult = await this.validateDialogNews()
+
+          if (!vaidationResult) { return }
+
+          const news = this.getDialogNews()
+          const response = await SINews.update(news.file, news.title, news.text, news.id)
+
+          if (200 !== response.status) {
+            if (401 === response.status) { window.location.href = `/login` }
+            else { showError(`Error updating news. Status code ${response.status}.`) }
+            return
+          }
+          await this.hideNews()
+          await this.showNews()
+
+          const content = await response.json()
+
+          JavascriptWebToken.storeCredentials(content.jwt)
+          showInfo(`News updated.`)
+        }
+        async deleteNews(news) {
+          if (!confirm(`Delete news item ${news.title}?`)) { return }
+          
+          const response = await SINews.remove(news.id)
+
+          if (200 !== response.status) {
+              showError(`Error deleting news. Status code ${response.status}.`)
+              return
+          }
+
+          await this.hideNews()
+          await this.showNews()
+          showInfo(`News item deleted.`)
+        }
+        closeDialog() {
+          this.NewsDialog.ok(0)
+        }
+        cancelDialog() {
+          this.NewsDialog.cancel()
+        }
+        vars = {
+          news: [],
+          dialogTitle: `Edit News`
+        }
+    }
+  </script>
+  <style>
+  </style>
+  <component-markup>
+      <div id="{id}" class="w100 display-none ">
+          <div id="{id}News" class="w100 h100">
+            <include-html data-src="./html/components/list.html"
+              data-id="{id}NewsList"
+              data-props="{ title: `News Items`, canAdd: true, addMessage: `NEWS_LIST_ITEM_ADD` }"
+              data-vars="{ addTooltipText: `Add News Item` }">
+            </include-html>
+          </div>
+          <include-html data-src="./html/components/dialog.html"
+            data-id="{id}NewsDialog"
+            data-props="{ okMessage: `NEWS_DIALOG_OK`, cancelMessage: `NEWS_DIALOG_CANCEL` }">
+          </include-html>
+          <slot-markup for-component-id="{id}NewsDialog" for-slot="{id}NewsDialogSlot">
+            <span id="{id}DialogContent" class="flex-col flex-center gap-5px w90 h350px m5">
+              <div id="{id}DialogTitle" class="m7-t m10-b w100 center-text">{dialogTitle}</div>
+              <include-html data-src="./html/components/file-selector.html"
+                data-id="{id}FileSelector"
+                data-props="{ label: `Image` }">
+              </include-html>
+              <div id="{id}PreviewWrapper" class="flex-row">
+                <include-html data-src="./html/components/label.html"
+                  data-id="{id}PreviewLabel"
+                  data-props="{ label: `Preview`, for: `{id}Preview` }">
+                </include-html>
+                <include-html data-src="./html/components/img.html"
+                  data-id="{id}Preview"
+                  data-props="{ hideAfterMount: false }">
+                </include-html>
+              </div>
+              <include-html data-src="./html/components/text-area.html"
+                data-id="{id}Title"
+                data-props="{ name: `Title`, placeholder: `Title`, label: `Title`, labelAboveField: false, labelWidth: `125px`, required: true, minlength: 2, maxlength: 100, cols: 50, rows: 2, tabIndex: 1, showValidationErrors: `snackbar` }"
+                data-vars="{ type: `text` }">
+              </include-html>
+              <include-html data-src="./html/components/text-area.html" 
+                data-id="{id}Text"
+                data-props="{ name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, labelWidth: `125px`, required: true, minlength: 2, maxlength: 400, cols: 50, rows: 4, tabIndex: 2, showValidationErrors: `snackbar` }"
+                data-vars="{ type: `text` }">
+              </include-html>
+              <include-html data-src="./html/components/hidden-field.html"
+                data-id="{id}RecordId"
+                data-props="{ name: `RecordId` }">
+              </include-html>
+              <div id="{id}ButtonWrapper" class="flex-row flex-end w100 m5">
+                <include-html data-src="./html/components/button.html"
+                  data-id="{id}CancelButton"
+                  data-props="{ clickMessage: `ADMIN_NEWS_CANCEL` }"
+                  data-vars="{ title: `Cancel` }">
+                </include-html>
+                <include-html data-src="./html/components/button.html"
+                  data-id="{id}OkButton"
+                  data-props="{ isDefault: true, clickMessage: `ADMIN_NEWS_OK` }"
+                  data-vars="{ title: `Save` }">
+                </include-html>
+              </div>
+            </span>    
+          </slot-markup>
+      </div>
+  </component-markup>
+  <script data-is-test="true">
+  </script>
+</custom-component>

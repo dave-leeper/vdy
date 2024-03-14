@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7Y27LE39YD"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-7Y27LE39YD');
+    </script>
+    <title>Vince Drives You</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <meta property="og:image:width" content="500" />
+    <meta property="og:image:height" content="161" />    
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:description" content="Vince Drives You is a locally-owned-and-operated luxury transportation company serving clients all over Phoenix, AZ. Schedule our service!" />
+    <meta property="og:site_name" content="Vince Drives You" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:label1" content="Est. reading time" />
+    <meta name="twitter:data1" content="1 minute" />
+
+    <script type="text/javascript" src="./js/client/vars.js"></script>
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/snackbar.js"></script>
+    <script type="text/javascript" src="./js/client/json-utils.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <script type="text/javascript" src="./js/client/date.js"></script>
+    <script type="text/javascript" src="./js/client/time.js"></script>
+    <script type="text/javascript" src="./js/client/dialog.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-analytics.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-news.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-photos.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-text.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-reservations.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-quotes.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.cdnfonts.com/css/elephant" rel="stylesheet">
+    <script>
+      // KEYWORDS Airport transportation
+      function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `http://192.168.12.198/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+            if (0 === message.tabBar.vars.activeTab) { await SIAnalytics.incrementHomePageCounter() }
+            else if (1 === message.tabBar.vars.activeTab) { await SIAnalytics.incrementReservationPageCounter() }
+            else if (2 === message.tabBar.vars.activeTab) { await SIAnalytics.incrementPhotosPageCounter() }
+            else if (3 === message.tabBar.vars.activeTab) { await SIAnalytics.incrementReviewsPageCounter() }
+          })
+          Queue.registerAsync(this, `LIGHT_THEME_IMG_TOGGLE`, async (message) => { Theme.theme = 'light' })
+          Queue.registerAsync(this, `GREY_THEME_IMG_TOGGLE`, async (message) => { Theme.theme = 'grey-glass' })
+          Queue.registerAsync(this, `DARK_THEME_IMG_TOGGLE`, async (message) => { Theme.theme = 'dark' })
+          await SIAnalytics.incrementHomePageCounter()
+          await Loader.siteLoaded()
+        })
+      }
+      function setCSSDefaults() { Theme.theme = 'dark' }
+      initializeApp()
+      setCSSDefaults()
+    </script>
+  </head>
+  <body id="Body" class="margin-5 bg-grey-e" onclick="Queue.broadcast(Messages.ON_CLICK, event)">
+    <include-html data-src="./html/components/snackbar.html" data-id="SnackbarError"
+      data-props="{ isError: true }"
+      data-vars="{ text: `Message.` }">
+    </include-html>
+    <include-html data-src="./html/components/snackbar.html" data-id="SnackbarInfo"
+      data-vars="{ text: `Message.` }">
+    </include-html>
+    
+    <div class="absolute flex-row flex-space-around flex-align-center flex-center t0 r0 w90px h30px z-layer1">
+      <include-html data-src="./html/components/img-toggle.html" data-id="LightThemeImgToggle"
+        data-props="{ clickMessage: `LIGHT_THEME_IMG_TOGGLE`, size: `s`, groupName: `theme`, groupValue: `light`, checkOnFocus: false }"
+        data-vars="{ imageURL: `../images/themes/{theme}/light-theme.png`, imageURL2: `../images/themes/{theme}/light-theme-toggled.png`, 
+          disabledImageURL: `../images/themes/{theme}/light-theme-disabled.png`, tooltipText: `Light Theme` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="GreyThemeImgToggle"
+        data-props="{ clickMessage: `GREY_THEME_IMG_TOGGLE`, size: `s`, groupName: `theme`, groupValue: `grey`, checkOnFocus: false }"
+        data-vars="{ imageURL: `../images/themes/{theme}/grey-theme.png`, imageURL2: `../images/themes/{theme}/grey-theme-toggled.png`,
+          disabledImageURL: `../images/themes/{theme}/grey-theme-disabled.png`, tooltipText: `Grey Theme` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="DarkThemeImgToggle"
+        data-props="{ clickMessage: `DARK_THEME_IMG_TOGGLE`, size: `s`, groupName: `theme`, groupValue: `dark`, checkOnFocus: false }"
+        data-vars="{ imageURL: `../images/themes/{theme}/dark-theme.png`, imageURL2: `../images/themes/{theme}/dark-theme-toggled.png`,
+          disabledImageURL: `../images/themes/{theme}/dark-theme-disabled.png`, tooltipText: `Dark Theme`, checked: true }">
+      </include-html>
+    </div>
+
+      <div class="flex-row-m-col flex-space-around w100 border-b-solid border-blue-400 border-2 m10-b">
+        <div class="flex-col w50-m-100 animate__animated animate__backInDown p15-b">
+          <img src="../images/logo.png" class="w160px h160px center-img">
+          <h1 id="Title" class="primary-text font-times-new-roman font-size-4-0em letter-spacing5 w100 center-text m10-t">Vince Drives You</h1>
+          <div class="flex-row flex-space-around">
+          <div id="Phone" class="primary-text font-times-new-roman font-size-1-5em letter-spacing9 margin-b-10">Luxury For Less</div>
+          </div>
+          <div class="flex-row flex-space-around">
+            <a href="#" class="no-decoration" tabindex="-1"><div id="Phone" class="primary-text font-size-1-5em letter-spacing9 margin-b-10">(602) 545-8557</div></a>
+          </div>
+        </div>
+        <div class="absolute w80px h80px l20px t20px flex-col flex-center flex-align-center m20">
+          <img src="../images/dog.jpg" width="120" height="120" class="round50 cover">
+          <div class="text-2">Pet Friendly</div>
+        </div>
+      </div>
+
+    <div id="TabBarWrapper" class="flex-col flex-align-center w100">
+      <include-html data-src="./html/components/tab-bar.html" data-id="TabBar"
+        data-vars="{ tabs: [`Home`, `Book A Ride`, `Get A Quote`, `Photos`, `Reviews`], activeTab: 0 }">
+      </include-html>
+    </div>
+
+    <include-html data-src="./html/components/tab.html" data-id="HomeTab"
+      data-props="{ tabBarId: `TabBar`, title: `Home` }">
+    </include-html>
+    <slot-markup for-component-id="HomeTab" for-slot="HomeTabSlot">
+      <div class="w100">
+        <div class="flex-col flex-center flex-align-center w100 t5px">
+          <include-html data-src="./html/components/about.html" data-id="About"></include-html> 
+          <!--
+          <div class="w75 m10-t">
+            Vince Drives You is a Luxury SUV Transportation Service serving the Valley of the Sun. Advance reservations are required. I have an on-time pickup guarantee which means if you're not picked up on time you get a $50 discount on that trip, not a future credit. You can't do better anywhere.
+            <br><br>
+            If you are looking for a spacious, clean and comfortable trip then calling me is the only number you need to know. Rates start at a minimum charge of $60 and hourly packages are available. Hourly rates start at $90 per hour with a 3- hour minimum for a Black Suburban. I now have a Mercedes Sprinter with an 15 passenger capacity (including driver) available for larger party pick ups at the airport or your special event. The Sprinter starts at $150 per hour with a 4- hour minimum or you can get point to point service for only $250 in the Valley Metro area. You will know your full fee before your trip is confirmed regardless of how far in advance your service is booked and there are never hidden fees or charges.
+          </div>
+          -->
+      </div>
+        <img src="../images/home.png" class="w50 m10-t center-img">
+        <include-html data-src="./html/components/news/news.html" data-id="News"></include-html> 
+      </div>
+    </slot-markup>
+
+    <include-html data-src="./html/components/tab.html" data-id="ReserveARideTab"
+      data-props="{ tabBarId: `TabBar`, title: `Book A Ride` }">
+    </include-html>
+    <slot-markup for-component-id="ReserveARideTab" for-slot="ReserveARideTabSlot">
+      <include-html data-src="./html/components/reservations/reservations.html" data-id="Reservations"></include-html>
+    </slot-markup>
+
+    <include-html data-src="./html/components/tab.html" data-id="QuoteTab"
+      data-props="{ tabBarId: `TabBar`, title: `Get A Quote` }">
+    </include-html>
+    <slot-markup for-component-id="QuoteTab" for-slot="QuoteTabSlot">
+      <include-html data-src="./html/components/reservations/reservations.html" data-id="Quotes"
+        data-props="{ forBooking: false }"></include-html>
+    </slot-markup>
+
+    <include-html data-src="./html/components/tab.html" data-id="PhotosTab"
+      data-props="{ tabBarId: `TabBar`, title: `Photos` }">
+    </include-html>
+    <slot-markup for-component-id="PhotosTab" for-slot="PhotosTabSlot">
+      <include-html data-src="./html/components/photos/photos-list.html" data-id="PhotosList"></include-html>
+    </slot-markup>
+
+    <include-html data-src="./html/components/tab.html" data-id="ReviewsTab"
+      data-props="{ tabBarId: `TabBar`, title: `Reviews` }">
+    </include-html>
+    <slot-markup for-component-id="ReviewsTab" for-slot="ReviewsTabSlot">
+      <div id="ReviewWrapper" class="display-none">
+        <include-html data-src="./html/components/reviews/review-statement.html" data-id="ReviewStatement"></include-html>
+        <div class="w100 h15px"></div>
+        <include-html data-src="./html/components/reviews/write-review-button.html" data-id="WriteReviewButton"></include-html>
+        <div class="w100 h15px"></div>
+        <include-html data-src="./html/components/reviews/review-list.html" data-id="ReviewList"></include-html>
+      </div>
+    </slot-markup>
+    <footer id="Footer" class="flex-col p25-t p25-b w100">
+      <a href="https://www.bbb.org/us/az/peoria/profile/transportation-services/vince-drives-you-llc-1126-1000106982" target="_blank"><img src="../images/bbb-2.png" class="w100px h50px center-img" width="100" height="50"></a>
+      <div id="Copyright" class="caption-1 w100 center-text m10-tb">Copyright © 2023 Vince Drives You, LLC</div>
+      <div id="ContentCreator" class="caption-2 w100 center-text">Web Site By David Leeper, <a id="EMailLink" class="white" href="mailto: davidkleeper@gmail.com">davidkleeper@gmail.com</a></div>
+    </footer>
+  </body>
+</html>

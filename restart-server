@@ -1,0 +1,2 @@
+pkill -HUP node
+nohup node server.js > /dev/null 2>&1 &

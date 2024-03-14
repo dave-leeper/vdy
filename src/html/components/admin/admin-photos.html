@@ -1,0 +1,244 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-photos.html
+        class AdminPhotos extends Component {
+          static async create(parent, componentId, props, vars, classes, styles, attributes) {
+              const newInclude = Component.createComponentInclude(`./html/components/admin-photos.html`, componentId, props, vars, classes, styles, attributes)
+              
+              parent.appendChild(newInclude)
+              await Loader.loadIncludes()
+          }
+          async initialize(id) {
+            await super.initialize(id)
+  
+            Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+              if (message.tabBar.id === `AdminTabBar`) {
+                if (message.title === `Photos`) { 
+                  if (0 === this.PhotosList.vars.content.length) { 
+                    await this.showPhotos() 
+                  }
+                } else { await this.hidePhotos() }
+              }
+            })
+            Queue.registerAsync(this, `PHOTOS_LIST_ITEM_ADD`, async (message) => {
+              this.vars.dialogTitle = `Add Photo`
+              this.clearDialogPhoto()
+              this.PhotoDialog.show()
+            })
+            Queue.registerAsync(this, `PHOTOS_LIST_ITEM_EDIT`, async (message) => {
+              this.vars.dialogTitle = `Edit Photo`
+              this.clearDialogPhoto()
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              this.setDialogPhoto(JSON.parse(message.vars.extraData))
+              this.PhotoDialog.showModal()
+            })
+            Queue.registerAsync(this, `PHOTOS_LIST_ITEM_DELETE`, async (message) => {
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              await this.deletePhoto(JSON.parse(message.vars.extraData))
+            })
+            Queue.registerAsync(this, `PHOTO_DIALOG_OK`, async (message) => {
+              if (`Add Photo` === this.vars.dialogTitle) { await this.savePhoto()}
+              else { await this.updatePhoto()}
+            })
+            Queue.registerAsync(this, Messages.FILE_SELECTED, async (message) => {
+                if (message.component !== this.FileSelector) { return }
+  
+                const file = message.component.vars.selectedFiles[0]
+  
+                this.Preview.setSourceFromFile(file)
+            })
+            Queue.register(this, `ADMIN_PHOTO_CANCEL`, (message) => { this.cancelDialog() })
+            Queue.register(this, `ADMIN_PHOTO_OK`, (message) => { this.closeDialog() })
+          }
+          async showPhotos() {
+            try {
+              const response = await SIPhotos.get()
+  
+              if (200 !== response.status) { 
+                showError(`Error getting photos. Status code ${response.status}.`) 
+                return
+              }
+  
+              let photos = await response.text() 
+  
+              this.vars.photos = JSON.parse(photos).reverse()
+              for (let loop = 0; loop < this.vars.photos.length; loop++) {
+                const photo = this.vars.photos[loop]
+                const photoId = `${this.PhotosList.id}ContentPhotos${loop}`
+                const propsObj =  { 
+                  canClick: true,
+                  clickMessage: `PHOTOS_LIST_ITEM_EDIT`,
+                  canView: true,
+                  viewMessage: `PHOTOS_LIST_ITEM_EDIT`,
+                  canEdit: true,
+                  editMessage: `PHOTOS_LIST_ITEM_EDIT`,
+                  canDelete: true,
+                  deleteMessage: `PHOTOS_LIST_ITEM_DELETE`
+                }
+                const varsObj =  { 
+                  imageURL: `../images/${photo.file}`,
+                  title: photo.text,
+                  extraData: cleanStringify(photo)
+                }
+                const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, photoId, propsObj, varsObj)
+  
+                await this.PhotosList.appendIncludeItem(newInclude, photoId)
+              }
+              this.Element.classList.remove(`display-none`)
+            } catch (e) {
+              console.error(`Error loading photos. ${e}`)
+            }
+          }
+          async hidePhotos() {
+            await this.PhotosList.removeAllItems(true)
+            this.vars.photos = []
+            this.Element.classList.add(`display-none`)
+          }
+          clearDialogPhoto() {
+              this.FileSelector.Element.value = ``
+              this.Text.vars.value = ``
+              this.RecordId.vars.value = ``
+          }
+          setDialogPhoto(photoItem) {
+              this.FileSelector.Element.value = ``
+              this.Text.vars.value = photoItem.text
+              // TODO: Should not have to set Element value after setting vars.value
+              this.Text.TextAreaElement.value = photoItem.text
+              this.RecordId.vars.value = photoItem.id
+          }
+          async validateDialogPhoto() {
+              if (!this.FileSelector.vars.selectedFiles) {
+                  showError(`File name is invalid.`)
+                  return false
+              }
+              await this.Text.validate()
+              if (!this.Text.vars.valid) {
+                  showError(`${this.Text.props.name} is invalid.`)
+                  return false
+              }
+              return true
+          }
+          getDialogPhoto() {
+              const photo = {
+                  file: this.FileSelector.vars.selectedFiles[0],
+                  text: this.Text.TextAreaElement.value,
+                  id: this.RecordId.Element.value
+              }
+              
+              return photo 
+          }        
+          async savePhoto() {
+            const vaidationResult = await this.validateDialogPhoto()
+  
+            if (!vaidationResult) { return }
+            
+            const photo = this.getDialogPhoto()
+            const response = await SIPhotos.add(photo.file, photo.text)
+  
+            if (200 !== response.status) {
+                showError(`Error adding photo. Status code ${response.status}.`)
+                return
+            }
+            const content = await response.json()
+  
+            await this.hidePhotos()
+            await this.showPhotos()
+            JavascriptWebToken.storeCredentials(content.jwt)
+            showInfo(`Photo added.`)
+          }      
+          async updatePhoto() {
+            const vaidationResult = await this.validateDialogPhoto()
+  
+            if (!vaidationResult) { return }
+  
+            const photo = this.getDialogPhoto()
+            const response = await SIPhotos.update(photo.file, photo.text, photo.id)
+  
+            if (200 !== response.status) {
+              if (401 === response.status) { window.location.href = `/login` }
+              else { showError(`Error updating photo. Status code ${response.status}.`) }
+              return
+            }
+            await this.hidePhotos()
+            await this.showPhotos()
+  
+            const content = await response.json()
+  
+            JavascriptWebToken.storeCredentials(content.jwt)
+            showInfo(`Photo updated.`)
+          }
+          async deletePhoto(photo) {
+            if (!confirm(`Delete photo ${photo.text}?`)) { return }
+            
+            const response = await SIPhotos.remove(photo.id)
+  
+            if (200 !== response.status) {
+                showError(`Error deleting photo. Status code ${response.status}.`)
+                return
+            }
+  
+            await this.hidePhotos()
+            await this.showPhotos()
+            showInfo(`Photo deleted.`)
+          }
+          closeDialog() { this.PhotoDialog.ok(0) }
+          cancelDialog() { this.PhotoDialog.cancel() }
+          vars = {
+            photos: [],
+            dialogTitle: `Edit Photo`
+          }
+      }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="w100 display-none">
+            <div id="{id}Photos" class="w100 h100">
+              <include-html data-src="./html/components/list.html" data-id="{id}PhotosList"
+                data-props="{ title: `Photos`, canAdd: true, addMessage: `PHOTOS_LIST_ITEM_ADD` }">
+              </include-html>
+            </div>
+
+            <include-html data-src="./html/components/dialog.html" data-id="{id}PhotoDialog"
+              data-props="{ okMessage: `PHOTO_DIALOG_OK`, cancelMessage: `PHOTO_DIALOG_CANCEL` }">
+            </include-html>
+            <slot-markup for-component-id="{id}PhotoDialog" for-slot="{id}PhotoDialogSlot">
+              <span id="{id}DialogContent" class="flex-col flex-center gap-5px w90 h350px m5">
+                <div id="{id}DialogTitle" class="m7-t m10-b w100 center-text">{dialogTitle}</div>
+                <include-html data-src="./html/components/file-selector.html" data-id="{id}FileSelector"
+                  data-props="{ label: `Image` }">
+                </include-html>
+                <div id="{id}PreviewWrapper" class="flex-row">
+                  <include-html data-src="./html/components/label.html" data-id="{id}PreviewLabel"
+                    data-props="{ label: `Preview`, for: `{id}Preview` }">
+                  </include-html>
+                  <include-html data-src="./html/components/img.html" data-id="{id}Preview"
+                    data-props="{ hideAfterMount: false }">
+                  </include-html>
+                </div>
+                <include-html data-src="./html/components/text-area.html" data-id="{id}Text"
+                  data-props="{ 
+                    name: `Text`, placeholder: `Text`, label: `Text`, labelAboveField: false, required: true, minlength: 2, maxlength: 400,
+                    cols: 50, rows: 8, tabIndex: 3, showValidationErrors: `snackbar` }"
+                  data-vars="{ type: `text` }">
+                </include-html>
+                <include-html data-src="./html/components/hidden-field.html" data-id="{id}RecordId"
+                  data-props="{ name: `RecordId` }">
+                </include-html>
+                <div id="{id}ButtonWrapper" class="flex-row flex-end w100 m5">
+                  <include-html data-src="./html/components/button.html" data-id="{id}CancelButton"
+                    data-props="{ clickMessage: `ADMIN_PHOTO_CANCEL` }"
+                    data-vars="{ title: `Cancel` }">
+                  </include-html>
+                  <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                    data-props="{ isDefault: true, clickMessage: `ADMIN_PHOTO_OK` }"
+                    data-vars="{ title: `Save` }">
+                  </include-html>
+                </div>
+              </span>    
+            </slot-markup>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+  </custom-component>

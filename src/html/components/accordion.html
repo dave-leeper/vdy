@@ -1,0 +1,295 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/accordion.html
+        class Accordion extends SlottedComponent {
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, Messages.ITEM_BEFORE_SELECT, async (message) => {
+                    const descendantComponents = this.slotDescendantComponentIds
+
+                    if (!descendantComponents.includes(message.id)) { return }
+                    if (!this.vars.lastSelectedItem) { 
+                        this.vars.lastSelectedItem = message
+                        return 
+                    }
+                    if (!this.vars.lastSelectedItem.unselect) { return }
+                    this.vars.lastSelectedItem.unselect()
+                    this.vars.lastSelectedItem = message
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+
+                if (this.enabled) {
+                    if (this.isOpen()) { this.Img.vars.src = this.props.openImageURL }
+                    else { this.Img.vars.src = this.props.closedImageURL }
+                } else {
+                    this.Img.vars.src = this.props.disabledImageURL
+                }
+                if (!this.vars.extraImageURL || 0 === this.vars.extraImageURL.length) { this.ExtraImg.hide() }
+                else { this.ExtraImg.vars.src = this.vars.extraImageURL }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    this.TitleRowElement.removeClass(`accordion-title-disabled`)
+                    if (this.isOpen()) { this.Img.vars.src = this.props.openImageURL }
+                    else { this.Img.vars.src = this.props.closedImageURL }
+                    this.TitleRowElement.addClass(`accordion-title`)
+                    this.TitleRowElement.addClass(`bounce-and-brighten`)
+                } else {
+                    this.Img.vars.src = this.props.disabledImageURL
+                    this.TitleRowElement.addClass(`accordion-title-disabled`)
+                    this.TitleRowElement.removeClass(`accordion-title`)
+                    this.TitleRowElement.removeClass(`accordion-title-enabled`)
+                    this.TitleRowElement.removeClass(`bounce-and-brighten`)
+                    this.close()
+                }
+            }
+            onClick(event) {
+                if (!this.enabled) { return }
+                event?.stopPropagation()
+                if (this.isOpen()) { this.close() }
+                else { this.open() }
+            }
+            onKeyDown(event) { 
+                if (!this.canFocus()) { return }
+                if (!this.TitleRowElement.hasFocus()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    this.onClick(event) 
+                    return
+                }
+                if (`Escape` === event?.key) {
+                    if (!this.isOpen()) { return }
+                    this.close()
+                    event?.stopPropagation()
+                    return
+                }
+            }
+            onFocus() { this.select() }
+            onBlur() { this.unselect() }
+            focus() { this.TitleRowElement.focus() }
+            focusFirstChild() {
+                const children = this.slotChildComponents
+
+                if (0 === children.length) { return }
+                for (let child of children) { 
+                    if (!child.canFocus()) { continue }
+                    child.focus()
+                    return
+                }
+            }
+            suspendChildren() {
+                const children = this.slotChildComponents
+
+                for (let child of children) { child.suspend() }
+            }
+            unsuspendChildren() {
+                const children = this.slotChildComponents
+
+                for (let child of children) { child.unsuspend() }
+            }
+            select() {
+                if (!this.canFocus()) { return }
+                if (this.isActive()) { return }
+                this.vars.active = true
+                this.TitleRowElement.addClass(`accordion-title-active`)
+                this.TitleRowElement.removeClass(`accordion-title`)
+            }
+            unselect() {
+                if (!this.canFocus()) { return }
+                if (!this.isActive()) { return }
+                this.vars.active = false
+                this.TitleRowElement.removeClass(`accordion-title-active`)
+                this.TitleRowElement.addClass(`accordion-title`)
+            }
+            async open() {
+                if (this.isOpen()) { return }
+                await Queue.broadcast(Messages.ACCORDION_BEFORE_OPENED, this)
+                this.PanelElement.style.maxHeight = "100%"
+                this.Img.vars.src = this.props.openImageURL
+                this.TitleRowElement.removeClass(`accordion-title`)
+                this.TitleRowElement.addClass(`accordion-title-active`)
+                this.unsuspendChildren()
+                this.focusFirstChild()
+                await Queue.broadcast(Messages.ACCORDION_AFTER_OPENED, this)
+            }
+            async close() {
+                if (!this.isOpen()) { return }
+                await Queue.broadcast(Messages.ACCORDION_BEFORE_CLOSED, this)
+                this.PanelElement.style.maxHeight = null
+                this.Img.vars.src = this.props.closedImageURL
+                this.TitleRowElement.addClass(`accordion-title`)
+                this.TitleRowElement.removeClass(`accordion-title-active`)
+                this.suspendChildren()
+                await Queue.broadcast(Messages.ACCORDION_AFTER_CLOSED, this)
+            }
+            isOpen() { return !!this.PanelElement.style.maxHeight }
+            isActive() { return this.vars.active }
+            itemIndex(item) {
+                for (let loop = 0; loop < this.vars.content.length; loop++) {
+                    const contentItem = this.vars.content[loop]
+
+                    if (item === contentItem) { return loop }
+                }
+                return -1
+            }
+            props = {
+                openImageURL: `../images/themes/{theme}/next.png`,
+                closedImageURL: `../images/themes/{theme}/close2.png`,
+                disabledImageURL: `../images/themes/{theme}/close2-disabled.png`
+            }
+            vars = {
+                title: `Title`,
+                tabIndex: 0,
+                lastSelectedItem: null,
+                active: false,
+                extraImageURL: ``,
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --accordion-width: 100%;
+            --accordion-z-index: inherit;
+            --accordion-color: var(--text-color);
+            --accordion-background-color: var(--background-color);
+            --accordion-cursor: default;
+            --accordion-padding: var(--default-padding);
+            --accordion-margin: var(--default-margin);
+            --accordion-font-family: var(--primary-font-family);
+            --accordion-font-size: var(--text-1-font-size);
+            --accordion-font-weight: var(--text-1-font-weight);
+            --accordion-text-align: left;
+            --accordion-transition: 0.4s;
+
+            --accordion-title-position: relative;
+            --accordion-title-panel-width: 100%;
+            --accordion-title-z-index: inherit;
+            --accordion-title-color: var(--text-color);
+            --accordion-title-background-color: var(--clear);
+            --accordion-title-cursor: default;
+            --accordion-title-font-family: var(--primary-font-family);
+            --accordion-title-font-size: var(--text-1-font-size);
+            --accordion-title-font-weight: var(--text-1-font-weight);
+            --accordion-title-text-align: left;
+
+            --accordion-title-active-position: relative;
+            --accordion-title-active-panel-width: 100%;
+            --accordion-title-active-z-index: inherit;
+            --accordion-title-active-color: var(--background-color);
+            --accordion-title-active-background-color: var(--primary-variant-color);
+            --accordion-title-active-cursor: default;
+            --accordion-title-active-font-family: var(--primary-font-family);
+            --accordion-title-active-font-size: var(--text-1-font-size);
+            --accordion-title-active-font-weight: var(--text-1-font-weight);
+            --accordion-title-active-text-align: left;
+
+            --accordion-title-disabled-position: relative;
+            --accordion-title-disabled-panel-width: 100%;
+            --accordion-title-disabled-z-index: inherit;
+            --accordion-title-disabled-color: var(--disabled-text-color);
+            --accordion-title-disabled-background-color: var(--disabled-background-color);
+            --accordion-title-disabled-cursor: poidefaultnter;
+            --accordion-title-disabled-font-family: var(--primary-font-family);
+            --accordion-title-disabled-font-size: var(--text-1-font-size);
+            --accordion-title-disabled-font-weight: var(--text-1-font-weight);
+            --accordion-title-disabled-text-align: left;
+
+            --accordion-panel-width: 100%;
+            --accordion-panel-z-index: inherit;
+            --accordion-panel-max-height: 0;
+            --accordion-panel-background-color: var(--background-color);
+            --accordion-panel-margin: 0 0 0 10px;
+            --accordion-panel-overflow: hidden;
+            --accordion-panel-transition: max-height 0.2s ease-out;
+        }
+        [data-theme="grey-glass"] {
+            --accordion-background-color: var(--grey-glass-trans-4);
+        }
+
+        .accordion {
+            width: var(--accordion-width);
+            z-index: var(--accordion-z-index);
+            color: var(--accordion-color);
+            background-color: var(--accordion-background-color);
+            padding: var(--accordion-padding);
+            margin: var(--accordion-margin);
+            cursor: var(--accordion-cursor);
+            font-family: var(--accordion-font-family);
+            font-size: var(--accordion-font-size);
+            font-weight: var(--accordion-font-weight);
+            text-align: var(--accordion-text-align);
+            outline: var(--accordion-outline);
+            transition: var(--accordion-transition);
+        }
+
+        .accordion-title {
+            position: var(--accordion-title-position);
+            width: var(--accordion-title-panel-width);
+            z-index: var(--accordion-title-z-index);
+            color: var(--accordion-title-color);
+            background-color: var(--accordion-title-background-color);
+            cursor: var(--accordion-title-cursor);
+            font-family: var(--accordion-title-font-family);
+            font-size: var(--accordion-title-font-size);
+            font-weight: var(--accordion-title-font-weight);
+            text-align: var(--accordion-title-text-align);
+        }
+        .accordion-title-active {
+            position: var(--accordion-title-active-position);
+            width: var(--accordion-title-active-panel-width);
+            z-index: var(--accordion-title-active-z-index);
+            color: var(--accordion-title-active-color);
+            background-color: var(--accordion-title-active-background-color);
+            cursor: var(--accordion-title-active-cursor);
+            font-family: var(--accordion-title-active-font-family);
+            font-size: var(--accordion-title-active-font-size);
+            font-weight: var(--accordion-title-active-font-weight);
+            text-align: var(--accordion-title-active-text-align);
+        }
+        .accordion-title-disabled {
+            position: var(--accordion-title-disabled-position);
+            width: var(--accordion-title-disabled-panel-width);
+            z-index: var(--accordion-title-disabled-z-index);
+            color: var(--accordion-title-disabled-color);
+            background-color: var(--accordion-title-disabled-background-color);
+            cursor: var(--accordion-title-disabled-cursor);
+            font-family: var(--accordion-title-disabled-font-family);
+            font-size: var(--accordion-title-disabled-font-size);
+            font-weight: var(--accordion-title-disabled-font-weight);
+            text-align: var(--accordion-title-disabled-text-align);
+        }
+
+        .accordion-panel {
+            width: var(--accordion-panel-width);
+            z-index: var(--accordion-panel-z-index);
+            max-height: var(--accordion-panel-max-height);
+            background-color: var(--accordion-panel-background-color);
+            margin: var(--accordion-panel-margin);
+            overflow: var(--accordion-panel-overflow);
+            transition: var(--accordion-panel-transition);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="accordion">
+            <div id="{id}TitleRow" class="flex-row relative bounce-and-brighten" tabindex="{tabIndex}" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)" onfocus="$obj.onFocus()" onblur="$obj.onBlur()">
+                <include-html data-src="./html/components/img.html" data-id="{id}Img" onclick="$obj.onClick(event)"
+                    data-props="{ hideAfterMount: false }"
+                    data-vars="{ width: `25`, height: `25` }">
+                </include-html>
+                <div id="{id}Title" class="accordion-title p10-l flex-grow-2">{title}</div>
+                <include-html data-src="./html/components/img.html" data-id="{id}ExtraImg"
+                    data-props="{ hideAfterMount: false }"
+                    data-vars="{ width: `25`, height: `25` }">
+                </include-html>
+            </div>
+            <div id="{id}Panel" class="accordion-panel">
+                <component-slot id="{id}Slot"></component-slot>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

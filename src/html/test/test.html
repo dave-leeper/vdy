@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TEST MENUS</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/dialog.js"></script>
+    <script type="text/javascript" src="./js/client/platform.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/vars.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+      //# sourceURL=html/test/test.html
+      function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          await Loader.siteLoaded()
+          Queue.register(this, `SELECT_CONTROL`, (message) => { 
+            const drawer = Component.getObject(`LeftDrawer`)
+
+            if (0 === message.SelectElement.selectedIndex) { drawer.enabled = true }
+            else if (1 === message.SelectElement.selectedIndex) { drawer.enabled = false }
+          })
+          Queue.register(this, `LIGHT_THEME`, (message) => { Theme.theme = 'light' })
+          Queue.register(this, `GREY_GLASS_THEME`, (message) => { Theme.theme = 'grey-glass' })
+          Queue.register(this, `DARK_THEME`, (message) => { Theme.theme = 'dark' })
+          Queue.register(this, `DISABLE_ACCORDION`, (message) => { 
+            const accordion = Component.getObject(`ThemeAccordion`)
+            const disableAccordianMenuItem = Component.getObject(`DisableAccordionMenuItem`)
+            const enableAccordianMenuItem = Component.getObject(`EnableAccordionMenuItem`)
+
+            accordion.enabled = false
+            disableAccordianMenuItem.enabled = false
+            enableAccordianMenuItem.enabled = true
+          })
+          Queue.register(this, `ENABLE_ACCORDION`, (message) => { 
+            const accordion = Component.getObject(`ThemeAccordion`)
+            const disableAccordianMenuItem = Component.getObject(`DisableAccordionMenuItem`)
+            const enableAccordianMenuItem = Component.getObject(`EnableAccordionMenuItem`)
+
+            accordion.enabled = true
+            disableAccordianMenuItem.enabled = true
+            enableAccordianMenuItem.enabled = false
+          })
+          Queue.register(this, `SAMPLE_MENU_ITEM`, (message) => { Alert(`SAMPLE_MENU_ITEM`) })
+          Queue.register(this, `SAMPLE_MENU_ITEM2`, (message) => { Alert(`SAMPLE_MENU_ITEM2`) })
+          Queue.register(this, `SAMPLE_MENU_ITEM3`, (message) => { Alert(`SAMPLE_MENU_ITEM3`) })
+          Queue.registerAsync(this, `DROPDOWN`, async (message) => { await Component.getObject(`DropdownMenu`).toggleMenu() })
+          Queue.registerAsync(this, `DROPDOWN2`, async (message) => { await Component.getObject(`DropdownMenu2`).toggleMenu() })
+          Queue.register(this, `menu-item-1`, (message) => { 
+            const dropdown = Component.getObject(`DropdownMenu`)
+            const dropdown2 = Component.getObject(`DropdownMenu2`)
+            const menuItem1 = dropdown.vars.content[0]
+
+            if (!dropdown2.isSuspended) { 
+              dropdown2.suspend() 
+              menuItem1.vars.title = `Unsuspend Dropdown Menu 2`
+            }
+            else {
+              dropdown2.unsuspend() 
+              menuItem1.vars.title = `Suspend Dropdown Menu 2`
+            }
+          })
+          Queue.register(this, `menu-item-2`, (message) => { 
+            const dropdown = Component.getObject(`DropdownMenu`)
+            
+            Alert(`${message.vars.title} clicked and disabled. Menu Item 3 enabled.`)
+            dropdown.enableItemAt(1, false)
+            dropdown.enableItemAt(2, true)
+          })
+          Queue.register(this, `menu-item-3`, (message) => { 
+            const dropdown = Component.getObject(`DropdownMenu`)
+
+            Alert(`${message.vars.title} clicked and disabled. Menu Item 2 enabled.`)
+            dropdown.enableItemAt(1, true)
+            dropdown.enableItemAt(2, false)
+          })
+          Queue.register(this, `menu-item-4`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `menu-item-5`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `menu-item-6`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `file-1`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `file-2`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `file-3`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `edit-1`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `edit-2`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `edit-3`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `view-1`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `view-2`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `view-3`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `BUTTON`, (message) => { Alert(`${message.vars.title} clicked.`) })
+          Queue.register(this, `DISABLE_TAB_6`, (message) => { 
+            const tabBar = Component.getObject(`TabBar2`)
+            const tab5Button1 = Component.getObject(`Tab5Button1`)
+            
+            if (tabBar.isTabEnabled(`Tab 6`)) { 
+              tabBar.disableTab(`Tab 6`) 
+              tab5Button1.vars.title = `Enable Tab 6`
+            } else {
+              tabBar.enableTab(`Tab 6`) 
+              tab5Button1.vars.title = `Disable Tab 6`
+            }
+          })
+          Queue.register(this, `HIDE_TAB_BAR_1`, (message) => { 
+            const tabBar = Component.getObject(`TabBar`)
+            const tab6Button1 = Component.getObject(`Tab6Button1`)
+            
+            if (tabBar.isVisible()) { 
+              tabBar.hide() 
+              tab6Button1.vars.title = `Show Tab Bar 1`
+            } else {
+              tabBar.show() 
+              tab6Button1.vars.title = `Hide Tab Bar 1`
+            }
+          })
+          Queue.register(this, `DISABLE_TAB_BAR_1`, (message) => { 
+            const tabBar = Component.getObject(`TabBar`)
+            const tab6Button2 = Component.getObject(`Tab6Button2`)
+            
+            if (tabBar.enabled) { 
+              tabBar.enabled = false
+              tab6Button2.vars.title = `Enable Tab Bar 1`
+            } else {
+              tabBar.enabled = true
+              tab6Button2.vars.title = `Disable Tab Bar 1`
+            }
+          })
+          Queue.register(this, `SUSPEND_TAB_BAR_1`, (message) => { 
+            const tabBar = Component.getObject(`TabBar`)
+            const tab6Button3 = Component.getObject(`Tab6Button3`)
+            
+            if (tabBar.isSuspended) { 
+              tabBar.unsuspend() 
+              tab6Button3.vars.title = `Suspend Tab Bar 1`
+            } else {
+              tabBar.suspend() 
+              tab6Button3.vars.title = `Unsuspend Tab Bar 1`
+            }
+          })
+          
+          
+          Queue.registerAsync(this, `RANDOM_LIST_ADD`, async (message) => { 
+            const list = Component.getObject(`RandomList`)
+            const listItem = !!Math.round(Math.random())
+            let newInclude
+            let id
+
+            if (listItem) {
+              const disabled = !!Math.round(Math.random())
+              const hasImage = !!Math.round(Math.random())
+              const canClick = !!Math.round(Math.random())
+              const canView = !!Math.round(Math.random())
+              const canEdit = !!Math.round(Math.random())
+              const canDelete = !!Math.round(Math.random())
+              const propsObj =  { 
+                canClick,
+                clickMessage: `LIST_ITEM_CLICK`,
+                canView,
+                viewMessage: `LIST_ITEM_VIEW`,
+                canEdit,
+                editMessage: `LIST_ITEM_EDIT`,
+                canDelete,
+                deleteMessage: `LIST_ITEM_DELETE`
+              }
+              const varsObj =  { 
+                imageURL: hasImage? `../images/news0.jpg` : ``,
+                title: `List Item ${list.vars.content.length} disabled ${disabled}  hasImage ${hasImage} canClick ${canClick} canView ${canView} canEdit ${canEdit} canDelete ${canDelete}`,
+                editTooltipText: `Edit Item`,
+                deleteTooltipText: `Delete Item`,
+                extraData: ``,
+                tabIndex: 0
+              }
+              const attributes = `disabled: ${disabled}`
+
+
+              id = `ListItem${list.vars.content.length}`
+              newInclude = Component.createComponentInclude(`./html/components/list-item.html`, id, propsObj, varsObj, null, null, attributes)
+            } else {
+              const disabled = !!Math.round(Math.random())
+              const propsObj =  { clickMessage: `MENU_ITEM_CLICK`, selectOnFocus: false }
+              const varsObj =  { title: `Menu Item ${list.vars.content.length} disabled ${disabled}`, tabIndex: 0 }
+              const attributes = `disabled: ${disabled}`
+
+              id = `MenuItem${list.vars.content.length}`
+              newInclude = Component.createComponentInclude(`./html/components/menu-item.html`, id, propsObj, varsObj, null, null, attributes)
+            }
+
+            await list.appendIncludeItem(newInclude, id)
+          })
+          Queue.register(this, `RANDOM_MULTISELECT_LIST_ADD`, async (message) => { 
+            const list = Component.getObject(`RandomMultiselectList`)
+            const listItem = !!Math.round(Math.random())
+            let newInclude
+            let id
+
+            if (listItem) {
+              const disabled = !!Math.round(Math.random())
+              const hasImage = !!Math.round(Math.random())
+              const canClick = !!Math.round(Math.random())
+              const canView = !!Math.round(Math.random())
+              const canEdit = !!Math.round(Math.random())
+              const canDelete = !!Math.round(Math.random())
+              const propsObj =  { 
+                canClick,
+                clickMessage: `LIST_ITEM_CLICK`,
+                canView,
+                viewMessage: `LIST_ITEM_VIEW`,
+                canEdit,
+                editMessage: `LIST_ITEM_EDIT`,
+                canDelete,
+                deleteMessage: `LIST_ITEM_DELETE`
+              }
+              const varsObj =  { 
+                imageURL: hasImage? `../images/news0.jpg` : ``,
+                title: `List Item ${list.vars.content.length} disabled ${disabled}  hasImage ${hasImage} canClick ${canClick} canView ${canView} canEdit ${canEdit} canDelete ${canDelete}`,
+                editTooltipText: `Edit Item`,
+                deleteTooltipText: `Delete Item`,
+                extraData: ``,
+                tabIndex: 0
+              }
+              const attributes = `disabled: ${disabled}`
+
+              id = `MultiselectListItem${list.vars.content.length}`
+              newInclude = Component.createComponentInclude(`./html/components/list-item.html`, id, propsObj, varsObj, null, null, attributes)
+            } else {
+              const disabled = !!Math.round(Math.random())
+              const propsObj =  { clickMessage: `MENU_ITEM_CLICK`, selectOnFocus: false }
+              const varsObj =  { title: `Menu Item ${list.vars.content.length} disabled ${disabled}`, tabIndex: 0 }
+              const attributes = `disabled: ${disabled}`
+
+              id = `MultiselectMenuItem${list.vars.content.length}`
+              newInclude = Component.createComponentInclude(`./html/components/menu-item.html`, id, propsObj, varsObj, null, null, attributes)
+            }
+
+            await list.appendIncludeItem(newInclude, id)
+          })
+          Queue.register(this, `SUSPEND_LIST`, (message) => { 
+            const list = Component.getObject(`RandomList`)
+            const button = Component.getObject(`SuspendListTextButton`)
+
+            if (list.isSuspended) { 
+              list.unsuspend() 
+              button.vars.title = `Suspend List`
+            }
+            else { 
+              list.suspend() 
+              button.vars.title = `Unsuspend List`
+            }
+          })
+          Queue.register(this, `DISABLE_LIST`, (message) => { 
+            const list = Component.getObject(`RandomList`)
+            const button = Component.getObject(`DisableListTextButton`)
+
+            if (list.enabled) { 
+              list.enabled = false
+              button.vars.title = `Enable List`
+            }
+            else { 
+              list.enabled = true
+              button.vars.title = `Disable List`
+            }
+          })
+          Queue.register(this, `HIDE_LIST`, (message) => { 
+            const list = Component.getObject(`RandomList`)
+            const button = Component.getObject(`HideListTextButton`)
+
+            if (list.isVisible()) { 
+              list.hide() 
+              button.vars.title = `Show List`
+            }
+            else { 
+              list.show() 
+              button.vars.title = `Hide List`
+            }
+          })
+          Queue.registerAsync(this, `GET_LIST_DATA`, async (message) => { 
+            const list = Component.getObject(`RandomList`)
+            const data = await list.getData()
+
+            Alert(JSON.stringify(data))
+          })
+          Queue.register(this, `GET_MULTISELECT_LIST_DATA`, async (message) => { 
+            const list = Component.getObject(`RandomMultiselectList`)
+            const data = await list.getData()
+
+            Alert(JSON.stringify(data))
+          })
+
+          Queue.register(this, `LIST_ITEM_CLICK`, (message) => { Alert(`LIST_ITEM_CLICK`) })
+          Queue.register(this, `LIST_ITEM_VIEW`, (message) => { Alert(`LIST_ITEM_VIEW`) })
+          Queue.register(this, `LIST_ITEM_EDIT`, (message) => { Alert(`LIST_ITEM_EDIT`) })
+          Queue.register(this, `LIST_ITEM_DELETE`, (message) => { Alert(`LIST_ITEM_DELETE`) })
+          Queue.register(this, `MENU_ITEM_CLICK`, (message) => { Alert(`MENU_ITEM_CLICK - ${message.id}`) })
+          document.getElementById("Body").addEventListener("keydown", (event) => { 
+            if (`Enter` !== event?.key && ` ` !== event?.key) { return }
+            Queue.broadcast(Messages.DOCUMENT_DEFAULT_ACTION, event)
+          })
+          document.getElementById("Body").addEventListener("keydown", (event) => { 
+            if (`Escape` !== event?.key) { return }
+            Queue.broadcast(Messages.DOCUMENT_ESCAPE, event)
+          })
+          document.getElementById("Body").addEventListener("focusin", (event) => { 
+            const hasFocus = event.target
+            const hasFocusId = hasFocus?.id
+            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId))? Component.getObject(hasFocusId) : null
+            const hasFocusValue = (hasFocusComponent)? hasFocusComponent : null
+            const lostFocus = event.relatedTarget
+            const lostFocusId = lostFocus?.id
+            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId))? Component.getObject(lostFocusId) : null
+            const lostFocusValue = (lostFocusComponent)? lostFocusComponent : event.relatedTarget
+
+            if (!hasFocusComponent) { return }
+            Queue.broadcast(Messages.FOCUS_IN, { lostFocus: lostFocusValue, hasFocus: hasFocusValue })
+          })
+          document.getElementById("Body").addEventListener("focusout", (event) => { 
+            const hasFocus = event.relatedTarget
+            const hasFocusId = hasFocus?.id
+            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId))? Component.getObject(hasFocusId) : null
+            const hasFocusValue = (hasFocusComponent)? hasFocusComponent : event.relatedTarget
+            const lostFocus = event.target
+            const lostFocusId = lostFocus?.id
+            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId))? Component.getObject(lostFocusId) : null
+            const lostFocusValue = (lostFocusComponent)? lostFocusComponent : null
+
+            if (!lostFocusValue) { return }
+            Queue.broadcast(Messages.FOCUS_OUT, { lostFocus: lostFocusValue, hasFocus: hasFocusValue })
+          })
+        })
+      }
+
+      function setCSSDefaults() {
+        //Theme.theme = 'grey-glass'
+        Theme.theme = 'light'
+      }
+      setCSSDefaults()
+      initializeApp()
+    </script>
+  </head>
+  <body id="Body">
+    <include-html data-src="./html/components/drawer.html" data-id="LeftDrawer"
+      data-props="{ location: `left`, openClickMessage: `OPEN_LEFT_DRAWER`, closeClickMessage: `CLOSE_LEFT_DRAWER` }">
+    </include-html>
+    <slot-markup for-component-id="LeftDrawer" for-slot="LeftDrawerSlot">
+      <include-html data-src="./html/components/menu-item.html" data-id="SampleMenuItem"
+        data-props="{ clickMessage: `SAMPLE_MENU_ITEM` }"
+        data-vars="{ title: `Sample Menu Item` }">
+      </include-html>
+    </slot-markup>
+
+    <include-html data-src="./html/components/drawer.html" data-id="RightDrawer"
+      data-props="{ location: `right`, openClickMessage: `OPEN_RIGHT_DRAWER`, closeClickMessage: `CLOSE_RIGHT_DRAWER` }">
+    </include-html>
+    <slot-markup for-component-id="RightDrawer" for-slot="RightDrawerSlot">
+      <div class="flex-col flex-start w100">
+        <include-html data-src="./html/components/accordion.html" data-id="ThemeAccordion"
+          data-vars="{ title: `Themes` }">
+        </include-html>
+
+        <include-html data-src="./html/components/menu-item.html" data-id="DisableAccordionMenuItem"
+          data-props="{ clickMessage: `DISABLE_ACCORDION` }"
+          data-vars="{ title: `Disable Themes Accordion`, tabIndex: 0 }">
+        </include-html>
+        <include-html data-src="./html/components/menu-item.html" data-id="EnableAccordionMenuItem" disabled
+          data-props="{ clickMessage: `ENABLE_ACCORDION` }"
+          data-vars="{ title: `Enable Themes Accordion`, tabIndex: 0 }">
+        </include-html>
+      </div>
+    </slot-markup>
+    <slot-markup for-component-id="ThemeAccordion" for-slot="ThemeAccordionSlot">
+      <div class="flex-col flex-start w100">
+        <include-html data-src="./html/components/menu-item.html" data-id="LightThemeMenuItem"
+          data-props="{ clickMessage: `LIGHT_THEME` }"
+          data-vars="{ title: `Light Theme`, tabIndex: 0 }">
+        </include-html>
+        <include-html data-src="./html/components/menu-item.html" data-id="GreyGlassThemeMenuItem"
+          data-props="{ clickMessage: `GREY_GLASS_THEME` }"
+          data-vars="{ title: `Grey Theme`, tabIndex: 0 }">
+        </include-html>
+        <include-html data-src="./html/components/menu-item.html" data-id="DarkThemeMenuItem"
+          data-props="{ clickMessage: `DARK_THEME` }"
+          data-vars="{ title: `Dark Theme`, tabIndex: 0 }">
+        </include-html>
+      </div>
+    </slot-markup>
+
+    <div class="flex-row flex-align-start">
+      <div class="p30-l p10-t">
+        <include-html data-src="./html/components/select-html.html" data-id="SelectEnableDrawer"
+          data-props="{ selectMessage: `SELECT_CONTROL`, options: [{value: `enable-drawer`, text: `Enable Drawer`}, {value: `disable-drawer`, text: `Disable Drawer`}] }">
+        </include-html>
+      </div>
+      <div class="flex-col p30-l p10-t">
+        <div id="DropdownAnchor" class="w150px cursor-default" onclick="Queue.broadcast(`DROPDOWN`, null)">Dropdown</div>
+        <include-html data-src="./html/components/dropdown-menu.html" data-id="DropdownMenu"
+          data-props="{ anchorId: `DropdownAnchor`, groupName: `DropdownMenu` }"
+          data-vars="{ menuItems: [ {title: `Suspend Dropdown Menu 2`, message: `menu-item-1`}, 
+          {title: `Menu Item 2`, message: `menu-item-2`}, {title: `Menu Item 3`, message: `menu-item-3`, disabled: true} ]}">
+        </include-html>
+      </div>
+      <div class="flex-col p30-l p10-t">
+        <div id="DropdownAnchor2" class="w150px cursor-default" onclick="Queue.broadcast(`DROPDOWN2`, null)">Dropdown 2</div>
+        <include-html data-src="./html/components/dropdown-menu.html" data-id="DropdownMenu2"
+          data-props="{ anchorId: `DropdownAnchor2`, groupName: `DropdownMenu2` }"
+          data-vars="{ menuItems: [ {title: `Menu Item 4`, message: `menu-item-4`},
+          {title: `Menu Item 5`, message: `menu-item-5`}, {title: `Menu Item 6`, message: `menu-item-6`} ] }">
+        </include-html>
+      </div>
+
+      <include-html data-src="./html/components/menu.html" data-id="FileMenu"
+        data-props="{ groupName: `Menus`, groupValue: `FileMenu`, groupIndex: 0, dropdownGroupName: `FileMenuItems`, 
+          menuItems: [ {title: `File 1`, message: `file-1`}, {title: `File 2`, message: `file-2`}, {title: `File 3`, message: `file-3`, disabled: true} ] }"
+        data-vars="{ title: `File` }">
+      </include-html>
+      <include-html data-src="./html/components/menu.html" data-id="EditMenu"
+        data-props="{ groupName: `Menus`, groupValue: `EditMenu`, groupIndex: 1, dropdownGroupName: `EditMenuItems`, 
+          menuItems: [ {title: `Edit 1`, message: `edit-1`}, {title: `Edit 2`, message: `edit-2`}, {title: `Edit 3`, message: `edit-3`} ] }"
+        data-vars="{ title: `Edit` }">
+      </include-html>
+      <include-html data-src="./html/components/menu.html" data-id="ViewMenu"
+        data-props="{ groupName: `Menus`, groupValue: `ViewMenu`, groupIndex: 3, dropdownGroupName: `ViewMenuItems`, 
+          menuItems: [ {title: `View 1`, message: `view-1`}, {title: `View 2`, message: `view-2`}, {title: `View 3`, message: `view-3`} ] }"
+        data-vars="{ title: `View` }">
+      </include-html>
+
+      <div class="w160px p7-t">
+        <include-html data-src="./html/components/select.html" data-id="Select"
+          data-props="{ groupName: `{id}MenuItems`, menuItems: [ 
+            {type:`MenuItem`, props: { clickMessage: `MENU_ITEM_CLICK`, selectOnFocus: true, groupValue: `Menu Item 1`, groupIndex: 0 }, vars: { title: `Menu Item 1`, tabIndex: 0 } },
+            {type:`MenuItem`, props: { clickMessage: `MENU_ITEM_CLICK`, selectOnFocus: true, groupValue: `Menu Item 2`, groupIndex: 1 }, vars: { title: `Menu Item 2`, tabIndex: 0 } },
+            {type:`MenuItem`, props: { clickMessage: `MENU_ITEM_CLICK`, selectOnFocus: true, groupValue: `Menu Item 3`, groupIndex: 2 }, vars: { title: `Menu Item 3`, tabIndex: 0 } },
+            {type:`ListItem`, props: { canClick: true, clickMessage: `MENU_ITEM_CLICK`, selectOnFocus: true, groupValue: `Menu Item 4`, groupIndex: 3 }, vars: { title: `Menu Item 4`, imageURL: `../images/themes/{theme}/next.png`, disabledImageURL: `../images/themes/{theme}/next-disabled.png`, imageWidth: 20, imageHeight: 20, tabIndex: 0 } }
+          ]}">
+        </include-html>
+      </div>
+  
+    </div>
+
+    <div class="absolute l10px t50px w300px h200px border-2-default">
+      <include-html data-src="./html/components/drawer.html" data-id="LeftChildDrawer"
+        data-props="{ location: `left`, openClickMessage: `OPEN_LEFT_CHILD_DRAWER`, closeClickMessage: `CLOSE_LEFT_CHILD_DRAWER` }">
+      </include-html>
+      <slot-markup for-component-id="LeftChildDrawer" for-slot="LeftChildDrawerSlot">
+        <include-html data-src="./html/components/menu-item.html" data-id="SampleMenuItem2"
+          data-props="{ clickMessage: `SAMPLE_MENU_ITEM2` }"
+          data-vars="{ title: `Sample Menu Item 2` }">
+        </include-html>
+      </slot-markup>
+      <include-html data-src="./html/components/drawer.html" data-id="RightChildDrawer"
+        data-props="{ location: `right`, openClickMessage: `OPEN_RIGHT_CHILD_DRAWER`, closeClickMessage: `CLOSE_RIGHT_CHILD_DRAWER` }">
+      </include-html>
+      <slot-markup for-component-id="RightChildDrawer" for-slot="RightChildDrawerSlot">
+        <include-html data-src="./html/components/menu-item.html" data-id="SampleMenuItem3"
+          data-props="{ clickMessage: `SAMPLE_MENU_ITEM3` }"
+          data-vars="{ title: `Sample Menu Item 3` }">
+        </include-html>
+      </slot-markup>
+    </div>
+
+    <div class="absolute l325px t50px flex-col m40-l">
+      <include-html data-src="./html/components/tab-bar.html" data-id="TabBar"
+        data-vars="{ tabs: [`Tab 1`, `Tab 2`, `Tab 3`, `Tab 4`], activeTab: 0 }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab1"
+        data-props="{ tabBarId: `TabBar`, title: `Tab 1` }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab2"
+        data-props="{ tabBarId: `TabBar`, title: `Tab 2` }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab3"
+        data-props="{ tabBarId: `TabBar`, title: `Tab 3` }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab4"
+        data-props="{ tabBarId: `TabBar`, title: `Tab 4` }">
+      </include-html>
+      <slot-markup for-component-id="Tab1" for-slot="Tab1Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab1Button1"
+            data-props="{ isDefault: true, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 1 Button 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab1Button2"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 1 Button 2` }">
+          </include-html>
+        </div>
+    </slot-markup>
+      <slot-markup for-component-id="Tab2" for-slot="Tab2Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab2Button1"
+            data-props="{ isDefault: true, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 2 Button 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab2Button2"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 2 Button 2` }">
+          </include-html>
+        </div>   
+      </slot-markup>
+      <slot-markup for-component-id="Tab3" for-slot="Tab3Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab3Button1"
+            data-props="{ isDefault: true, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 3 Button 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab3Button2"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 3 Button 2` }">
+          </include-html>
+        </div> 
+      </slot-markup>
+      <slot-markup for-component-id="Tab4" for-slot="Tab4Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab4Button1"
+            data-props="{ isDefault: true, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 4 Button 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab4Button2"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 4 Button 2` }">
+          </include-html>   
+        </div> 
+      </slot-markup>
+    </div>
+
+    <div class="absolute l650px t50px flex-row">
+      <include-html data-src="./html/components/tab-bar.html" data-id="TabBar2"
+        data-vars="{ tabs: [`Tab 5`, `Tab 6`, `Tab 7`, `Tab 8`], activeTab: 0, horizontal: false }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab5"
+        data-props="{ tabBarId: `TabBar2`, title: `Tab 5` }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab6"
+        data-props="{ tabBarId: `TabBar2`, title: `Tab 6` }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab7"
+        data-props="{ tabBarId: `TabBar2`, title: `Tab 7` }">
+      </include-html>
+      <include-html data-src="./html/components/tab.html" data-id="Tab8"
+        data-props="{ tabBarId: `TabBar2`, title: `Tab 8` }">
+      </include-html>
+      <slot-markup for-component-id="Tab5" for-slot="Tab5Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab5Button1"
+            data-props="{ isDefault: true, clickMessage: `DISABLE_TAB_6` }"
+            data-vars="{ title: `Disable Tab 6` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab5Button2"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 5 Button 2` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab5Button3"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 5 Button 3` }">
+          </include-html>      
+        </div>
+      </slot-markup>
+      <slot-markup for-component-id="Tab6" for-slot="Tab6Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab6Button1"
+            data-props="{ isDefault: true, clickMessage: `HIDE_TAB_BAR_1` }"
+            data-vars="{ title: `Hide Tab Bar 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab6Button2"
+            data-props="{ isDefault: false, clickMessage: `DISABLE_TAB_BAR_1` }"
+            data-vars="{ title: `Disable Tab Bar 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab6Button3"
+            data-props="{ isDefault: false, clickMessage: `SUSPEND_TAB_BAR_1` }"
+            data-vars="{ title: `Suspend Tab Bar 1` }">
+          </include-html>      
+        </div>
+      </slot-markup>
+      <slot-markup for-component-id="Tab7" for-slot="Tab7Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab7Button1"
+            data-props="{ isDefault: true, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 7 Button 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab7Button2"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 7 Button 2` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab7Button3"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 7 Button 3` }">
+          </include-html>      
+        </div>
+      </slot-markup>
+      <slot-markup for-component-id="Tab8" for-slot="Tab8Slot">
+        <div class="flex-col flex-space-between w100 h100px m10-l">
+          <include-html data-src="./html/components/button.html" data-id="Tab8Button1"
+            data-props="{ isDefault: true, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 8 Button 1` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab8Button2"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 8 Button 2` }">
+          </include-html>      
+          <include-html data-src="./html/components/button.html" data-id="Tab8Button3"
+            data-props="{ isDefault: false, clickMessage: `BUTTON` }"
+            data-vars="{ title: `Tab 8 Button 3` }">
+          </include-html>      
+        </div>
+      </slot-markup>
+    </div>  
+
+    <div id="Lists" class="flex-row absolute t300px">
+      <div class="flex-col w400px h500px">
+        <include-html data-src="./html/components/list.html" data-id="RandomList"
+          data-props="{ title: `Single Select Random List`, canAdd: true, addMessage: `RANDOM_LIST_ADD`, multiselect: false }"
+          data-vars="{ addTooltipText: `Add random Item` }">
+        </include-html>
+        <div class="flex-row">
+          <include-html data-src="./html/components/text-button.html" data-id="SuspendListTextButton"
+            data-props="{ clickMessage: `SUSPEND_LIST` }"
+            data-vars="{ title: `Suspend List` }">
+          </include-html>
+          <include-html data-src="./html/components/text-button.html" data-id="DisableListTextButton"
+            data-props="{ clickMessage: `DISABLE_LIST` }"
+            data-vars="{ title: `Disable List` }">
+          </include-html>
+          <include-html data-src="./html/components/text-button.html" data-id="HideListTextButton"
+            data-props="{ clickMessage: `HIDE_LIST` }"
+            data-vars="{ title: `Hide List` }">
+          </include-html>
+          <include-html data-src="./html/components/text-button.html" data-id="GetListDataTextButton"
+            data-props="{ clickMessage: `GET_LIST_DATA` }"
+            data-vars="{ title: `Get Data` }">
+          </include-html>
+        </div>
+      </div>
+
+      <div class="flex-col w400px h500px">
+        <include-html data-src="./html/components/list.html" data-id="RandomMultiselectList"
+          data-props="{ title: `Multiple Select Random List`, canAdd: true, addMessage: `RANDOM_MULTISELECT_LIST_ADD`, multiselect: true }"
+          data-vars="{ addTooltipText: `Add random Item` }">
+        </include-html>
+        <div class="flex-row">
+          <include-html data-src="./html/components/text-button.html" data-id="GetMultiselectListDataTextButton"
+            data-props="{ clickMessage: `GET_MULTISELECT_LIST_DATA` }"
+            data-vars="{ title: `Get Data` }">
+          </include-html>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-row absolute w100 t750px">
+      <div id="Pagination" class="flex-col w50 border p10">
+        <include-html data-src="./html/components/paged-list.html" data-id="PagedList1"
+          data-props="{ pageNumberClickMessage: `GOTO_PAGE`, pageCount: 5, pageSize: 10, placeholderWidth: `98%`, placeholderHeight: `20px` }">
+        </include-html>
+        <include-html data-src="./html/components/pagination.html" data-id="Pagination1"
+          data-props="{ pageCount: 5, pageNumberClickMessage: `GOTO_PAGE` }"
+          data-vars="{ currentPage: 0 }">
+        </include-html>
+      </div>
+  </div>
+  </body>
+</html>

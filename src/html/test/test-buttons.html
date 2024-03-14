@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TEST BUTTONS</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+
+      function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => { 
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          await Loader.siteLoaded()
+          Queue.register(this, `SELECT_STYLE`, (message) => { Theme.theme = message.SelectElement.value })
+          Queue.register(this, `OK`, (message) => { alert(`Save`) })
+          Queue.register(this, `CANCEL`, (message) => { alert(`Cancel`) })
+          Queue.register(this, `PREV`, (message) => { alert(`Prev`) })
+          Queue.register(this, `IMG_TOGGLE`, (message) => { alert(`${message.id} is checked: ${message.isChecked()}`) })
+          Queue.register(this, `TEXT`, (message) => { alert(`Text`) })
+          Queue.register(this, `CHECKBOX`, (message) => { alert(`Checkbox`) })
+          Queue.register(this, `RADIOBUTTON`, (message) => { alert(`Radio Button`) })
+          Queue.register(this, `Toggle1`, (message) => { alert(`Toggle 1 checked: ${message.isChecked()}`) })
+          Queue.register(this, `Toggle2`, (message) => { alert(`Toggle 2 checked: ${message.isChecked()}`) })
+          Queue.register(this, `Toggle3`, (message) => { alert(`Toggle 3 checked: ${message.isChecked()}`) })
+          Queue.register(this, `ToggleMixed`, (message) => { alert(`Mixed Toggle Group ${message.id}`) })
+          Queue.register(this, `ACTION`, (message) => { alert(`Action`) })
+          Queue.registerAsync(this, `GROUP_DATA`, async (message) => { 
+            const toggle4 = Component.getObject(`TextToggle4`)
+            const data = await Component.getGroupData(toggle4.props.groupName)
+
+            alert(JSON.stringify(data))
+          })
+        })
+      }
+
+      function setCSSDefaults() {
+        // Theme.theme = 'grey-glass'
+        Theme.theme = 'light'
+      }
+
+      setCSSDefaults()
+      initializeApp()
+    </script>
+  </head>
+  <body class="margin-5 bg-grey-e">
+    <div class="flex-row w100 flex-space-between">
+      <include-html data-src="./html/components/select-html.html" data-id="SelectTheme"
+        data-props="{ selectMessage: `SELECT_STYLE`, options: [{value: `light`, text: `Light`}, {value: `grey-glass`, text: `Grey`}, {value: `dark`, text: `Dark`}] }">
+      </include-html>
+
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButton"
+        data-props="{ clickMessage: `PREV`, size: `s` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-button.html" data-id="DisabledImgButton" disabled
+        data-props="{ clickMessage: `PREV`, size: `s` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `disabled` }">
+      </include-html>
+
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggle"
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `s` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="DisabledImgToggle" disabled
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `s` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `disabled` }">
+       </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButtonXS"
+        data-props="{ clickMessage: `PREV`, size: `xs` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButtonS"
+        data-props="{ clickMessage: `PREV`, size: `s` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButtonM"
+        data-props="{ clickMessage: `PREV`, size: `m` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButtonL"
+        data-props="{ clickMessage: `PREV`, size: `l` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButtonXL"
+        data-props="{ clickMessage: `PREV`, size: `xl` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButtonXXL"
+        data-props="{ clickMessage: `PREV`, size: `xxl` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-button.html" data-id="ImgButtonXXXL"
+        data-props="{ clickMessage: `PREV`, size: `xxxl` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/previous.png`, disabledImageURL: `../images/themes/{theme}/previous-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggleXS"
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `xs` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggleS"
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `s` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggleM"
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `m` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggleL"
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `l` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggleXL"
+          data-props="{ clickMessage: `IMG_TOGGLE`, size: `xl` }"
+          data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+            disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgTogglenXXL"
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `xxl` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+      <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggleXXXL"
+        data-props="{ clickMessage: `IMG_TOGGLE`, size: `xxxl` }"
+        data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+          disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/button.html" data-id="CancelButton"
+        data-props="{ clickMessage: `CANCEL` }"
+        data-vars="{ title: `Cancel` }">
+      </include-html>
+      <include-html data-src="./html/components/button.html" data-id="OkButton"
+        data-props="{ isDefault: true, clickMessage: `OK` }"
+        data-vars="{ title: `Save` }">
+      </include-html>
+      <include-html data-src="./html/components/button.html" data-id="DisabledCancelButton" disabled
+        data-props="{ clickMessage: `CANCEL` }"
+        data-vars="{ title: `Disabled Cancel` }">
+      </include-html>
+      <include-html data-src="./html/components/button.html" data-id="DisabledOkButton" disabled
+        data-props="{ isDefault: true, clickMessage: `OK` }"
+        data-vars="{ title: `Disabled Save` }"
+        data-style="width: 200px; height:50px;">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-button.html" data-id="TextButton"
+        data-props="{ clickMessage: `TEXT` }"
+        data-vars="{ title: `Text` }">
+      </include-html>
+      <include-html data-src="./html/components/text-button.html" data-id="DisabledTextButton" disabled
+        data-props="{ clickMessage: `TEXT` }"
+        data-vars="{ title: `Disabled Text` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/checkbox.html" data-id="Checkbox"
+        data-props="{ label: `Checkbox`, name: `Checkbox`, value: `CheckboxValue`, clickMessage: `CHECKBOX` }">
+      </include-html>
+      <include-html data-src="./html/components/checkbox.html" data-id="CheckedCheckbox"
+        data-props="{ label: `Checked Checkbox`, name: `CheckedCheckbox`, value: `CheckedCheckboxValue`, clickMessage: `CHECKBOX` }"
+        data-vars="{ checked: true }">
+      </include-html>
+      <include-html data-src="./html/components/checkbox.html" data-id="DisabledCheckbox" disabled
+        data-props="{ label: `Disabled Checkbox`, name: `DisabledCheckbox`, value: `DisabledCheckboxValue`, clickMessage: `CHECKBOX` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/radio-button.html" data-id="RadioButton"
+        data-props="{ label: `Radio Button`, groupName: `RadioButtonGroup`, groupValue: `RadioButtonValue`, clickMessage: `RADIOBUTTON` }">
+      </include-html>
+      <include-html data-src="./html/components/radio-button.html" data-id="CheckedRadioButton"
+        data-props="{ label: `Checked Radio Button`, groupName: `RadioButtonGroup`, groupValue: `CheckedRadioButtonValue`, clickMessage: `RADIOBUTTON` }"
+        data-vars="{ checked: false }">
+      </include-html>
+      <include-html data-src="./html/components/radio-button.html" data-id="DisabledRadioButton" disabled
+        data-props="{ label: `Disabled Radio Button`, groupName: `RadioButtonGroup`, groupValue: `DisabledRadioButton`, clickMessage: `RADIOBUTTON` }">
+      </include-html>
+  </div>
+
+  <div class="flex-row">
+    <include-html data-src="./html/components/text-toggle.html" data-id="TextToggle1"
+      data-props="{ clickMessage: `Toggle1`, groupName: `TextToggles`, groupValue: `TextToggle1`, groupIndex: 0 }"
+      data-vars="{ title: `Toggle 1`, tooltipText: `Toggle One` }">
+    </include-html>
+    <include-html data-src="./html/components/text-toggle.html" data-id="TextToggle2"
+      data-props="{ round: true, clickMessage: `Toggle2`, groupName: `TextToggles`, groupValue: `TextToggle2`, groupIndex: 1 }"
+      data-vars="{ title: `Toggle 2`, tooltipText: `Toggle Two` }">
+    </include-html>
+    <include-html data-src="./html/components/text-toggle.html" data-id="TextToggle3" disabled
+      data-props="{ clickMessage: `Toggle3`, groupName: `TextToggles`, groupValue: `TextToggle3`, groupIndex: 2 }"
+      data-vars="{ title: `Disabled Toggle`, tooltipText: `Toggle Three` }">
+    </include-html>
+  </div>
+
+  <div class="flex-row">
+    <include-html data-src="./html/components/text-toggle.html" data-id="TextToggle4"
+      data-props="{ clickMessage: `ToggleMixed`, groupName: `MixedToggles`, groupValue: `TextToggle4`, groupIndex: 0 }"
+      data-vars="{ title: `Toggle 4`, tooltipText: `Toggle Four` }">
+    </include-html>
+    <include-html data-src="./html/components/img-toggle.html" data-id="ImgToggleMixed"
+      data-props="{ clickMessage: `ToggleMixed`, size: `m`, groupName: `MixedToggles`, groupValue: `ImgToggleMixed`, groupIndex: 1 }"
+      data-vars="{ imageURL: `../images/themes/{theme}/eye-closed.png`, imageURL2: `../images/themes/{theme}/eye-open.png`,
+        disabledImageURL: `../images/themes/{theme}/eye-closed-disabled.png`, tooltipText: `enabled` }">
+    </include-html>
+    <include-html data-src="./html/components/radio-button.html" data-id="RadioButton2"
+      data-props="{ label: `Radio Button`, groupName: `MixedToggles`, groupValue: `RadioButton2`, clickMessage: `ToggleMixed`, groupIndex: 2 }">
+    </include-html>
+    <include-html data-src="./html/components/button.html" data-id="GroupDataButton"
+      data-props="{ isDefault: false, clickMessage: `GROUP_DATA` }"
+      data-vars="{ title: `Get Group Data` }">
+    </include-html>
+  </div>
+
+  <div class="flex-row flex-space-between">
+    <div class="flex-col">
+      <div>1 Page (Invisible)</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination1"
+        data-props="{ pageCount: 1, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0 }">
+      </include-html>
+    </div>
+    <div class="flex-col">
+      <div>2 Pages</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination2"
+        data-props="{ pageCount: 2, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0 }">
+      </include-html>
+    </div>
+    <div class="flex-col">
+      <div>3 Pages</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination3"
+        data-props="{ pageCount: 3, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0 }">
+      </include-html>
+    </div>  
+  </div>  
+
+  <div class="flex-row flex-space-between">
+    <div class="flex-col">
+      <div>4 Pages</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination4"
+        data-props="{ pageCount: 4, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0 }">
+      </include-html>
+    </div>  
+    <div class="flex-col">
+      <div>5 Pages</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination5"
+        data-props="{ pageCount: 5, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0 }">
+      </include-html>
+    </div>  
+  </div>  
+
+  <div class="flex-row flex-space-between">
+    <div class="flex-col">
+      <div>10 Pages</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination6"
+        data-props="{ pageCount: 10, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0 }">
+      </include-html>
+    </div>  
+    <div class="flex-col">
+      <div>100 Pages</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination7"
+        data-props="{ pageCount: 100, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0 }">
+      </include-html>
+    </div>  
+  </div>  
+
+  <div class="flex-row flex-space-between">
+    <div class="flex-col">
+      <div>10 Pages Vertical</div>
+      <include-html data-src="./html/components/pagination.html" data-id="Pagination8"
+        data-props="{ pageCount: 10, pageNumberClickMessage: `GOTO_PAGE` }"
+        data-vars="{ currentPage: 0, horizontal: false }">
+      </include-html>
+    </div>  
+  </div>  
+
+  <include-html data-src="./html/components/action-button.html" data-id="ActionButton"
+    data-props="{ clickMessage: `ACTION` }"
+    data-vars="{ title: `Action` }">
+  </include-html>
+
+  <div class="w100px h100px animated-gradient-background">
+
+  </div>
+</body>
+</html>

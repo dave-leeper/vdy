@@ -1,0 +1,265 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/admin-reservations.html
+        class AdminReservations extends Component {
+          static async create(parent, componentId, props, vars, classes, styles, attributes) {
+              const newInclude = Component.createComponentInclude(`./html/components/admin-reservations.html`, componentId, props, vars, classes, styles, attributes)
+              
+              parent.appendChild(newInclude)
+              await Loader.loadIncludes()
+          }
+          async initialize(id) {
+            await super.initialize(id)
+  
+            Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+              if (message.tabBar.id === `AdminTabBar`) {
+                if (message.title === `Reservations`) { this.showReservations() }
+              }
+            })
+            Queue.registerAsync(this, Messages.HIDE_TAB, async (message) => {
+              if (message.tabBar.id === `AdminTabBar`) {
+                if (message.title === `Reservations`) { this.hideReservations() }
+              }
+            })
+            Queue.registerAsync(this, `RESERVATION_LIST_ITEM_VIEW_RESERVATION`, async (message) => {
+              this.vars.dialogTitle = `View Reservation`
+              this.clearDialogReservation()
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              this.setDialogReservation(JSON.parse(message.vars.extraData))
+              this.ReservationDialog.showModal()
+            })
+            Queue.registerAsync(this, `QUOTE_LIST_ITEM_VIEW_QUOTE`, async (message) => {
+              this.vars.dialogTitle = `View Quote`
+              this.clearDialogReservation()
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              this.setDialogReservation(JSON.parse(message.vars.extraData))
+              this.ReservationDialog.showModal()
+            })
+            Queue.registerAsync(this, `RESERVATION_LIST_ITEM_DELETE`, async (message) => {
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              await this.deleteReservation(JSON.parse(message.vars.extraData))
+            })
+            Queue.registerAsync(this, `QUOTE_LIST_ITEM_DELETE`, async (message) => {
+              message.vars.extraData = message.vars.extraData.replaceAll(`'`, `"`)
+              await this.deleteQuote(JSON.parse(message.vars.extraData))
+            })
+            Queue.register(this, `RESERVATION_DIALOG_OK`, (message) => { 
+
+            })
+            Queue.register(this, `ADMIN_RESERVATION_OK`, (message) => { this.closeDialog() })
+          }
+          async showReservations() {          
+            try {
+              const reservationResponse = await SIReservations.get()
+  
+              if (200 !== reservationResponse.status) { 
+                showError(`Error getting reservations. Status code ${reservationResponse.status}.`) 
+                return
+              }
+  
+              let reservations = await reservationResponse.text() 
+  
+              this.vars.reservations = JSON.parse(reservations)
+              this.vars.reservations.reverse()
+              if (0 === this.vars.reservations.length) { showInfo(`No reservations found.`) }
+              for (let loop = 0; loop < this.vars.reservations.length; loop++) {
+                const reservation = this.vars.reservations[loop]
+                const reservationId = `${this.ReservationList.id}ContentReservation${loop}`
+                const propsObj =  { 
+                  canClick: true,
+                  clickMessage: `RESERVATION_LIST_ITEM_VIEW_RESERVATION`,
+                  canView: true,
+                  viewMessage: `RESERVATION_LIST_ITEM_VIEW_RESERVATION`,
+                  canDelete: true,
+                  deleteMessage: `RESERVATION_LIST_ITEM_DELETE`
+                }
+                const varsObj =  { 
+                  imageURL: Theme.updateTheme(`../images/themes/{theme}/reservation.png`),
+                  title: (reservation.title)? reservation.title : reservation.id,
+                  extraData: cleanStringify(reservation),
+                  deleteTooltipText: `Delete Reservation`,
+                }
+                const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, reservationId, propsObj, varsObj)
+  
+                await this.ReservationList.appendIncludeItem(newInclude, reservationId)
+                
+              }
+              this.Element.classList.remove(`display-none`)
+
+              const quoteResponse = await SIQuotes.get()
+  
+              if (200 !== quoteResponse.status) { 
+                showError(`Error getting quotes. Status code ${quoteResponse.status}.`) 
+                return
+              }
+  
+              let quotes = await quoteResponse.text() 
+  
+              this.vars.quotes = JSON.parse(quotes)
+              this.vars.quotes.reverse()
+              if (0 === this.vars.quotes.length) { showInfo(`No quotes found.`) }
+              for (let loop = 0; loop < this.vars.quotes.length; loop++) {
+                const quote = this.vars.quotes[loop]
+                const quoteId = `${this.QuoteList.id}ContentQuote${loop}`
+                const propsObj =  { 
+                  canClick: true,
+                  clickMessage: `QUOTE_LIST_ITEM_VIEW_QUOTE`,
+                  canView: true,
+                  viewMessage: `QUOTE_LIST_ITEM_VIEW_QUOTE`,
+                  canDelete: true,
+                  deleteMessage: `QUOTE_LIST_ITEM_DELETE`
+                }
+                const varsObj =  { 
+                  imageURL: Theme.updateTheme(`../images/themes/{theme}/quote.png`),
+                  title: (quote.title)? quote.title : quote.id,
+                  extraData: JSON.stringify(quote),
+                  deleteTooltipText: `Delete Quote`,
+                }
+                const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, quoteId, propsObj, varsObj)
+  
+                await this.QuoteList.appendIncludeItem(newInclude, quoteId)
+                
+                this.Element.classList.remove(`display-none`)
+              }
+            } catch (e) {
+              console.error(`Error loading reservations and quotes. ${JSON.stringify(e)}`)
+            }
+          }
+          async hideReservations() {
+            for (let loop = this.vars.reservations.length - 1; loop >= 0; loop--) {
+              const reservationId = `${this.ReservationList.id}ContentReservation${loop}`
+  
+              await ComponentLifecycle.destroyComponentObject(reservationId)
+            }
+            this.vars.reservations = []
+            this.ReservationList.removeAllItems()
+            this.Element.classList.add(`display-none`)
+
+            for (let loop = this.vars.quotes.length - 1; loop >= 0; loop--) {
+              const quoteId = `${this.QuoteList.id}ContentQuote${loop}`
+  
+              await ComponentLifecycle.destroyComponentObject(quoteId)
+            }
+            this.vars.quotes = []
+            this.QuoteList.removeAllItems()
+            this.Element.classList.add(`display-none`)
+          }  
+          async deleteReservation(message) {
+            if (!confirm(`Delete reservation ${message.id}?`)) { return }
+            
+            const response = await SIReservations.remove(message.id)
+  
+            if (200 !== response.status) {
+                showError(`Error deleting reservation. Status code ${response.status}.`)
+                return
+            }
+  
+            await this.hideReservations()
+            await this.showReservations()
+            showInfo(`Reservation deleted.`)
+          }
+          async deleteQuote(message) {
+            if (!confirm(`Delete quote ${message.id}?`)) { return }
+            
+            const response = await SIQuotes.remove(message.id)
+  
+            if (200 !== response.status) {
+                showError(`Error deleting quote. Status code ${response.status}.`)
+                return
+            }
+  
+            await this.hideReservations()
+            await this.showReservations()
+            showInfo(`Quote deleted.`)
+          }
+          clearDialogReservation() {
+              this.RecordId.vars.value = ``
+          }
+          setDialogReservation(reservationItem) {
+              const pickupLocation = reservationItem.pickupLocation
+              const dropoffLocation = reservationItem.dropoffLocation
+              const phone = reservationItem.mobileNumber
+              let text = `Date: ${reservationItem.date} Time: ${reservationItem.time}\n`
+
+              text += `Name: ${reservationItem.firstName} ${reservationItem.lastName}\n`
+              if (phone) { text += `Phone: (${phone.substring(0, 3)}) ${phone.substring(3, 6)}-${phone.substring(6)}\n\n` }
+              text += `Pickup\n`
+              if (pickupLocation?.airport) {
+                  text += `Airport: ${pickupLocation.airport} Airline: ${pickupLocation.airport} Flight #: ${pickupLocation.flightNumber}\n`
+                  text += `Date: ${pickupLocation.arrivalDate} Time: ${pickupLocation.estimatedArrivalTime}\n\n`
+              } else if (pickupLocation?.address) {
+                  text += `Address: ${pickupLocation.address} ${pickupLocation.address2}\n`
+                  text += `City: ${pickupLocation.city} State: ${pickupLocation.state} Zip: ${pickupLocation.zip}\n`
+                  text += `Date: ${pickupLocation.date} Time: ${pickupLocation.time}\n\n`
+              }
+  
+              text += `Dropoff\n`
+              if (dropoffLocation?.airport) {
+                  text += `Airport: ${dropoffLocation.airport}\n\n`
+              } else if (dropoffLocation?.address) {
+                  text += `Address: ${dropoffLocation.address} ${dropoffLocation.address2}\n`
+                  text += `City: ${dropoffLocation.city} State: ${dropoffLocation.state} Zip: ${dropoffLocation.zip}\n\n`
+              }
+              
+              text += `Special Instructions\n`
+              if (reservationItem?.specialInstructions) {
+                  text += reservationItem.specialInstructions
+              } else {
+                  text += `None`
+              }
+
+              this.RequestWrapperElement.innerText = text
+              this.RecordId.vars.value = reservationItem.id
+          }
+          closeDialog() { this.ReservationDialog.ok(0) }
+          cancelDialog() { this.ReservationDialog.cancel() }
+          vars = {
+            reservations: [],
+            quotes: [],
+            dialogTitle: `Edit Photo`
+          }
+      }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="w100 display-none">
+            <div id="{id}Lists" class="flex-row">
+              <div id="{id}Reservations" class="w100 h300px m15-b">
+                  <include-html data-src="./html/components/list.html" data-id="{id}ReservationList"
+                    data-props="{ title: `Reservations`, canAdd: false }">
+                  </include-html>
+              </div>
+              <div id="{id}Quotes" class="w100 h300px">
+                  <include-html data-src="./html/components/list.html" data-id="{id}QuoteList"
+                    data-props="{ title: `Quotes`, canAdd: false  }">
+                  </include-html>
+              </div>
+            </div>
+            <include-html data-src="./html/components/dialog.html" data-id="{id}ReservationDialog"
+              data-props="{ okMessage: `RESERVATION_DIALOG_OK`, cancelMessage: `RESERVATION_DIALOG_CANCEL` }">
+            </include-html>
+            
+            <slot-markup for-component-id="{id}ReservationDialog" for-slot="{id}ReservationDialogSlot">
+              <span id="{id}DialogContent" class="flex-col flex-center gap-5px w90 h100 m5">
+                <div id="{id}DialogTitle" class="m7-t m10-b w100 center-text">{dialogTitle}</div>
+
+                <div id="{id}RequestWrapper" class="w500px h500px">
+                </div>
+
+                <include-html data-src="./html/components/hidden-field.html" data-id="{id}RecordId"
+                  data-props="{ name: `RecordId` }">
+                </include-html>
+                <div id="{id}ButtonWrapper" class="flex-row flex-end w100 m5">
+                  <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                    data-props="{ isDefault: true, clickMessage: `ADMIN_RESERVATION_OK` }"
+                    data-vars="{ title: `Ok` }">
+                  </include-html>
+                </div>
+              </span>
+            </slot-markup>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+  </custom-component>

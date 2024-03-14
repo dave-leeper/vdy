@@ -1,0 +1,45 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/placeholder.html
+        class Placeholder extends Component { 
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/placeholder.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async afterMount() {
+                await super.afterMount()
+                this.Element.style.width = this.props.width
+                this.Element.style.height = this.props.height
+            }
+            props = {
+                width: 0,
+                height: 0
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="animated-gradient-background m-default"></div>
+    </component-markup>
+    <script data-is-test="true">
+        const testSuite = {
+            name: `Test Suite`,
+            description: `Test testing.`,
+            tests: [ 
+            {
+                name: `Test Print id`,
+                description: `Print id to console.`,
+                test: async () => {
+                    let results = []
+
+                    assert(true, `Test ran successfully.`, results, false)
+                    return results
+                }
+            }]
+        }
+        return testSuite
+    </script>
+</custom-component>

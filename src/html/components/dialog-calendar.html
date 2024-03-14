@@ -1,0 +1,118 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/dialog-calendar.html
+        class DialogCalendar extends Component {
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.clickMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.ok(message)
+                })
+                Queue.register(this, this.props.cancelMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.cancel(false)
+                })
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`selectedDay` !== message.member && `selectedMonth` !== message.member && `selectedYear` !== message.member) { return }
+
+                    this.Calendar.vars.selectedDay = this.vars.selectedDay
+                    this.Calendar.vars.selectedMonth = this.vars.selectedMonth
+                    this.Calendar.vars.selectedYear = this.vars.selectedYear
+                    this.Calendar.setSelectedCell()
+                })
+            }
+        }
+        props = {
+            pastDatesAreGray: false,
+            dialogId: `CalendarDialog`,
+            clickMessage: `CALENDAR_BUTTON_OK`,
+            cancelMessage: `CALENDAR_BUTTON_CANCEL`
+        }
+        vars = {
+            dialogtitle: `Select Date`,
+            monthNames: [ `January`, `February`, `March`, `April`, `May`, `June`, `July`, `August`, `September`, `October`, `November`, `December`],
+            yearRange: [ new Date().getFullYear(), new Date().getFullYear() + 5 ],
+            year: new Date().getFullYear(),
+            month: new Date().getMonth(),
+            day: new Date().getDate(),
+            monthName: new Date(new Date().getFullYear(), new Date().getMonth(), 1, 0, 0, 0, 0).toLocaleString('default', { month: 'long' }),
+            selectedDay: new Date().getDate(),
+            selectedMonth: new Date().getMonth(),
+            selectedYear: new Date().getFullYear(),
+        }
+    </script>
+    <style>
+        :root {
+            --dialog-calendar-display: flex;
+            --dialog-calendar-flex-direction: column;
+            --dialog-calendar-justify-content: center;
+            --dialog-calendar-cursor: default;
+            --dialog-calendar-padding: 10px;
+            --dialog-calendar-margin: 10px;
+
+            --dialog-calendar-title-color: var(--text-color);
+            --dialog-calendar-title-background-color: var(--clear);
+            --dialog-calendar-title-text-align: center;
+            --dialog-calendar-title-font-family: var(--primary-font-family);
+            --dialog-calendar-title-font-size: var(--header-6-font-size);
+            --dialog-calendar-title-font-weight: var(--header-6-font-weight);
+
+            --dialog-calendar-message-color: flex;
+            --dialog-calendar-message-color: var(--text-color);
+            --dialog-calendar-message-background-color: var(--clear);
+            --dialog-calendar-message-padding: 10px 0;
+            --dialog-calendar-message-margin: 10px 0;
+            --dialog-calendar-message-text-align: left;
+            --dialog-calendar-message-font-family: var(--primary-font-family);
+            --dialog-calendar-message-font-size: var(--text-1-font-size);
+            --dialog-calendar-message-font-weight: var(--text-1-font-weight);
+            --dialog-calendar-message-white-space: pre-wrap;
+        }
+
+        .dialog-calendar {
+            display: var(--dialog-calendar-display);
+            flex-direction: var(--dialog-calendar-flex-direction);
+            justify-content: var(--dialog-calendar-justify-content);
+        }
+
+        .dialog-calendar-title {
+            color: var(--dialog-calendar-title-color);
+            background-color: var(--dialog-calendar-title-background-color);
+            text-align: var(--dialog-calendar-title-text-align);
+            font-family: var(--dialog-calendar-title-font-family);
+            font-size: var(--dialog-calendar-title-font-size);
+            font-weight: var(--dialog-calendar-title-font-weight);
+        }
+
+        .dialog-calendar-message {
+            color: var(--dialog-calendar-message-color);
+            background-color: var(--dialog-calendar-message-background-color);
+            padding: var(--dialog-calendar-message-padding);
+            margin: var(--dialog-calendar-message-margin);
+            text-align: var(--dialog-calendar-message-text-align);
+            font-family: var(--dialog-calendar-message-font-family);
+            font-size: var(--dialog-calendar-message-font-size);
+            font-weight: var(--dialog-calendar-message-font-weight);
+            white-space: var(--dialog-calendar-message-white-space);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}Wrapper" class="dialog-calendar">
+            <div id="{id}Title" class="dialog-calendar-title">{dialogtitle}</div>
+            <include-html data-src="./html/components/calendar.html" data-id="{id}Calendar"
+                data-props="{ pastDatesAreGray: {pastDatesAreGray} }">
+            </include-html>
+            <div id="{id}ButtonWrapper" class="flex-row">
+                <include-html data-src="./html/components/button.html" data-id="{id}CancelButton"
+                    data-props="{ isDefault: false, clickMessage: `{cancelMessage}` }"
+                    data-vars="{ title: `Cancel` }">
+                </include-html>
+                <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                    data-props="{ isDefault: true, clickMessage: `{clickMessage}` }"
+                    data-vars="{ title: `Ok` }">
+                </include-html>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

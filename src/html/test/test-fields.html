@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TEST TEXT FIELD</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/platform.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/snackbar.js"></script>
+    <script type="text/javascript" src="./js/client/dialog.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+      function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => {
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          await Loader.siteLoaded()
+          const hidden = Component.getObject(`HiddenField`)
+          const hiddenElement = hidden.Element
+          alert(`${hidden.Element.value}`)
+          hidden.vars.value = `New Hidden Value`
+          alert(`${hidden.Element.value}`)
+
+          Queue.register(this, `SELECT_STYLE`, (message) => { Theme.theme = message.SelectElement.value })
+          Queue.register(this, `MORE`, (message) => { alert(`MORE`) })
+        })
+      }
+
+      function setCSSDefaults() {
+        // Theme.theme = 'grey-glass'
+        Theme.theme = 'light'
+      }
+      setCSSDefaults()
+      initializeApp()
+    </script>
+  </head>
+  <body class="margin-5 bg-grey-e">
+    <include-html data-src="./html/components/select-html.html" data-id="SelectTheme"
+      data-props="{ selectMessage: `SELECT_STYLE`, options: [{value: `light`, text: `Light`}, {value: `grey-glass`, text: `Grey`}, {value: `dark`, text: `Dark`}] }">
+    </include-html>
+
+    <include-html data-src="./html/components/snackbar.html" data-id="SnackbarError"
+      data-props="{ isError: true }"
+      data-vars="{ text: `Message.` }">
+    </include-html>
+
+    <div class="flex-row">
+      <div>
+        <include-html data-src="./html/components/text-field.html" data-id="TextNotRequired"
+          data-props="{ name: `NotRequired`, placeholder: `Not Required`, label: `Not Required`, labelAboveField: false,
+              required: false, autocomplete: true, showValidationErrors: `inline`, tabIndex: 1, labelWidth: `200px` }"
+          data-vars="{ type: `text` }">
+        </include-html>
+        <include-html data-src="./html/components/text-field.html" data-id="TextRequiredSize10MinLength5MaxLength12"
+          data-props="{ name: `Size10MinLength5MaxLength12`, placeholder: `S10Min5Max12`, label: `S10Min5Max12`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `inline`, size: 10, minlength: 5, maxlength: 12, tabIndex: 2, labelWidth: `200px` }"
+          data-vars="{ type: `text` }">
+        </include-html>
+        <include-html dta-src="./html/components/text-field.html" data-id="TextRequiredSize5MinValue5MaxValue55555"
+          data-props="{ name: `Size5MinValue-5MaxValue55555`, placeholder: `Size5`, label: `Size5MinValue-5MaxValue55555`, labelAboveField: false, required: true, 
+              autocomplete: true, showValidationErrors: `inline`, size: 5, minlength: 1, maxlength: 5, min: -5, max: 55555, tabIndex: 3, labelWidth: `200px` }"
+          data-vars="{ type: `number` }">
+        </include-html>
+        <include-html data-src="./html/components/text-field.html" data-id="TextRequiredPattern"
+          data-props="{ name: `Pattern`, placeholder: `Pattern`, label: `[A-Za-z]\{3\}`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `inline`, size: 3, pattern: `[A-Za-z]\{3\}`, tabIndex: 4, labelWidth: `200px` }"
+          data-vars="{ type: `text` }">
+        </include-html>
+        <include-html data-src="./html/components/text-field.html" data-id="TextPassword"
+          data-props="{ name: `Password`, placeholder: `Password`, label: `Password`, labelAboveField: false, required: true,
+              autocomplete: true, showValidationErrors: `inline`, size: 25, minlength: 8, maxlength: 25, tabIndex: 5, labelWidth: `200px`}"
+          data-vars="{ type: `password` }">
+        </include-html>
+        <include-html data-src="./html/components/text-field.html" data-id="TextDisabled" disabled
+          data-props="{ name: `Disabled`, placeholder: `Disabled`, label: `Disabled`, labelAboveField: false, required: true,
+              autocomplete: true, showValidationErrors: `inline`, size: 25, minlength: 8, maxlength: 25, tabIndex: 5, labelWidth: `200px`}"
+          data-vars="{ type: `text` }">
+        </include-html>
+      </div>
+      <div id="ErrorParent">
+      </div>
+    </div>
+
+    <div>
+      <include-html data-src="./html/components/text-field.html" data-id="TextNotRequiredAbove"
+        data-props="{ name: `NotRequiredAbove`, placeholder: `Not Required Above`, label: `Not Required Above`, labelAboveField: true, required: false,
+            autocomplete: true, showValidationErrors: `inline`, tabIndex: 6, labelWidth: `200px` }"
+        data-vars="{ type: `text` }">
+      </include-html>
+    </div>
+    
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-field.html" data-id="TextErrorAlert"
+        data-props="{ name: `AlertError`, placeholder: `Alert`, label: `Alert Error`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `dialog`, size: 7, minlength: 1, maxlength: 5, min: -5, max: 55555, tabIndex: 7, labelWidth: `200px` }"
+        data-vars="{ type: `number` }">
+      </include-html>
+
+      <include-html data-src="./html/components/text-field.html" data-id="TextErrorParent"
+        data-props="{ name: `ErrorParent`, placeholder: `Parent`, label: `Error Parent`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `ErrorParent`, size: 7, minlength: 1, maxlength: 5, min: -5, max: 55555, tabIndex: 8, labelWidth: `200px` }"
+        data-vars="{ type: `number` }">
+      </include-html>
+    </div>
+    <include-html data-src="./html/components/text-field.html" data-id="TextErrorSnackbar"
+      data-props="{ name: `SnackbarError`, placeholder: `Snackbar`, label: `Snackbar Error`, labelAboveField: false, required: true,
+          autocomplete: true, showValidationErrors: `snackbar`, size: 7, minlength: 1, maxlength: 5, min: -5, max: 55555, tabIndex: 9, labelWidth: `200px` }"
+      data-vars="{ type: `number` }">
+    </include-html>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-field.html" data-id="TextDate"
+        data-props="{ name: `TextDate`, placeholder: `Date`, label: `Date (Native Picker)`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `ErrorParent`, tabIndex: 10, labelWidth: `200px`, useNativeDatePicker: true }"
+        data-vars="{ type: `date` }">
+      </include-html>
+      <include-html data-src="./html/components/text-field.html" data-id="TextTime"
+        data-props="{ name: `TextTime`, placeholder: `Time`, label: `Time (Native Picker)`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `ErrorParent`, tabIndex: 11, labelWidth: `200px`, useNativeTimePicker: true }"
+        data-vars="{ type: `time` }">
+      </include-html>
+    </div>
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-field.html" data-id="TextDate2"
+        data-props="{ name: `TextDate`, placeholder: `Date`, label: `Date`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `ErrorParent`, tabIndex: 12, labelWidth: `200px`, useNativeDatePicker: false }"
+        data-vars="{ type: `date` }">
+      </include-html>
+      <include-html data-src="./html/components/text-field.html" data-id="TextTime2"
+        data-props="{ name: `TextTime`, placeholder: `Time`, label: `Time`, labelAboveField: false, required: true,
+            autocomplete: true, showValidationErrors: `ErrorParent`, tabIndex: 13, labelWidth: `200px`, useNativeTimePicker: false }"
+            data-vars="{ type: `time` }">
+      </include-html>
+    </div>
+
+    <div>
+      <include-html datasrc="./html/components/hidden-field.html" data-id="HiddenField"
+        data-props="{ name: `HiddenField` }"
+        data-vars="{ value: `HiddenValue` }">
+      </include-html>
+    </div>
+
+    <div>
+      <include-html data-src="./html/components/text-more.html" data-id="TextMore"
+        data-props="{ clickMessage: `MORE` }"
+        data-vars="{ text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit.` }">
+      </include-html>
+      <include-html data-src="./html/components/text-more.html" data-id="TextMore2"
+        data-props="{ clickMessage: `MORE` }"
+        data-vars="{ text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis fringilla, nulla sit amet luctus consequat, nunc ex scelerisque nibh, sit amet sodales odio orci sed quam. In arcu quam, congue cursus mi et, consequat elementum leo. Vivamus et posuere diam. Pellentesque sodales elit vitae odio venenatis convallis. Vestibulum sodales iaculis tellus. Cras ullamcorper, elit vitae malesuada mattis, ligula sapien imperdiet risus, et faucibus quam lacus at lectus. Pellentesque iaculis est feugiat enim tempor, a volutpat odio luctus. Sed ac cursus ligula. Suspendisse sit amet ultrices eros. Proin dapibus egestas felis, vestibulum placerat velit maximus eu. Sed sodales ultrices posuere. Vivamus sed metus bibendum, tempor quam luctus, hendrerit ante. Vestibulum volutpat volutpat metus. Nullam ut vulputate ante.` }">
+      </include-html>
+      <include-html data-src="./html/components/text-more.html" data-id="TextMore3" disabled
+        data-props="{ clickMessage: `MORE` }"
+        data-vars="{ text: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis fringilla, nulla sit amet luctus consequat, nunc ex scelerisque nibh, sit amet sodales odio orci sed quam. In arcu quam, congue cursus mi et, consequat elementum leo. Vivamus et posuere diam. Pellentesque sodales elit vitae odio venenatis convallis. Vestibulum sodales iaculis tellus. Cras ullamcorper, elit vitae malesuada mattis, ligula sapien imperdiet risus, et faucibus quam lacus at lectus. Pellentesque iaculis est feugiat enim tempor, a volutpat odio luctus. Sed ac cursus ligula. Suspendisse sit amet ultrices eros. Proin dapibus egestas felis, vestibulum placerat velit maximus eu. Sed sodales ultrices posuere. Vivamus sed metus bibendum, tempor quam luctus, hendrerit ante. Vestibulum volutpat volutpat metus. Nullam ut vulputate ante.` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-area.html" data-id="TextArea1"
+        data-props="{ name: `TextArea1`, label: `Not Required 4x25`, labelAboveField: false, required: false, row: 4, cols: 25,
+            showValidationErrors: `inline`, tabIndex: 14, labelWidth: `200px` }"
+        data-vars="{ value: `Text` }">
+      </include-html>
+      <include-html data-src="./html/components/text-area.html" data-id="TextArea2"
+        data-props="{ name: `TextArea2`, label: `Required Min5 Max10 2x5`, labelAboveField: false, required: true, minlength: 5, maxlength: 10, row: 2, cols: 5,
+            showValidationErrors: `inline`, tabIndex: 15, labelWidth: `200px` }"
+        data-vars="{ value: `Text` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-area.html" data-id="TextArea3" disabled
+        data-props="{ name: `TextArea3`, label: `Disabled`, labelAboveField: false, required: true, minlength: 5, maxlength: 10, row: 2, cols: 5,
+            showValidationErrors: `inline`, tabIndex: 15, labelWidth: `200px` }"
+        data-vars="{ value: `Text` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-area.html" data-id="TextArea4"
+        data-props="{ name: `TextArea1`, label: `Dialog`, labelAboveField: false, required: true, minlength: 5, maxlength: 10, row: 4, cols: 25,
+            showValidationErrors: `dialog`, tabIndex: 16, labelWidth: `200px` }"
+        data-vars="{ value: `Text` }">
+      </include-html>
+      <include-html data-src="./html/components/text-area.html" data-id="TextArea5"
+        data-props="{ name: `TextArea2`, label: `Snackbar`, labelAboveField: false, required: true, minlength: 5, maxlength: 10, row: 2, cols: 5,
+            showValidationErrors: `snackbar`, tabIndex: 17, labelWidth: `200px` }"
+        data-vars="{ value: `Text` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/text-area.html" data-id="TextArea6"
+        data-props="{ name: `TextArea1`, label: `Parent`, labelAboveField: false, required: true, minlength: 5, maxlength: 10, row: 4, cols: 25,
+            showValidationErrors: `ErrorParent`, tabIndex: 18, labelWidth: `200px` }"
+        data-vars="{ value: `Text` }">
+      </include-html>
+    </div>
+</body>
+</html>

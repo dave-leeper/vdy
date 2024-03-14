@@ -1,0 +1,57 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/label.html
+        class Label extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/label.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            props = {
+                label: ``,
+                for: ``
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --label-position: relative;
+            --label-z-index: inherit;
+            --label-color: var(--text-color);
+            --label-padding: var(--default-padding);
+            --label-margin: var(--default-margin);
+            --label-cursor: default;
+            --label-font-family: var(--primary-font-family);
+            --label-font-size: var(--text-2-font-size);
+            --label-font-weight: var(--header-1-font-weight);
+            --label-background-color: var(--background-color);
+            --label-border-color: hidden;
+            --label-border-width: 0;
+            --label-border-style: none;
+            --label-border-radius: 0px;
+        }
+        
+        .label {
+            position: var(--label-position);
+            z-index: var(--label-z-index);
+            color: var(--label-color);
+            padding: var(--label-padding);
+            margin: var(--label-margin);
+            cursor: var(--label-cursor);
+            font-family: var(--label-font-family);
+            font-size: var(--label-font-size);
+            font-weight: var(--label-font-weight);
+            background-color: var(--label-background-color);
+            border-color: var(--label-border-color);
+            border-width: var(--label-border-width);
+            border-style: var(--label-border-style);
+            border-radius: var(--label-border-radius);
+        }
+    </style>
+    <component-markup>
+        <label id="{id}" for="{for}" class="label">{label}</label>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

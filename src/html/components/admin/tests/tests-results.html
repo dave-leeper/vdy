@@ -1,0 +1,137 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/tests/tests-results.html
+        class TestsResults extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/tests/tests-results.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            /**
+             * Initializes a component's object. This method is called automatically by the framework code.
+             * 
+             * When overriding this method, super.initialize(id) MUST be called. 
+             * 
+             * Once initialization is complete, the object's props can no longer be modified.
+             *
+             * At the beginning of an object's initialization, Component.msgs.BEFORE_INITIALIZATION
+             * is broadcast on the Queue with the object being initialized as the data. At the end of an object's initialization
+             * Component.msgs.AFTER_INITIALIZATION is broadcast on the Queue with the object being initialized as the data. 
+             * @async
+             * @override
+             * @function
+             * @name initialize
+             * @param {string} id The id of the new component. Ids must be unique to each object. The component's object and root element
+             * will have the same id. Child elements of the root element will use the id as the base of their own ids, extending it with 
+             * descriptive text that indicates the child element's purpose. A component object can be retrieved by id using Component.getObject(id). 
+             * Once the object is retrieved, its root element can be accessed using obj.Element. See the documentation for the {@link [Component](./src/js/client/component.js)} 
+             * Component class for additional information on the structure of Components and how they relate to DOM elements.
+             * @fires Component.msgs.BEFORE_INITIALIZATION
+             * @fires Component.msgs.AFTER_INITIALIZATION
+             * @listens this.props.displayTestResultsMessage
+             */
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.displayTestResultsMessage, async (message) => {
+                    await this.displayTestSuiteResults(message.name, message.description, message.suiteResults)
+                })
+            }
+            async displayTestSuiteResults(name, description, suiteResults) {
+                const clearOldTests = async (parent) => {
+                    for (let loop = parent.children.length - 1; loop >= 0; loop-- ) {
+                        const child = parent.children[loop]
+
+                        if (!child) { continue }
+                        await clearOldTests(child)
+                        if (child.id.startsWith(`-ComponentBeginMarker`)) { continue }
+                        if (!child.id.endsWith(`SuiteAccordion`) && !child.id.endsWith(`TestAccordion`) && !child.id.endsWith(`TestListItem`)) { continue }
+                        
+                        const component = Component.getObject(child.id)
+
+                        await component.destroy()
+                    }
+                }
+
+                await clearOldTests(this.ResultsElement)
+                this.ResultsElement.hide()
+                const id = `${this.id}${name}SuiteAccordion`
+                const props = null
+                const extraImageURL = suiteResults.passed? `../images/themes/{theme}/good.png` : `../images/themes/{theme}/bad.png`
+                const vars = { title: `${name} - ${description}`, extraImageURL }
+                const classes = null
+                const styles = null
+                const attributes = null
+                const newInclude = Component.createComponentInclude(`./html/components/accordion.html`, id, props, vars, classes, styles, attributes)
+                let testCount = 0
+
+                this.ResultsElement.appendChild(newInclude)
+                await Loader.loadIncludes()
+
+                const slotMarkup = document.createElement(`slot-markup`)
+
+                slotMarkup.id = `${id}SlotMarkup`
+                slotMarkup.setAttribute(`for-component-id`, id)
+                slotMarkup.setAttribute(`for-slot`, `${id}Slot`)
+                this.ResultsElement.appendChild(slotMarkup)
+
+                for (let test of suiteResults.nodes) {
+                    const testId = `${this.id}${name}${testCount}TestAccordion`
+                    const props = null
+                    const extraImageURL = test.passed? `../images/themes/{theme}/good.png` : `../images/themes/{theme}/bad.png`
+                    const vars = { title: `${test.name} - ${test.description}`, extraImageURL }
+                    const classes = null
+                    const styles = [{ name: `data-style`, value: `width: 98%` }]
+                    const attributes = null
+                    const newInclude = Component.createComponentInclude(`./html/components/accordion.html`, testId, props, vars, classes, styles, attributes)
+                    const testSlotMarkup = document.createElement(`slot-markup`)
+
+                    slotMarkup.appendChild(newInclude)
+                    await Loader.loadIncludes()
+
+                    testSlotMarkup.id = `${testId}SlotMarkup`
+                    testSlotMarkup.setAttribute(`for-component-id`, testId)
+                    testSlotMarkup.setAttribute(`for-slot`, `${testId}Slot`)
+                    this.ResultsElement.appendChild(testSlotMarkup)
+
+                    for (let loop = 0; loop < test.results.length; loop++) {
+                        const assertion = test.results[loop]
+                        const errorDiv = document.createElement(`div`)
+                        const assertionId = `${this.id}${name}${testCount}_${loop}TestListItem`
+                        const props = { canView: true }
+                        const viewImageURL = assertion.passed? `../images/themes/{theme}/good.png` : `../images/themes/{theme}/bad.png`
+                        const vars = { title: `${assertion.description}`, viewImageURL }
+                        const classes = null
+                        const styles = null
+                        const attributes = null
+                        const newInclude = Component.createComponentInclude(`./html/components/list-item.html`, assertionId, props, vars, classes, styles, attributes)
+
+                        testSlotMarkup.appendChild(newInclude)
+                        await Loader.loadIncludes()
+                    }
+                    testCount++
+                }
+                SlotManager.loadSlots()
+                this.ResultsElement.show()
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} displayTestResultsMessage - The message that is processed when the results of an HTML test are to be displayed. Defaults to DISPLAY_TEST.
+             * @readonly
+             */
+             props = {
+                displayTestResultsMessage: `DISPLAY_TEST`
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row w100 p-default m-default">
+            <div id="{id}Results" class="w100 h100 overflow-x-auto"></div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

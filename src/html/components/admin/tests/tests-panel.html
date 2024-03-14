@@ -1,0 +1,125 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/tests/tests-panel.html
+        class TestsPanel extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/tests/tests-panel.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            static getTestName(path) {
+                const pathWithoutBase = path.replace(`./html/components/`, ``).replace(`./js/client/test/`, ``)
+                const index2 = pathWithoutBase.lastIndexOf('.')
+                const intialTestName = pathWithoutBase.substr(0, index2)
+
+                const camelCaseTestName = intialTestName.toLowerCase().replace(/[-_][a-z0-9]/g, (group) => group.slice(-1).toUpperCase())
+                const testName = camelCaseTestName.charAt(0).toUpperCase() + camelCaseTestName.slice(1)
+
+                return testName
+            }
+            /**
+             * Initializes a component's object. This method is called automatically by the framework code.
+             * 
+             * When overriding this method, super.initialize(id) MUST be called. 
+             * 
+             * Once initialization is complete, the object's props can no longer be modified.
+             *
+             * At the beginning of an object's initialization, Component.msgs.BEFORE_INITIALIZATION
+             * is broadcast on the Queue with the object being initialized as the data. At the end of an object's initialization
+             * Component.msgs.AFTER_INITIALIZATION is broadcast on the Queue with the object being initialized as the data. 
+             * @async
+             * @override
+             * @function
+             * @name initialize
+             * @param {string} id The id of the new component. Ids must be unique to each object. The component's object and root element
+             * will have the same id. Child elements of the root element will use the id as the base of their own ids, extending it with 
+             * descriptive text that indicates the child element's purpose. A component object can be retrieved by id using Component.getObject(id). 
+             * Once the object is retrieved, its root element can be accessed using obj.Element. See the documentation for the {@link [Component](./src/js/client/component.js)} 
+             * Component class for additional information on the structure of Components and how they relate to DOM elements.
+             * @fires Component.msgs.BEFORE_INITIALIZATION
+             * @fires Component.msgs.AFTER_INITIALIZATION
+             * @listens this.props.runJSTestMessage
+             * @listens this.props.runHTMLTestMessage
+             */
+             async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, this.props.runJSTestMessage, async (message) => {
+                    await this.runTests(message, true)
+                })
+                Queue.registerAsync(this, this.props.runHTMLTestMessage, async (message) => {
+                    await this.runTests(message, false)
+                })
+            }
+            async runTests(test, isJavascript) {
+                const clearComponent = async () => {
+                    for (let loop = this.TestingDOMElement.children.length - 1; loop >= 0; loop-- ) {
+                        const child = this.TestingDOMElement.children[loop]
+
+                        if (!child) { continue }
+                        if (child.id.startsWith(`-ComponentBeginMarker`)) { continue }
+
+                        const component = Component.getObject(child.id)
+
+                        await component.destroy()
+                    }
+                }
+
+                if (isJavascript) { await this.runJavascriptTest(test) }
+                else { await this.runHTMLTest(test) }
+                clearComponent()
+            }
+            async runJavascriptTest(test) {
+                const module = await import(test)
+                const testSuite = module.getTestSuite()
+                const results = await suite(testSuite)
+                const testName = TestsList.getTestName(test)
+
+                await this.displayTestSuiteResults(testName, testSuite.description, results)
+            }
+            async runHTMLTest(test) {
+                if (`All component tests` === test) { return }
+
+                const testName = TestsPanel.getTestName(test)
+                const id = `${this.id}${testName}`
+                const props = null
+                const vars = null
+                const classes = null
+                const styles = null
+                const attributes = `data-tests: true`
+                const newInclude = Component.createComponentInclude(test, id, props, vars, classes, styles, attributes)
+
+                this.TestingDOMElement.appendChild(newInclude)
+                await Loader.loadIncludes()
+
+                const objToBeTested = Component.getObject(id)
+                const testSuite = objToBeTested.getTests()
+                const results = await suite(testSuite)
+
+                await Queue.broadcast(this.props.displayTestResultsMessage, { name: testName, description: testSuite.description, suiteResults: results })
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} runJSTestMessage - The message that is processed when a Javascript test is to be executed. Defaults to RUN_JS_TEST.
+             * @property {string} runHTMLTestMessage - The message that is processed when an HTML test is to be executed. Defaults to RUN_HTML_TEST.
+             * @property {string} displayTestResultsMessage - The message that is broadcast when the results of an HTML test are to be displayed. Defaults to DISPLAY_TEST.
+             * @readonly
+             */
+            props = {
+                runJSTestMessage: `RUN_JS_TEST`,
+                runHTMLTestMessage: `RUN_HTML_TEST`,
+                displayTestResultsMessage: `DISPLAY_TEST`
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row p-default m-default">
+            <div id="{id}TestingDOM" class="w5 h5"></div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

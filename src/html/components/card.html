@@ -1,0 +1,47 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/card.html
+        class Card extends SlottedComponent {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/card.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --card-z-index: inherit;
+            --card-color: var(--text-color);
+            --card-background-color: var(--background-color);
+            --card-padding: var(--default-padding);
+            --card-margin: var(--default-margin);
+            --card-border-color: var(--default-border-color);
+            --card-border-width: var(--default-border-width);
+            --card-border-style: var(--default-border-style);
+            --card-border-radius: var(--default-border-radius);
+            --card-box-shadow: var(--default-box-shadow);
+        }
+
+        .card {
+            z-index: var(--card-z-index);
+            color: var(--card-color);
+            background-color: var(--card-background-color);
+            padding: var(--card-padding);
+            margin: var(--card-margin);
+            border-color: var(--card-border-color);
+            border-width: var(--card-border-width);
+            border-style: var(--card-border-style);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--card-box-shadow);
+        }
+    </style>
+    <component-markup>
+        <section id="{id}" class="card">
+            <component-slot id="{id}Slot"></component-slot>
+        </section>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

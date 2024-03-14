@@ -1,0 +1,711 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/select.html
+        class Select extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/select.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, Messages.DROPDOWN_CLOSE, (message) => {
+                    if (message.Parent.id !== this.id) { return }
+                    this.close()
+                })
+                Queue.register(this, Messages.FOCUS_OUT, (message) => {
+                    if (!this.vars?.content || !this.vars.content.length) { return }
+                    if (!this.vars.content.includes(message.lostFocus)) { return }
+                    if (this.vars.content.includes(message.hasFocus)) { return }
+                    Queue.broadcast(Messages.DROPDOWN_CLOSE, message.lostFocus)
+                })
+                Queue.register(this, Messages.DOCUMENT_ESCAPE, (message) => {
+                    this.close()
+                })
+                Queue.register(this, Messages.DOCUMENT_CLICK, (message) => {
+                    this.close()
+                })
+                Queue.register(this, Messages.SELECT_BEFORE_OPENED, (message) => {
+                    if (message !== this) { this.close() }
+                })
+                this.dataListLoaded = false
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                if (!this.props.hasButton) { 
+                    this.Img.setWidth(0) 
+                    this.Img.setHeight(0) 
+                    this.Img.hide() 
+                }
+                if (this.props.hasUnderline) { this.TitleElement.addClass(`select-title-underline`) }
+                if (this.props.labelAboveField) { 
+                    this.TitleWrapperElement.removeClass(`flex-row`)
+                    this.TitleWrapperElement.addClass(`flex-col`)
+                } else { 
+                    this.TitleWrapperElement.addClass(`flex-row`)
+                    this.TitleWrapperElement.removeClass(`flex-col`)
+                }
+                if (this.props.labelWidth) { 
+                    this.LabelElement.style.width = this.props.labelWidth 
+                    this.WrapperElement.style.marginLeft = this.props.labelWidth
+                }
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    for (let item of this.vars.content) { item.unsuspend() }
+                    this.Img.enabled = true
+                    this.TitleElement.addClass(`select-title`)
+                    this.TitleElement.addClass(`bounce-and-brighten`)
+                    this.TitleElement.removeClass(`select-title-disabled`)
+                    this.LabelElement.addClass(`select-label`)
+                    this.LabelElement.removeClass(`select-label-disabled`)
+                } else {
+                    for (let item of this.vars.content) { item.suspend() }
+                    this.Img.enabled = false
+                    this.TitleElement.removeClass(`select-title`)
+                    this.TitleElement.removeClass(`bounce-and-brighten`)
+                    this.TitleElement.addClass(`select-title-disabled`)
+                    this.LabelElement.removeClass(`select-label`)
+                    this.LabelElement.addClass(`select-label-disabled`)
+                }
+                this.setImage()
+            }
+            async onClick(event) {
+                if (!this.enabled) { return }
+                event?.stopPropagation()
+                if (this.isOpen()) { this.close() }
+                else { await this.open() }
+            }
+            async onKeyDown(event) { 
+                if (!this.enabled) { return }
+                if (!this.Element.hasFocus()) { return }
+                if (!this.isVisible()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    event?.stopPropagation()
+                    await this.open() 
+                    return
+                }
+            }
+            async suspend() { 
+                for (let item of this.vars.content) { item.suspend() }
+                this.Img.suspend()
+                await super.suspend()
+            }
+            async unsuspend() { 
+                for (let item of this.vars.content) { item.unsuspend() }
+                this.Img.unsuspend()
+                await super.unsuspend()
+            }
+            async show() {
+                await super.show()
+                this.Img.show()
+                for (let item of this.vars.content) { item.show() }
+                this.Element.addClass(`select`)
+                this.Element.removeClass(`display-none`)
+            }
+            async hide() {
+                await super.hide()
+                this.Img.hide()
+                for (let item of this.vars.content) { item.hide() }
+                this.Element.removeClass(`select`)
+                this.Element.addClass(`display-none`)
+            }
+            async open() { 
+                await Queue.broadcast(Messages.SELECT_BEFORE_OPENED, this)
+                if (0 === this.vars.content.length) {
+                    await this.loadMenuItems()
+                    if (!this.dataListLoaded) { await this.loadDataList() }
+                    if (this.props.menuItems && 0 < this.props.menuItems.length) { this.vars.selectTitle = this.props.menuItems[0].vars.title }
+                }
+                this.WrapperElement.removeClass(`display-none`) 
+                this.setImage()
+                if (this.vars.content && 0 < this.vars.content.length) { 
+                    this.vars.content[0].focus()
+    
+                    const selectItem = this.getSelectedItem()
+
+                    this.setChecks(selectItem)
+                }
+                await Queue.broadcast(Messages.SELECT_AFTER_OPENED, this)
+            }
+            async close() { 
+                await Queue.broadcast(Messages.SELECT_BEFORE_CLOSED, this)
+                this.WrapperElement.addClass(`display-none`) 
+                this.setImage()
+                await Queue.broadcast(Messages.SELECT_AFTER_CLOSED, this)
+            }
+            isOpen() { return !this.WrapperElement.hasClass(`display-none`) }
+            get length() { return this.vars.content.length }
+            setTitle(title) { this.vars.selectTitle = title }
+            getTitle() { return this.vars.selectTitle }
+            setImage() {
+                if (!this.isEnabled()) { this.Img.setSrc(this.props.disabledImageURL) }
+                else if (!this.isOpen()) { this.Img.setSrc(this.props.closedImageURL) }
+                else { this.Img.setSrc(this.props.openImageURL) }
+            }
+            async validate(showErrors) {
+                this.vars.valid = false
+                this.clearErrors()
+
+                const requiredTest = {
+                    name: `Required`,
+                    description: `Ensure required field has a value.`,
+                    test: async () => {
+                        const results = []
+                        const selectedItem = this.getSelectedItem()
+
+                        if (!this.props.required) { return results }
+                        assert(selectedItem,                             `Field '${this.props.label}' is required.`, results, false)
+                        return results
+                    }
+                }
+                const testSelectSuite = {
+                    name: `Select`,
+                    description: `Ensure Select contains valid data.`,
+                    tests: [ requiredTest ]
+                }
+
+                this.vars.valid = false
+                this.clearErrors()
+                if (this.vars.customValidationTests && Array.isArray(this.vars.customValidationTests) && 0 < this.vars.customValidationTests.length) {
+                    testSelectSuite.tests = testSelectSuite.tests.concat(this.vars.customValidationTests)
+                }
+
+                let results = await suite(testSelectSuite)
+                this.vars.valid = (0 === results.failCount)
+                if (this.vars.valid) { 
+                    await Queue.broadcast(Messages.NEW_VALID_DATA, { text: this.vars.selectTitle, component: this, element: this.TitleElement })
+                } 
+                if (showErrors) { this.showErrors(results) }
+            }
+            isValid() { return this.vars.valid }
+            clearErrors() { 
+                const form = this.Form
+
+                this.ErrorElement.removeChildren()
+                if (form) { form.clearErrors() }
+            }
+            async showErrors(suiteResultsTree) {
+                if (!this.enabled) { return }
+                if (`none` === this.props.showValidationErrors.toLowerCase()) { return }
+                else if (`inline` === this.props.showValidationErrors.toLowerCase()) {
+                    let top = 30
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
+
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `text-area-success-message opacity-0 show`) }
+                            else { errorDiv.setAttribute(`class`, `text-area-error-message opacity-0 show`) }
+                            errorDiv.style.top = `${top}px`
+                            this.ErrorElement.appendChild(errorDiv)
+                            top += errorDiv.clientHeight
+                        }
+                    }
+                } else if (`snackbar` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {
+                            let errorDiv = document.createElement(`div`)
+                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { showError(error) }
+                } else if (`dialog` === this.props.showValidationErrors.toLowerCase()) {
+                    let error = ``
+
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {                            
+                            if (assertion.passed) { continue }
+                            if (0 < error.length) { error += `\n` }
+                            error += assertion.description
+                        }
+                    }
+                    if (0 <  error.length) { 
+                        await Error(error, `Errors`) 
+                    }
+                } else {        // component-id
+                    const errorParent = document.getElementById(this.props.showValidationErrors)
+
+                    if (!errorParent) { return }
+                    while (errorParent.firstChild) { errorParent.removeChild(errorParent.firstChild) }
+                    for (let test of suiteResultsTree.nodes) {
+                        for (let assertion of test.results) {
+                            let errorDiv = document.createElement(`div`)
+                            let mark = (assertion.passed)? `✓` : `✗`
+
+                            errorDiv.innerText = `${mark} ${assertion.description}`
+                            if (assertion.passed) { errorDiv.setAttribute(`class`, `text-area-success-message opacity-0 show`) }
+                            else { errorDiv.setAttribute(`class`, `text-area-error-message opacity-0 show`) }
+                            errorParent.appendChild(errorDiv)
+                        }
+                    }
+                }
+            }
+            showInvalid() {
+                const removeInvalidBorder = () => { this.HeaderElement.removeClass(`select-header-invalid`) }
+
+                if (!this.vars.showInvalidBorder || !this.isEnabled() || !this.isVisible() || this.isValid()) { 
+                    removeInvalidBorder()
+                    return 
+                }
+                this.HeaderElement.removeClass(`select-header`)
+                this.HeaderElement.addClass(`select-header-invalid`)
+            }
+            async loadMenuItems() {
+                if (!this.props.menuItems || 0 === this.props.menuItems.length) { return }
+                for (let loop = 0; loop < this.props.menuItems.length; loop++) {
+                    const startingItem = this.props.menuItems[loop]
+                    const clickMessage = startingItem.props.clickMessage? startingItem.props.clickMessage : Messages.ON_CLICK
+                    const props = startingItem.props
+                    const vars = startingItem.vars
+                    let newInclude = null
+                    let itemId = ``
+
+                    props.groupName = this.props.groupName
+                    if (`ListItem` === startingItem.type) {
+                        itemId = `${this.id}ListItem${loop}`
+                        newInclude = Component.createComponentInclude(`./html/components/list-item.html`, itemId, props, vars)
+                    } else {
+                        itemId = `${this.id}MenuItem${loop}`
+                        newInclude = Component.createComponentInclude(`./html/components/menu-item.html`, itemId, props, vars)
+                    }
+                    await this.appendIncludeItem(newInclude, itemId)
+                    Queue.register(this, clickMessage, (message) => {
+                        if (message.id !== itemId) { return }
+                        this.select(message)
+                        this.vars.selectTitle = message.vars.title
+                        this.close()
+                    })
+                }
+            }
+            async loadDataList() {
+                if (!this.props.dataList) { return }
+
+                const list = document.getElementById(this.props.dataList)
+
+                if (!list) { return }
+                for (let child of list.children) {
+                    if (`option` !== child.tagName.toLowerCase()) { return }
+
+                    const value = child.getAttribute(`value`)
+
+                    await this.appendString(value)
+                }
+                this.dataListLoaded = true
+            }
+            async appendString(str, clickMessage, groupValue) {
+                const count = this.vars.content.length
+                const id = `${this.id}MenuItem${count}`
+                const msg = (clickMessage)? clickMessage : id
+                const value = (groupValue)? groupValue : str
+                const props = { clickMessage: msg, selectOnFocus: true, groupName: this.props.groupName, groupValue: value, groupIndex: count }
+                const vars = { title: str, tabIndex: 0 }
+                const newInclude = Component.createComponentInclude(`./html/components/menu-item.html`, id, props, vars)
+
+                await this.appendIncludeItem(newInclude, id)
+            }
+            async appendIncludeItem(includeItem, id) {
+                this.ContentElement.appendChild(includeItem)
+                await Loader.loadIncludes()
+
+                const itemObj = Component.getObject(id)
+
+                await this.appendItem(itemObj)
+            }
+            async appendItem(item) {
+                if (!item) { return }
+
+                const itemWrapper = document.createElement('div')
+                const imgId = `${item.id}Img`
+                const props = { hideAfterMount: false }
+                const defaultMargin = Vars.getVar(`--default-margin`)
+                const defaultPadding = Vars.getVar(`--default-padding`)
+                const style = `margin-left: ${defaultMargin}; padding-left: ${defaultPadding}; padding-top: ${defaultPadding};`
+                const vars = { src: `../images/themes/{theme}/blank.png`, lazyLoad: true, width: 20, height: 20 }
+                const newInclude = Component.createComponentInclude(`./html/components/img.html`, imgId, props, vars, null, style)
+                const clickHandler = (message) => {
+                    if (message !== item) { return }
+                    this.setTitle(item.vars.title)
+                }
+
+                ComponentLifecycle.addConvenienceMethodsToElement(itemWrapper)
+                itemWrapper.id = `${item.id}Wrapper`
+                itemWrapper.addClass(`flex-row`)
+                itemWrapper.addClass(`flex-align-center`)
+                itemWrapper.addClass(`bounce-and-brighten`)
+                itemWrapper.addClass(`relative`)
+                itemWrapper.appendChild(newInclude)
+                itemWrapper.appendChild(item.Element)
+                this.ContentElement.appendChild(itemWrapper)
+                await Loader.loadIncludes()
+                this.vars.content.push(item)
+                Queue.register(item, item.props.clickMessage, clickHandler)
+            }
+            async removeItemAt(index, destroy) {
+                if (isNaN(index)) { 
+                    console.error(`List.removeItemAt: Index must be a number. Index: ${index}`) 
+                    return
+                }
+                if (0 > index) { 
+                    console.error(`List.removeItemAt: Index cannot be negative. Index: ${index}`) 
+                    return
+                }
+                if (this.vars.content.length <= index) { 
+                    console.error(`List.removeItemAt: Index must be less than ${this.vars.content.length}. Index: ${index}`) 
+                    return
+                }
+
+                const objectToRemove = this.vars.content[index]
+
+                if (destroy && Component.isObjectRegistered(objectToRemove.id)) { 
+                    await ComponentLifecycle.destroyComponentObject(objectToRemove.id) 
+                }
+                this.vars.content.splice(index, 1)
+            }
+            async removeAllItems(destroy) {
+                let length = this.vars.content.length
+                let count = 0;
+
+                while (this.vars.content.length > 0) { 
+                    await this.removeItemAt(0, destroy)
+                    count++
+                    if (count >= length) { break }
+                }
+            }
+            itemIndex(item) {
+                for (let loop = 0; loop < this.vars.content.length; loop++) {
+                    const contentItem = this.vars.content[loop]
+
+                    if (item === contentItem) { return loop }
+                }
+                return -1
+            }
+            indexItem(index) { return this.vars.content[index] }
+            select(item) {
+                const itemIndex = this.itemIndex(item)
+
+                if (-1 === itemIndex) { return }
+                for (let loop = 0; loop < this.vars.content.length; loop++) { 
+                    if (loop === itemIndex) { continue }
+
+                    const loopItem = this.vars.content[loop]
+
+                    if (!loopItem.enabled) { continue }
+                    if (loopItem.isSelected()) { 
+                        loopItem.unselect()
+                        Queue.broadcast(Messages.UNSELECT, loopItem)                       
+                    }
+                }
+                this.setChecks(item)
+                this.setTitle(item.vars.title)
+            }
+            unselect() { this.vars.selectTitle = this.props.noSelectTitle }
+            isSelected() { return null !== this.getSelectedItem() }
+            getSelectedItem() {
+                const title = this.vars.selectTitle
+
+                if (!title || this.props.noSelectTitle === title) { return null }
+                for (let item of this.vars.content) { if (item.vars.title === title) { return item } }
+                return null
+            }
+            setChecks(item) {
+                const setImage = (itemObj, imgPath) => {
+                    if (!itemObj) { return }
+                    if (!itemObj.enabled) { return }
+
+                    const parent = itemObj.Element.parentElement
+
+                    if (!parent) { return }
+
+                    const baseID = parent.id?.replace(new RegExp(`Wrapper$`), '')
+                    const img = document.getElementById(`${baseID}Img`)
+
+                    if (!img) { return }
+
+                    const imgObject = Component.getObject(img.id)
+
+                    imgObject.setSrc(imgPath)            
+                }
+                
+                for (let loop = 0; loop < this.vars.content.length; loop++) { 
+                    const loopItem = this.vars.content[loop]
+
+                    setImage(loopItem, `../images/themes/{theme}/blank.png`)
+                }
+                setImage(item, `../images/themes/{theme}/check.png`)
+                Queue.broadcast(Messages.SELECT, item)                       
+            }
+            async getData() {
+                const item = await this.getSelectedItem()
+
+                return { name: this.id, value: item.getData() }
+            }
+            props = {
+                openImageURL: `../images/themes/{theme}/next.png`,
+                closedImageURL: `../images/themes/{theme}/close2.png`,
+                disabledImageURL: `../images/themes/{theme}/close2-disabled.png`,
+                label: ``,
+                name: ``,
+                labelAboveField: false,
+                labelWidth: ``,
+                menuItems: [],
+                dataList: ``,
+                groupName: ``,
+                hasButton: true,
+                hasUnderline: false,
+                noSelectTitle: `Select`,
+                noSelectIndex: -1,
+                required: false,
+                showValidationErrors: `inline` // snackbar, dialog, component-id, none
+            }
+            vars = {
+                selectTitle: `Select`,
+                tabIndex: 0,
+                content: [],
+                openTooltipText: `Open`,
+                customValidationTests: [],
+                valid: false,
+                showInvalidBorder: false
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --select-display: flex;
+            --select-flex-direction: column;
+            --select-height: 100;
+            --select-z-index: inherit;
+            --select-background-color: var(--background-color);
+            --select-overflow-x: auto;
+            --select-overflow-y: none;
+            --select-border-radius: var(--default-border-radius);
+
+            --select-label-z-index: inherit;
+            --select-label-color: var(--text-color);
+            --select-label-background-color: var(---clear);
+            --select-label-cursor: default;
+            --select-label-font-family: var(--primary-font-family);
+            --select-label-font-size: var(--text-2-font-size);
+            --select-label-font-weight: var(--header-1-font-weight);
+            --select-label-padding: var(--default-padding);
+            --select-label-margin: var(--default-margin);
+
+            --select-label-disabled-z-index: inherit;
+            --select-label-disabled-color: var(--disabled-text-color);
+            --select-label-disabled-background-color: var(--disabled-background-color);
+            --select-label-disabled-cursor: not-allowed;
+            --select-label-disabled-font-family: var(--primary-font-family);
+            --select-label-disabled-font-size: var(--text-1-font-size);
+            --select-label-disabled-font-weight: var(--text-1-font-weight);
+            --select-label-disabled-padding: var(--default-padding);
+            --select-label-disabled-margin: var(--default-margin);
+
+            --select-header-display: flex;
+            --select-header-flex-direction: row;
+            --select-header-flex-justify-content: space-between;
+            --select-header-z-index: inherit;
+            --select-header-background-color: inherit;
+            --select-header-margin: var(--default-margin);
+            --select-header-padding: var(--default-padding);
+
+            --select-header-invalid-display: flex;
+            --select-header-invalid-flex-direction: row;
+            --select-header-invalid-flex-justify-content: space-between;
+            --select-header-invalid-z-index: inherit;
+            --select-header-invalid-background-color: inherit;
+            --select-header-invalid-margin: var(--default-margin);
+            --select-header-invalid-padding: var(--default-padding);
+            --select-header-invalid-border-radius: var(--default-border-radius);
+            --select-header-invalid-border-color: var(--error-color);
+            --select-header-invalid-border-width: var(--default-border-width);
+            --select-header-invalid-border-style: var(--default-border-style);
+
+            --select-title-flex-grow: 10;
+            --select-title-z-index: inherit;
+            --select-title-color: var(--text-color);
+            --select-title-disabled-color: var(--disabled-text-color);
+            --select-title-padding-right: var(--default-padding);
+            --select-title-margin-right: var(--default-margin);
+            --select-title-cursor: default;
+            --select-title-font-family: var(--primary-font-family);
+            --select-title-font-size: var(--text-1-font-size);
+            --select-title-font-weight: var(--text-1-font-weight);
+            --select-title-background-color: var(--background-color);
+
+            --select-title-text-decoration: underline;
+
+            --select-title-wrapper-position: relative;
+            --select-title-wrapper-justify-content: flex-start;
+            --select-title-wrapper-align-items: baseline;
+
+            --select-button-z-index: inherit;
+            --select-button-cursor: var(--button-cursor);
+
+            --select-content-display: flex;
+            --select-content-flex-direction: column;
+            --select-content-width: 100%;
+            --select-content-z-index: inherit;
+            --select-content-background-color: var(--background-color);
+
+            --select-content-wrapper-position: absolute;
+            --select-content-wrapper-min-width: 100px;
+            --select-content-wrapper-max-height: 150px;
+            --select-content-wrapper-z-index: var(--z-layer2);
+            --select-content-wrapper-overflow-x: visible;
+            --select-content-wrapper-overflow-y: scroll;
+            --select-content-wrapper-white-space: nowrap;
+            --select-content-wrapper-background-color: var(--background-color);
+            --select-content-wrapper-border-color: var(--default-border-color);
+            --select-content-wrapper-border-width: var(--default-border-width);
+            --select-content-wrapper-border-style: var(--default-border-style);
+            --select-content-wrapper-border-radius: var(--default-border-radius);
+            --select-content-wrapper-box-shadow: var(--default-box-shadow);
+        }
+
+        .select {
+            display: var(--select-display);
+            flex-direction: var(--select-flex-direction);
+            height: var(--select-height);
+            z-index: var(--select-z-index);
+            background-color: var(--select-background-color);
+            overflow-x: var(--select-overflow-x);
+            overflow-y: var(--select-overflow-y);
+            border-radius: var(--select-border-radius);
+        }
+
+        .select-header {
+            display: var(--select-header-display);
+            flex-direction: var(--select-header-flex-direction);
+            justify-content: var(--select-header-flex-justify-content);
+            z-index: var(--select-header-z-index);
+            background-color: var(--select-header-background-color);
+            margin: var(--select-header-margin);
+            padding: var(--select-header-padding);
+        }
+        .select-header-invalid {
+            display: var(--select-header-invalid-display);
+            flex-direction: var(--select-header-invalid-flex-direction);
+            justify-content: var(--select-header-invalid-flex-justify-content);
+            z-index: var(--select-header-invalid-z-index);
+            background-color: var(--select-header-invalid-background-color);
+            margin: var(--select-header-invalid-margin);
+            padding: var(--select-header-invalid-padding);
+            border-radius: var(--select-header-invalid-border-radius);
+            border-color: var(--select-header-invalid-border-color);
+            border-width: var(--select-header-invalid-border-width);
+            border-style: var(--select-header-invalid-border-style);
+        }
+
+        .select-title {
+            flex-grow: 10;
+            z-index: var(--select-title-z-index);
+            color: var(--select-title-color);
+            padding-right: var(--select-title-padding-right);
+            margin-right: var(--select-title-margin-right);
+            cursor: var(--select-title-cursor);
+            font-family: var(--select-title-font-family);
+            font-size: var(--select-title-font-size);
+            font-weight: var(--select-title-font-weight);
+        }
+
+        .select-title-disabled {
+            flex-grow: var(--select-title-flex-grow);
+            z-index: var(--select-title-z-index);
+            color: var(--select-title-disabled-color);
+            padding-right: var(--select-title-padding-right);
+            margin-right: var(--select-title-margin-right);
+            cursor: var(--select-title-cursor);
+            font-family: var(--select-title-font-family);
+            font-size: var(--select-title-font-size);
+            font-weight: var(--select-title-font-weight);
+        }
+
+        .select-title-underline {
+            text-decoration: var(--select-title-text-decoration);
+        }
+
+        .select-title-wrapper {
+            position: var(--select-title-wrapper-position);
+            justify-content: var(--select-title-wrapper-justify-content);
+            align-items: var(--select-title-wrapper-align-items);
+        }
+
+        .select-content {
+            display: var(--select-content-display);
+            flex-direction: var(--select-content-flex-direction);
+            width: var(--select-content-width);
+            z-index: var(--select-content-z-index);
+            background-color: var(--select-content-background-color);
+        }
+
+        .select-content-wrapper {
+            position: var(--select-content-wrapper-position);
+            min-width: var(--select-content-wrapper-min-width);
+            max-height: var(--select-content-wrapper-max-height);
+            z-index: var(--select-content-wrapper-z-index);
+            overflow-x: var(--select-content-wrapper-overflow-x);
+            overflow-y: var(--select-content-wrapper-overflow-y);
+            white-space: var(--select-content-wrapper-white-space);
+            background-color: var(--select-content-wrapper-background-color);
+            border-color: var(--select-content-wrapper-border-color);
+            border-width: var(--select-content-wrapper-border-width);
+            border-style: var(--select-content-wrapper-border-style);
+            border-radius: var(--select-content-wrapper-border-radius);
+            box-shadow: var(--select-content-wrapper-box-shadow);
+        }
+
+        .select-label {
+            z-index: var(--select-label-z-index);
+            color: var(--select-label-color);
+            background-color: var(--select-label-background-color);
+            cursor: var(--select-label-cursor);
+            font-family: var(--select-label-font-family);
+            font-size: var(--select-label-font-size);
+            font-weight: var(--select-label-font-weight);
+            padding: var(--select-label-padding);
+            margin: var(--select-label-margin);
+        }
+        .select-label-disabled {
+            z-index: var(--select-label-disabled-z-index);
+            color: var(--select-label-disabled-color);
+            background-color: var(--select-label-disabled-background-color);
+            cursor: var(--select-label-disabled-cursor);
+            font-family: var(--select-label-disabled-font-family);
+            font-size: var(--select-label-disabled-font-size);
+            font-weight: var(--select-label-disabled-font-weight);
+            padding: var(--select-label-disabled-padding);
+            margin: var(--select-label-disabled-margin);
+        }
+    </style>
+    <component-markup>
+        <article id="{id}" class="select" tabindex="{tabIndex}" onkeydown="$obj.onKeyDown(event)">
+            <div id="{id}TitleWrapper" class="select-title-wrapper bounce-and-brighten">
+                <label id="{id}Label" for="{name}" class="select-label">{label}</label>
+                <section id="{id}Header" class="select-header" name="{name}">
+                    <section id="{id}Title" class="select-title" onclick="$obj.onClick(event)">{selectTitle}</section>
+                    <include-html data-src="./html/components/img.html" data-id="{id}Img"
+                        onclick="$obj.onClick(event)"
+                        data-props="{ hideAfterMount: false }"
+                        data-vars="{ src: `{closedImageURL}`, width: `15`, height: `15` }">
+                    </include-html>
+                </section>
+                <div id="{id}Error"></div>
+            </div>
+            <div id="{id}Wrapper" class="select-content-wrapper display-none">
+                <section id="{id}Content" class="select-content"></section>
+            </div>
+        </article>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

@@ -1,0 +1,126 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/admin/docs/docs-test.html
+        // https://v8.dev/blog/javascript-code-coverage
+        class DocsTest extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/admin/docs/docs-props.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                this.idStorage = []
+
+                Queue.registerAsync(this, this.props.displayDocMessage, async (json) => {
+                    this.vars.json = json
+                })
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    if (message.tabBar.id !== this.props.tabBarId) { return }
+                    if (this.props.name.toUpperCase() !== message.title?.toUpperCase()) {
+                        this.Element.addClass(`display-none`)
+                        return 
+                    }
+                    this.Element.removeClass(`display-none`)
+                    await this.load()
+                })
+            }
+            async destroy() { 
+                await super.destroy()
+                await this.destroyTests()
+            }
+            async destroyTests() { 
+                const testPanelId = `${this.id}TestPanel`
+                const testResultsId = `${this.id}TestResults`
+                const testsPanel = Component.isObjectRegistered(testPanelId)? Component.getObject(testPanelId) : null
+                const testsResults = Component.isObjectRegistered(testResultsId)? Component.getObject(testResultsId) : null
+
+                if (!testsPanel && !testsResults) { return }
+                testsPanel?.destroy()
+                testsResults?.destroy()
+                this.Element.removeChildren()
+            }
+            async load() { 
+                const testSuite = this.vars?.json?.testDocs
+                const testPath = this.vars?.json?.path?.replace(`./src`, `.`)
+
+                if (!testSuite || !testPath) { return }
+                await this.destroyTests()
+
+                const testPanelId = `${this.id}TestPanel`
+                const testPanelInclude = Component.createComponentInclude(`./html/components/admin/tests/tests-panel.html`, testPanelId)
+                const testResultsId = `${this.id}TestResults`
+                const testResultsInclude = Component.createComponentInclude(`./html/components/admin/tests/tests-results.html`, testResultsId)
+
+                this.Element.appendChild(testPanelInclude)
+                this.Element.appendChild(testResultsInclude)
+                await Loader.loadIncludes()
+
+                const fileText = await Loader.loadFile(testPath, true, false)
+                const fragment = ComponentLifecycle.compile(fileText)
+                const scripts = fragment?.querySelectorAll(`script`)
+                let testScriptElement = null
+
+                for (let script of scripts) { 
+                    if (script.hasAttribute(`data-is-test`)) { 
+                        testScriptElement = script
+                        break
+                    } 
+                }
+                if (!testScriptElement) { return }
+
+                const testFunction = new Function(testScriptElement.innerText.trim())
+                const testObj = testFunction()
+                const suiteResults = await suite(testObj)
+                const testResultsObj = Component.getObject(testResultsId)
+                const testName = TestsPanel.getTestName(testPath)
+
+                if (!testResultsObj || !suiteResults) { return }
+
+                testResultsObj.displayTestSuiteResults(testName, testObj.description, suiteResults)
+            }
+            /** 
+             * @member {Object}
+             * @name props
+             * @property {string} tabBarId - The element id of the TabBar the contains the Tab which contains this Component.
+             * @property {string} displayDocMessage - The message processed when the selected document is updated by the user.
+             */
+             props = {
+                tabBarId: ``,
+                displayDocMessage: `DISPLAY_DOC`
+            }
+            /** 
+             * @member {Object}
+             * @name vars
+             * @property {Object} json - JSON that describes the current document.
+             */
+             vars = {
+                json: null
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --props-name-color: var(--secondary-variant-color);
+            --props-type-color: var(--primary-variant-color);
+            --props-description-color: var(--primary-text);
+        }
+
+        .props-name {
+            color: var(--props-keyword-color)
+        }
+        .props-type {
+            color: var(--props-type-color)
+        }
+        .props-description {
+            color: var(--props-description-color)
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="flex-row flex-align-start w100 p-default m-default">
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

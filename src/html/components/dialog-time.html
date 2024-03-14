@@ -1,0 +1,129 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/dialog-time.html
+        class DialogTime extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/dialog-time.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            static roundToFive(minutes) {
+                if (3 > minutes) { return 0 }
+                if (8 > minutes) { return 5 }
+                if (13 > minutes) { return 10 }
+                if (18 > minutes) { return 15 }
+                if (23 > minutes) { return 20 }
+                if (28 > minutes) { return 25 }
+                if (33 > minutes) { return 30 }
+                if (38 > minutes) { return 35 }
+                if (43 > minutes) { return 40 }
+                if (48 > minutes) { return 45 }
+                if (53 > minutes) { return 55 }
+                return 0
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.register(this, this.props.clickMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.ok(message)
+                })
+                Queue.register(this, this.props.cancelMessage, (message) => { 
+                    Component.getObject(this.props.dialogId)?.cancel(false)
+                })
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`hour` !== message.member && `minute` !== message.member && `meridiem` !== message.member) { return }
+
+                    this.Time.vars.hour = this.vars.hour
+                    this.Time.vars.minute = this.vars.minute
+                    this.Time.vars.meridiem = this.vars.meridiem
+                })
+            }
+        }
+        props = {
+            dialogId: `TimeDialog`,
+            clickMessage: `TIME_BUTTON_OK`,
+            cancelMessage: `TIME_BUTTON_CANCEL`
+        }
+        vars = {
+            dialogtitle: `Select Time`,
+            hour: new Date().getHours() % 12,
+            minute: DialogTime.roundToFive(new Date().getMinutes()),
+            meridiem: (new Date().getHours() >= 12)? `PM` : `AM`,
+        }
+    </script>
+    <style>
+        :root {
+            --dialog-time-display: flex;
+            --dialog-time-flex-direction: column;
+            --dialog-time-justify-content: center;
+            --dialog-time-cursor: default;
+            --dialog-time-padding: 10px;
+            --dialog-time-margin: 10px;
+
+            --dialog-time-title-color: var(--text-color);
+            --dialog-time-title-background-color: var(--clear);
+            --dialog-time-title-text-align: center;
+            --dialog-time-title-font-family: var(--primary-font-family);
+            --dialog-time-title-font-size: var(--header-6-font-size);
+            --dialog-time-title-font-weight: var(--header-6-font-weight);
+
+            --dialog-time-message-color: flex;
+            --dialog-time-message-color: var(--text-color);
+            --dialog-time-message-background-color: var(--clear);
+            --dialog-time-message-padding: 10px 0;
+            --dialog-time-message-margin: 10px 0;
+            --dialog-time-message-text-align: left;
+            --dialog-time-message-font-family: var(--primary-font-family);
+            --dialog-time-message-font-size: var(--text-1-font-size);
+            --dialog-time-message-font-weight: var(--text-1-font-weight);
+            --dialog-time-message-white-space: pre-wrap;
+        }
+
+        .dialog-calendar {
+            display: var(--dialog-time-display);
+            flex-direction: var(--dialog-time-flex-direction);
+            justify-content: var(--dialog-time-justify-content);
+        }
+
+        .dialog-calendar-title {
+            color: var(--dialog-time-title-color);
+            background-color: var(--dialog-time-title-background-color);
+            text-align: var(--dialog-time-title-text-align);
+            font-family: var(--dialog-time-title-font-family);
+            font-size: var(--dialog-time-title-font-size);
+            font-weight: var(--dialog-time-title-font-weight);
+        }
+
+        .dialog-calendar-message {
+            color: var(--dialog-time-message-color);
+            background-color: var(--dialog-time-message-background-color);
+            padding: var(--dialog-time-message-padding);
+            margin: var(--dialog-time-message-margin);
+            text-align: var(--dialog-time-message-text-align);
+            font-family: var(--dialog-time-message-font-family);
+            font-size: var(--dialog-time-message-font-size);
+            font-weight: var(--dialog-time-message-font-weight);
+            white-space: var(--dialog-time-message-white-space);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}Wrapper" class="dialog-calendar">
+            <div id="{id}Title" class="dialog-calendar-title">{dialogtitle}</div>
+            <include-html data-src="./html/components/time.html" data-id="{id}Time">
+            </include-html>
+            <div id="{id}ButtonWrapper" class="flex-row m50-t p50-t">
+                <include-html data-src="./html/components/button.html" data-id="{id}CancelButton"
+                    data-props="{ isDefault: false, clickMessage: `{cancelMessage}` }"
+                    data-vars="{ title: `Cancel` }">
+                </include-html>
+                <include-html data-src="./html/components/button.html" data-id="{id}OkButton"
+                    data-props="{ isDefault: true, clickMessage: `{clickMessage}` }"
+                    data-vars="{ title: `Ok` }">
+                </include-html>
+            </div>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

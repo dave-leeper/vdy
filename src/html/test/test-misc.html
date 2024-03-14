@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TEST MISC</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Vince Drives You">
+    <meta name="keywords" content="Ride, Taxi, Airport">
+    <meta name="author" content="Dave Leeper">
+    <!-- https://ogp.me -->
+    <meta property="og:title" content="Vince Drives You" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.imdb.com/title/tt0117500/" />
+    <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+    <script type="text/javascript" src="./js/client/messages.js"></script>
+    <script type="text/javascript" src="./js/client/queue.js"></script>
+    <script type="text/javascript" src="./js/client/platform.js"></script>
+    <script type="text/javascript" src="./js/client/tree-node.js"></script>
+    <script type="text/javascript" src="./js/client/tree.js"></script>
+    <script type="text/javascript" src="./js/client/component-lifecycle.js"></script>
+    <script type="text/javascript" src="./js/client/javascript-web-token.js"></script>
+    <script type="text/javascript" src="./js/client/component.js"></script>
+    <script type="text/javascript" src="./js/client/slotted-component.js"></script>
+    <script type="text/javascript" src="./js/client/slot-manager.js"></script>
+    <script type="text/javascript" src="./js/client/loader.js"></script>
+    <script type="text/javascript" src="./js/client/theme.js"></script>
+    <script type="text/javascript" src="./js/client/registry.js"></script>
+    <script type="text/javascript" src="./js/client/server-interaction/si-users.js"></script>
+    <script type="text/javascript" src="./js/client/test.js"></script>
+    <script type="text/javascript" src="./js/client/snackbar.js"></script>
+    <script type="text/javascript" src="./js/client/dialog.js"></script>
+    <script type="text/javascript" src="./js/client/purify.min.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <script>
+      function initializeApp() {
+        // const server = `http://localhost/`
+        // const server = `https://184.168.22.39/`
+        // const server = `https://vdytesting.fly.dev/`
+        const server = `https://vincedrivesyou.com/`
+        Registry.register(`Server`, server)
+
+        const params = new URLSearchParams(window.location.search)
+        const token = params.get(`token`)
+
+        JavascriptWebToken.storeCredentials(JSON.parse(token))
+        document.addEventListener(`DOMContentLoaded`, async () => {
+          Loader.registerCustomTags()
+          await Loader.loadIncludes()
+          SlotManager.loadSlots()
+          await Loader.siteLoaded()
+
+          Queue.register(this, `SELECT_STYLE`, (message) => { Theme.theme = message.SelectElement.value })
+        })
+      }
+
+      function setCSSDefaults() {
+        // Theme.theme = 'grey-glass'
+        Theme.theme = 'light'
+      }
+      setCSSDefaults()
+      initializeApp()
+    </script>
+  </head>
+  <body class="margin-5 bg-grey-e">s
+    <include-html data-src="./html/components/select-html.html" data-id="SelectTheme"
+      data-props="{ selectMessage: `SELECT_STYLE`, options: [{value: `light`, text: `Light`}, {value: `grey-glass`, text: `Grey`}, {value: `dark`, text: `Dark`}] }">
+    </include-html>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/star.html" data-id="Star1">
+      </include-html>
+      <include-html data-src="./html/components/star.html" data-id="Star2" disabled>
+      </include-html>
+      <include-html data-src="./html/components/star.html" data-id="Star3"
+        data-vars="{ value: 0.25 }">
+      </include-html>
+      <include-html data-src="./html/components/star.html" data-id="Star4"
+        data-vars="{ value: 0.5 }">
+      </include-html>
+      <include-html data-src="./html/components/star.html" data-id="Star5"
+        data-vars="{ value: 0.75 }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/stars.html" data-id="Stars1"
+        data-vars="{ rating: 0 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars2"
+        data-vars="{ rating: 1 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars3"
+        data-vars="{ rating: 2 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars4"
+        data-vars="{ rating: 3 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars5"
+        data-vars="{ rating: 4 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars6"
+        data-vars="{ rating: 5 }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/stars.html" data-id="Stars7"
+        data-vars="{ rating: 0.4 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars8"
+        data-vars="{ rating: 1.4 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars9"
+        data-vars="{ rating: 2.4 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars10"
+        data-vars="{ rating: 3.4 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars11"
+        data-vars="{ rating: 4.4 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars12"
+        data-vars="{ rating: 4.7 }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/stars.html" data-id="Stars13" disabled
+        data-vars="{ rating: 0 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars14" disabled
+        data-vars="{ rating: 1 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars15" disabled
+        data-vars="{ rating: 2 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars16" disabled
+        data-vars="{ rating: 3 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars17" disabled
+        data-vars="{ rating: 4 }">
+      </include-html>
+      <include-html data-src="./html/components/stars.html" data-id="Stars18" disabled
+        data-vars="{ rating: 5 }">
+      </include-html>
+    </div>
+
+    <div class="flex-row flex-center flex-align-center">
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar1"
+        data-props="{ size: `xs`, imageURL: `../../images/themes/{theme}/generic-avatar.png` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar2"
+        data-props="{ size: `s`, imageURL: `../../images/themes/{theme}/generic-avatar.png` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar3"
+        data-props="{ size: `m`, imageURL: `../../images/themes/{theme}/generic-avatar.png` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar4"
+        data-props="{ size: `l`, imageURL: `../../images/themes/{theme}/generic-avatar.png` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar5"
+        data-props="{ size: `xl`, imageURL: `../../images/themes/{theme}/generic-avatar.png` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar6"
+        data-props="{ size: `xxl`, imageURL: `../../images/themes/{theme}/generic-avatar.png` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar7"
+        data-props="{ size: `xxxl`, imageURL: `../../images/themes/{theme}/generic-avatar.png` }<">
+      </include-html>
+    </div>
+
+    <div class="flex-row flex-center flex-align-center">
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar8" disabled
+        data-props="{ size: `xs`, imageURL: `../../images/vince.jpg` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar9" disabled
+        data-props="{ size: `s`, imageURL: `../../images/vince.jpg` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar10" disabled
+        data-props="{ size: `m`, imageURL: `../../images/vince.jpg` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar11" disabled
+        data-props="{ size: `l`, imageURL: `../../images/vince.jpg` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar12" disabled
+        data-props="{ size: `xl`, imageURL: `../../images/vince.jpg` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar13" disabled
+        data-props="{ size: `xxl`, imageURL: `../../images/vince.jpg` }">
+      </include-html>
+      <include-html data-src="./html/components/avatar.html" data-id="Avatar14" disabled
+        data-props="{ size: `xxxl`, imageURL: `../../images/vince.jpg` }">
+      </include-html>
+    </div>
+
+    <div class="flex-row">
+      <include-html data-src="./html/components/loading.html" data-id="Loading1">
+      </include-html>
+      <include-html data-src="./html/components/loading.html" data-id="Loading2" disabled>
+      </include-html>
+    </div>
+
+    <div>
+      <div class="tooltip">
+        <include-html data-src="./html/components/tooltip.html" data-id="Tooltip1"
+          data-vara="{ tooltipText: `Tooltip 1` }">
+        </include-html>  
+        <img width="100" height="100" src="../../images/vince.jpg">
+      </div>
+      <div class="tooltip">
+        <include-html data-src="./html/components/tooltip.html" data-id="Tooltip2"
+          data-vars="{ tooltipText: `Tooltip 2` }">
+        </include-html>  
+        <img width="100" height="100" src="../../images/vince.jpg">
+      </div>
+      <div class="tooltip">
+        <include-html data-src="./html/components/tooltip.html" data-id="Tooltip3"
+          data-vars="{ tooltipText: `Tooltip 3` }">
+        </include-html>  
+        <img width="100" height="100" src="../../images/vince.jpg">
+      </div>
+    </div>
+
+
+  </body>
+</html>

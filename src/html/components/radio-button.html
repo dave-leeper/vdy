@@ -1,0 +1,226 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/radio-button.html
+        class RadioButton extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/radio-button.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                if (this.props.groupName) { Component.addToGroup(this.props.groupName, this) }
+                Queue.registerAsync(this, ComponentLifecycle.msgs.VAR_VALUE_CHANGED, async (message) => {
+                    if (this !== message.componentObject) { return }
+                    if (`checked` !== message.member) { return }
+                    this.RadioButtonElement.checked = this.vars.checked
+                })
+            }
+            async afterMount() { 
+                await super.afterMount()
+
+                this.RadioButtonElement.checked = this.vars.checked
+            }
+            async onEnabled() { 
+                await super.onEnabled()
+
+                if (this.enabled) {
+                    this.Element.classList.add(`bounce-and-brighten`)
+                    this.RadioButtonElement.classList.remove(`radio-button-disabled`)
+                    this.RadioButtonElement.classList.add(`radio-button`)
+                    this.RadioButtonElement.disabled = false
+                    this.LabelElement.classList.remove(`radio-button-label-disabled`)
+                    this.LabelElement.classList.add(`radio-button-label`)
+                } else {
+                    this.Element.classList.remove(`bounce-and-brighten`)
+                    this.RadioButtonElement.classList.add(`radio-button-disabled`)
+                    this.RadioButtonElement.classList.remove(`radio-button`)
+                    this.RadioButtonElement.disabled = true
+                    this.LabelElement.classList.add(`radio-button-label-disabled`)
+                    this.LabelElement.classList.remove(`radio-button-label`)
+                }
+            }
+            isChecked() { return this.vars.checked }
+            check(checked) { 
+                if (checked === this.vars.checked) { return }
+                if (!this.enabled) { return }
+                if (!this.Element.isVisible()) { return }
+                this.vars.checked = checked
+                if (checked) { this.updateGroup() }
+                Queue.broadcast(this.props.clickMessage, this) 
+            }
+            onClick(event) { 
+                if (!this.enabled) { return }
+                if (this.vars.checked && this.props.groupName) { return }
+                event?.stopPropagation()
+                this.check(!this.vars.checked)
+            }
+            onKeyDown(event) { 
+                if (!this.enabled) { return }
+                if (!this.RadioButtonElement.hasFocus()) { return }
+                if (!this.Element.isVisible()) { return }
+                if (`Enter` === event?.key || ` ` === event?.key) {
+                    event?.stopPropagation()
+                    this.onClick() 
+                    return
+                }
+
+                if (`ArrowRight` == event?.key && `ArrowLeft` == event?.key) { return }
+
+                const groupName = Component.isInGroup(this)
+                const index = Component.groupIndexOf(this)
+                const groupObjects = Component.getGroupObjects(groupName)
+
+                if (-1 === index) { return }
+                if (!groupObjects || 0 === groupObjects.length) { return }
+
+                const isUsable = (obj) => {
+                    if (null === object) { return false }
+                    if (obj.isVisible && !obj.isVisible()) { return false }
+                    else if (obj.Element?.isVisible && !obj.Element.isVisible()) { return false }
+                    if (!obj.enabled) {
+                        if (!obj.getAttribute || `true` !== obj.getAttribute(`enabled`)) { return false }
+                    } 
+                    return true
+                }
+                const getNextIndex = (currentIndex, groupObjects, eventKey) => {
+                    if (`ArrowRight` === eventKey || `ArrowDown` === eventKey) { return (groupObjects.length - 1 === currentIndex)? 0 : currentIndex + 1 }
+                    if (`ArrowLeft` === eventKey || `ArrowUp` === eventKey) { return (0 === currentIndex)? groupObjects.length - 1 : currentIndex - 1 }
+                    return currentIndex
+                }
+                let newIndex = getNextIndex(index, groupObjects, event?.key)
+                const originalNewIndex = newIndex
+                let newObject = Component.getGroupObjectAt(groupName, newIndex)
+
+                while (!isUsable(newObject)) {
+                    newIndex = getNextIndex(newIndex, groupObjects, event?.key)
+                    if (newIndex === originalNewIndex) { 
+                        newObject = null
+                        break 
+                    }
+                    newObject = Component.getGroupObjectAt(groupName, newIndex)
+                }
+
+                if (!newObject) { return }
+                newObject.focus()
+                event?.stopPropagation()
+            }            
+            focus() { this.RadioButtonElement.focus() }
+            async getData() {
+                if (this.vars.checked) { return {name: this.props.groupName, value: this.props.groupValue }}
+                return null
+            }
+            props = {
+                label: ``,
+                groupName: ``,
+                groupValue: ``,
+                groupIndex: ``,
+                clickMessage: Messages.ON_CLICK
+            }
+            vars = {
+                tabIndex: 0,
+                checked: false
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --radio-button-wrapper-position: relative;
+            --radio-button-wrapper-display: flex;
+            --radio-button-wrapper-flex-direction: row;
+            --radio-button-wrapper-align-items: center;
+            --radio-button-wrapper-z-index: inherit;
+
+            --radio-button-z-index: inherit;
+            --radio-button-color: var(--text-color);
+            --radio-button-background-color: var(--background-color);
+            --radio-button-padding: 0 10px 0 0;
+            --radio-button-margin: 3px;
+            --radio-button-cursor: default;
+
+            --radio-button-disabled-z-index: inherit;
+            --radio-button-disabled-color: var(--disabled-text-color);
+            --radio-button-disabled-background-color: var(--disabled-background-color);
+            --radio-button-disabled-padding: 0 10px 0 0;
+            --radio-button-disabled-margin: 3px;
+            --radio-button-disabled-cursor: not-allowed;
+
+            --radio-button-label-z-index: inherit;
+            --radio-button-label-color: var(--text-color);
+            --radio-button-label-background-color: var(--background-color);
+            --radio-button-label-padding: 3px;
+            --radio-button-label-margin: 3px;
+            --radio-button-label-cursor: default;
+            --radio-button-label-font-family: var(--primary-font-family);
+            --radio-button-label-font-size: var(--text-1-font-size);
+            --radio-button-label-font-weight: var(--text-1-font-weight);
+
+            --radio-button-label-disabled-z-index: inherit;
+            --radio-button-label-disabled-color: var(--disabled-text-color);
+            --radio-button-label-disabled-background-color: var(--disabled-background-color);
+            --radio-button-label-disabled-padding: 3px;
+            --radio-button-label-disabled-margin: 3px;
+            --radio-button-label-disabled-cursor: not-allowed;
+            --radio-button-label-disabled-font-family: var(--primary-font-family);
+            --radio-button-label-disabled-font-size: var(--text-1-font-size);
+            --radio-button-label-disabled-font-weight: var(--text-1-font-weight);
+        }
+
+        .radio-button-wrapper {
+            position: var(--checkbox-wrapper-position);
+            display: var(--checkbox-wrapper-display);
+            flex-direction: var(--checkbox-wrapper-flex-direction);
+            align-items: var(--radio-button-wrapper-align-items);
+            z-index: var(--radio-button-wrapper-z-index);
+        }
+
+        .radio-button {
+            z-index: var(--radio-button-z-index);
+            color: var(--radio-button-color);
+            background-color:  var(--radio-button-background-color);
+            padding:  var(--radio-button-padding);
+            margin:  var(--radio-button-margin);
+            cursor:  var(--radio-button-cursor);
+        }
+        .radio-button-disabled {
+            z-index: var(--radio-button-disabled-z-index);
+            color: var(--checkbox-disabled-color);
+            background-color: var(--checkbox-disabled-background-color);
+            padding: var(--checkbox-disabled-padding);
+            margin: var(--checkbox-disabled-margin);
+            cursor: var(--checkbox-disabled-cursor);
+        }
+
+        .radio-button-label {
+            z-index: var(--radio-button-label-z-index);
+            color: var(--radio-button-label-color);
+            background-color:  var(--radio-button-label-background-color);
+            padding:  var(--radio-button-label-padding);
+            margin:  var(--radio-button-label-margin);
+            cursor:  var(--radio-button-label-cursor);
+            font-family: var(--radio-button-label-font-family);
+            font-size: var(--radio-button-label-font-size);
+            font-weight: var(--radio-button-label-font-weight);
+        }
+        .radio-button-label-disabled {
+            z-index: var(--radio-button-label-disabled-z-index);
+            color: var(--checkbox-label-disabled-color);
+            background-color:  var(--checkbox-label-disabled-background-color);
+            padding:  var(--checkbox-label-disabled-padding);
+            margin:  var(--checkbox-label-disabled-margin);
+            cursor:  var(--checkbox-label-disabled-cursor);
+            font-family: var(--checkbox-label-disabled-font-family);
+            font-size: var(--checkbox-label-disabled-font-size);
+            font-weight: var(--checkbox-label-disabled-font-weight);
+        }
+    </style>
+    <component-markup>
+        <div id="{id}" class="radio-button-wrapper bounce-and-brighten">
+            <input id="{id}RadioButton" class="radio-button" type="radio" name="{groupName}" value="{groupValue}" checked="{checked}" onclick="$obj.onClick(event)" onkeydown="$obj.onKeyDown(event)" onfocus="$obj.check(true)" tabindex="{tabIndex}">
+            <label id="{id}Label" for="{id}RadioButton" class="radio-button-label" >{label}</label>
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

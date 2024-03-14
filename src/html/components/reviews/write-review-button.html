@@ -1,0 +1,46 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reviews/write-review-button.html
+        class WriteReviewButton extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/write-review-button.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            async initialize(id) {
+                await super.initialize(id)
+
+                Queue.registerAsync(this, Messages.SHOW_TAB, async (message) => {
+                    const element = (this.Element)? this.Element : document.getElementById(this.id)
+
+                    if (message.tabBar.id !== `TabBar`) { return }
+                    if (message.title !== `Reviews`) { return }
+                    element.classList.remove(`display-none`)
+                })
+            }
+            getReviewList() { return document.getElementById(`ReviewList`) }
+            async reviewClicked(event) {
+                event?.stopPropagation()
+                await this.review()
+            }
+            async review() { 
+                const reviewDialog = Component.getObject(`ReviewDialog`)
+
+                reviewDialog.show()
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}">
+            <div id="{id}Button" class="vdy-button w120px margin-10 z1 display-none" onclick="$obj.reviewClicked(event)">Write a Review</div>
+            <include-html data-src="./html/components/reviews/review-dialog.html" data-id="ReviewDialog">
+            </include-html>
+    
+        </div>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>

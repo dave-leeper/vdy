@@ -1,0 +1,175 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/time.html
+        class Time extends Component {
+            static async create(parent, componentId, props, vars, classes, styles, attributes) {
+                const newInclude = Component.createComponentInclude(`./html/components/time.html`, componentId, props, vars, classes, styles, attributes)
+                
+                parent.appendChild(newInclude)
+                await Loader.loadIncludes()
+            }
+            static roundToFive(minutes) {
+                if (3 > minutes) { return 0 }
+                if (8 > minutes) { return 5 }
+                if (13 > minutes) { return 10 }
+                if (18 > minutes) { return 15 }
+                if (23 > minutes) { return 20 }
+                if (28 > minutes) { return 25 }
+                if (33 > minutes) { return 30 }
+                if (38 > minutes) { return 35 }
+                if (43 > minutes) { return 40 }
+                if (48 > minutes) { return 45 }
+                if (53 > minutes) { return 55 }
+                return 0
+            }
+            async initialize(id) {
+                await super.initialize(id)
+                Queue.registerAsync(this, Messages.SELECT_BEFORE_OPENED, async (message) => {
+                    if (message === this.Hour) { await this.createHourSelect() }
+                    else if (message === this.Minute) { await this.createMinuteSelect() }
+                    else if (message === this.Meridiem) { await this.createMeridiemSelect() }
+                })
+            }
+            async onDescendantsMounted() {
+                await super.onDescendantsMounted()
+                this.selectTime()
+            }
+            async createHourSelect() {
+                const id = this.id
+
+                if (0 < this.Hour.vars.content.length) { return }
+                await this.Hour.appendString(`01`, `${id}Hour01`, 1)
+                Queue.register(this, `${id}Hour01`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`02`, `${id}Hour02`, 2)
+                Queue.register(this, `${id}Hour02`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`03`, `${id}Hour03`, 3)
+                Queue.register(this, `${id}Hour03`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`04`, `${id}Hour04`, 4)
+                Queue.register(this, `${id}Hour04`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`05`, `${id}Hour05`, 5)
+                Queue.register(this, `${id}Hour05`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`06`, `${id}Hour06`, 6)
+                Queue.register(this, `${id}Hour06`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`07`, `${id}Hour07`, 7)
+                Queue.register(this, `${id}Hour07`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`08`, `${id}Hour08`, 8)
+                Queue.register(this, `${id}Hour08`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`09`, `${id}Hour09`, 9)
+                Queue.register(this, `${id}Hour09`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`10`, `${id}Hour10`, 10)
+                Queue.register(this, `${id}Hour10`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`11`, `${id}Hour11`, 11)
+                Queue.register(this, `${id}Hour11`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+                await this.Hour.appendString(`12`, `${id}Hour12`, 12)
+                Queue.register(this, `${id}Hour12`, (message) => { this.vars.hour = parseInt(message.vars.title) })
+            }
+            async createMinuteSelect() {
+                const id = this.id
+
+                if (0 < this.Minute.vars.content.length) { return }
+                await this.Minute.appendString(`00`, `${id}Minute00`, 0)
+                Queue.register(this, `${id}Minute00`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`05`, `${id}Minute05`, 5)
+                Queue.register(this, `${id}Minute05`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`10`, `${id}Minute10`, 10)
+                Queue.register(this, `${id}Minute10`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`15`, `${id}Minute15`, 15)
+                Queue.register(this, `${id}Minute15`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`20`, `${id}Minute20`, 20)
+                Queue.register(this, `${id}Minute20`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`25`, `${id}Minute25`, 25)
+                Queue.register(this, `${id}Minute25`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`30`, `${id}Minute30`, 30)
+                Queue.register(this, `${id}Minute30`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`35`, `${id}Minute35`, 35)
+                Queue.register(this, `${id}Minute35`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`40`, `${id}Minute40`, 40)
+                Queue.register(this, `${id}Minute40`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`45`, `${id}Minute45`, 45)
+                Queue.register(this, `${id}Minute45`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`50`, `${id}Minute50`, 50)
+                Queue.register(this, `${id}Minute50`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+                await this.Minute.appendString(`55`, `${id}Minute55`, 55)
+                Queue.register(this, `${id}Minute55`, (message) => { this.vars.minute = parseInt(message.vars.title) })
+            }
+            async createMeridiemSelect() {
+                const id = this.id
+
+                if (0 < this.Meridiem.vars.content.length) { return }
+                await this.Meridiem.appendString(`AM`, `${id}MeridiemAM`, `AM`)
+                Queue.register(this, `${id}MeridiemAM`, (message) => { this.vars.meridiem = message.vars.title })
+                await this.Meridiem.appendString(`PM`, `${id}MeridiemPM`, `PM`)
+                Queue.register(this, `${id}MeridiemPM`, (message) => { this.vars.meridiem = message.vars.title })
+            }
+            updateHour() { this.vars.hour = parseInt(this.Hour.getTitle(), 10) }
+            updateMinute() {
+                const selectedMinutes = parseInt(this.Minute.getTitle(), 10)
+
+                this.vars.minute = Time.roundToFive(selectedMinutes) }
+            updateMeridiem() { this.vars.meridiem = this.Meridiem.getTitle() }
+            selectTime() {
+                this.Hour.setTitle((this.vars.hour).toString().padStart(2, '0'))
+                this.Minute.setTitle(this.vars.minute.toString().padStart(2, '0'))
+                this.Meridiem.setTitle(this.vars.meridiem)
+            }
+            async getData() {
+                return {name: this.id, value: this.toString() }
+            }
+            toString() { return `${this.Hour?.value}:${this.Minute?.value} ${this.Meridiem?.value}` }            
+            vars = {
+                hour: new Date().getHours() % 12,
+                minute: Time.roundToFive(new Date().getMinutes()),
+                meridiem: (new Date().getHours() >= 12)? `PM` : `AM`
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --time-card-display: flex; 
+            --time-card-flex-direction: row;
+            --time-card-align-items: baseline;
+            --time-card-z-index: inherit;
+            --time-card-color: var(--text-color);
+            --time-card-background: var(--clear);
+            --time-card-text-align: center;
+            --time-card-font-family: var(--primary-font-family);
+            --time-card-font-size: var(--caption-2-font-size);
+            --time-card-font-weight: var(--caption-2-font-weight);
+            --time-card-pad: 10px;
+            --time-card-border-radius: 6px;
+        }
+
+        .time-card {
+            display: var(--time-card-display); 
+            flex-direction: var(--time-card-flex-direction);
+            align-items: var(--time-card-align-items);
+            z-index: var(--time-card-z-index);
+            color: var(--time-card-color);
+            background: var(--time-card-background);
+            text-align: var(--time-card-text-align);
+            font-family: var(--time-card-font-family);
+            font-size: var(--time-card-font-size);
+            font-weight: var(--time-card-font-weight);
+            padding: var(--time-card-pad);
+            border-radius: var(--time-card-border-radius);
+        }
+
+    </style>
+    <component-markup>
+        <span id="{id}" class="time-card" onchange="$obj.updateHour()">
+            <include-html data-src="./html/components/select.html" data-id="{id}Hour"
+                data-props="{ groupName: `{id}HourGroup`, hasButton: false, hasUnderline: true }">
+            </include-html>
+            <span id="{id}Colon" class="m-default-tb p-default-tb">:</span>
+            <include-html data-src="./html/components/select.html" data-id="{id}Minute"
+                data-props="{ groupName: `{id}MinuteGroup`, hasButton: false, hasUnderline: true }">
+            </include-html>
+            <include-html data-src="./html/components/select.html" data-id="{id}Meridiem"
+                data-props="{ groupName: `{id}MeridiemGroup`, hasButton: false, hasUnderline: true }">
+            </include-html>
+        </span>
+    </component-markup>
+    <script data-is-test="true">
+    </script>
+</custom-component>
+

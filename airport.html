@@ -1,0 +1,211 @@
+<custom-component>
+    <script>
+        //# sourceURL=html/components/reservations/airport.html
+        class Airport extends Component {
+            async onChildrenMounted() {
+                const testAirport = {
+                    name: `Airport is valid`,
+                    description: `Ensure airport is valid.`,
+                    test: async () => {
+                        let results = []
+                        const airports = [`Chandler Municipal`, `Sky Harbor Terminal 3`, `Sky Harbor Terminal 4`, `Deer Valley`, `Glendale Municipal`,
+                            `Phoenix-Mesa Gateway`, `Scottsdale`]
+                            /*
+                        const airlines = [`Advanced Air`, `Air Canada`, `Alaska Airlines`, `Allegiant`, `American Airlines`, `Breeze Airways`, `British Airways`, `Condor Airlines`,
+                            `Contour Airlines`, `Delta Airlines`, `Denver Air Connection`, `Frontier Airlines`, `Hawaiian Airlines`, `JetBlue Airways`, 
+                            `JSX - Jackson Jet Center`, `Lynx Air`, `Southern Airways Express`, `Southwest Airlines`, `Spirit Airlines`,
+                            `Sun Country Airlines`, `United Airlines`, `Volaris`, `WestJet`]
+                            */
+
+                        assert(airports.includes(this.Airport.TextFieldElement.value),                   `Field '${this.Airport.props.label}' is a valid airport.`, results, false)
+                        return results
+                    }
+                }
+                const testDate = {
+                    name: `Date is not in the past`,
+                    description: `Ensure date is not in the past.`,
+                    test: async () => {
+                        let results = []
+                        function isNotBeforeToday(date) {
+                            let today = new Date()
+
+                            today.setHours(0, 0, 0, 0)
+                            return date >= today
+                        }
+
+                        let parts = this.ArrivalDate.TextFieldElement.value.split("-")
+                        let day = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10))
+                        assert(isNotBeforeToday(day),                                           `Field '${this.ArrivalDate.props.label}' cannot be in the past.`, results, false)
+                        return results
+                    }
+                }
+                const testTime = {
+                    name: `Time is not in the past`,
+                    description: `Ensure time is not in the past.`,
+                    test: async () => {
+                        let results = []
+                        function isNotBeforeToday(date) {
+                            const today = new Date()
+
+                            return date >= today
+                        }
+
+                        let dateParts = this.ArrivalDate.TextFieldElement.value.split("-")
+                        let tmeParts = this.EstimatedArrivalTime.TextFieldElement.value.split(":")
+                        let day = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10), parseInt(tmeParts[0], 10), parseInt(tmeParts[1], 10))
+                        assert(isNotBeforeToday(day),                                           `Field '${this.EstimatedArrivalTime.props.label}' cannot be in the past.`, results, false)
+                        return results
+                    }
+                }
+
+                this.Airport.vars.customValidationTests.push(testAirport)
+                this.ArrivalDate.vars.customValidationTests.push(testDate)
+                this.EstimatedArrivalTime.vars.customValidationTests.push(testTime)
+                await super.onChildrenMounted()
+            }
+            clearData() {
+                this.Airport.TextFieldElement.value = ''
+                this.FlightNumber.TextFieldElement.value = ''
+                this.ArrivalDate.TextFieldElement.value = ''
+                this.EstimatedArrivalTime.TextFieldElement.value = ''
+            }
+            setIndexes(firstIndex) {
+                this.Airport.TextFieldElement.tabIndex = firstIndex
+                this.Airline.TextFieldElement.tabIndex = firstIndex + 1
+                this.FlightNumber.TextFieldElement.tabIndex = firstIndex + 2
+                this.ArrivalDate.TextFieldElement.tabIndex = firstIndex + 3
+                this.ArrivalDate.DatePicker.Element.tabIndex = firstIndex + 4
+                this.EstimatedArrivalTime.TextFieldElement.tabIndex = firstIndex + 5
+                this.EstimatedArrivalTime.TimePicker.Element.tabIndex = firstIndex + 6
+
+            }
+            getFieldCount() { if (this.vars.shortForm) { return 1 } else { return 7 }}
+            setShortForm() {
+                this.vars.shortForm = true
+                this.AirlineOuterWrapperElement.classList.add(`display-none`)
+                this.FlightNumber.Element.classList.add(`display-none`)
+                this.ArrivalDate.Element.classList.add(`display-none`)
+                this.EstimatedArrivalTime.Element.classList.add(`display-none`)
+            }
+            async getData() {
+                this.Airport.validate(false)
+                if (!this.Airport.vars.valid) {
+                    showError(`${airportObj.props.name} is invalid.`)
+                    return null
+                }
+                this.FlightNumber.validate(false)
+                if (this.FlightNumber.vars.valid) {
+                    showError(`${flightNumberObj.props.name} is invalid.`)
+                    return null
+                }
+                this.ArrivalDate.validate(false)
+                if (this.ArrivalDate.vars.valid) {
+                    showError(`${arrivalDateObj.props.name} is invalid.`)
+                    return null
+                }
+                /*
+                if (this.EstimatedArrivalTime?.Element?.value && !estimatedArrivalTimeObj.vars.valid) {
+                    showError(`${estimatedArrivalTimeObj.props.name} is invalid.`)
+                    return null
+                }
+                */
+
+                const airport = this.Airport.TextFieldElement.value
+                const airline = this.Airline.TextFieldElement.value
+                const flightNumber = this.FlightNumber?.TextFieldElement?.value
+                const arrivalDate = this.ArrivalDate?.TextFieldElement?.value
+                const estimatedArrivalTime = this.EstimatedArrivalTime?.TextFieldElement?.value
+
+                if (!this.vars.shortForm) { return { airport, airline, flightNumber, arrivalDate, estimatedArrivalTime }}
+                else { return { airport, flightNumber, arrivalDate, estimatedArrivalTime }}
+            }
+            async getInvalidFields() {
+                const invalidFields = []
+
+                await this.Airport.validate()
+                if (!this.Airport.vars.valid) { invalidFields.push(this.Airport) }
+                if (!this.vars.shortForm) {
+                    await this.Airline.validate()
+                    if (!this.Airline.vars.valid) { invalidFields.push(this.Airline) }
+                    await this.FlightNumber.validate()
+                    if (!this.FlightNumber.vars.valid) { invalidFields.push(this.FlightNumber) }
+                    await this.ArrivalDate.validate()
+                    if (!this.ArrivalDate.vars.valid) { invalidFields.push(this.ArrivalDate) }
+                    await this.EstimatedArrivalTime.validate()
+                    if (!this.EstimatedArrivalTime.vars.valid) { invalidFields.push(this.EstimatedArrivalTime) }
+                }
+                return invalidFields
+            }
+            props = {
+                title: ``
+            }
+            vars = {
+                shortForm: false
+            }
+        }
+    </script>
+    <style>
+    </style>
+    <component-markup>
+        <div id="{id}">
+            <include-html include-in="airport.html" include-src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airport">
+                <include-props class="display-none">{ name: `Airport`, placeholder: `Airport`, label: `Airport`, labelAboveField: false, list: `{id}AirportList`, required: true, minlength: 2, maxlength: 30, tabindex: 0, showValidationErrors: `snackbar` }</include-props>
+                <include-vars class="display-none">{ type: `text` } </include-vars>
+            </include-html>
+            <datalist id="{id}AirportList">
+                <option value="Chandler Municipal"></option>
+                <option value="Sky Harbor Terminal 3"></option>
+                <option value="Sky Harbor Terminal 4"></option>
+                <option value="Deer Valley"></option>
+                <option value="Glendale Municipal"></option>
+                <option value="Phoenix-Mesa Gateway"></option>
+                <option value="Scottsdale"></option>
+            </datalist>
+            <div id="{id}AirlineOuterWrapper">
+                <include-html include-in="airport.html" include-src="./html/components/text-field.html" component-class="TextField" component-id="{id}Airline">
+                    <include-props class="display-none">{ name: `Airline`, placeholder: `Airline`, label: `Airline`, labelAboveField: false, list: `{id}AirlineList`, minlength: 2, maxlength: 30, tabIndex: 0, showValidationErrors: `snackbar` }</include-props>
+                    <include-vars class="display-none">{ type: `text` } </include-vars>
+                </include-html>
+                <datalist id="{id}AirlineList">
+                    <option value="Advanced Air"></option>
+                    <option value="Air Canada"></option>
+                    <option value="Alaska Airlines"></option>
+                    <option value="Allegiant"></option>
+                    <option value="American Airlines"></option>
+                    <option value="Breeze Airways"></option>
+                    <option value="British Airways"></option>
+                    <option value="Condor Airlines"></option>
+                    <option value="Contour Airlines"></option>
+                    <option value="Delta Airlines"></option>
+                    <option value="Denver Air Connection"></option>
+                    <option value="Frontier Airlines"></option>
+                    <option value="Hawaiian Airlines"></option>
+                    <option value="JetBlue Airways"></option>
+                    <option value="JSX - Jackson Jet Center"></option>
+                    <option value="Lynx Air"></option>
+                    <option value="Southern Airways Express"></option>
+                    <option value="Southwest Airlines"></option>
+                    <option value="Spirit Airlines"></option>
+                    <option value="Sun Country Airlines"></option>
+                    <option value="United Airlines"></option>
+                    <option value="Volaris"></option>
+                    <option value="WestJet"></option>
+                </datalist>
+            </div>
+            <include-html include-in="airport.html" include-src="./html/components/text-field.html" component-class="TextField" component-id="{id}FlightNumber">
+                <include-props class="display-none">{ name: `FlightNumber`, placeholder: `Flight Number`, label: `Flight Number`, labelAboveField: false, required: true, minlength: 1, maxlength: 30, tabIndex: 0, showValidationErrors: `snackbar` }</include-props>
+                <include-vars class="display-none">{ type: `text` } </include-vars>
+            </include-html>
+            <include-html include-in="airport.html" include-src="./html/components/text-field.html" component-class="TextField" component-id="{id}ArrivalDate">
+                <include-props class="display-none">{ name: `ArrivalDate`, label: `Arrival Date`, labelAboveField: false, required: true, minlength: 10, maxlength: 10, tabIndex: 0, showValidationErrors: `snackbar` }</include-props>
+                <include-vars class="display-none">{ type: `date` } </include-vars>
+            </include-html>
+            <include-html include-in="airport.html" include-src="./html/components/text-field.html" component-class="TextField" component-id="{id}EstimatedArrivalTime">
+                <include-props class="display-none">{ name: `EstimatedArrivalTime`, label: `Estimated Arrival Time`, labelAboveField: false, required: true, minlength: 5, maxlength: 5, tabIndex: 0, showValidationErrors: `snackbar` }</include-props>
+                <include-vars class="display-none">{ type: `time` } </include-vars>
+            </include-html>
+        </div>
+    </component-markup>
+    <test-script>
+    </test-script>
+</custom-component>

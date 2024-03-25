@@ -1,12 +1,41 @@
 class Queue {
+    /**
+     * Array to store event listeners.
+     */
     static listeners = []
+    /**
+     * Array to store async event listeners.
+     */
     static asyncListeners = []
+    /**
+     * Registers a listener function to be called when a message with the given name is dispatched.
+     * The callback will be invoked with the dispatched message.
+     *
+     * @param {Function} listener - The listener function to register.
+     * @param {string} message - The message name to listen for. 
+     * @param {Function} callback - The callback to invoke when the message is dispatched.
+     */
     static register(listener, message, callback) {
         Queue.listeners.push({ listener: listener, message: message, callback: callback })
     }
+    /**
+     * Registers an async listener function to be called when a message with the given name is dispatched.
+     * The callback will be invoked with the dispatched message.
+     * 
+     * @param {Function} listener - The listener function to register.
+     * @param {string} message - The message name to listen for.
+     * @param {Function} callback - The callback to invoke when the message is dispatched.
+     */
     static registerAsync(listener, message, callback) {
         Queue.asyncListeners.push({ listener: listener, message: message, callback: callback })
     }
+    /**
+     * Checks if the given listener is already registered for the given message.
+     * 
+     * @param {Function} listener - The listener function 
+     * @param {string} message - The message name
+     * @returns {boolean} - True if the listener is registered for the message
+     */
     static isRegistered(listener, message) {
         for (let loop = 0; loop < Queue.listeners.length; loop++) {
             let l = Queue.listeners[loop]
@@ -24,6 +53,14 @@ class Queue {
         }
         return false
     }
+    /**
+     * Unregisters the given listener for the given message by removing it from the listeners array.
+     * Returns an array of the removed listener objects.
+     * 
+     * @param {Function} listener - The listener function to unregister
+     * @param {string} message - The message to unregister the listener for
+     * @returns {Object[]} - Array of removed listener objects 
+     */
     static unregister(listener, message) {
         let removed = []
 
@@ -41,6 +78,12 @@ class Queue {
         }
         return removed
     }
+    /**
+     * Unregisters all listeners registered for the given listener function.
+     * Loops through the listeners and asyncListeners arrays and removes any 
+     * listeners where the listener property matches the given listener.
+     * Returns an array of all removed listener objects.
+     */
     static unregisterAllForListener(listener) {
         let removed = []
 
@@ -58,9 +101,19 @@ class Queue {
         }
         return removed
     }
+    /**
+     * Unregisters all listeners that have been registered.
+     * Clears the listeners array so no listeners remain registered.
+     */
     static unregisterAll() {
         Queue.listeners = []
     }
+    /**
+     * Broadcasts the given message and data to all registered listeners. 
+     * Loops through the listeners and asyncListeners arrays and calls the callback 
+     * function for any listener registered for the given message. 
+     * Returns an array of the listener records that received the message.
+     */
     static async broadcast(message, data) {
         let receivers = []
 
@@ -96,12 +149,32 @@ class Queue {
         }
         return receivers
     }
+    /**
+     * Broadcasts an error message to all registered listeners.
+     * 
+     * @param {string} errorText - The error message text to broadcast.
+     * @returns {Promise<Array>} A promise that resolves with an array of the listener records that received the message.
+     */
     static async broadcastError(errorText) {
-        return await Queue.broadcast( Messages.ERROR, { message: errorText })
+        return await Queue.broadcast(Messages.ERROR, { message: errorText })
     }
+    /**
+     * Broadcasts a notification message to all registered listeners.
+     *
+     * @param {string} notificationText - The notification message text to broadcast.
+     * @returns {Promise<Array>} A promise that resolves with an array of the listener records that received the message.
+     */
     static async broadcastNotification(notificationText) {
-        return await Queue.broadcast( Messages.NOTIFICATION, { message: notificationText })
+        return await Queue.broadcast(Messages.NOTIFICATION, { message: notificationText })
     }
+    /**
+     * Calls the registered listeners for the given message. 
+     * Passes the data to each listener and waits for each callback to resolve before continuing.
+     * 
+     * @param {string} message - The message to send to listeners.
+     * @param {Object} data - The data to pass to each listener callback.
+     * @returns {Promise<Array>} Promise that resolves with an array of resolved listener callback results.
+     */
     static async call(message, data) {
         let promises = []
 

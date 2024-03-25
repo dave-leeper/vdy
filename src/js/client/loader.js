@@ -4,53 +4,87 @@ class Loader {
         INCLUDES_LOADED: `INCLUDES_LOADED`,
         SITE_LOADED: `SITE_LOADED`
     }
+    /**
+     * Tree data structure to store included files in a hierarchy.
+     */
     static includeTree = new Tree()
+    /**
+     * Map to cache included files.
+     */
     static includeCache = new Map()
+    /**
+     * Getter for the includeTree static property.
+     * Returns the Tree instance used to store included files.
+     */
     static get tree() { return Loader.includeTree }
+    /**
+     * Getter for the includeCache static property.
+     * Returns the Map instance used to cache included files.
+     */
     static get cache() { return Loader.includeCache }
     static forDebug() {
         const x = 1
     }
+    /**
+     * Adds event listeners to the document body to handle various browser events.
+     * 
+     * - onclick: Sends DOCUMENT_CLICK message on clicks.
+     * - onkeyup: Sends DOCUMENT_DEFAULT_ACTION message on Enter/Space key presses. 
+     * - onkeydown: Sends DOCUMENT_ESCAPE message on Escape key press.
+     * - focusin: Sends FOCUS_IN message when focus enters an element.
+     * - focusout: Sends FOCUS_OUT message when focus leaves an element.
+     * 
+     * After adding listeners, sends SITE_LOADED message.
+     */
     static async siteLoaded() {
         const body = document.getElementsByTagName(`body`)[0]
 
         body.addEventListener("onclick", (event) => { Queue.broadcast(Messages.DOCUMENT_CLICK, event) })
-        document.addEventListener("onkeyup", (event) => { 
+        document.addEventListener("onkeyup", (event) => {
             if (`Enter` !== event?.key && ` ` !== event?.key) { return }
             Queue.broadcast(Messages.DOCUMENT_DEFAULT_ACTION, event)
         })
-        document.addEventListener("keydown", (event) => { 
+        document.addEventListener("keydown", (event) => {
             if (`Escape` !== event?.key) { return }
             Queue.broadcast(Messages.DOCUMENT_ESCAPE, event)
         })
-        body.addEventListener("focusin", (event) => { 
+        body.addEventListener("focusin", (event) => {
             const hasFocus = event.target
             const hasFocusId = hasFocus?.id
-            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId))? Component.getObject(hasFocusId) : null
-            const hasFocusValue = (hasFocusComponent)? hasFocusComponent : null
+            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId)) ? Component.getObject(hasFocusId) : null
+            const hasFocusValue = (hasFocusComponent) ? hasFocusComponent : null
             const lostFocus = event.relatedTarget
             const lostFocusId = lostFocus?.id
-            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId))? Component.getObject(lostFocusId) : null
-            const lostFocusValue = (lostFocusComponent)? lostFocusComponent : event.relatedTarget
+            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId)) ? Component.getObject(lostFocusId) : null
+            const lostFocusValue = (lostFocusComponent) ? lostFocusComponent : event.relatedTarget
 
             if (!hasFocusComponent) { return }
             Queue.broadcast(Messages.FOCUS_IN, { lostFocus: lostFocusValue, hasFocus: hasFocusValue })
         })
-        body.addEventListener("focusout", (event) => { 
+        body.addEventListener("focusout", (event) => {
             const hasFocus = event.relatedTarget
             const hasFocusId = hasFocus?.id
-            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId))? Component.getObject(hasFocusId) : null
-            const hasFocusValue = (hasFocusComponent)? hasFocusComponent : event.relatedTarget
+            const hasFocusComponent = (hasFocusId && Component.isObjectRegistered(hasFocusId)) ? Component.getObject(hasFocusId) : null
+            const hasFocusValue = (hasFocusComponent) ? hasFocusComponent : event.relatedTarget
             const lostFocus = event.target
             const lostFocusId = lostFocus?.id
-            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId))? Component.getObject(lostFocusId) : null
-            const lostFocusValue = (lostFocusComponent)? lostFocusComponent : null
+            const lostFocusComponent = (lostFocusId && Component.isObjectRegistered(lostFocusId)) ? Component.getObject(lostFocusId) : null
+            const lostFocusValue = (lostFocusComponent) ? lostFocusComponent : null
 
             if (!lostFocusValue) { return }
             Queue.broadcast(Messages.FOCUS_OUT, { lostFocus: lostFocusValue, hasFocus: hasFocusValue })
         })
         Queue.broadcast(Loader.msgs.SITE_LOADED, null)
     }
+    /**
+     * Loads a file from the server.
+     * 
+     * Checks if the file is already cached, and returns the cached version if so.
+     * If not cached, fetches the file from the server after modifying the filename 
+     * based on the includeTests, includeDocs, and includeSamples flags. 
+     * 
+     * Handles error cases and caches successful responses.
+    */
     static async loadFile(filename, includeTests, includeDocs, includeSamples) {
         if (Loader.cache.has(filename)) { return Loader.cache.get(filename) }
         const strip = filename.replace(`./`, `/strip/`)
@@ -71,22 +105,30 @@ class Loader {
         else if (includeTests && !includeDocs && !includeSamples) { url = stripDocsAndSamples }
 
         const response = await fetch(url)
-    
+
         if (!response.ok) {
             let error = `loadFile: Network response was not OK while loading ${filename}.`
-    
+
             console.error(error)
             throw new Error(error);
         }
-    
+
         let text = await response.text()
 
         Loader.cache.set(filename, text)
         return text
     }
+    /**
+     * Updates the include tree with a new parent-child relationship.
+     * 
+     * Checks if the parent node exists in the tree. If not, creates it. 
+     * Then adds the child node under the parent, unless this would cause infinite recursion.
+     * 
+     * Returns the new child node.
+    */
     static updateIncludeTree(parentName, childName) {
         let node = null
-        
+
         if (Loader.tree.hasNode(parentName)) {
             node = Loader.tree.getNodeByName(parentName)
         } else {
@@ -100,6 +142,14 @@ class Loader {
         let childNode = node.addChild(childName)
         return childNode
     }
+    /**
+     * Validates the attributes on an include-html tag. 
+     * 
+     * Checks for required attributes like src and id, and optional attributes like 
+     * tests, docs, samples. Returns an array with the attribute values.
+     * 
+     * Logs errors and returns default values if attributes are missing or invalid.
+    */
     static validateIncludeAttributes(attributes) {
         const badReturn = [null, null, null, null, null]
 
@@ -112,8 +162,8 @@ class Loader {
         const componentObjectId = attributes[`data-id`]?.value
         const includeIn = attributes[`data-in`]?.value || componentObjectId
         const repeatAttributValue = attributes[`data-repeat`]?.value
-        const repeat = (repeatAttributValue)? parseInt(repeatAttributValue) : 1
-        const includeTests = !!attributes[`data-tests`]?.value 
+        const repeat = (repeatAttributValue) ? parseInt(repeatAttributValue) : 1
+        const includeTests = !!attributes[`data-tests`]?.value
         const includeDocs = !!attributes[`data-docs`]?.value
         const includeSamples = !!attributes[`data-samples`]?.value
 
@@ -135,6 +185,12 @@ class Loader {
         }
         return [src, includeIn, componentObjectId, repeat, includeTests, includeDocs, includeSamples]
     }
+    /**
+     * Loads and processes an include-html tag. Validates attributes, updates include tree, loads file, 
+     * repeats/inserts HTML, and loads component.
+     * @param {Object} include - The include-html DOM node 
+     * @returns {boolean} - True if include loaded successfully
+     */
     static async loadInclude(include) {
         let [src, includeIn, componentObjectId, repeat, includeTests, includeDocs, includeSamples] = Loader.validateIncludeAttributes(include.attributes)
 
@@ -160,13 +216,19 @@ class Loader {
 
         return true
     }
+    /**
+     * Registers child components for the given component class. 
+     * Finds all <include-html> tags within the component-markup fragment, 
+     * extracts their data-id attributes, and stores them in the childComponentRegistry Map.
+     * This allows the component class to look up its registered child components later.
+    */
     static registerChildComponents(fragment, componentClass) {
         const componentMarkupTag = fragment.querySelector("component-markup")
         const includeHTMLTags = componentMarkupTag?.querySelectorAll("include-html")
 
         if (!ComponentLifecycle.childComponentRegistry) { ComponentLifecycle.childComponentRegistry = new Map() }
 
-        const data = { component: componentClass, childComponents: []}
+        const data = { component: componentClass, childComponents: [] }
 
         for (let loop = 0; loop < includeHTMLTags.length; loop++) {
             let includeHTMLTag = includeHTMLTags[loop]
@@ -175,13 +237,19 @@ class Loader {
         }
         ComponentLifecycle.childComponentRegistry.set(data.component, data.childComponents)
     }
+    /**
+     * Registers the slots for the given component class. 
+     * Finds all <component-slot> tags within the component markup,
+     * extracts their id attributes, and stores them in the slotRegistry Map.
+     * This allows the component class to look up its registered slots later.
+     */
     static registerSlots(fragment, componentClass) {
         const componentMarkupTag = fragment.querySelector("component-markup")
         const componentSlotTags = componentMarkupTag.querySelectorAll("component-slot")
 
         if (!ComponentLifecycle.slotRegistry) { ComponentLifecycle.slotRegistry = new Map() }
 
-        let data = { component: componentClass, slots: []}
+        let data = { component: componentClass, slots: [] }
 
         for (let loop = 0; loop < componentSlotTags.length; loop++) {
             let slotTag = componentSlotTags[loop]
@@ -190,6 +258,12 @@ class Loader {
         }
         ComponentLifecycle.slotRegistry.set(data.component, data.slots)
     }
+    /**
+     * Adds child component getter properties to the given component object, 
+     * based on child components registered in the childComponentRegistry.
+     * 
+     * This allows the component class to look up its registered child components later.
+    */
     static addChildComponentGettersToComponentObject(componentClass, componentObjectId) {
         const childComponents = ComponentLifecycle.childComponentRegistry.get(componentClass)
         const componentObject = Component.getObject(componentObjectId)
@@ -201,15 +275,24 @@ class Loader {
 
             if (Object.getOwnPropertyDescriptor(componentObject, getterName)) { continue }
             Object.defineProperty(componentObject, getterName, {
-                get: function() {
+                get: function () {
                     return Component.getObject(`${componentObjectId}${childComponentId}`)
                 },
-                set: function(newValue) {
+                set: function (newValue) {
                     console.error(`Component: Cannot set ${getterName}.`)
                 }
             })
         }
     }
+    /**
+     * Parses the class name declaration from the given fragment.
+     * 
+     * Looks for the first <script> tag in the fragment, 
+     * extracts the class declaration from it, 
+     * and returns the declared class name.
+     * 
+     * Returns null if no valid class declaration can be found.
+     */
     static getClassName(fragment) {
         const scripts = fragment.querySelectorAll(`script`)
 
@@ -235,53 +318,67 @@ class Loader {
 
         return componentClass
     }
+    /**
+     * Loads an included component from a given text fragment, registers it, 
+     * creates a component object for it, and mounts it.
+     * 
+     * Parses the class name from the fragment, registers the fragment, creates 
+     * a component object, registers the component object, adds child component 
+     * getters to the parent object, and mounts the component.
+     * 
+     * Handles all error checking and logging.
+     */
     static async loadIncludeComponent(text, src, includeIn, componentObjectId, include) {
-            const fragment = ComponentLifecycle.compile(text)
-            const componentClass = Loader.getClassName(fragment)
-            const includeTests = !!include.getAttribute(`data-tests`)
-            const includeSamples = !!include.getAttribute(`data-samples`)
+        const fragment = ComponentLifecycle.compile(text)
+        const componentClass = Loader.getClassName(fragment)
+        const includeTests = !!include.getAttribute(`data-tests`)
+        const includeSamples = !!include.getAttribute(`data-samples`)
 
-            if (null === componentClass) {
-                console.error(`loadIncludeComponent: Failed to parse component class. Include file is ${src}.`)
-                return false
-            }
+        if (null === componentClass) {
+            console.error(`loadIncludeComponent: Failed to parse component class. Include file is ${src}.`)
+            return false
+        }
 
-            const fragmentAlreadyRegistered = ComponentLifecycle.fragmentRegistry.has(componentClass)
-            const fragmentRegistered = fragmentAlreadyRegistered || ComponentLifecycle.registerDOMFragment(componentClass, componentObjectId, fragment, includeTests, includeSamples)
+        const fragmentAlreadyRegistered = ComponentLifecycle.fragmentRegistry.has(componentClass)
+        const fragmentRegistered = fragmentAlreadyRegistered || ComponentLifecycle.registerDOMFragment(componentClass, componentObjectId, fragment, includeTests, includeSamples)
 
-            if (!fragmentRegistered) {
-                console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
-                return false
-            }
-    
-            Loader.registerChildComponents(fragment, componentClass)
-            Loader.registerSlots(fragment, componentClass)
+        if (!fragmentRegistered) {
+            console.error(`loadIncludeComponent: Failed to register component fragment. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
+            return false
+        }
 
-            const componentObject = await ComponentLifecycle.createComponentObject(componentClass, componentObjectId, include)
+        Loader.registerChildComponents(fragment, componentClass)
+        Loader.registerSlots(fragment, componentClass)
 
-            if (!componentObject) {
-                console.error(`loadIncludeComponent: Failed to create component. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
-                return false
-            }
+        const componentObject = await ComponentLifecycle.createComponentObject(componentClass, componentObjectId, include)
 
-            const componentObjectRegistered = ComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
+        if (!componentObject) {
+            console.error(`loadIncludeComponent: Failed to create component. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
+            return false
+        }
 
-            if (!componentObjectRegistered) {
-                console.error(`loadIncludeComponent: Failed to register component object. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
-                return false
-            }
-            
-            Loader.addChildComponentGettersToComponentObject(componentClass, componentObjectId)
+        const componentObjectRegistered = ComponentLifecycle.registerComponentObject(componentClass, componentObjectId, componentObject)
 
-            const componentMounted = await ComponentLifecycle.mount(componentObjectId)
+        if (!componentObjectRegistered) {
+            console.error(`loadIncludeComponent: Failed to register component object. Include processing halted. Component class: ${componentClass}. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
+            return false
+        }
 
-            if (!componentMounted) {
-                console.error(`loadIncludeComponent: Failed to mount component object ${componentObjectId}. Include processing halted. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
-                return false
-            }
+        Loader.addChildComponentGettersToComponentObject(componentClass, componentObjectId)
 
-            return true
+        const componentMounted = await ComponentLifecycle.mount(componentObjectId)
+
+        if (!componentMounted) {
+            console.error(`loadIncludeComponent: Failed to mount component object ${componentObjectId}. Include processing halted. File containing bad Include-html tag is ${includeIn}. Include file is ${src}.`)
+            return false
+        }
+
+        return true
     }
+    /**
+     * Loads all include components sequentially. Removes each include tag from DOM after loading.
+     * Returns false if any include fails to load, halting further loading.
+     */
     static async loadIncludes() {
         let includes = document.getElementsByTagName('include-html')
 
@@ -294,7 +391,7 @@ class Loader {
             includes = document.getElementsByTagName('include-html')
         }
         await Queue.broadcast(Loader.msgs.INCLUDES_LOADED, {})
-        return 
+        return
     }
     static registerCustomTags () {
         // * The include-html tag can include a file containing HTML into another HTML document. The HTML to be

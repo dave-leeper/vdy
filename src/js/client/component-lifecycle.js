@@ -28,6 +28,10 @@ class ComponentLifecycle {
     static objectRegistry = new Map()
     static childComponentRegistry = new Map()
     static initialize() { }
+    /**
+     * Recursively saves the original nodeValue for text nodes and original attributes for element nodes,
+     * so they can be restored later if needed.
+     */
     static saveOriginalNodeValues(node) {
         if (node.nodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
@@ -36,6 +40,10 @@ class ComponentLifecycle {
             ComponentLifecycle.saveOriginalNodeValues(child)
         }
     }
+    /**
+     * Recursively saves the original attribute values for element nodes,
+     * so they can be restored later if needed.
+     */
     static saveOriginalNodeAttributes(node) {
         if (node.attributes) {
             for (let attr of node.attributes) {
@@ -46,9 +54,14 @@ class ComponentLifecycle {
             ComponentLifecycle.saveOriginalNodeAttributes(child)
         }
     }
-    static copyOriginalNodeValues(srcNode, destNode){
+    /**
+     * Recursively copies original node values from srcNode to destNode.
+     * Checks if srcNode has an originalNodeValue and copies it to destNode if destNode does not already have one.
+     * Loops through child nodes and recursively calls copyOriginalNodeValues on each pair of child nodes.
+     */
+    static copyOriginalNodeValues(srcNode, destNode) {
         if (srcNode.nodeValue) {
-            if (srcNode.originalNodeValue && !destNode.originalNodeValue) { 
+            if (srcNode.originalNodeValue && !destNode.originalNodeValue) {
                 destNode.originalNodeValue = srcNode.originalNodeValue
             }
         }
@@ -58,14 +71,19 @@ class ComponentLifecycle {
             ComponentLifecycle.copyOriginalNodeValues(srcChildNode, destChildNode)
         }
     }
+    /**
+     * Recursively copies original attribute values from srcNode to destNode. 
+     * Checks if srcNode has original attribute values and copies them to destNode if destNode does not already have them.
+     * Loops through attributes and child nodes, recursively calling copyOriginalNodeAttributes.
+     */
     static copyOriginalNodeAttributes(srcNode, destNode) {
         if (srcNode.attributes) {
             for (let loop = 0; loop < srcNode.attributes.length; loop++) {
                 let srcAttribute = srcNode.attributes[loop]
                 let destAttribute = destNode.attributes[srcAttribute.name]
 
-                if (srcAttribute.originalAttributeValue && !destAttribute.originalAttributeValue) { 
-                    destAttribute.originalAttributeValue = srcAttribute.originalAttributeValue 
+                if (srcAttribute.originalAttributeValue && !destAttribute.originalAttributeValue) {
+                    destAttribute.originalAttributeValue = srcAttribute.originalAttributeValue
                 }
             }
         }
@@ -75,6 +93,16 @@ class ComponentLifecycle {
             ComponentLifecycle.copyOriginalNodeAttributes(srcChildNode, destChildNode)
         }
     }
+    /**
+     * Recursively replaces node values containing template strings with member data.
+     * Checks if node has originalNodeValue and saves current value.
+     * Checks if node has replacementData map and initializes it if not.
+     * Checks if member template string is in original node value.
+     * Saves member data in replacementData map.
+     * Replaces all template string occurrences with corresponding data.
+     * Sets new node value with replacements.
+     * Recursively calls on child nodes.
+    */
     static replaceNodeValue(node, data, member) {
         if (node.nodeValue || node.originalNodeValue) {
             if (!node.originalNodeValue) { node.originalNodeValue = node.nodeValue }
@@ -88,7 +116,7 @@ class ComponentLifecycle {
                 // TODO: Thoroughly test this with multiple replacements in a single node value.
                 try {
                     const memberData = data[member].toString()
-                    const replaceFunc =  (value, key, map) => {
+                    const replaceFunc = (value, key, map) => {
                         const formattedKey = `{${key}}`
 
                         newValue = newValue.replaceAll(formattedKey, value)
@@ -106,6 +134,16 @@ class ComponentLifecycle {
             ComponentLifecycle.replaceNodeValue(child, data, member)
         }
     }
+    /**
+     * Recursively replaces attribute values containing template strings with member data.
+     * Checks if attribute has originalAttributeValue and saves current value. 
+     * Checks if attribute has replacementData map and initializes it if not.
+     * Checks if member template string is in original attribute value.
+     * Saves member data in replacementData map.
+     * Replaces all template string occurrences with corresponding data.
+     * Sets new attribute value with replacements.
+     * Recursively calls on child nodes.
+    */
     static replaceAttributeValue(node, data, member) {
         if (node.attributes) {
             for (let attr of node.attributes) {
@@ -120,9 +158,9 @@ class ComponentLifecycle {
                     // TODO: Thoroughly test this with multiple replacements in a single attribute value.
                     try {
                         let memberData = data[member].toString()
-                        const replaceFunc =  (value, key, map) => {
+                        const replaceFunc = (value, key, map) => {
                             const formattedKey = `{${key}}`
-    
+
                             newValue = newValue.replaceAll(formattedKey, value)
                         }
 
@@ -139,37 +177,53 @@ class ComponentLifecycle {
             ComponentLifecycle.replaceAttributeValue(child, data, member)
         }
     }
+    /**
+     * Wraps the component object's data members in getter/setter proxies. 
+     * This allows reactive tracking of changes to the component's data.
+     * The enabled member is currently hardcoded, but more can be added.
+     * When a proxied data member changes, a message is broadcast on the Queue.
+     */
     static wrapObjectData(componentObject) {
-        if (!componentObject.vars) {return}
-        let members = [ `enabled` ]
+        if (!componentObject.vars) { return }
+        let members = [`enabled`]
 
         componentObject.$objectDataStore = { enabled: componentObject.enabled }
         for (let member of members) {
             Object.defineProperty(componentObject, member, {
-                get: function() {
+                get: function () {
                     return componentObject.$objectDataStore[member]
                 },
-                set: function(newValue) {
+                set: function (newValue) {
                     const oldValue = componentObject.$objectDataStore[member]
 
                     componentObject.$objectDataStore[member] = newValue
-                    Queue.broadcast(ComponentLifecycle.msgs.VAR_VALUE_CHANGED, { componentObject, member, oldValue, newValue})
+                    Queue.broadcast(ComponentLifecycle.msgs.VAR_VALUE_CHANGED, { componentObject, member, oldValue, newValue })
                 }
             })
         }
     }
+    /**
+     * Wraps the props members of the given component object in getter/setter 
+     * proxies. This allows reactive tracking of changes to the component's 
+     * props. The existing props are copied to a $propsStore property on 
+     * the component's props object. The individual props are then proxied
+     * through getters/setters that reference the $propsStore copy. 
+     * Setters will log errors since props should be immutable.
+     * The component's DOM is also searched and any matching prop values
+     * are replaced with the proxied getters/setters.
+     */
     static wrapProps(componentObject) {
-        if (!componentObject.props) {return}
+        if (!componentObject.props) { return }
         let members = Object.getOwnPropertyNames(componentObject.props)
 
-        componentObject.props.$propsStore = {...componentObject.props}
+        componentObject.props.$propsStore = { ...componentObject.props }
         for (let member of members) {
             if (`$propsStore` === member) { continue }
             Object.defineProperty(componentObject.props, member, {
-                get: function() {
+                get: function () {
                     return componentObject.props.$propsStore[member]
                 },
-                set: function(newValue) {
+                set: function (newValue) {
                     console.error(`wrapProps: Cannot set ${member}.`)
                 }
             })
@@ -178,25 +232,33 @@ class ComponentLifecycle {
             ComponentLifecycle.replaceAttributeValue(componentObject.ObjectFragment, componentObject.props, member)
         }
     }
+    /**
+     * Wraps the vars members of the given component object in getter/setter 
+     * proxies. This allows reactive tracking of changes to the component's
+     * vars. The existing vars are copied to a $varsStore property on the 
+     * component's vars object. The individual vars are then proxied through 
+     * getters/setters that reference the $varsStore copy.
+     * Setters will update any matching DOM node values and broadcast var changes.
+    */
     static wrapVars(componentObject) {
-        if (!componentObject.vars) {return}
+        if (!componentObject.vars) { return }
         let members = Object.getOwnPropertyNames(componentObject.vars)
 
-        componentObject.vars.$varsStore = {...componentObject.vars}
+        componentObject.vars.$varsStore = { ...componentObject.vars }
         for (let member of members) {
 
             if (`$varsStore` === member) { continue }
             Object.defineProperty(componentObject.vars, member, {
-                get: function() {
+                get: function () {
                     return componentObject.vars.$varsStore[member]
                 },
-                set: function(newValue) {
+                set: function (newValue) {
                     const oldValue = componentObject.vars.$varsStore[member]
 
                     componentObject.vars.$varsStore[member] = newValue
                     ComponentLifecycle.replaceNodeValue(componentObject.ObjectFragment, componentObject.vars, member)
                     ComponentLifecycle.replaceAttributeValue(componentObject.ObjectFragment, componentObject.vars, member)
-                    Queue.broadcast(ComponentLifecycle.msgs.VAR_VALUE_CHANGED, { componentObject, member, oldValue, newValue})
+                    Queue.broadcast(ComponentLifecycle.msgs.VAR_VALUE_CHANGED, { componentObject, member, oldValue, newValue })
                 }
             })
 
@@ -204,33 +266,57 @@ class ComponentLifecycle {
             ComponentLifecycle.replaceAttributeValue(componentObject.ObjectFragment, componentObject.vars, member)
         }
     }
+    /**
+     * Compiles the given HTML string into a DocumentFragment.
+     * 
+     * Parses the HTML using a DOMParser, then extracts the body children nodes
+     * from the parsed document and appends them to a new DocumentFragment.
+     * 
+     * @param {string} html - The HTML string to compile
+     * @returns {DocumentFragment} The compiled HTML fragment
+     */
     static compile(html) {
         let fragment = document.createDocumentFragment()
 
         fragment.append(...new DOMParser().parseFromString(html, `text/html`).body.childNodes)
         return fragment
     }
+    /**
+     * Registers a DOM fragment for a component class. Stores the fragment, 
+     * component ID, test, and sample scripts in a registry for later retrieval.
+     * Validates the fragment structure before registration.
+     */
     static registerDOMFragment(componentClass, componentObjectId, componentFragment, includeTest, includeSample) {
-        if (!componentClass) { 
+        if (!componentClass) {
             console.error(`registerDOMFragment: No component class provided for DOM fragment registration.`)
-            return false 
+            return false
         }
-        if (ComponentLifecycle.fragmentRegistry.has(componentClass)) { 
+        if (ComponentLifecycle.fragmentRegistry.has(componentClass)) {
             console.info(`registerDOMFragment: DOM Fragment ${componentClass} is already registered.`)
-            return true 
+            return true
         }
-        if (!componentObjectId) { 
+        if (!componentObjectId) {
             console.error(`registerDOMFragment: No component object id provided for DOM fragment registration.`)
-            return false 
+            return false
         }
-        if (!componentFragment) { 
+        if (!componentFragment) {
             console.error(`registerDOMFragment: No DOM fragment provided for DOM fragment registration.`)
-            return false 
+            return false
         }
 
         const scripts = componentFragment.querySelectorAll(`script`)
         const styles = componentFragment.querySelectorAll(`style`)
         const markup = componentFragment.querySelectorAll(`component-markup`)
+        /**
+         * Counts the number of non-test and non-sample component scripts.
+         * 
+         * Loops through the provided scripts array and increments a counter
+         * for each script that does not have the data-is-test or data-is-sample
+         * attribute.
+         * 
+         * @param {HTMLScriptElement[]} scripts - The array of script elements to check 
+         * @returns {number} The number of component scripts
+         */
         const getComponentScriptCount = (scripts) => {
             let count = 0
 
@@ -263,7 +349,7 @@ class ComponentLifecycle {
             if (1 < testCount) {
                 console.error(`registerDOMFragment: Fragment can contain no more than one test script. ${componentClass}  ${componentObjectId}`)
                 return false
-            }   
+            }
         }
         if (includeSample) {
             let sampleCount = 0
@@ -272,29 +358,56 @@ class ComponentLifecycle {
             if (1 < sampleCount) {
                 console.error(`registerDOMFragment: Fragment can contain no more than one sample script. ${componentClass}  ${componentObjectId}`)
                 return false
-            }   
+            }
             if (1 !== sampleCount) {
                 console.error(`registerDOMFragment: Fragment can contain no more than one sample script. ${componentClass}  ${componentObjectId}`)
                 return false
-            }   
+            }
         }
         if (1 !== getComponentScriptCount(scripts)) {
             console.error(`registerDOMFragment: Fragment can contain no more than one component script. ${componentClass}  ${componentObjectId}`)
             return false
         }
 
+        /**
+         * Gets the component script from an array of scripts.
+         * 
+         * Loops through the array of scripts and returns the first one that is not
+         * marked as a test or sample script using data attributes.
+         * 
+         * @param {HTMLScriptElement[]} scripts - Array of script elements to search.
+         * @returns {HTMLScriptElement|null} The component script element, or null if none found.
+         */
         const getComponentScript = (scripts) => {
             if (scripts[0] && !scripts[0].hasAttribute(`data-is-test`) && !scripts[0].hasAttribute(`data-is-sample`)) { return scripts[0] }
             if (scripts[1] && !scripts[1].hasAttribute(`data-is-test`) && !scripts[1].hasAttribute(`data-is-sample`)) { return scripts[1] }
             if (scripts[2] && !scripts[2].hasAttribute(`data-is-test`) && !scripts[1].hasAttribute(`data-is-sample`)) { return scripts[2] }
             return null
         }
+        /**
+         * Gets the test script from an array of scripts.
+         * 
+         * Loops through the array of scripts and returns the first one that is
+         * marked as a test script using the data-is-test attribute.
+         *  
+         * @param {HTMLScriptElement[]} scripts - Array of script elements to search.
+         * @returns {HTMLScriptElement|null} The test script element, or null if none found.
+         */
         const getTestScript = (scripts) => {
             if (scripts[0] && scripts[0].hasAttribute(`data-is-test`)) { return scripts[0] }
             if (scripts[1] && scripts[1].hasAttribute(`data-is-test`)) { return scripts[1] }
             if (scripts[2] && scripts[2].hasAttribute(`data-is-test`)) { return scripts[2] }
             return null
         }
+        /**
+         * Gets the sample script from an array of scripts.
+         * 
+         * Loops through the array of scripts and returns the first one that is
+         * marked as a sample script using the data-is-sample attribute.
+         *
+         * @param {HTMLScriptElement[]} scripts - Array of script elements to search.  
+         * @returns {HTMLScriptElement|null} The sample script element, or null if none found.
+         */
         const getSampleScript = (scripts) => {
             if (scripts[0] && scripts[0].hasAttribute(`data-is-sample`)) { return scripts[0] }
             if (scripts[1] && scripts[1].hasAttribute(`data-is-sample`)) { return scripts[1] }
@@ -340,9 +453,9 @@ class ComponentLifecycle {
             if (includeTest) {
                 try {
                     const testText = testScript.innerText
-    
+
                     test = new Function(testText)
-                } catch(e) {
+                } catch (e) {
                     console.error(`registerDOMFragment: Error loading test script. ${componentClass}  ${componentObjectId} ${e}`)
                     return false
                 }
@@ -353,9 +466,9 @@ class ComponentLifecycle {
             if (includeSample) {
                 try {
                     const sampleText = sampleScript.innerText
-    
+
                     sample = new Function(sampleText)
-                } catch(e) {
+                } catch (e) {
                     console.error(`registerDOMFragment: Error loading sample script. ${componentClass}  ${componentObjectId} ${e}`)
                     return false
                 }
@@ -368,25 +481,37 @@ class ComponentLifecycle {
 
         return true
     }
+    /**
+     * Unregisters a DOM fragment for the given component class. 
+     * Removes any associated script and style tags from the document.
+     * Deletes the component fragment from the registry.
+     */
     static unregisterDOMFragment(componentClass) {
-        if (!componentClass) { 
+        if (!componentClass) {
             console.error(`unregisterDOMFragment: No component class provided for unregistration.`)
-            return false 
+            return false
         }
-        if (!ComponentLifecycle.fragmentRegistry?.has(componentClass)) { 
+        if (!ComponentLifecycle.fragmentRegistry?.has(componentClass)) {
             console.error(`unregisterDOMFragment: DOM Fragment ${componentClass} was not in registery.`)
-            return false 
+            return false
         }
         let componentScriptTag = document.getElementById(`ScriptTag${componentClass}`)
         let componentStyleTag = document.getElementById(`StyleTag${componentClass}`)
         let componentTestTag = document.getElementById(`TestTag${componentClass}`)
-        
+
         if (componentScriptTag) { componentScriptTag.remove() }
         if (componentStyleTag) { componentStyleTag.remove() }
         if (componentTestTag) { componentTestTag.remove() }
         ComponentLifecycle.fragmentRegistry.delete(componentClass)
         return true
     }
+    /**
+     * Adds getter properties to the componentObject for each element ID,
+     * to allow easy access to element objects by ID.
+     * 
+     * @param {HTMLElement} element - The element to add getters for
+     * @param {Object} componentObject - The component object to add the getters to
+     */
     static addElementGettersToComponentObject = (element, componentObject) => {
         if (element.children) {
             for (let child of element.children) {
@@ -399,18 +524,25 @@ class ComponentLifecycle {
         getterName += `Element`
         if (!componentObject.hasOwnProperty(getterName)) {
             Object.defineProperty(componentObject, getterName, {
-                get: function() { return document.getElementById(element.id) },
-                set: function(newValue) { console.error(`createComponentObject: Cannot set ${getterName}.`) }
+                get: function () { return document.getElementById(element.id) },
+                set: function (newValue) { console.error(`createComponentObject: Cannot set ${getterName}.`) }
             })
         }
     }
+    /**
+     * Adds convenience methods to the provided element to allow easy access 
+     * to common operations like showing/hiding, checking visibility, getting the component,
+     * destroying the component, removing children, adding/removing classes, etc.
+     * 
+     * Also adds the same convenience methods recursively to all child elements.
+     */
     static addConvenienceMethodsToElement = (element) => {
-        const show = () => { if (element.classList.contains(`display-none`)) { element.classList.remove(`display-none`) }}
-        const hide = () => { if (!element.classList.contains(`display-none`)) { element.classList.add(`display-none`) }}
+        const show = () => { if (element.classList.contains(`display-none`)) { element.classList.remove(`display-none`) } }
+        const hide = () => { if (!element.classList.contains(`display-none`)) { element.classList.add(`display-none`) } }
         const isVisible = () => { return !element.classList.contains(`display-none`) }
-        const toggleVisibility = () => { if (element.isVisible()) { element.hide() } else {element.show() }}
+        const toggleVisibility = () => { if (element.isVisible()) { element.hide() } else { element.show() } }
         const hasComponent = () => { return Component.isObjectRegistered(element.id) }
-        const getComponent = () => { 
+        const getComponent = () => {
             if (!element.id || !Component.isObjectRegistered(element.id)) { return null }
             return Component.getObject(element.id)
         }
@@ -431,7 +563,7 @@ class ComponentLifecycle {
 
             await destroyChildElements(element)
         }
-        const removeChildren = () => { while (element.firstChild) { element.removeChild(element.firstChild) }}
+        const removeChildren = () => { while (element.firstChild) { element.removeChild(element.firstChild) } }
         const addClass = (className) => { element.classList.add(className) }
         const removeClass = (className) => { element.classList.remove(className) }
         const toggleClass = (className) => { element.classList.toggle(className) }
@@ -439,7 +571,7 @@ class ComponentLifecycle {
         const hasClass = (className) => { return element.classList.contains(className) }
         const hasFocus = () => { return element === document.activeElement }
         const getFocusedElement = () => { return document.activeElement }
-        
+
         element.show = show
         element.hide = hide
         element.isVisible = isVisible
@@ -459,9 +591,16 @@ class ComponentLifecycle {
         if (element.children) {
             for (let elementChild of element.children) {
                 ComponentLifecycle.addConvenienceMethodsToElement(elementChild)
-            }    
+            }
         }
     }
+    /**
+     * Copies attributes from one element to another, excluding certain 
+     * attribute names related to component state and configuration.
+     *
+     * @param {Element} includeElementSrc - The source element to copy attributes from
+     * @param {Element} elementDest - The destination element to copy attributes to
+     */
     static copyAttributes = (includeElementSrc, elementDest) => {
         for (let attributeLoop = 0; attributeLoop < includeElementSrc.attributes.length; attributeLoop++) {
             let attribute = includeElementSrc.attributes[attributeLoop]
@@ -483,6 +622,14 @@ class ComponentLifecycle {
             elementDest.setAttribute(attribute.name, attributeValue + attribute.value)
         }
     }
+    /**
+     * Sets event handlers on the given node and its children. 
+     * Looks for event handler attributes like onClick, and replaces references to $obj with references to the component object instance.
+     * This allows event handlers defined in the template to access the component instance via $obj.
+     * 
+     * @param {Node} node - The node to set event handlers on
+     * @param {string} componentObjectId - The id of the component object instance  
+     */
     static setEventHandlers = (node, componentObjectId) => {
         const events = [`onblur`, `onchange`, `oncontextmenu`, `onfocus`, `oninput`, `oninvalid`, `onreset`, `onsearch`, `onselect`, `onsubmit`, `onkeydown`, `onkeyup`, `onclick`,
             `ondblclick`, `onmousedown`, `onmousemove`, `onmouseout`, `onmouseover`, `onmouseup`, `onwheel`, `ondrag`, `ondragend`, `ondragenter`, `ondragleave`, `ondragover`,
@@ -506,18 +653,29 @@ class ComponentLifecycle {
             setEventHandler(node, event)
         }
     }
-    static async createComponentObject(componentClass, componentObjectId, includeElement){
-        if (!componentClass) { 
+    /**
+     * Creates a new component object instance from the provided component class and initializes it.
+     * 
+     * Copies attributes from the original <include> tag to the component markup. 
+     * Replaces $obj in event handlers with a reference to the component instance.
+     * Adds getters for elements in the component markup to the component instance.
+     * Adds convenience methods like getElementById() to element nodes.
+     * Calls initialize() on the component instance if it exists.
+     * Wraps the component's props and vars in getter/setters.
+     * Replaces values in the markup with props and vars from the component instance.
+     */
+    static async createComponentObject(componentClass, componentObjectId, includeElement) {
+        if (!componentClass) {
             console.error(`createComponentObject: No component class provided for createComponentObject.`)
-            return false 
+            return false
         }
-        if (!componentObjectId) { 
+        if (!componentObjectId) {
             console.error(`createComponentObject: No component object id provided for createComponentObject.`)
-            return false 
+            return false
         }
-        if (!includeElement) { 
+        if (!includeElement) {
             console.error(`createComponentObject: No includeComponentElement provided for createComponentObject.`)
-            return false 
+            return false
         }
 
         const componentObject = eval(`new ${componentClass}()`)
@@ -530,9 +688,9 @@ class ComponentLifecycle {
         const fragment = template.cloneNode(true)
         const markup = fragment.querySelector(`component-markup`)
 
-        if (!markup) { 
+        if (!markup) {
             console.error(`registerComponentObject: Markup for ${componentObjectId} not found.`)
-            return false 
+            return false
         }
         if (!marker) {
             const marker = document.createElement(`script`)
@@ -542,12 +700,12 @@ class ComponentLifecycle {
             // TODO: Do not replace child until repeat is done.
             includeElement.parentNode.replaceChild(marker, includeElement);
         }
-    
+
         const htmlTag = markup.children[0]
         const propsAttribute = includeElement.getAttribute(`data-props`)
         const varsAttribute = includeElement.getAttribute(`data-vars`)
-        const dataStyleAttributes = [].filter.call(includeElement.attributes, function(at) { return /^data-style/.test(at.name) })
-        const dataClassAttributes = [].filter.call(includeElement.attributes, function(at) { return /^data-class/.test(at.name) })
+        const dataStyleAttributes = [].filter.call(includeElement.attributes, function (at) { return /^data-style/.test(at.name) })
+        const dataClassAttributes = [].filter.call(includeElement.attributes, function (at) { return /^data-class/.test(at.name) })
 
         if (test) { componentObject.getTests = test }
         if (sample) { componentObject.getSamples = sample }
@@ -556,25 +714,25 @@ class ComponentLifecycle {
             const jsonText = `(` + DOMPurify.sanitize(propsAttribute) + `)`
             const propsObject = eval(jsonText)
 
-            componentObject.props = {...componentObject.props, ...propsObject}
+            componentObject.props = { ...componentObject.props, ...propsObject }
         }
         if (varsAttribute) {
             const jsonText = `(` + DOMPurify.sanitize(varsAttribute) + `)`
             const varsObject = eval(jsonText)
 
-            componentObject.vars = {...componentObject.vars, ...varsObject}
+            componentObject.vars = { ...componentObject.vars, ...varsObject }
         }
         Object.defineProperty(componentObject, `ObjectFragment`, {
-            get: function() { return htmlTag },
-            set: function(newValue) { console.error(`${componentObject.className()}.${componentObject.id}: Cannot set ObjectFragment.`) }
+            get: function () { return htmlTag },
+            set: function (newValue) { console.error(`${componentObject.className()}.${componentObject.id}: Cannot set ObjectFragment.`) }
         })
         Object.defineProperty(componentObject, `dataStyleAttributes`, {
-            get: function() { return dataStyleAttributes },
-            set: function(newValue) { console.error(`${componentObject.className()}.${componentObject.id}: Cannot set dataStyleAttributes.`) }
+            get: function () { return dataStyleAttributes },
+            set: function (newValue) { console.error(`${componentObject.className()}.${componentObject.id}: Cannot set dataStyleAttributes.`) }
         })
         Object.defineProperty(componentObject, `dataClassAttributes`, {
-            get: function() { return dataClassAttributes },
-            set: function(newValue) { console.error(`${componentObject.className()}.${componentObject.id}: Cannot set dataClassAttributes.`) }
+            get: function () { return dataClassAttributes },
+            set: function (newValue) { console.error(`${componentObject.className()}.${componentObject.id}: Cannot set dataClassAttributes.`) }
         })
 
         if (componentObject.initialize) { await componentObject.initialize(componentObjectId) }
@@ -615,52 +773,78 @@ class ComponentLifecycle {
         }
         return componentObject
     }
+    /**
+     * Registers a component object instance with the component lifecycle manager.
+     * 
+     * @param {Function} componentClass - The component class.
+     * @param {string} componentObjectId - The unique ID for the component instance. 
+     * @param {Object} componentObject - The component object instance.
+     * @returns {boolean} - True if registered successfully, false otherwise.
+     */
     static registerComponentObject(componentClass, componentObjectId, componentObject) {
-        if (!componentObjectId) { 
+        if (!componentObjectId) {
             console.error(`registerComponentObject: No component object id provided for component object registration.`)
-            return false 
+            return false
         }
-        if (!componentObject) { 
+        if (!componentObject) {
             console.error(`registerComponentObject: No component object provided for component object registration.`)
-            return false 
+            return false
         }
-        if (!componentClass) { 
+        if (!componentClass) {
             console.error(`registerComponentObject: No fragment id provided for component object registration.`)
-            return false 
+            return false
         }
-        if (ComponentLifecycle.objectRegistry.has(componentObjectId)) { 
+        if (ComponentLifecycle.objectRegistry.has(componentObjectId)) {
             console.error(`registerComponentObject: Component object ${componentObjectId} is already registered.`)
-            return false 
+            return false
         }
 
         ComponentLifecycle.objectRegistry.set(componentObjectId, { componentObject, componentClass })
         return true
     }
+    /**
+     * Unregisters a component object instance from the component lifecycle manager.
+     *
+     * @param {string} componentObjectID - The unique ID of the component instance to unregister.
+     * @returns {boolean} - True if unregistered successfully, false otherwise.
+     */
     static unregisterComponentObject(componentObjectID) {
-        if (!componentObjectID) { 
+        if (!componentObjectID) {
             console.error(`unregisterComponentObject: No component object id provided for registration.`)
-            return false 
+            return false
         }
-        if (!ComponentLifecycle.objectRegistry.has(componentObjectID)) { 
+        if (!ComponentLifecycle.objectRegistry.has(componentObjectID)) {
             console.warn(`unregisterComponentObject: Component object ${componentObjectID} was not in registery.`)
-            return false 
+            return false
         }
-        if (ComponentLifecycle.objectRegistry.get(componentObjectID).mounted) { 
+        if (ComponentLifecycle.objectRegistry.get(componentObjectID).mounted) {
             console.error(`unregisterComponentObject: Cannot unregister a mounted component, ${componentObjectID}.`)
-            return false 
+            return false
         }
         while (ComponentLifecycle.objectRegistry.has(componentObjectID)) { ComponentLifecycle.objectRegistry.delete(componentObjectID) }
         while (ComponentLifecycle.objectFragmentRegistry.has(componentObjectID)) { ComponentLifecycle.objectFragmentRegistry.delete(componentObjectID) }
         return true
     }
+    /**
+     * Mounts the component object instance into the DOM. 
+     * 
+     * Checks that the component object instance and related registries are valid.
+     * Calls beforeMount on the component if provided. 
+     * Inserts the component's DOM elements before the marker element.
+     * Sets the mounted flag to true on the component object info.
+     * Calls afterMount on the component if provided.
+     * 
+     * @param {string} componentObjectId - The unique ID of the component instance to mount.
+     * @returns {boolean} - True if mounted successfully, false otherwise.
+     */
     static async mount(componentObjectId) {
-        if (!componentObjectId) { 
+        if (!componentObjectId) {
             console.error(`mount: No component object id provided for mount.`)
-            return false 
+            return false
         }
-        if (!ComponentLifecycle.objectRegistry?.has(componentObjectId)) { 
+        if (!ComponentLifecycle.objectRegistry?.has(componentObjectId)) {
             console.error(`mount: Component object ${componentObjectId} was not in registery.`)
-            return false 
+            return false
         }
 
         let componentObjectInfo = ComponentLifecycle.objectRegistry.get(componentObjectId)
@@ -670,29 +854,29 @@ class ComponentLifecycle {
         let markerId = `-ComponentBeginMarker${componentObjectId}`
         let marker = document.getElementById(markerId)
 
-        if (!fragment) { 
+        if (!fragment) {
             console.error(`mount: DOM fragment ${componentObjectInfo.componentClass} is not in registery.`)
-            return false 
+            return false
         }
-        if (!customComponentElement) { 
+        if (!customComponentElement) {
             console.error(`mount: Custom component element for ${componentObjectInfo.componentClass} was not provided.`)
-            return false 
+            return false
         }
-        if (!componentMarkupElement) { 
+        if (!componentMarkupElement) {
             console.error(`mount: Component markup element for ${componentObjectInfo.componentClass} was not provided.`)
-            return false 
+            return false
         }
-        if (!componentObjectInfo.componentObject) { 
+        if (!componentObjectInfo.componentObject) {
             console.error(`mount: Component object ${componentObjectId} is not in registery.`)
-            return false 
+            return false
         }
-        if (componentObjectInfo.mounted) { 
+        if (componentObjectInfo.mounted) {
             console.error(`mount: Component object ${componentObjectId} is already mounted.`)
-            return false 
+            return false
         }
-        if (!marker) { 
+        if (!marker) {
             console.error(`mount: Marker for ${componentObjectId} is not in DOM.`)
-            return false 
+            return false
         }
 
         if (componentObjectInfo.componentObject.beforeMount) { await componentObjectInfo.componentObject.beforeMount() }
@@ -714,47 +898,64 @@ class ComponentLifecycle {
         }
         return true
     }
+    /**
+     * Unmounts a component object by id. 
+     * 
+     * Removes the component's DOM elements and updates the component's state.
+     * Calls the component's beforeUnmount and afterUnmount lifecycle methods if defined.
+     * 
+     * @param {string} componentObjectId - The id of the component object to unmount.
+     * @returns {boolean} - True if the component was successfully unmounted.
+     */
     static async unmount(componentObjectId) {
-        if (!componentObjectId) { 
+        if (!componentObjectId) {
             console.error(`Unmount: No component object id provided for mount.`)
-            return false 
+            return false
         }
-        if (!ComponentLifecycle.objectRegistry?.has(componentObjectId)) { 
+        if (!ComponentLifecycle.objectRegistry?.has(componentObjectId)) {
             console.error(`Unmount: Component object ${componentObjectId} is not in registery.`)
-            return false 
+            return false
         }
 
         let componentObjectInfo = ComponentLifecycle.objectRegistry?.get(componentObjectId)
 
-        if (!componentObjectInfo?.componentObject) { 
+        if (!componentObjectInfo?.componentObject) {
             console.error(`Unmount: Component object ${componentObjectId} is not in registery.`)
-            return false 
+            return false
         }
-        if (!componentObjectInfo.componentObject.mounted) { 
+        if (!componentObjectInfo.componentObject.mounted) {
             console.error(`Unmount: Component object ${componentObjectId} was not mounted.`)
-            return false 
+            return false
         }
 
         let fragment = ComponentLifecycle.objectFragmentRegistry.get(componentObjectId)
-        let markerId =`-ComponentBeginMarker${componentObjectId}`
+        let markerId = `-ComponentBeginMarker${componentObjectId}`
         let marker = document.querySelectorAll(`[data-component="${markerId}"]`)
 
-        if (!fragment) { 
+        if (!fragment) {
             console.warn(`Unmount: Fragment ${componentObjectInfo.componentClass} is not in registery.`)
-            return false 
+            return false
         }
-        if (!marker || 0 === marker.length) { 
+        if (!marker || 0 === marker.length) {
             console.warn(`Unmount: Marker for ${componentObjectId}, ${markerId}, not in DOM.`)
-            return false 
+            return false
         }
 
-        if (componentObjectInfo.componentObject.beforeUnmount) { await componentObjectInfo.componentObject.beforeUnmount() }        
+        if (componentObjectInfo.componentObject.beforeUnmount) { await componentObjectInfo.componentObject.beforeUnmount() }
         marker[0].remove()
         componentObjectInfo.componentObject.mounted = false
         ComponentLifecycle.objectRegistry.set(componentObjectId, componentObjectInfo)
         if (componentObjectInfo.componentObject.afterUnmount) { await componentObjectInfo.componentObject.afterUnmount() }
         return true
     }
+    /**
+     * Destroys a component object instance by id.
+     * 
+     * Removes the component's DOM elements, deregisters event listeners, 
+     * calls lifecycle hooks, and removes it from registries.
+     * 
+     * @param {string} componentObjectId - The id of the component instance to destroy.
+     */
     static async destroyComponentObject(componentObjectId) {
         const markerId = `-ComponentBeginMarker${componentObjectId}`
         const marker = document.querySelectorAll(`[data-component="${markerId}"]`)
@@ -768,7 +969,7 @@ class ComponentLifecycle {
                 await ComponentLifecycle.destroyComponentObject(childComponent.id)
             }
         }
-        
+
         if (component && component.isMounted()) { await ComponentLifecycle.unmount(componentObjectId) }
         try {
             const unregisterComponentObjectResult = ComponentLifecycle.unregisterComponentObject(componentObjectId)

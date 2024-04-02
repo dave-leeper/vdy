@@ -5,6 +5,12 @@ const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Handler for updating a reply.
+     * 
+     * Validates the request and authorization. Updates the reply in the database with 
+     * the new reply text and current date. Generates a new JWT token and returns it in the response.
+     */
     return async (req, res, next) => {
         log(entry)
 
@@ -12,7 +18,7 @@ module.exports = (entry) => {
         const db = Registry.get(`FileDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
         const reply = JSON.parse(req.body)
-        
+
         logError(`update-reply B ${db}`)
         if (!db) {
             logError(`update-reply B Error`)
@@ -71,7 +77,7 @@ module.exports = (entry) => {
         const date = new Date();
         const today = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
         let updateData = {}
-        
+
         updateData.reply = reply.reply
         updateData.date = today
 

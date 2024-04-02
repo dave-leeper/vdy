@@ -3,12 +3,19 @@ const Registry = require(`../../utility/registry`)
 const {log, logError} = require('../../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Increments an analytics counter field in the database.
+     * 
+     * Looks up the analytics record by ID, increments the requested 
+     * metric field, and updates the database. Responds with 200 OK
+     * on success.
+     */
     return async (req, res, next) => {
         log(entry)
 
         const db = Registry.get(`FileDBConnection`)
         const requestBody = req.body
-        
+
         if (!db) {
             const err = `503 Service Unavailable`
             const result = { status: 503, err }
@@ -32,7 +39,7 @@ module.exports = (entry) => {
         const fieldId = entry.args.metric
         let updateData = {}
         let analytics = await fileDBSelect(db, recordId)
-        
+
         analytics = analytics[0]
         if (!analytics[fieldId]) { updateData[fieldId] = 1 }
         else { updateData[fieldId] = analytics[fieldId] + 1 }

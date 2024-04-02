@@ -2,6 +2,12 @@ const fs = require(`fs`)
 const dox = require('dox')
 const {logError} = require('./log')
 
+/**
+ * Parses HTML text to extract script tags and metadata. 
+ * 
+ * Returns an array of objects containing the script text, 
+ * and booleans indicating if the script is a test or sample.
+ */
 const getScripts = (text) => {
     const scripts = []
     const index = text.indexOf(`<script`)
@@ -24,22 +30,43 @@ const getScripts = (text) => {
     }
     return scripts
 }
+/**
+ * Counts the number of script objects in the provided array that have 
+ * the isTest property set to true.
+ * 
+ * @param {Object[]} scripts - Array of script objects
+ * @returns {number} The number of test scripts
+ */
 const getTestCount = (scripts) => {
     let testCount = 0
 
-    for (let script of scripts) { if (script.isTest) { testCount++ }}
+    for (let script of scripts) { if (script.isTest) { testCount++ } }
     return testCount
 }
+/**
+ * Counts the number of script objects in the provided array that have
+ * the isSample property set to true.
+ *
+ * @param {Object[]} scripts - Array of script objects  
+ * @returns {number} The number of sample scripts
+ */
 const getSampleCount = (scripts) => {
     let sampleCount = 0
 
-    for (let script of scripts) { if (script.isSample) { sampleCount++ }}
+    for (let script of scripts) { if (script.isSample) { sampleCount++ } }
     return sampleCount
 }
+/**
+ * Counts the number of script objects in the provided array that have 
+ * the isCode property set to true.
+ *
+ * @param {Object[]} scripts - Array of script objects
+ * @returns {number} The number of code scripts
+ */
 const getCodeCount = (scripts) => {
     let codeCount = 0
 
-    for (let script of scripts) { if (script.isCode) { codeCount++ }}
+    for (let script of scripts) { if (script.isCode) { codeCount++ } }
     return codeCount
 }
 
@@ -79,13 +106,29 @@ module.exports.getHTMLDoc = async (path) => {
             return
         }
 
-        const stripEmptyComments = (array, comment) => { 
-            if (0 < comment.tags.length && 0 < comment.description.full.length) { 
+        /**
+         * Removes empty comments from the provided array by checking if the 
+         * comment has tags and a non-empty description.
+         * 
+         * @param {Object[]} array - Array of comment objects 
+         * @param {Object} comment - The comment object to check
+         * @returns {Object[]} The updated array with empty comments removed
+         */
+        const stripEmptyComments = (array, comment) => {
+            if (0 < comment.tags.length && 0 < comment.description.full.length) {
                 array.push(comment)
                 return array
             }
             return array
         }
+        /**
+         * Removes unneeded fields from the comment object.
+         * 
+         * This clears out fields that are set during parsing but not needed for output.
+         * 
+         * @param {Object} comment - The comment object to update 
+         * @returns {Object} The updated comment object without unneeded fields
+         */
         const clearUnneededFields = (comment) => {
             comment.isPrivate = undefined
             comment.isConstructor = undefined
@@ -97,6 +140,15 @@ module.exports.getHTMLDoc = async (path) => {
 
             return comment
         }
+        /**
+         * Parses and evaluates a test script, returning test suite documentation.
+         * 
+         * Takes a test script string, evals it to get the test suite function, 
+         * calls the function to get the test suite object, and returns documentation 
+         * for the test suite name, description, and individual tests.
+         * 
+         * Returns null if there is an error parsing or evaluating the script.
+        */
         const readTestScript = (script) => {
             if (!script || 0 === script.trim().length) { return [] }
             try {
@@ -134,62 +186,139 @@ module.exports.getHTMLDoc = async (path) => {
     
         }
 
-        const getClassComment = (commentArray) => { 
-            for (let comment of commentArray) { if (comment.isClass) { return comment }}
+        /**
+         * Gets the class comment from an array of comments.
+         * 
+         * Loops through the provided commentArray and returns 
+         * the first comment that has isClass set to true.
+         * Returns null if no class comment is found.
+         */
+        const getClassComment = (commentArray) => {
+            for (let comment of commentArray) { if (comment.isClass) { return comment } }
             return null
         }
+        /**
+         * Gets all function comments from an array of comments. 
+         * 
+         * Loops through the provided commentArray and returns 
+         * an array containing all comments that have a tag with type "function".
+         * 
+         * @param {Object[]} commentArray - Array of comment objects to search.
+         * @returns {Object[]} Array of comment objects that have function tags.
+        */
         const getClassFunctionComments = (commentArray) => {
-             const functionComments = []
- 
-            for (let comment of commentArray) { for (let tag of comment.tags) { if (`function` === tag.type) { functionComments.push(comment) }}}
+            const functionComments = []
+
+            for (let comment of commentArray) { for (let tag of comment.tags) { if (`function` === tag.type) { functionComments.push(comment) } } }
             return functionComments
         }
+        /**
+         * Gets the variable comment from an array of comments.
+         * 
+         * Loops through the provided commentArray and returns
+         * the first comment that is for a variable.
+         * Returns null if no variable comment is found.
+         */
         const getVarComment = (commentArray) => {
-             for (let comment of commentArray) { 
-                 if (!commentHasTag(comment, `member`)) { continue }
-                 
-                 const memberName = commentHasTag(comment, `name`)
- 
-                 if (`vars` !== memberName.string) { continue }
-                 return comment
-             }
+            for (let comment of commentArray) {
+                if (!commentHasTag(comment, `member`)) { continue }
+
+                const memberName = commentHasTag(comment, `name`)
+
+                if (`vars` !== memberName.string) { continue }
+                return comment
+            }
             return null
         }
+        /**
+         * Gets the prop comment from an array of comments.
+         * 
+         * Loops through the provided commentArray and returns
+         * the first comment for a prop. 
+         * Returns null if no prop comment is found.
+         */
         const getPropComment = (commentArray) => {
-             for (let comment of commentArray) { 
-                 if (!commentHasTag(comment, `member`)) { continue }
-                 
-                 const memberName = commentHasTag(comment, `name`)
- 
-                 if (`props` !== memberName.string) { continue }
-                 return comment
-             }
+            for (let comment of commentArray) {
+                if (!commentHasTag(comment, `member`)) { continue }
+
+                const memberName = commentHasTag(comment, `name`)
+
+                if (`props` !== memberName.string) { continue }
+                return comment
+            }
             return null
         }
+        /**
+         * Gets the param tags from a function comment.
+         * 
+         * Loops through the tags in the provided comment 
+         * and returns an array containing any tags of type "param".
+         * 
+         * @param {Object} comment - The function comment object to get param tags from.
+         * @returns {Object[]} Array containing the param tags.
+        */
         const getFunctionCommentParamTags = (comment) => {
             const paramTags = []
 
-           for (let tag of comment.tags) { if (`param` === tag.type) { paramTags.push(tag) }}
-           return paramTags
-       }
-       const getFunctionCommentFiresTags = (comment) => {
-            const paramTags = []
-
-            for (let tag of comment.tags) { if (`fires` === tag.type) { paramTags.push(tag) }}
+            for (let tag of comment.tags) { if (`param` === tag.type) { paramTags.push(tag) } }
             return paramTags
         }
+        /**
+         * Gets the fires tags from a function comment.
+         * 
+         * Loops through the tags in the provided comment
+         * and returns an array containing any tags of type "fires".
+         * 
+         * @param {Object} comment - The function comment object to get fires tags from.
+         * @returns {Object[]} Array containing the fires tags.
+         */
+        const getFunctionCommentFiresTags = (comment) => {
+            const paramTags = []
+
+            for (let tag of comment.tags) { if (`fires` === tag.type) { paramTags.push(tag) } }
+            return paramTags
+        }
+        /**
+         * Gets the listens tags from a function comment.
+         * 
+         * Loops through the tags in the provided comment
+         * and returns an array containing any tags of type "listens".
+         * 
+         * @param {Object} comment - The function comment object to get listens tags from.
+         * @returns {Object[]} Array containing the listens tags.
+         */
         const getFunctionCommentListensTags = (comment) => {
             const paramTags = []
 
-            for (let tag of comment.tags) { if (`listens` === tag.type) { paramTags.push(tag) }}
+            for (let tag of comment.tags) { if (`listens` === tag.type) { paramTags.push(tag) } }
             return paramTags
         }
+        /**
+         * Checks if the given comment has a tag with the specified name.
+         * 
+         * Loops through the tags in the provided comment and returns the tag
+         * if one exists with the given tagName. Returns false if no match found.
+         * 
+         * @param {Object} comment - The comment object to check.
+         * @param {string} tagName - The tag name to look for.
+         * @returns {Object|boolean} The tag object if found, false otherwise.
+         */
         const commentHasTag = (comment, tagName) => {
-            for (let tag of comment.tags) { if (tagName === tag.type) { return tag }}
+            for (let tag of comment.tags) { if (tagName === tag.type) { return tag } }
             return false
         }
+        /**
+         * Gets the value of the tag with the given tagName from the comment.
+         * 
+         * Loops through the tags in the provided comment and returns the string value
+         * of the first tag that matches the provided tagName. Returns null if no match.
+         * 
+         * @param {Object} comment - The comment object to search.
+         * @param {string} tagName - The tag name to look for.
+         * @returns {string|null} The string value of the matching tag, or null.
+         */
         const getTagValue = (comment, tagName) => {
-            for (let tag of comment.tags) { if (tagName === tag.type) { return tag.string }}
+            for (let tag of comment.tags) { if (tagName === tag.type) { return tag.string } }
             return null
         }
         const classComment = getClassComment(docs)

@@ -7,11 +7,16 @@ const fs = require(`fs`)
 const cache = new Map()
 
 module.exports = (entry) => {
+    /**
+     * Handles file stripping requests. Accepts requests to strip tests, docs, 
+     * and/or samples from a file before returning the contents. Caches results
+     * for improved performance on subsequent requests.
+     */
     return async (req, res, next) => {
         log(entry)
 
-        if (cache.has(req.url)) { 
-            const chechedText = cache.get(req.url) 
+        if (cache.has(req.url)) {
+            const chechedText = cache.get(req.url)
 
             res.status(200).send(chechedText).end()
             return
@@ -21,29 +26,29 @@ module.exports = (entry) => {
         let doStripDocs = false
         let doStripSamples = false
         let url = req.url
-        
-        if (url.startsWith(`/strip-tests-docs`)) { 
+
+        if (url.startsWith(`/strip-tests-docs`)) {
             url = url.replace(`/strip-tests-docs`, `./src`)
             doStripTests = true
             doStripDocs = true
-        } else if (url.startsWith(`/strip-tests-samples`)) { 
+        } else if (url.startsWith(`/strip-tests-samples`)) {
             url = url.replace(`/strip-tests-samples`, `./src`)
             doStripTests = true
             doStripSamples = true
-        } else if (url.startsWith(`/strip-docs-samples`)) { 
+        } else if (url.startsWith(`/strip-docs-samples`)) {
             url = url.replace(`/strip-docs-samples`, `./src`)
             doStripDocs = true
             doStripSamples = true
-        } else if (url.startsWith(`/strip-tests`)) { 
+        } else if (url.startsWith(`/strip-tests`)) {
             url = url.replace(`/strip-tests`, `./src`)
             doStripTests = true
-        } else if (url.startsWith(`/strip-docs`)) { 
+        } else if (url.startsWith(`/strip-docs`)) {
             url = url.replace(`/strip-docs`, `./src`)
             doStripDocs = true
-        } else if (url.startsWith(`/strip-samples`)) { 
+        } else if (url.startsWith(`/strip-samples`)) {
             url = url.replace(`/strip-docs`, `./src`)
             doStripSamples = true
-        } else if (url.startsWith(`/strip`)) { 
+        } else if (url.startsWith(`/strip`)) {
             url = url.replace(`/strip`, `./src`)
             doStripTests = true
             doStripDocs = true

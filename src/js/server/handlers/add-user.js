@@ -10,6 +10,14 @@ const path = require('path');
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Adds a new user to the database. 
+     * 
+     * Validates request data and authorization. Parses request body and files. 
+     * Generates new ID, filename, and record. Writes user record to database. 
+     * Moves user image file to final directory. Updates JWT with new token.
+     * Sends response with updated JWT and new user record.
+     */
     return async (req, res, next) => {
         log(entry)
 
@@ -118,7 +126,7 @@ module.exports = (entry) => {
             }
             try {
                 fs.existsSync(parseFiles.filename.filepath)
-            } catch(e) {
+            } catch (e) {
                 const err = `500 Internal Server Error`
 
                 logError(`${err}: User ${parseFiles.filename.filepath} not uploaded.`)
@@ -134,24 +142,24 @@ module.exports = (entry) => {
                 next && next(err)
                 return
             }
-    
+
             const newId = await getNewId(db, entry.args.table)
             const newFileExtension = path.extname(parseFiles.filename.originalFilename)
             const newRecordId = `${entry.args.table}:${newId}`
             const newFileName = `user${newId}${newFileExtension}`
             const newUserRecord = { userName: parseFields.userName, password: parseFields.password, roles: parseFields.roles, title: parseFields.title, name: { first: parseFields.firstName, last: parseFields.lastName }, image: newFileName }
             const createResult = await fileDBCreate(db, newRecordId, newUserRecord)
-    
+
             fileMove(parseFiles.filename.filepath, `${finalDir}/${newFileName}`, async () => {
                 const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-    
+
                 if (200 !== jwtReplaceTokenResult.status) {
                     res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)
                     next && next(jwtReplaceTokenResult.err)
                     return
                 }
 
-                let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult }}
+                let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, newRecord: createResult } }
 
                 res.status(200).send(JSON.stringify(response))
             })

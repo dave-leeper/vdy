@@ -1,15 +1,20 @@
 // ONLY USED TO SET UP A FRESH DATABASE.
-// ß start --log debug --user root --pass root memory
+// start --log debug --user root --pass root memory
 // fly apps restart vdydb
 const {fileDBCreate, fileDBSelect, fileDBQuery, fileDBDelete} = require(`./file-db-old`)
 const {logError, logInfo} = require('../utility/log')
 
 module.exports = {
-  populateDatabase: async function() {
+  /**
+   * Populates the database with initial data including admin user, 
+   * sample text, photos, news articles, reviews, etc.
+   * Async function that calls other helper functions to populate each data type.
+   */
+  populateDatabase: async function () {
     const Registry = require(`../utility/registry`)
 
     let db = Registry.get(`FileDBConnection`)
-    
+
     if (!db) {
       logError(`No DB connection found in registry.`)
       return
@@ -24,24 +29,49 @@ module.exports = {
   }
 }
 
+/**
+ * Gets the number of records in the given table in the database.
+ * @param {Object} db - The database connection object. 
+ * @param {string} table - The name of the table to get the count for.
+ * @returns {Promise<number>} A promise that resolves to the number of records.
+ */
 const getRecordCount = async (db, table) => {
-  const countResult = await fileDBQuery(db, ``, {tb: table, })
+  const countResult = await fileDBQuery(db, ``, { tb: table, })
 
   return countResult[0].result.length
 }
 
+/**
+ * Gets all data from the given table in the database.
+ * @param {Object} db - The database connection object.
+ * @param {string} table - The name of the table to get the data for. 
+ * @returns {Promise<Object[]>} A promise that resolves to the table data.
+ */
 const getTableData = async (db, table) => {
   const text = await fileDBSelect(db, table)
 
   return text
 }
 
+/**
+ * Checks if the given table in the database already has data populated.
+ * 
+ * @param {Object} db - The database connection object
+ * @param {string} table - The name of the table 
+ * @returns {Promise<boolean>} A promise that resolves to true if table has data, false otherwise.
+ */
 const isTablePopulated = async (db, table) => {
   const count = await getRecordCount(db, table)
 
   return 0 < count
 }
 
+/**
+ * Prints the record count and all data for the given table.
+ * 
+ * @param {Object} db - The database connection object
+ * @param {string} table - The name of the table
+ */
 const printRecordCountAndData = async (db, table) => {
   const count = await getRecordCount(db, table)
   const data = await getTableData(db, table)
@@ -54,6 +84,14 @@ const printRecordCountAndData = async (db, table) => {
   logInfo(output)
 }
 
+/**
+ * Populates the admin table in the database with default data.
+ * 
+ * Checks if the table already has data, deletes existing data if so, 
+ * and inserts default admin data.
+ * 
+ * @param {Object} db - The database connection object.
+ */
 const populateAdmin = async (db) => {
   const table = `admin`
   try {
@@ -61,7 +99,7 @@ const populateAdmin = async (db) => {
 
     if (populated) {
       await printRecordCountAndData(db, table)
-      return 
+      return
     }
     await fileDBDelete(db, table)
     await fileDBCreate(db, `${table}:0`, {
@@ -75,6 +113,14 @@ const populateAdmin = async (db) => {
   }
 }
 
+/**
+ * Populates the analytics table in the database with default data.
+ * 
+ * Checks if the table already has data, deletes existing data if so,
+ * and inserts default analytics data.
+ *
+ * @param {Object} db - The database connection object.
+ */
 const populateAnalytics = async (db) => {
   const table = `analytics`
   try {
@@ -82,7 +128,7 @@ const populateAnalytics = async (db) => {
 
     if (populated) {
       await printRecordCountAndData(db, table)
-      return 
+      return
     }
     await fileDBDelete(db, table)
     await fileDBCreate(db, `${table}:0`, {
@@ -103,20 +149,26 @@ const populateAnalytics = async (db) => {
   }
 }
 
+/**
+ * Populates the text table in the database with default data.
+ * 
+ * Checks if the table already has data, deletes existing data if so, 
+ * and inserts default text data for the about and reviews pages.
+ */
 const populateText = async (db) => {
   const table = `text`
   try {
     const populated = await isTablePopulated(db, table)
-    const reviewTextParagraph1 =  `A word about my service, my website is new, my service is not. The first 48 reviews were brought in from my Yelp ad and my Google Business page. `
-    const reviewTextParagraph2 =  `All of my initial reviews have been imported exactly as they were written and I'm unable to edit them. `
-    const reviewTextParagraph3 =  `As for my replies, I make mistakes, yes I'm human, so I'm able to edit my replies. `
-    const reviewTextParagraph4 =  `Thanks so much for being here and I hope you like my reviews\n\n`
-    const reviewTextParagraph5 =  `Vince`
+    const reviewTextParagraph1 = `A word about my service, my website is new, my service is not. The first 48 reviews were brought in from my Yelp ad and my Google Business page. `
+    const reviewTextParagraph2 = `All of my initial reviews have been imported exactly as they were written and I'm unable to edit them. `
+    const reviewTextParagraph3 = `As for my replies, I make mistakes, yes I'm human, so I'm able to edit my replies. `
+    const reviewTextParagraph4 = `Thanks so much for being here and I hope you like my reviews\n\n`
+    const reviewTextParagraph5 = `Vince`
     const reviewText = `${reviewTextParagraph1}${reviewTextParagraph2}${reviewTextParagraph3}${reviewTextParagraph4}${reviewTextParagraph5}`
 
     if (populated) {
       await printRecordCountAndData(db, table)
-      return 
+      return
     }
     await fileDBDelete(db, table)
     await fileDBCreate(db, `${table}:0`, {
@@ -133,6 +185,12 @@ const populateText = async (db) => {
   }
 }
 
+/**
+ * Populates the user table in the database with default admin and business owner users.
+ * 
+ * Checks if the table already has data, deletes existing data if so,
+ * and inserts default user records for admin and business owner roles.
+ */
 const populateUser = async (db) => {
   const table = `user`
   try {
@@ -140,7 +198,7 @@ const populateUser = async (db) => {
 
     if (populated) {
       await printRecordCountAndData(db, table)
-      return 
+      return
     }
     await fileDBDelete(db, table)
     await fileDBCreate(db, `${table}:0`, {
@@ -170,6 +228,12 @@ const populateUser = async (db) => {
   }
 }
 
+/**
+ * Populates the photo table in the database with default photo records.
+ * 
+ * Checks if the table already has data, deletes existing data if so,
+ * and inserts default photo records.
+ */
 const populatePhoto = async (db) => {
   const table = `photo`
   try {
@@ -177,7 +241,7 @@ const populatePhoto = async (db) => {
 
     if (populated) {
       await printRecordCountAndData(db, table)
-      return 
+      return
     }
     await fileDBDelete(db, table)
     await fileDBCreate(db, `${table}:8`, { text: `Alcantara Vineyards and Winery.`, file: `photo8.jpg` })
@@ -195,6 +259,12 @@ const populatePhoto = async (db) => {
   }
 }
 
+/**
+ * Populates the news table in the database with default news records.
+ * 
+ * Checks if the table already has data, deletes existing data if so,
+ * and inserts default news records.
+ */
 const populateNews = async (db) => {
   const table = `news`
   try {
@@ -202,7 +272,7 @@ const populateNews = async (db) => {
 
     if (populated) {
       await printRecordCountAndData(db, table)
-      return 
+      return
     }
     await fileDBDelete(db, table)
     await fileDBCreate(db, `${table}:0`, { title: `Visiting the red rocks of Sedona.`, text: `Phoenix Sky Harbor to Sedona, up to 6 passengers plus luggage for only $300 one way. Call Vince at (602) 545-8557 to schedule your trip.`, file: `news0.jpg` })

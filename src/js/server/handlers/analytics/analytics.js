@@ -5,6 +5,16 @@ const {jwtReplaceToken} = require(`../../utility/jwt-replace-token`)
 const {log, logError} = require('../../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Analytics route handler.
+     * 
+     * Authenticates request, calls DB to get analytics data, 
+     * replaces JWT token, and returns response.
+     * 
+     * @param {Object} req - Express request object 
+     * @param {Object} res - Express response object
+     * @param {Function} next - Express next middleware function
+     */
     return async (req, res, next) => {
         log(entry)
 
@@ -29,7 +39,7 @@ module.exports = (entry) => {
 
         const result = await fileDBSelect(db, `analytics`)
         const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-        const response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: result }}
+        const response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: result } }
 
         if (200 !== jwtReplaceTokenResult.status) {
             res.status(jwtReplaceTokenResult.status).send(jwtReplaceTokenResult.err)

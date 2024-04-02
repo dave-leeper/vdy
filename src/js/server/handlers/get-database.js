@@ -5,6 +5,12 @@ const {jwtValidation} = require(`../utility/jwt-validation`)
 const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
 
 module.exports = (entry) => {
+    /**
+     * Handler for GET database endpoint. 
+     * 
+     * Authenticates request, gets database collections from file DB, 
+     * replaces JWT token, and returns response with new JWT token and database payload.
+     */
     return async (req, res, next) => {
         log(entry)
 
@@ -35,9 +41,9 @@ module.exports = (entry) => {
         const review = await fileDBSelect(db, `review`)
         const text = await fileDBSelect(db, `text`)
         const user = await fileDBSelect(db, `user`)
-        const database = { admin, analytics, news, photo, quote, reservation, review, text, user}
+        const database = { admin, analytics, news, photo, quote, reservation, review, text, user }
         const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, database }}
+        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { status: 200, database } }
 
         res.send(JSON.stringify(response))
         next && next()

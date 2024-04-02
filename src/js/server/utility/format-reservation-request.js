@@ -1,5 +1,23 @@
 const {logError} = require('./log')
 
+/**
+ * Validates a reservation request JSON payload and formats it into a 
+ * plain text summary.
+ * 
+ * Returns an object with status code and text:
+ * - 200 and text summary if validation succeeds.
+ * - 400 and error message if validation fails.
+ * 
+ * Validates presence of required fields like date, time, names, etc.
+ * Logs and returns error on any validation failure.
+ * 
+ * Formats the JSON into a plain text summary with sections:
+ * - Date, time 
+ * - Name, phone
+ * - Pickup location details 
+ * - Dropoff location details
+ * - Any special instructions
+*/
 module.exports = (json) => {
     let err = `400 Bad Request`
     let text = ``
@@ -35,7 +53,7 @@ module.exports = (json) => {
     text += `Phone: ${json.mobileNumber}\n`
     if (!json.pickupLocation) {
         err += `: Must provide pickup information.`
-        logError(`${err}` )
+        logError(`${err}`)
         return { status: 400, text: `Must provide pickup information.` }
     }
     text += `Customer Type: ${json.customerType}\n`
@@ -136,7 +154,7 @@ module.exports = (json) => {
         text += `Airport: ${json.dropoffLocation.airport}\n`
         text += `Airline: ${json.dropoffLocation.airline}\n`
     }
-    if (json.specialInstructions) { text += `\nSpecial Instructions: ${json.specialInstructions}\n`}
+    if (json.specialInstructions) { text += `\nSpecial Instructions: ${json.specialInstructions}\n` }
 
     return { status: 200, text }
 }

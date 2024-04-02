@@ -4,6 +4,13 @@ const {jwtCreate} = require(`../utility/jwt-create`)
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Login handler. Validates user credentials and returns a JWT token on success.
+     * 
+     * @param {Object} req - Express request object 
+     * @param {Object} res - Express response object
+     * @param {Function} next - Express next middleware function
+     */
     return async (req, res, next) => {
         log(entry)
 
@@ -29,7 +36,7 @@ module.exports = (entry) => {
             return
         }
 
-        const queryOptions = { tb: `user`}
+        const queryOptions = { tb: `user` }
         const queryResult = await fileDBQuery(null, null, queryOptions)
         const recordsFound = queryResult[0]?.result?.length
 

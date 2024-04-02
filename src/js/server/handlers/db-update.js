@@ -5,6 +5,14 @@ const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Handles database update requests by validating JWT token, preprocessing request, 
+     * validating request, updating database, postprocessing response, and refreshing JWT token.
+     * 
+     * @param {Object} req - Express request object 
+     * @param {Object} res - Express response object
+     * @param {Function} next - Express next middleware function
+    */
     return async (req, res, next) => {
         log(entry)
 
@@ -48,7 +56,7 @@ module.exports = (entry) => {
         let processedRequest = originalRequest
 
         if (entry.args.preprocessor) {
-            const {preprocessor} = require(entry.args.preprocessor)
+            const { preprocessor } = require(entry.args.preprocessor)
             const preprocessorResult = await preprocessor(originalRequest)
 
             if (200 !== preprocessorResult.status) {
@@ -58,11 +66,11 @@ module.exports = (entry) => {
                 return
             } else {
                 processedRequest = preprocessorResult.processedRequest
-            } 
+            }
         }
 
         if (entry.args.validator) {
-            const {validator} = require(entry.args.validator)
+            const { validator } = require(entry.args.validator)
             const validatorResult = await validator(processedRequest)
 
             if (200 !== validatorResult.status) {
@@ -70,7 +78,7 @@ module.exports = (entry) => {
                 res.status(validatorResult.status).send(validatorResult.err)
                 next && next(validatorResult.err)
                 return
-            }    
+            }
         }
 
         const result = await fileDBChange(db, processedRequest.id, processedRequest)
@@ -83,7 +91,7 @@ module.exports = (entry) => {
         }
 
         if (entry.args.postprocessor) {
-            const {postprocessor} = require(entry.args.postprocessor)
+            const { postprocessor } = require(entry.args.postprocessor)
             const postprocessorResult = await postprocessor(originalRequest, processedRequest, response)
 
             if (200 !== postprocessorResult.status) {
@@ -93,11 +101,11 @@ module.exports = (entry) => {
                 return
             } else {
                 response = postprocessorResult.newResponse
-            } 
+            }
         }
 
         const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
-        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` }}
+        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` } }
 
         if (200 !== jwtReplaceTokenResult.status) {
             logError(`Status ${jwtReplaceTokenResult.status}: Error refreshing JWT token.`)

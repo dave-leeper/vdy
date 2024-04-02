@@ -5,13 +5,20 @@ const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Adds a new reply to the reviews database. 
+     * Validates JWT auth token and request body. 
+     * Increments reply count, generates new ID, sets date.
+     * Updates JWT with new token. 
+     * Returns response with new ID.
+    */
     return async (req, res, next) => {
         log(entry)
 
         const db = Registry.get(`FileDBConnection`)
         const authorizationHeader = req.get(`Authorization`)
         const reply = req.body
-        
+
         if (!db) {
             const err = `503 Service Unavailable`
             const result = { status: 503, err }
@@ -48,12 +55,12 @@ module.exports = (entry) => {
             return
         }
 
-        const countResult = await fileDBQuery(db, ``, {tb: `review`, })
+        const countResult = await fileDBQuery(db, ``, { tb: `review`, })
         const replyCount = countResult[0].result.length
         const newReplyId = `review:${replyCount + 1}`
         const date = new Date();
         const today = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
-        
+
         reply.date = today
         await fileDBCreate(db, newReplyId, reply)
 
@@ -65,7 +72,7 @@ module.exports = (entry) => {
             return
         }
 
-        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { newId: newReplyId }}
+        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { newId: newReplyId } }
         res.status(200).send(JSON.stringify(response))
         next && next()
     }

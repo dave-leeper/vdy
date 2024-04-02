@@ -1,4 +1,11 @@
 class SlotManager {
+    /**
+     * Checks if a slot with the given ID is present in the DOM for the given component ID.
+     * 
+     * @param {string} forComponentId - The ID of the component to check.
+     * @param {string} slotId - The ID of the slot to check for.
+     * @returns {boolean} - Whether the slot is present in the component's DOM.
+     */
     static isSlotted = (forComponentId, slotId) => {
         const componentElement = document.getElementById(forComponentId)
 
@@ -13,6 +20,13 @@ class SlotManager {
 
         return true
     }
+    /**
+     * Gets the DOM element for the slot with the given ID in the component with the given ID.
+     * 
+     * @param {string} forComponentId - The ID of the component to get the slot from.
+     * @param {string} slotId - The ID of the slot to get.
+     * @returns {Element|null} The DOM element for the slot, or null if not found.
+     */
     static getSlot = (forComponentId, slotId) => {
         const componentElement = document.getElementById(forComponentId)
 
@@ -30,6 +44,19 @@ class SlotManager {
 
         return componentSlot
     }
+    /**
+     * Moves the content from a slot element into a component's shadow DOM slot.
+     * 
+     * Moves all child elements from the slotContentElement into the componentSlotElement
+     * in the component's shadow DOM, preserving their relative order. Handles inserting
+     * slot marker elements before and after the moved content. Removes the original 
+     * slotContentElement after moving its children.
+     * 
+     * @param {Object} component - The component instance to move the slot content into.
+     * @param {Element} slotContentElement - The element containing the content to move.
+     * @param {Element} componentSlotElement - The shadow DOM slot element to move the content into.
+     * @returns {boolean} - True if the move was successful, false otherwise.
+     */
     static moveSlotContentToComponent = (component, slotContentElement, componentSlotElement) => {
         if (0 === slotContentElement.children.length) {
             console.error(`moveSlotContentToComponent: Slot content element has no children.`)
@@ -80,6 +107,10 @@ class SlotManager {
         }
         component?.afterSlotLoaded(slotName)
     }
+    /**
+     * Loads slot content from all <slot-markup> elements in the DOM. 
+     * Iterates through all <slot-markup> elements, calls loadSlot() on each one.
+     */
     static loadSlots() {
         let slotMarkupElements = document.querySelectorAll('slot-markup')
 
@@ -87,6 +118,12 @@ class SlotManager {
             SlotManager.loadSlot(slotContent)
         }
     }
+    /**
+     * Unslots the content from the slot with the given ID.
+     * Finds the begin and end markers for the slot, removes the content
+     * between them, and replaces the slot element with a new empty one.
+     * Calls beforeSlotUnloaded and afterSlotUnloaded on the component.
+     */
     static unslot = (slotId) => {
         const beginMarkerId = `-SlotBeginMarker${slotId}`
         const beginMarker = document.getElementById(beginMarkerId)

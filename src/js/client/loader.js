@@ -1,5 +1,28 @@
 
+/**
+ * Loader contains static methods and properties related to loading components and files.
+ * 
+ * It handles loading and caching files, processing include-html tags, registering 
+ * components and fragments, creating component instances, and mounting components.
+ * 
+ * Key methods:
+ * - loadFile: Loads a file, handling caching and modifying the filename.
+ * - updateIncludeTree: Updates the tree tracking include dependencies.
+ * - validateIncludeAttributes: Validates attributes on an include tag.
+ * - loadInclude: Loads a single include tag.
+ * - loadIncludes: Loads all include tags sequentially.
+ * - registerChildComponents: Registers child components for a component class.
+ * - registerSlots: Registers slots for a component class.  
+ * - addChildComponentGettersToComponentObject: Adds getters for child components.
+ * - getClassName: Parses the class name from a fragment.
+ * - loadIncludeComponent: Loads an included component.
+ * - registerCustomTags: Registers custom HTML tags.
+ */
 class Loader {
+    /**
+     * msgs is an object containing constant string messages 
+     * used for providing notification of key loader events.
+     */
     static msgs = {
         INCLUDES_LOADED: `INCLUDES_LOADED`,
         SITE_LOADED: `SITE_LOADED`
@@ -393,7 +416,7 @@ class Loader {
         await Queue.broadcast(Loader.msgs.INCLUDES_LOADED, {})
         return
     }
-    static registerCustomTags () {
+    static registerCustomTags() {
         // * The include-html tag can include a file containing HTML into another HTML document. The HTML to be
         // included can be a normal HTML snippet, or can be an HTML component. 
         // * In both cases the include-src attribute is used to provide the location of the file to be included.
@@ -410,7 +433,7 @@ class Loader {
         // the data-id attribute of the include-html.
         // The value of the id member of the object representing the component can be accessed in the HTML markup of the 
         // component in attributes or in innerText using the {id} syntax. Example: id="{id}".
-        customElements.define('include-html', class IncludeHTMLElement extends HTMLElement { }, { })
+        customElements.define('include-html', class IncludeHTMLElement extends HTMLElement { }, {})
 
         // * Defines a custom component. Custom components must contain:
         //      * A script tag which contains the javascript for a class that extends the Component class. The script
@@ -420,20 +443,20 @@ class Loader {
         // * A custom-component tag may also contain:
         //      * A test-script tag that contains testing code for the tag.
         //      * A style tag that contains CSS. This is usually CSS used by the component.
-        customElements.define('custom-component', class CustomComponentElement extends HTMLElement { }, { })
+        customElements.define('custom-component', class CustomComponentElement extends HTMLElement { }, {})
 
         // * Contains tests for the component. In normal web pages, this section will be removed from the DOM
         // when the tag is downloaded. On a testing page, the tests are executed.
-        customElements.define('test-script', class TestScriptElement extends HTMLElement { }, { })
+        customElements.define('test-script', class TestScriptElement extends HTMLElement { }, {})
 
         // * A component-markup tag contains HTML markup that defines a component. The component-markup tag can
         // only appear inside a custom-component tag.
-        customElements.define('component-markup', class ComponentMarkupElement extends HTMLElement { }, { })
+        customElements.define('component-markup', class ComponentMarkupElement extends HTMLElement { }, {})
 
         // * Slots are loaded after all incude tags have been processed.
         // * component-slot appears inside a component. It's only attribute is an id. It marks a location that can
         // accept content from a slot-markup tag.
-        customElements.define('component-slot', class ComponentSlotElement extends HTMLElement { }, { })
+        customElements.define('component-slot', class ComponentSlotElement extends HTMLElement { }, {})
 
         // * A slot-markup tag apears anywhere in the body of the page outside of a component. The slot-markup tag
         // has for-component-id and for-slot attributes that indicate which slot it's associated with. All children 
@@ -441,6 +464,6 @@ class Loader {
         // done, the empty slot-markup and the component-slot tags are removed from the document.
         // * The contents of a slot-markup tag are associated only with the DOM elements of an instance of a component.
         // They are not associated with the DOM fragment.
-        customElements.define('slot-markup', class SlotMarkupElement extends HTMLElement { }, { })
+        customElements.define('slot-markup', class SlotMarkupElement extends HTMLElement { }, {})
     }
 }

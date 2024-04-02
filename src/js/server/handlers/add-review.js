@@ -3,12 +3,20 @@ const Registry = require(`../utility/registry`)
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Adds a new review to the database.
+     * 
+     * Takes the review from the request body, assigns it an ID, 
+     * sets the date, and saves it to the database.
+     * 
+     * Returns a 200 response with the new ID.
+     */
     return async (req, res, next) => {
         log(entry)
 
         const db = Registry.get(`FileDBConnection`)
         const review = req.body
-        
+
         if (!db) {
             const err = `503 Service Unavailable`
             const result = { status: 503, err }
@@ -28,16 +36,16 @@ module.exports = (entry) => {
             return
         }
 
-        const countResult = await fileDBQuery(db, ``, {tb: `review`, })
+        const countResult = await fileDBQuery(db, ``, { tb: `review`, })
         const replyCount = countResult[0].result.length
         const newReplyId = `review:${replyCount + 1}`
         const date = new Date();
         const today = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear()
-        
+
         review.date = today
         await fileDBCreate(db, newReplyId, review)
 
-        let response = { payload: { newId: newReplyId }}
+        let response = { payload: { newId: newReplyId } }
         res.status(200).send(JSON.stringify(response))
         next && next()
     }

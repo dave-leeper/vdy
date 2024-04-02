@@ -1,3 +1,13 @@
+/**
+ * Queue provides methods for registering event listeners and broadcasting 
+ * messages to registered listeners. Listeners can be registered for 
+ * specific messages and will be called when those messages are broadcast.
+ * 
+ * Provides synchronous and asynchronous listener registration. Async listeners
+ * return promises which are awaited before continuing to call further listeners.
+ * 
+ * Listeners can be unregistered individually or all listeners can be cleared.
+ */
 class Queue {
     /**
      * Array to store event listeners.

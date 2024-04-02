@@ -6,6 +6,15 @@ const {log, logError} = require('../utility/log')
 let adminRecord = null
 
 module.exports = (entry) => {
+    /**
+     * Handles sending an email based on a request. 
+     * 
+     * Validates the request data, formats it, assigns an ID, 
+     * saves it to the database, sends the email, and updates 
+     * the admin record.
+     * 
+     * Returns 200 on success, or an error status code.
+    */
     return async (req, res, next) => {
         log(entry)
 
@@ -68,13 +77,13 @@ module.exports = (entry) => {
         }
         if (null === adminRecord) {
             try {
-                const queryResult = await fileDBQuery(db, ``, {tb: `admin`, })
+                const queryResult = await fileDBQuery(db, ``, { tb: `admin`, })
 
                 adminRecord = queryResult[0].result[0]
             } catch (e) {
                 const err = `500 Internal server error`
                 const result = { status: 500, err }
-    
+
                 logError(`${err}: Could not read admin record.`)
                 res.status(result.status).send(err)
                 next && next(err)
@@ -93,7 +102,7 @@ module.exports = (entry) => {
             const newId = await getNewId(db, tableName)
             const newRecordId = `${tableName}:${newId}`
             const newRecord = { ...json, id: newRecordId }
-            const createResult = await fileDBCreate(db, newRecordId, newRecord)                
+            const createResult = await fileDBCreate(db, newRecordId, newRecord)
         } catch (e) {
             const err = `500 Internal Server Error`
 

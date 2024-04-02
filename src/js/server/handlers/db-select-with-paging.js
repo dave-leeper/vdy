@@ -4,11 +4,19 @@ const DB = require(`../database/db`)
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Handles a database select request with pagination.
+     * 
+     * Retrieves data from the database for the given table. Applies pagination based on the 
+     * provided pageSize and page query parameters.
+     * 
+     * Returns the paginated data and total page count in the response.
+     */
     return async (req, res, next) => {
         log(entry)
 
         const db = Registry.get(`FileDBConnection`)
-        
+
         if (!db) {
             const err = `503 Service Unavailable`
             logError(`${err}: DB`)
@@ -35,7 +43,7 @@ module.exports = (entry) => {
         }
 
         const result = { data, pageCount }
-        
+
         res.send(JSON.stringify(result))
         next && next()
     }

@@ -3,6 +3,16 @@ const {getHTMLDoc} = require(`../utility/get-html-doc`)
 const {getJSDoc} = require(`../utility/get-js-doc`)
 
 module.exports = (entry) => {
+    /**
+     * Handles documentation API requests. 
+     * 
+     * Accepts a request and response object. Checks the doc query parameter to determine which document is requested. 
+     * If an HTML doc is requested, calls getHTMLDoc() to retrieve it, stringifies the result, and responds with 200.
+     * If a JS doc is requested, calls getJSDoc() to retrieve it, stringifies the result, and responds with 200.
+     * If the doc parameter is missing or an unknown type, returns a 400 error.
+     * 
+     * Any errors are passed to next() if it exists.
+    */
     return async (req, res, next) => {
         log(entry)
 
@@ -15,7 +25,7 @@ module.exports = (entry) => {
                 logError(err)
                 res.status(400).send(err)
                 next && next(err)
-                return    
+                return
             }
 
             if (doc.endsWith(`.html`)) {
@@ -25,7 +35,7 @@ module.exports = (entry) => {
 
                     res.status(200).send(HTMLDoc)
                     next && next()
-                } catch(e) { next && next(e) }
+                } catch (e) { next && next(e) }
             } else if (doc.endsWith(`.js`)) {
                 const jsDoc = await getJSDoc(doc)
 
@@ -37,7 +47,7 @@ module.exports = (entry) => {
                 logError(err)
                 res.status(400).send(err)
                 next && next(err)
-                return    
+                return
             }
         }
 

@@ -5,6 +5,15 @@ const {jwtReplaceToken} = require(`../utility/jwt-replace-token`)
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Deletes a record from the database by ID.
+     * 
+     * Validates JWT token from Authorization header.
+     * Calls fileDBDelete to delete record by ID from database.
+     * Generates new JWT token.
+     * Returns response with new JWT token and success message.
+     * Handles errors and returns appropriate status codes. 
+    */
     return async (req, res, next) => {
         log(entry)
 
@@ -48,7 +57,7 @@ module.exports = (entry) => {
         }
 
         await fileDBDelete(db, request.id)
-        
+
         const jwtReplaceTokenResult = await jwtReplaceToken(jwtValidationResult.jwtRegistryInfo)
 
         if (200 !== jwtReplaceTokenResult.status) {
@@ -57,7 +66,7 @@ module.exports = (entry) => {
             return
         }
 
-        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` }}
+        let response = { jwt: jwtReplaceTokenResult.jwt, payload: { response: `Operation completed.` } }
         res.status(200).send(JSON.stringify(response))
     }
 }

@@ -8,6 +8,16 @@ const path = require('path')
 const {log, logError} = require('../utility/log')
 
 module.exports = (entry) => {
+    /**
+     * Add a new reservation record to the database.
+     * 
+     * 1. Parse the request body as JSON.
+     * 2. Get a new unique ID for the reservation record. 
+     * 3. Construct the new record object with the ID.
+     * 4. Call fileDBCreate() to insert the record into the database.
+     * 5. Return 200 OK with the new record in the response.
+     * 6. Catch any errors, log them, and send 500 error response.
+    */
     return async (req, res, next) => {
         log(entry)
 
@@ -29,8 +39,8 @@ module.exports = (entry) => {
             const newRecordId = `${tableName}:${newId}`
             const newRecord = { ...json, id: newRecordId }
             const createResult = await fileDBCreate(db, newRecordId, newRecord)
-            let response = { payload: { status: 200, newRecord }}
-                
+            let response = { payload: { status: 200, newRecord } }
+
             res.status(200).send(JSON.stringify(response))
         } catch (e) {
             const err = `500 Internal Server Error`
